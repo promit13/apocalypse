@@ -13,6 +13,7 @@ const Controls = ({
   onPressPlay,
   onPressPause,
   onBack,
+  onDownload,
 }) => (
   <View style={styles.container}>
 
@@ -33,7 +34,7 @@ const Controls = ({
       </TouchableOpacity>
     }
     <View style={{width: 40}} />
-    <TouchableOpacity >
+    <TouchableOpacity onPress={onDownload} >
         <View style={styles.addButton} >
           <Image source={require('../img/ic_add_circle_outline_white.png')}/>
         </View>

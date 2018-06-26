@@ -4,16 +4,19 @@ import {
   Text,
   StatusBar,
 } from 'react-native';
+import RNFS from 'react-native-fs';
+
 import Header from './Header';
 import AlbumArt from './AlbumArt';
 import TrackDetails from './TrackDetails';
 import Controls from './Controls';
 import Video from 'react-native-video';
 
+
 export default class Player extends Component {
+  
   constructor(props) {
     super(props);
-
     this.state = {
       paused: true,
       totalLength: 1,
@@ -21,9 +24,18 @@ export default class Player extends Component {
       selectedTrack: 0,
       repeatOn: false,
       shuffleOn: false,
+      playingGifUrl: '',
     };
   }
+  componentDidMount() {
+    console.log(this.props);
+    this.setState({
+      playingGifUrl: this.props.gifs.exercise1.url
+    }, function() {
+      console.log( this.state.playingGifUrl);      
+    });
 
+  }
   setDuration(data) {
     // console.log(totalLength);
     this.setState({totalLength: Math.floor(data.duration)});
@@ -66,7 +78,16 @@ export default class Player extends Component {
     console.log(data);
 
   }
+  onDownload() {
+    console.log(this.props.tracks[0].audioUrl);
+    RNFS.downloadFile({fromUrl:this.props.tracks[0].audioUrl, toFile: 'cache'}).promise.then(res => {
+      console.log('done');
+      console.log(res);
+    });
+  }
   render() {
+    
+
     const track = this.props.tracks[this.state.selectedTrack];
     const video =  (
       <Video source={{uri: track.audioUrl}} // Can be a URL or a local file.
@@ -81,7 +102,7 @@ export default class Player extends Component {
       <View style={styles.container}>
         <View style={styles.containerInner} >
           
-          <AlbumArt url={track.albumArtUrl} />
+          <AlbumArt url={this.state.playingGifUrl} />
           <TrackDetails title={track.title} artist={track.artist} />
 
           <Controls
@@ -89,7 +110,9 @@ export default class Player extends Component {
             onPressPause={() => this.setState({paused: true})}
             onBack={this.onBack.bind(this)}
             onProgress={this.onProgress}
-            paused={this.state.paused}/>
+            onDownload={this.onDownload.bind(this)}
+            paused={this.state.paused}
+          />
           {video}
           
         </View>
