@@ -1,42 +1,41 @@
 import React, { Component } from 'react';
 import Player from './Player';
 
-export const GIFS = 
+export const EXERCISES = 
   {
-    exercise1: {
-      startTime: 0,
-      url: 'https://techcrunch.com/wp-content/uploads/2018/01/giphy1.gif?w=730&crop=1',
+    benchPress: {
+      imageUrl: 'https://techcrunch.com/wp-content/uploads/2018/01/giphy1.gif?w=730&crop=1',
+      videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+      title: 'Bench press',
+      subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.'
     },
-    exercise2: {
-      startTime: 5,
-      url: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
+    shoulderPress: {
+      imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
+      videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+      title: 'Shoulder press',
+      subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.'
     },
   };
 
+
 export const TRACKS = [
   {
-    title: 'Stressed Out',
-    artist: 'Twenty One Pilots',
-    albumArtUrl: "http://36.media.tumblr.com/14e9a12cd4dca7a3c3c4fe178b607d27/tumblr_nlott6SmIh1ta3rfmo1_1280.jpg",
+    title: 'Zombie training',
+    workoutImage: "https://pmcdeadline2.files.wordpress.com/2017/12/walking-dead-season-8-fall-finale.jpg?w=446&h=299&crop=1",
     audioUrl: "https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3",
-  },
-  {
-    title: 'Love Yourself',
-    artist: 'Justin Bieber',
-    albumArtUrl: "http://arrestedmotion.com/wp-content/uploads/2015/10/JB_Purpose-digital-deluxe-album-cover_lr.jpg",
-    audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
-  },
-  {
-    title: 'Hotline Bling',
-    artist: 'Drake',
-    albumArtUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Drake_-_Hotline_Bling.png',
-    audioUrl: 'http://1604ent.com/wp-content/uploads/2018/01/Drake_-_Gods_Plan_1604Ent.com.mp3',
+    exercises: {
+      benchPress: 0,
+      shoulderPress: 5,
+    },
   },
 ];
 
 export default class Play extends Component {
   render() {
-    return <Player tracks={TRACKS} gifs={GIFS} />
+    return <Player 
+      tracks={TRACKS} 
+      exercises={EXERCISES} 
+      navigation={this.props.navigation} />
   }
 }
 

@@ -11,13 +11,12 @@ import {
   Text,
   View
 } from 'react-native';
-import Play from './app/Play';
+import SignedIn from './app/config/router.js';
 
-type Props = {};
 export default class App extends Component<Props> {
   render() {
     return (
-      <Play />
+      <SignedIn navigation={this.props.navigation}/>
     );
   }
 }

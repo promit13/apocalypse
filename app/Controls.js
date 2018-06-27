@@ -17,9 +17,11 @@ const Controls = ({
 }) => (
   <View style={styles.container}>
 
-    <TouchableOpacity onPress={onBack}>
-      <Text style={styles.rewindText}> 15s </Text>
-    </TouchableOpacity>
+    { onBack && 
+      <TouchableOpacity onPress={onBack}>
+          <Text style={styles.rewindText}> 15s </Text>
+      </TouchableOpacity>
+    }
     <View style={{width: 60}} />
     {!paused ?
       <TouchableOpacity onPress={onPressPause}>
@@ -34,11 +36,13 @@ const Controls = ({
       </TouchableOpacity>
     }
     <View style={{width: 40}} />
-    <TouchableOpacity onPress={onDownload} >
-        <View style={styles.addButton} >
-          <Image source={require('../img/ic_add_circle_outline_white.png')}/>
-        </View>
+    { onDownload &&
+      <TouchableOpacity onPress={onDownload} >
+          <View style={styles.addButton} >
+            <Image source={require('../img/ic_add_circle_outline_white.png')}/>
+          </View>
       </TouchableOpacity>
+    }
   </View>
 );
 

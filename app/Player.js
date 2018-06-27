@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import {
+  AppState,
   View,
   Text,
   StatusBar,
 } from 'react-native';
-import RNFS from 'react-native-fs';
+import Video from 'react-native-video';
+import firebase from './config/firebase';
 
 import Header from './Header';
 import AlbumArt from './AlbumArt';
 import TrackDetails from './TrackDetails';
 import Controls from './Controls';
-import Video from 'react-native-video';
-
+import Exercise from './Exercise';
 
 export default class Player extends Component {
   
@@ -20,64 +21,88 @@ export default class Player extends Component {
     this.state = {
       paused: true,
       totalLength: 1,
-      currentPosition: 0,
+      currentTime: 0.0,
       selectedTrack: 0,
       repeatOn: false,
       shuffleOn: false,
-      playingGifUrl: '',
+      playingExercise: '',
     };
   }
   componentDidMount() {
-    console.log(this.props);
-    this.setState({
-      playingGifUrl: this.props.gifs.exercise1.url
-    }, function() {
-      console.log( this.state.playingGifUrl);      
-    });
-
+    // this.setState({
+    const firstExercise = Object.entries(this.props.exercises)
+      .map(([exercise, value], i) => {
+        i == 0 ? 
+          this.setState({
+            playingExercise: {name: exercise, value: value}
+          })
+          : null;
+      });
+    this.getTimeFirebase() !== 0 ? 
+      this.setState({currentTime: this.getTimeFirebase()})
+      : null;
+    this.getTimeFirebase();
   }
-  setDuration(data) {
-    // console.log(totalLength);
-    this.setState({totalLength: Math.floor(data.duration)});
-  }
-
   setTime(data) {
-    //console.log(data);
     this.setState({currentPosition: Math.floor(data.currentTime)});
   }
 
-  seek(time) {
-    time = Math.round(time);
-    this.refs.audioElement && this.refs.audioElement.seek(time);
-    this.setState({
-      currentPosition: time,
-      paused: false,
+  onBack() {
+    firebase.database().ref(`videos/example`).set({
+      timeStamp: this.state.currentTime,
     });
   }
-
-  onBack() {
-    if (this.state.currentPosition < 10 && this.state.selectedTrack > 0) {
-      this.refs.audioElement && this.refs.audioElement.seek(0);
-      this.setState({ isChanging: true });
-      setTimeout(() => this.setState({
-        currentPosition: this.state.currentPosition - 15,
-        paused: false,
-        totalLength: 1,
-        isChanging: false,
-        selectedTrack: this.state.selectedTrack - 1,
-      }), 0);
-    } else {
-      this.refs.audioElement.seek(0);
-      this.setState({
-        currentPosition: 0,
-      });
+  onPressPause() {
+    this.setState({paused: true})
+    firebase.database().ref(`videos/example`).set({
+      timeStamp: this.state.currentTime,
+    });
+  }
+  setTimeFirebase() {
+    firebase.database().ref(`videos/example`).set({
+      timeStamp: this.state.currentTime,
+    });
+  }
+  getTimeFirebase() {
+    firebase.database().ref('videos/example').on(
+    'value', (snapshot) => {
+        return snapshot.val()
+        console.log(snapshot.val());
+      }, (error) => {
+        console.log(error);
+      },
+    );
+  }
+  onExercisePress() {
+    this.props.navigation.navigate('Exercise', {exercise: this.state.playingExercise});
+    this.setState({paused: true})
+    firebase.database().ref(`videos/example`).set({
+      timeStamp: this.state.currentTime,
+    });
+  }
+  
+  onAppStateChange = (nextAppState) => {
+    if (nextAppState === 'background') {
+      console.log('App has come to the foreground!')
     }
-  }
-
-  onProgress(data) {
-    console.log(data);
 
   }
+  onProgress = (data) => {
+    this.setState({ currentTime: data.currentTime });
+    AppState.addEventListener('change', state => {
+        if (state === 'background') {
+          this.setTimeFirebase();
+        }
+      });
+    
+  };
+
+  onLoad = (data) => {
+    const setTime = firebase.database().ref('videos').push();
+    this.setState({ totalLength: data.duration });
+    
+    
+  };
   onDownload() {
     console.log(this.props.tracks[0].audioUrl);
     RNFS.downloadFile({fromUrl:this.props.tracks[0].audioUrl, toFile: 'cache'}).promise.then(res => {
@@ -85,34 +110,46 @@ export default class Player extends Component {
       console.log(res);
     });
   }
-  render() {
-    
 
+  onPressPlay() {
+    
+    this.setState({paused: false});
+
+  }
+  render() {
     const track = this.props.tracks[this.state.selectedTrack];
     const video =  (
       <Video source={{uri: track.audioUrl}} // Can be a URL or a local file.
-        ref="audioElement"
+        ref={(ref: Video) => { this.video = ref }}
         paused={this.state.paused}               // Pauses playback entirely.
         resizeMode="cover"           // Fill the whole screen at aspect ratio.
         playInBackground={true}
+        onLoad={this.onLoad}
+        onProgress={this.onProgress}
+        progressUpdateInterval={1000.0}
         style={styles.audioElement} />
     );
 
     return (
       <View style={styles.container}>
-        <View style={styles.containerInner} >
-          
-          <AlbumArt url={this.state.playingGifUrl} />
-          <TrackDetails title={track.title} artist={track.artist} />
-
+        <View style={styles.containerInner} >     
+          <AlbumArt 
+            url={
+              this.props.currentExercise ? 
+                this.props.currentExercise.value.imageUrl :
+                track.workoutImage
+            }
+            onPress={this.onExercisePress.bind(this)}
+           />
           <Controls
-            onPressPlay={() => this.setState({paused: false})}
-            onPressPause={() => this.setState({paused: true})}
+            onPressPlay={this.onPressPlay.bind(this)}
+            onPressPause={this.onPressPause.bind(this) }
             onBack={this.onBack.bind(this)}
-            onProgress={this.onProgress}
             onDownload={this.onDownload.bind(this)}
             paused={this.state.paused}
           />
+          <TrackDetails title={track.title} artist={this.state.playingExercise.name } />
+
           {video}
           
         </View>
