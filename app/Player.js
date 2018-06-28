@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import {
+  ActivityIndicator,
   AppState,
-  View,
-  Text,
   StatusBar,
+  Text,
+  View,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from './config/firebase';
@@ -19,6 +20,7 @@ export default class Player extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       paused: true,
       totalLength: 1,
       currentTime: 0.0,
@@ -27,6 +29,7 @@ export default class Player extends Component {
       shuffleOn: false,
       playingExercise: '',
     };
+    this.getTimeFirebase = this.getTimeFirebase.bind(this);
   }
   componentDidMount() {
     // this.setState({
@@ -42,21 +45,34 @@ export default class Player extends Component {
       this.setState({currentTime: this.getTimeFirebase()})
       : null;
     this.getTimeFirebase();
+
+
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.currentTime > 0) {
+      console.log(prevState.currentTime);
+      this.changeExercises;
+    }
   }
   setTime(data) {
     this.setState({currentPosition: Math.floor(data.currentTime)});
   }
-
+  getCurrentTimeInMs = (time) => {
+    return parseInt(time, 10);
+  }
   onBack() {
-    firebase.database().ref(`videos/example`).set({
-      timeStamp: this.state.currentTime,
-    });
+    const SEEK_BEHIND = 15;
+    this.setState({currentTime: this.state.currentTime - SEEK_BEHIND});
+    this.player.seek(this.state.currentTime - SEEK_BEHIND, 10);
+
   }
   onPressPause() {
     this.setState({paused: true})
     firebase.database().ref(`videos/example`).set({
       timeStamp: this.state.currentTime,
     });
+    this.changeExercises();
+
   }
   setTimeFirebase() {
     firebase.database().ref(`videos/example`).set({
@@ -67,11 +83,24 @@ export default class Player extends Component {
     firebase.database().ref('videos/example').on(
     'value', (snapshot) => {
         return snapshot.val()
-        console.log(snapshot.val());
       }, (error) => {
         console.log(error);
       },
     );
+  }
+  changeExercises() {
+    const exercises = Object.entries(this.props.exercises).map(([key, value], i) => {
+      console.log(value.start, this.state.currentTime);
+      if (this.state.currentTime > value.start ) {
+        this.setState({
+          playingExercise: {
+            name: key,
+            value: value,
+          }
+        }, function() {
+        })
+      }
+    });
   }
   onExercisePress() {
     this.props.navigation.navigate('Exercise', {exercise: this.state.playingExercise});
@@ -98,9 +127,19 @@ export default class Player extends Component {
   };
 
   onLoad = (data) => {
-    const setTime = firebase.database().ref('videos').push();
     this.setState({ totalLength: data.duration });
-    
+    const firebaseTime = firebase.database().ref('videos/example').on('value', (snapshot) => {
+      this.setState({currentTime: this.getCurrentTimeInMs(snapshot.val().timeStamp)}, 
+        function() {
+          this.changeExercises();
+          this.player.seek(this.state.currentTime, 10);
+        })
+      }, (error) => {
+        console.log(error);
+      },
+    );
+    this.setState({loading: false});
+
     
   };
   onDownload() {
@@ -120,13 +159,15 @@ export default class Player extends Component {
     const track = this.props.tracks[this.state.selectedTrack];
     const video =  (
       <Video source={{uri: track.audioUrl}} // Can be a URL or a local file.
-        ref={(ref: Video) => { this.video = ref }}
+        ref={(ref) => {
+          this.player = ref
+        }} 
+        progressUpdateInterval={1000.0}
         paused={this.state.paused}               // Pauses playback entirely.
         resizeMode="cover"           // Fill the whole screen at aspect ratio.
         playInBackground={true}
         onLoad={this.onLoad}
         onProgress={this.onProgress}
-        progressUpdateInterval={1000.0}
         style={styles.audioElement} />
     );
 
@@ -135,21 +176,30 @@ export default class Player extends Component {
         <View style={styles.containerInner} >     
           <AlbumArt 
             url={
-              this.props.currentExercise ? 
-                this.props.currentExercise.value.imageUrl :
+              this.state.playingExercise ? 
+                this.state.playingExercise.value.imageUrl :
                 track.workoutImage
             }
             onPress={this.onExercisePress.bind(this)}
            />
-          <Controls
-            onPressPlay={this.onPressPlay.bind(this)}
-            onPressPause={this.onPressPause.bind(this) }
-            onBack={this.onBack.bind(this)}
-            onDownload={this.onDownload.bind(this)}
-            paused={this.state.paused}
-          />
-          <TrackDetails title={track.title} artist={this.state.playingExercise.name } />
-
+          { this.state.loading ? 
+            <ActivityIndicator size="large" color="white" style={styles.loading} /> :
+            <View>
+             <Controls
+                onPressPlay={this.onPressPlay.bind(this)}
+                onPressPause={this.onPressPause.bind(this) }
+                onBack={this.onBack.bind(this)}
+                onDownload={this.onDownload.bind(this)}
+                paused={this.state.paused}
+              />
+              <TrackDetails title={track.title} artist={this.state.playingExercise.name } />
+              <Text style={styles.text}>
+                { !isNaN(this.state.currentTime) || this.state.currentTime < 0 ? `${parseInt(this.state.currentTime, 10)}s` : '0s' } / 
+                { `${parseInt(this.state.totalLength, 10)}s` }
+              </Text> 
+            </View>
+          }
+          
           {video}
           
         </View>
@@ -168,6 +218,11 @@ const styles = {
   },
   text: {
     color: 'white',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  loading: {
+    marginTop: 30,
   },
   audioElement: {
     height: 0,
