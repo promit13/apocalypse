@@ -1,24 +1,67 @@
+import { createStackNavigator, createBottomTabNavigator, StackNavigator } from 'react-navigation';
 import React from 'react';
-import { createStackNavigator } from 'react-navigation';
+import { Text, View } from 'react-native';
+import Login from '../Login';
+import Play from '../Play';
+import UserEdit from '../User/UserEdit';
+import EpisodeSingle from '../Episodes/EpisodeSingle';
+import EpisodeList from '../Episodes/EpisodeList';
+import Exercise from '../Exercise';
 
-import Play from './../Play';
-import Exercise from './../Exercise';
+export const SignedOut = createStackNavigator({
+  Login: {
+    screen: Login,
+    title: 'Login',
+    navigationOptions: () => ({
+      title: 'Login',
+      headerTransparent: true,
+      headerTitleStyle: {
+        color: 'white',
+      },
+    }),
+  },
+});
+export const SignedIn = createBottomTabNavigator({
+  Profile: { screen: UserEdit },
+  Episode: {
+    screen: StackNavigator({
+      Session: { screen: EpisodeList },
+      EpisodeSingle: { screen: EpisodeSingle },
+      Exercise: { screen: Exercise },
+    }),
+    navigationOptions: () => ({
+      title: 'Exercise',
+      headerTransparent: true,
+      headerTitleStyle: {
+        color: 'white',
+      },
+    }),
+  },
+}, {
+  initialRouteName: 'Profile',
 
-export default SignedIn = createStackNavigator({
+  tabBarOptions: {
+    activeTintColor: 'black',
+    inactiveTintColor: '#3e2465',
+    activeBackgroundColor: '#694fad',
+  },
+});
+
+export const PlayerFlow = createStackNavigator({
   Home: {
     screen: Play,
     title: 'Play',
-    navigationOptions: ({ navigation }) => ({
+    navigationOptions: () => ({
       title: 'Player',
       headerTransparent: true,
       headerTitleStyle: {
-      	color: 'white'
-      }
+        color: 'white',
+      },
     }),
   },
   Exercise: {
     screen: Exercise,
-    navigationOptions: ({ navigation }) => ({
+    navigationOptions: () => ({
       title: 'Exercise',
     }),
   },

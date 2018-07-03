@@ -1,41 +1,38 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+import React from 'react';
+import { Text } from 'react-native';
+import Loading from './app/common/Loading';
+import firebase from './app/config/firebase';
+import { SignedIn, SignedOut } from './app/config/router';
 
-import React, { Component } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-import SignedIn from './app/config/router.js';
 
-export default class App extends Component<Props> {
+export default class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      loading: true,
+    };
+  }
+
+  componentDidMount() {
+    this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+      this.setState({
+        loading: false,
+        user,
+      });
+    });
+  }
+
+  componentWillUnmount() {
+    this.authSubscription();
+  }
+
   render() {
-    return (
-      <SignedIn navigation={this.props.navigation}/>
-    );
+    // The application is initialising
+    if (this.state.loading) return <Loading />;
+    // The user is an Object, so they're logged in
+    if (this.state.user) {
+      return <SignedIn screenProps={{ user: this.state.user }} />;
+    } return <SignedOut />;
+
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});

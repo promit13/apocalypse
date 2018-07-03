@@ -2,21 +2,19 @@ import React, { Component } from 'react';
 import {
   ActivityIndicator,
   AppState,
-  StatusBar,
   Text,
   View,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from './config/firebase';
 
-import Header from './Header';
-import AlbumArt from './AlbumArt';
-import TrackDetails from './TrackDetails';
-import Controls from './Controls';
-import Exercise from './Exercise';
 
-export default class Player extends Component {
-  
+import AlbumArt from './common/AlbumArt';
+import TrackDetails from './common/TrackDetails';
+import Controls from './common/Controls';
+
+
+export default class EpisodeSingle extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -25,8 +23,6 @@ export default class Player extends Component {
       totalLength: 1,
       currentTime: 0.0,
       selectedTrack: 0,
-      repeatOn: false,
-      shuffleOn: false,
       playingExercise: '',
     };
     this.getTimeFirebase = this.getTimeFirebase.bind(this);
@@ -227,5 +223,5 @@ const styles = {
   audioElement: {
     height: 0,
     width: 0,
-  }
+  },
 };

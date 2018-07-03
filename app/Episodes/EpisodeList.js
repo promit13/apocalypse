@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
-import EpisodeSingle from './Episodes/EpisodeSingle';
+import React from 'react';
+import { ScrollView, Text, Button } from 'react-native';
+import { ListItem } from 'react-native-elements'
 
-export const EXERCISES = 
+export const EXERCISES =
   {
     benchPress: {
       imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
@@ -29,15 +30,56 @@ export const TRACKS = [
       shoulderPress: 5,
     },
   },
+  {
+    title: 'Apocalypse monkeys',
+    audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
+    exercises: {
+      benchPress: 0,
+      shoulderPress: 5,
+    },
+  },
+  {
+    title: 'Giant squids',
+    audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
+    exercises: {
+      benchPress: 0,
+      shoulderPress: 5,
+    },
+  },
 ];
 
-export default class Play extends Component {
+export default class Play extends React.Component {
+  constructor() {
+    super();
+  }
+
+
+
   render() {
+    const episodes = Object.entries(TRACKS).map(([key, value], i) => {
+      return (
+        <ListItem
+          key={i}
+          title={value.title}
+          onPress={() => {
+            this.props.navigation.navigate('EpisodeSingle', {
+              tracks: TRACKS,
+              exercises: EXERCISES,
+            })
+          }}
+        />
+      );
+    });
     return (
-      <EpisodeSingle
-        tracks={TRACKS}
-        exercises={EXERCISES}
-        navigation={this.props.navigation} />
+      <ScrollView>
+        { episodes }
+        <Button 
+          title="Navigate"
+          onPress={() => {
+            this.props.navigation.navigate('EpisodeSingle')
+            }}
+        />
+      </ScrollView>
     );
   }
 }

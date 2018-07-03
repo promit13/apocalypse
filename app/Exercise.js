@@ -1,74 +1,11 @@
 import React, { Component } from 'react';
 import {
   View,
-  Text,
-  StatusBar,
 } from 'react-native';
 import Video from 'react-native-video';
-import Controls from './Controls';
-import TrackDetails from './TrackDetails';
+import Controls from './common/Controls';
+import TrackDetails from './common/TrackDetails';
 
-
-export default class Exercise extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      paused: true,
-      totalLength: 1,
-      currentTime: 0.0,
-    };
-
-  }
-
-  setDuration(data) {
-    // console.log(totalLength);
-    this.setState({totalLength: Math.floor(data.duration)});
-  }
-
-  setTime(data) {
-    //console.log(data);
-    this.setState({currentPosition: Math.floor(data.currentTime)});
-  }
-
-  seek(time) {
-    time = Math.round(time);
-    this.refs.audioElement && this.refs.audioElement.seek(time);
-    this.setState({
-      currentPosition: time,
-      paused: false,
-    });
-    this.player.seek(0)
-
-  }
-
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.containerInner} >
-          <Video source={{uri: this.props.navigation.state.params.exercise.value.videoUrl}} // Can be a URL or a local file.
-          ref="audioElement"
-          paused={this.state.paused}               // Pauses playback entirely.
-          resizeMode="cover"           // Fill the whole screen at aspect ratio.
-          playInBackground={false}
-          style={styles.backgroundVideo} 
-          />
-          
-          <Controls
-            onPressPlay={() => this.setState({paused: false})}
-            onPressPause={() => this.setState({paused: true})}
-            paused={this.state.paused}
-          />
-          <TrackDetails 
-            title={this.props.navigation.state.params.exercise.value.title} 
-            artist={this.props.navigation.state.params.exercise.value.subtitle}
-          />
-
-        </View>
-      </View>
-    );
-  }
-}
 
 const styles = {
   backgroundVideo: {
@@ -92,5 +29,44 @@ const styles = {
   audioElement: {
     height: 0,
     width: 0,
-  }
+  },
 };
+
+
+export default class Exercise extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      paused: true,
+    };
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <View style={styles.containerInner}>
+          <Video
+            source={{
+              uri: this.props.navigation.state.params.exercise.value.videoUrl,
+            }}
+            ref={(c) => { this.video = c; }}
+            paused={this.state.paused}
+            resizeMode="cover"
+            playInBackground={false}
+            style={styles.backgroundVideo}
+          />
+          <Controls
+            onPressPlay={() => this.setState({ paused: false })}
+            onPressPause={() => this.setState({ paused: true })}
+            paused={this.state.paused}
+          />
+          <TrackDetails
+            title={this.props.navigation.state.params.exercise.value.title}
+            artist={this.props.navigation.state.params.exercise.value.subtitle}
+          />
+
+        </View>
+      </View>
+    );
+  }
+}
