@@ -62,7 +62,7 @@ export default class Play extends React.Component {
           key={i}
           title={value.title}
           onPress={() => {
-            this.props.navigation.navigate('EpisodeSingle', {
+            this.props.navigation.navigate('EpisodeView', {
               tracks: TRACKS,
               exercises: EXERCISES,
             })
@@ -73,12 +73,6 @@ export default class Play extends React.Component {
     return (
       <ScrollView>
         { episodes }
-        <Button 
-          title="Navigate"
-          onPress={() => {
-            this.props.navigation.navigate('EpisodeSingle')
-            }}
-        />
       </ScrollView>
     );
   }

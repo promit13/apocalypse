@@ -6,6 +6,7 @@ import Play from '../Play';
 import UserEdit from '../User/UserEdit';
 import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
+import EpisodeView from '../Episodes/EpisodeView';
 import Exercise from '../Exercise';
 
 export const SignedOut = createStackNavigator({
@@ -25,20 +26,21 @@ export const SignedIn = createBottomTabNavigator({
   Profile: { screen: UserEdit },
   Episode: {
     screen: StackNavigator({
-      Session: { screen: EpisodeList },
+      EpisodeList: { screen: EpisodeList },
+      EpisodeView: { screen: EpisodeView },
       EpisodeSingle: { screen: EpisodeSingle },
       Exercise: { screen: Exercise },
     }),
     navigationOptions: () => ({
       title: 'Exercise',
-      headerTransparent: true,
+      headerTransparent: false,
       headerTitleStyle: {
         color: 'white',
       },
     }),
   },
 }, {
-  initialRouteName: 'Profile',
+  initialRouteName: 'Episode',
 
   tabBarOptions: {
     activeTintColor: 'black',
