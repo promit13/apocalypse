@@ -10,6 +10,7 @@ import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
 import Exercise from '../Exercise';
+import SeasonList from '../SeasonList';
 
 export const SignedOut = createStackNavigator({
   Login: {
@@ -43,6 +44,7 @@ export const SignedIn = createBottomTabNavigator({
   Profile: { screen: UserEdit },
   Episode: {
     screen: StackNavigator({
+      SeasonList: { screen: SeasonList },
       EpisodeList: { screen: EpisodeList },
       EpisodeView: { screen: EpisodeView },
       EpisodeSingle: { screen: EpisodeSingle },

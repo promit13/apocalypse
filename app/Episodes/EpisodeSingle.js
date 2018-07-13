@@ -51,6 +51,7 @@ export default class EpisodeSingle extends Component {
     this.onPressPlay = this.onPressPlay.bind(this);
     this.onPressPause = this.onPressPause.bind(this);
     this.onBack = this.onBack.bind(this);
+    this.onForward = this.onForward.bind(this);
     this.onExercisePress = this.onExercisePress.bind(this);
     this.onDragSeekBar = this.onDragSeekBar.bind(this);
   }
@@ -83,6 +84,12 @@ export default class EpisodeSingle extends Component {
     const SEEK_BEHIND = 15;
     this.setState({ currentTime: this.state.currentTime - SEEK_BEHIND });
     this.player.seek(this.state.currentTime - SEEK_BEHIND, 10);
+  }
+
+  onForward() {
+    const SEEK_FORWARD = 15;
+    this.setState({ currentTime: this.state.currentTime + SEEK_FORWARD });
+    this.player.seek(this.state.currentTime + SEEK_FORWARD, 10);
   }
 
   onPressPause() {
@@ -209,10 +216,11 @@ export default class EpisodeSingle extends Component {
                   onPressPlay={this.onPressPlay}
                   onPressPause={this.onPressPause}
                   onBack={this.onBack}
+                  onForward={this.onForward}
                   onDownload={this.onDownload}
                   paused={this.state.paused}
                 />
-                { this.state.listen 
+                { this.state.listen
                   && (
                     <Seekbar
                       totalLength={this.state.totalLength}

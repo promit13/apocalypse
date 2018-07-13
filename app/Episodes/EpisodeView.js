@@ -20,7 +20,7 @@ export default class EpisodeView extends React.Component {
   }
 
   render() {
-    const { exercises, tracks } = this.props.navigation.state.params;
+    const { exercises } = this.props.navigation.state.params;
     const exercisesList = Object.entries(exercises).map(([key, value], i) => (
       <ListItem
         key={i}

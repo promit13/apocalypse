@@ -46,7 +46,7 @@ export default class Login extends React.Component {
     const value = this.login.getValue();
     firebase.auth().signInWithEmailAndPassword(value.email, value.password)
       .then((user) => {
-        console.log(user);
+       console.log(user);
       })
       .catch((error) => {
         console.log(error);

@@ -41,20 +41,14 @@ const options = {
 };
 
 export default class UserBodyMass extends React.Component {
-
-  handleSubmit = async () => {
-    try {
-      const value = this.submit.getValue(); // use that ref to get the form value
-      const { uid } = this.navigation.state.params.uid;
-      await firebase.database().ref(`users/${this.props.navigation.state.params.uid}`).push({
-        age: value.age,
-        weight: value.weight,
-        height: value.height,
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  } 
+  handleSubmit = () => {
+    const value = this.submit.getValue(); // use that ref to get the form value
+    firebase.database().ref(`users/${this.props.navigation.state.params.uid}`).update({
+      age: value.age,
+      weight: value.weight,
+      height: value.height,
+    });
+  }
 
   render() {
     return (

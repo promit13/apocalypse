@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  StyleSheet, Text, ScrollView, Navigator,
+  StyleSheet, Text, ScrollView,
 } from 'react-native';
 import t from 'tcomb-form-native';
 import { Card, Button, SocialIcon } from 'react-native-elements';
@@ -50,33 +50,24 @@ const options = {
   },
 };
 
-
-// async function logIn() {
-//   const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('2138943709469344', {
-//     permissions: ['public_profile'],
-//   });
-//   if (type === 'success') {
-//     // const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
-//     const credential = firebase.auth.FacebookAuthProvider.credential(token);
-//     return firebase.auth().signInWithCredential(credential);
-//   }
-// }
-
 export default class Signup extends React.Component {
   handleSubmit = () => {
     const value = this.signup.getValue(); // use that ref to get the form value
     firebase.auth().createUserWithEmailAndPassword(value.email, value.password)
       .then((currentUser) => {
-        console.log(currentUser);
-        firebase.database().ref(`users/${currentUser.user.uid}`).push({
+        firebase.database().ref(`users/${currentUser.user.uid}`).set({
           firstName: value.firstName,
           lastName: value.lastName,
           email: value.email,
-        });
-        this.props.navigation.navigate('UserBodyMass', {
-          uid: currentUser.user.uid,
-        });
-        console.log(currentUser);
+          age: 0,
+          weight: 0,
+          height: 0,
+        })
+          .then(() => {
+            this.props.navigation.navigate('UserBodyMass', {
+              uid: currentUser.user.uid,
+            });
+          });
       });
   }
 
@@ -115,7 +106,7 @@ export default class Signup extends React.Component {
             backgroundColor="transparent"
             textStyle={{ color: '#bcbec1' }}
             title="Logout / debug"
-            onPress={() => firebase.auth().signOut() }
+            onPress={() => firebase.auth().signOut()}
           />
         </Card>
       </ScrollView>

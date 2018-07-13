@@ -49,6 +49,7 @@ export default function Controls({
   onPressPlay,
   onPressPause,
   onBack,
+  onForward,
   onDownload,
 }) {
   return (
@@ -80,6 +81,15 @@ export default function Controls({
           </TouchableOpacity>)
       }
       <View style={{ width: 40 }} />
+      { onForward && (
+        <TouchableOpacity
+          onPress={onForward}
+        >
+          <Text style={styles.rewindText}>
+            15s
+          </Text>
+        </TouchableOpacity>)
+      }
       { onDownload && (
         <TouchableOpacity onPress={onDownload}>
           <View style={styles.addButton}>
