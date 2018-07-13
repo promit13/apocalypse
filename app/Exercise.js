@@ -47,7 +47,7 @@ export default class Exercise extends Component {
         <View style={styles.containerInner}>
           <Video
             source={{
-              uri: this.props.navigation.state.params.exercise.value.videoUrl,
+              uri: this.props.navigation.state.params.videoUrl,
             }}
             ref={(c) => { this.video = c; }}
             paused={this.state.paused}
@@ -61,8 +61,8 @@ export default class Exercise extends Component {
             paused={this.state.paused}
           />
           <TrackDetails
-            title={this.props.navigation.state.params.exercise.value.title}
-            artist={this.props.navigation.state.params.exercise.value.subtitle}
+            title={this.props.navigation.state.params.title}
+            artist={this.props.navigation.state.params.subtitle}
           />
 
         </View>

@@ -24,6 +24,7 @@ export const EXERCISES =
 export const TRACKS = [
   {
     title: 'Zombie training',
+    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
     audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
     exercises: {
       benchPress: 0,
@@ -32,6 +33,7 @@ export const TRACKS = [
   },
   {
     title: 'Apocalypse monkeys',
+    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
     audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
     exercises: {
       benchPress: 0,
@@ -40,6 +42,7 @@ export const TRACKS = [
   },
   {
     title: 'Giant squids',
+    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
     audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
     exercises: {
       benchPress: 0,
@@ -65,7 +68,9 @@ export default class Play extends React.Component {
             this.props.navigation.navigate('EpisodeView', {
               tracks: TRACKS,
               exercises: EXERCISES,
-            })
+              title: value.title,
+              description: value.description,
+            });
           }}
         />
       );

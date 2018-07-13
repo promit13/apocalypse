@@ -2,6 +2,8 @@ import { createStackNavigator, createBottomTabNavigator, StackNavigator } from '
 import React from 'react';
 import { Text, View } from 'react-native';
 import Login from '../Login';
+import UserNew from '../User/UserNew';
+import UserBodyMass from '../User/UserBodyMass';
 import Play from '../Play';
 import UserEdit from '../User/UserEdit';
 import EpisodeSingle from '../Episodes/EpisodeSingle';
@@ -21,6 +23,21 @@ export const SignedOut = createStackNavigator({
       },
     }),
   },
+  Signup: {
+    screen: StackNavigator ({
+      Signup: { screen: UserNew },
+      UserBodyMass: { screen: UserBodyMass },
+    }),
+    navigationOptions: () => ({
+      title: 'Signup',
+      headerTransparent: true,
+      headerTitleStyle: {
+        color: 'white',
+      },
+    }),
+  },
+}, {
+  initialRouteName: 'Login',
 });
 export const SignedIn = createBottomTabNavigator({
   Profile: { screen: UserEdit },

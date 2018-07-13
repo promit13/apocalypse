@@ -1,11 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, ScrollView, Navigator } from 'react-native';
+import {
+  StyleSheet, Text, ScrollView, Navigator,
+} from 'react-native';
 import t from 'tcomb-form-native';
 import { Card, Button, SocialIcon } from 'react-native-elements';
-import { AccessToken, LoginManager } from 'react-native-fbsdk';
-
-
-import firebase from './../components/firebase';
+import firebase from '../config/firebase';
 
 const { Form } = t.form;
 
@@ -13,7 +12,6 @@ const User = t.struct({
   email: t.String,
   firstName: t.String,
   lastName: t.String,
-  telephone: t.Number,
   password: t.String,
   passwordRepeat: t.String,
 });
@@ -53,65 +51,74 @@ const options = {
 };
 
 
-async function logIn() {
-  const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('2138943709469344', {
-    permissions: ['public_profile'],
-  });
-  if (type === 'success') {
-    // const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
-    const credential = firebase.auth.FacebookAuthProvider.credential(token);
-    return firebase.auth().signInWithCredential(credential);
-  }
-}
+// async function logIn() {
+//   const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('2138943709469344', {
+//     permissions: ['public_profile'],
+//   });
+//   if (type === 'success') {
+//     // const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+//     const credential = firebase.auth.FacebookAuthProvider.credential(token);
+//     return firebase.auth().signInWithCredential(credential);
+//   }
+// }
 
 export default class Signup extends React.Component {
   handleSubmit = () => {
-    // const { email, password } = this.state;
     const value = this.signup.getValue(); // use that ref to get the form value
     firebase.auth().createUserWithEmailAndPassword(value.email, value.password)
-      .then((user) => {
-        // console.log('registered', user);
-        firebase.database().ref(`users/${user.uid}`).set({
+      .then((currentUser) => {
+        console.log(currentUser);
+        firebase.database().ref(`users/${currentUser.user.uid}`).push({
           firstName: value.firstName,
           lastName: value.lastName,
           email: value.email,
-          telephone: value.telephone,
         });
-      })
-      .catch((error) => error);
+        this.props.navigation.navigate('UserBodyMass', {
+          uid: currentUser.user.uid,
+        });
+        console.log(currentUser);
+      });
   }
+
   render() {
     return (
-      <Card contentContainerStyle={styles.container}>
-        <Text>Register</Text>
-        <Form
-          ref={c => this.signup = c}
-          type={User}
-          options={options}
-        />
-        <Button
-          buttonStyle={{ marginTop: 20 }}
-          title="Sign up"
-          onPress={this.handleSubmit}
-        />
-        <Button
-          buttonStyle={{ marginTop: 20 }}
-          backgroundColor="transparent"
-          textStyle={{ color: '#bcbec1' }}
-          title="Sign in"
+      <ScrollView>
+        <Card contentContainerStyle={styles.container}>
+          <Text>Register</Text>
+          <Form
+            ref={(c) => { this.signup = c; }}
+            type={User}
+            options={options}
+          />
+          <Button
+            buttonStyle={{ marginTop: 20 }}
+            title="Sign up"
+            onPress={this.handleSubmit}
+          />
+          <Button
+            buttonStyle={{ marginTop: 20 }}
+            backgroundColor="transparent"
+            textStyle={{ color: '#bcbec1' }}
+            title="Sign in"
+            onPress={() => this.props.navigation.navigate('Login')}
+          />
+          <SocialIcon
+            title="Register"
+            button
+            buttonStyle={{ marginTop: 20 }}
+            type="facebook"
+            onPress={this.handleFacebookLogin}
+          />
 
-
-          onPress={() => this.props.navigation.navigate('Login')}
-        />
-        <SocialIcon
-          title="Register"
-          button
-          onPress={logIn}
-          buttonStyle={{ marginTop: 20 }}
-          type="facebook"
-        />
-      </Card>
+          <Button
+            buttonStyle={{ marginTop: 20 }}
+            backgroundColor="transparent"
+            textStyle={{ color: '#bcbec1' }}
+            title="Logout / debug"
+            onPress={() => firebase.auth().signOut() }
+          />
+        </Card>
+      </ScrollView>
     );
   }
 }
-

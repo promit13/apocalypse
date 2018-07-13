@@ -71,7 +71,7 @@ export default class Login extends React.Component {
         />
         <Button
           title="Sign up"
-          onPress={this.props.navigation.navigate('Signup')}
+          onPress={() => this.props.navigation.navigate('Signup')}
         />
       </ScrollView>
     );

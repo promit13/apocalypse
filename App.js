@@ -30,9 +30,6 @@ export default class App extends React.Component {
     // The application is initialising
     if (this.state.loading) return <Loading />;
     // The user is an Object, so they're logged in
-    if (this.state.user) {
-      return <SignedIn screenProps={{ user: this.state.user }} />;
-    } return <SignedOut />;
-
+    return <SignedOut />;
   }
 }

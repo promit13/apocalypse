@@ -27,6 +27,7 @@ export default class EpisodeSingle extends Component {
     };
     this.getTimeFirebase = this.getTimeFirebase.bind(this);
   }
+
   componentDidMount() {
     // this.setState({
     const firstExercise = Object.entries(this.props.exercises)
@@ -41,9 +42,8 @@ export default class EpisodeSingle extends Component {
       this.setState({currentTime: this.getTimeFirebase()})
       : null;
     this.getTimeFirebase();
-
-
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevState.currentTime > 0) {
       console.log(prevState.currentTime);
