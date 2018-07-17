@@ -40,14 +40,19 @@ const options = {
   },
 };
 
-export default class UserBodyMass extends React.Component {
+export default class UserBodyDetail extends React.Component {
   handleSubmit = () => {
     const value = this.submit.getValue(); // use that ref to get the form value
-    firebase.database().ref(`users/${this.props.navigation.state.params.uid}`).update({
+    if (value === null) {
+      return;
+    }
+    firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
       age: value.age,
       weight: value.weight,
       height: value.height,
-    });
+      extended: true,
+    })
+      .then(() => this.props.navigation.navigate('Tutorial'));
   }
 
   render() {
@@ -63,6 +68,11 @@ export default class UserBodyMass extends React.Component {
             buttonStyle={{ marginTop: 20 }}
             title="Sign up"
             onPress={this.handleSubmit}
+          />
+          <Button
+            buttonStyle={{ marginTop: 20 }}
+            title="Skip"
+            onPress={() => this.props.navigation.navigate('Tutorial')}
           />
         </Card>
       </View>

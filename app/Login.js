@@ -40,17 +40,17 @@ const styles = StyleSheet.create({
 
 
 export default class Login extends React.Component {
- 
-
   handleSubmit = () => {
     const value = this.login.getValue();
+    if (value === null) {
+      return;
+    }
     firebase.auth().signInWithEmailAndPassword(value.email, value.password)
       .then((user) => {
-       console.log(user);
+        console.log(user);
       })
       .catch((error) => {
         console.log(error);
-        this.setState({ error }, () => console.log(this.state));
       });
   }
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, AsyncStorage } from 'react-native';
 import { Button, Text } from 'react-native-elements';
 
 import firebase from '../config/firebase';
 
 export default class Main extends React.Component {
-  logOut() {
+  logOut = () => {
     firebase.auth().signOut();
   }
 

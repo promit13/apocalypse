@@ -1,9 +1,8 @@
-import { createStackNavigator, createBottomTabNavigator, StackNavigator } from 'react-navigation';
-import React from 'react';
-import { Text, View } from 'react-native';
+import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import Login from '../Login';
 import UserNew from '../User/UserNew';
-import UserBodyMass from '../User/UserBodyMass';
+import UserBodyDetail from '../User/UserBodyDetail';
+import Tutorial from '../User/Tutorial';
 import Play from '../Play';
 import UserEdit from '../User/UserEdit';
 import EpisodeSingle from '../Episodes/EpisodeSingle';
@@ -25,9 +24,10 @@ export const SignedOut = createStackNavigator({
     }),
   },
   Signup: {
-    screen: StackNavigator ({
+    screen: createStackNavigator({
       Signup: { screen: UserNew },
-      UserBodyMass: { screen: UserBodyMass },
+      UserBodyDetail: { screen: UserBodyDetail },
+      Tutorial: { screen: Tutorial },
     }),
     navigationOptions: () => ({
       title: 'Signup',
@@ -40,10 +40,18 @@ export const SignedOut = createStackNavigator({
 }, {
   initialRouteName: 'Login',
 });
+
+export const UserDetails = createStackNavigator({
+  UserBodyDetail: { screen: UserBodyDetail },
+  Tutorial: { screen: Tutorial },
+});
+export const TutorialDisplay = createStackNavigator({
+  Tutorial: { screen: Tutorial },
+});
 export const SignedIn = createBottomTabNavigator({
   Profile: { screen: UserEdit },
   Episode: {
-    screen: StackNavigator({
+    screen: createStackNavigator({
       SeasonList: { screen: SeasonList },
       EpisodeList: { screen: EpisodeList },
       EpisodeView: { screen: EpisodeView },

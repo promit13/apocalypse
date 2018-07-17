@@ -53,6 +53,9 @@ const options = {
 export default class Signup extends React.Component {
   handleSubmit = () => {
     const value = this.signup.getValue(); // use that ref to get the form value
+    if (value === null) {
+      return;
+    }
     firebase.auth().createUserWithEmailAndPassword(value.email, value.password)
       .then((currentUser) => {
         firebase.database().ref(`users/${currentUser.user.uid}`).set({
@@ -62,11 +65,11 @@ export default class Signup extends React.Component {
           age: 0,
           weight: 0,
           height: 0,
+          extended: false,
+          tutorial: false,
         })
           .then(() => {
-            this.props.navigation.navigate('UserBodyMass', {
-              uid: currentUser.user.uid,
-            });
+            this.props.navigation.navigate('UserBodyDetail');
           });
       });
   }
@@ -75,7 +78,9 @@ export default class Signup extends React.Component {
     return (
       <ScrollView>
         <Card contentContainerStyle={styles.container}>
-          <Text>Register</Text>
+          <Text>
+          Register
+          </Text>
           <Form
             ref={(c) => { this.signup = c; }}
             type={User}
