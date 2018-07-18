@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, AsyncStorage } from 'react-native';
+import { View } from 'react-native';
 import { Button, Text } from 'react-native-elements';
 
 import firebase from '../config/firebase';

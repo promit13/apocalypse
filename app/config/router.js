@@ -10,6 +10,7 @@ import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
 import Exercise from '../Exercise';
 import SeasonList from '../SeasonList';
+import Talon from '../Talon';
 
 export const SignedOut = createStackNavigator({
   Login: {
@@ -40,7 +41,6 @@ export const SignedOut = createStackNavigator({
 }, {
   initialRouteName: 'Login',
 });
-
 export const UserDetails = createStackNavigator({
   UserBodyDetail: { screen: UserBodyDetail },
   Tutorial: { screen: Tutorial },
@@ -48,8 +48,10 @@ export const UserDetails = createStackNavigator({
 export const TutorialDisplay = createStackNavigator({
   Tutorial: { screen: Tutorial },
 });
+
 export const SignedIn = createBottomTabNavigator({
   Profile: { screen: UserEdit },
+  Talon: { screen: Talon },
   Episode: {
     screen: createStackNavigator({
       SeasonList: { screen: SeasonList },

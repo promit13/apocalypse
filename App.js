@@ -47,7 +47,7 @@ export default class App extends React.Component {
     // The application is initialising
     // if (this.state.loading) return <Loading />;
     // if (this.state.user) {
-    //   if (this.state.data.extended ) {
+    //   if (this.state.data.extended) {
     //     if (this.state.data.tutorial) {
     //       return <SignedIn screenProps={{ user: this.state.user }} />;
     //     }
@@ -60,15 +60,20 @@ export default class App extends React.Component {
 
     if (this.state.loading) return <Loading />;
     if (this.state.user) {
-      if (this.state.data.extended ) {
+      if (this.state.data.extended) {
         if (this.state.data.tutorial) {
           return <SignedIn screenProps={{ user: this.state.user }} />;
         }
         return <TutorialDisplay screenProps={{ user: this.state.user }} />;
       }
-      if (this.state.data.tutorial ) {
+      if (this.state.data.tutorial) {
         if (!this.state.data.extended) {
           return <UserDetails screenProps={{ user: this.state.user }} />;
+        }
+      }
+      if (!this.state.data.extended) {
+        if (!this.state.data.tutorial) {
+          return <SignedIn screenProps={{ user: this.state.user }} />;
         }
       }
       if (this.state.data.extended == null) return <Loading />;

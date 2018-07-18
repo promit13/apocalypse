@@ -81,7 +81,7 @@ export default class Tutorial extends React.Component {
       );
     });
     return (
-      <Swiper showsButtons={true} onMomentumScrollEnd={this.registerData}>
+      <Swiper showsButtons onMomentumScrollEnd={this.registerData}>
         {tutorials}
       </Swiper>
     );
