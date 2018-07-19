@@ -10,7 +10,9 @@ import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
 import Exercise from '../Exercise';
 import SeasonList from '../SeasonList';
-import Talon from '../Talon';
+import Talon from '../Talon/Talon';
+import TalonEssentialIntel from '../Talon/TalonEssentialIntel';
+import TalonIntelPlayer from '../Talon/TalonIntelPlayer';
 
 export const SignedOut = createStackNavigator({
   Login: {
@@ -51,7 +53,20 @@ export const TutorialDisplay = createStackNavigator({
 
 export const SignedIn = createBottomTabNavigator({
   Profile: { screen: UserEdit },
-  Talon: { screen: Talon },
+  Talon: {
+    screen: createStackNavigator({
+      Talon: { screen: Talon },
+      TalonEssentialIntel: { screen: TalonEssentialIntel },
+      TalonIntelPlayer: { screen: TalonIntelPlayer },
+    }),
+    navigationOptions: () => ({
+      title: 'Talon',
+      headerTransparent: false,
+      headerTitleStyle: {
+        color: 'white',
+      },
+    }),
+  },
   Episode: {
     screen: createStackNavigator({
       SeasonList: { screen: SeasonList },
