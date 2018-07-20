@@ -4,7 +4,6 @@ import {
   AppState,
   Text,
   View,
-  ScrollView
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
@@ -185,25 +184,26 @@ export default class EpisodeSingle extends Component {
       <Video
         source={{ uri: track.audioUrl }} // Can be a URL or a local file.
         ref={(ref) => {
-          this.player = ref
+          this.player = ref;
         }}
         progressUpdateInterval={100.0}
-        paused={this.state.paused}               // Pauses playback entirely.
-        resizeMode="cover"           // Fill the whole screen at aspect ratio.
-        playInBackground={true}
+        paused={this.state.paused} // Pauses playback entirely.
+        resizeMode="cover" // Fill the whole screen at aspect ratio.
+        playInBackground // ={true}
         onLoad={this.onLoad}
         onProgress={this.onProgress}
-        style={styles.audioElement} />
+        style={styles.audioElement}
+      />
     );
 
     return (
       <View style={styles.container}>
         {this.showSeekbar}
-        <View style={styles.containerInner} >     
+        <View style={styles.containerInner}>
           <AlbumArt
             url={
-              this.state.playingExercise 
-                ? this.state.playingExercise.value.imageUrl 
+              this.state.playingExercise
+                ? this.state.playingExercise.value.imageUrl
                 : track.workoutImage
             }
             onPress={this.onExercisePress}
@@ -237,7 +237,7 @@ export default class EpisodeSingle extends Component {
                 </Text>
               </View>
             )
-          }      
+          }
           {video}
         </View>
       </View>

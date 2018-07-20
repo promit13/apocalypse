@@ -66,6 +66,7 @@ export const TRACKS = [
 ];
 
 export default class SeasonList extends React.Component {
+ 
   render() {
     const seasons = Object.entries(SEASONS).map(([key, value], i) => {
       return (

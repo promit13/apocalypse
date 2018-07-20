@@ -180,12 +180,12 @@ export default class TalonIntelPlayer extends Component {
       <Video
         source={{ uri: track.audioUrl }} // Can be a URL or a local file.
         ref={(ref) => {
-          this.player = ref
+          this.player = ref;
         }}
         progressUpdateInterval={100.0}
         paused={this.state.paused} // Pauses playback entirely.
         resizeMode="cover" // Fill the whole screen at aspect ratio.
-        playInBackground={true}
+        playInBackground // ={true}
         onLoad={this.onLoad}
         onProgress={this.onProgress}
         style={styles.audioElement}
@@ -229,7 +229,7 @@ export default class TalonIntelPlayer extends Component {
                 </Text>
               </View>
             )
-          }     
+          }
           {video}
         </View>
       </View>

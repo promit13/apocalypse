@@ -44,20 +44,6 @@ export default class App extends React.Component {
   }
 
   render() {
-    // The application is initialising
-    // if (this.state.loading) return <Loading />;
-    // if (this.state.user) {
-    //   if (this.state.data.extended) {
-    //     if (this.state.data.tutorial) {
-    //       return <SignedIn screenProps={{ user: this.state.user }} />;
-    //     }
-    //     return <TutorialDisplay screenProps={{ user: this.state.user }} />;
-    //   }
-    //   if (this.state.data.extended == null) return <Loading />;
-    //   return <UserDetails screenProps={{ user: this.state.user }} />;
-    // }
-    // return <SignedOut />;
-
     if (this.state.loading) return <Loading />;
     if (this.state.user) {
       if (this.state.data.extended) {
@@ -92,7 +78,7 @@ export default class App extends React.Component {
     //     return <UserDetails screenProps={{ user: this.state.user }} />;
     //   }
     //   if (!this.state.data.tutorial && !this.state.data.extended) {
-    //     return <SignedIn screenProps={{ user: this.state.user }} />;
+    //     return <UserDetails screenProps={{ user: this.state.user }} />;
     //   }
     //   if (this.state.data.extended == null) { return <Loading />; }
     // }

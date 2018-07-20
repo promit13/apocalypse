@@ -14,12 +14,10 @@ const styles = {
   titleContainerStyle: {
     flex: 1,
     flexDirection: 'row',
-    width: windowSize.width,
     backgroundColor: '#000080',
     padding: 10,
   },
   subtitleContainerStyle: {
-    width: windowSize.width,
     backgroundColor: '#34495E',
     padding: 10,
   },
@@ -33,7 +31,7 @@ const styles = {
   buttonContainerStyle: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   buttonStyle: {
     width: 60,
@@ -86,9 +84,17 @@ export default class Talon extends React.Component {
   }
 
     renderButton = indexArray => indexArray
-      .map(item => <Button
-        buttonStyle={[styles.buttonStyle, { backgroundColor: this.state.selectedColor }]}
-        title={item} />);
+      .map((item, i) => {
+        return (
+          <Button
+            buttonStyle={[styles.buttonStyle, { backgroundColor: this.state.selectedColor }]}
+            title={item.index}
+            // onPress={() => this.props.navigation.navigate('TalonIntelPlayer', {
+              // episode: item.episode,
+            // })}
+          />
+        );
+      })
 
     renderEpisodes = ({ episodes }) => {
       const controlArray = [];
@@ -96,13 +102,13 @@ export default class Talon extends React.Component {
       const speedArray = [];
       Object.entries(episodes).map(([key, value], i) => {
         if (value.category === 'Control') {
-          return controlArray.push(i + 1);
+          return controlArray.push({ episode: value.title, index: i + 1 });
         }
         if (value.category === 'Strength') {
-          return strengthArray.push(i + 1);
+          return strengthArray.push({ episode: value.title, index: i + 1 });
         }
         if (value.category === 'Speed') {
-          return speedArray.push(i + 1);
+          return speedArray.push({ episode: value.title, index: i + 1 });
         }
       });
       return (
@@ -133,16 +139,16 @@ export default class Talon extends React.Component {
       const series = Object.entries(this.state.series).map(([key, value], i) => {
         return (
           <View>
-          <View style={styles.titleContainerStyle}>
-            <Text h4 style={styles.textStyle}>
-              {value.title}
-            </Text>
-          </View>
-          <View style={styles.subtitleContainerStyle}>
-            <View>
-              {this.renderEpisodes({ episodes: value.episodes })}
+            <View style={styles.titleContainerStyle}>
+              <Text h4 style={styles.textStyle}>
+                {value.title}
+              </Text>
             </View>
-          </View>
+            <View style={styles.subtitleContainerStyle}>
+              <View>
+                {this.renderEpisodes({ episodes: value.episodes })}
+              </View>
+            </View>
           </View>
         );
       });
