@@ -8,12 +8,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import { Icon } from 'react-native-elements';
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: 10,
     paddingTop: 8,
   },
   rewindText: {
@@ -23,7 +25,7 @@ const styles = StyleSheet.create({
   playButton: {
     height: 72,
     width: 72,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: 'white',
     borderRadius: 72 / 2,
     alignItems: 'center',
@@ -51,44 +53,27 @@ export default function Controls({
   onBack,
   onForward,
   onDownload,
+  renderForwardButton,
 }) {
   return (
     <View style={styles.container}>
       { onBack && (
-        <TouchableOpacity
-          onPress={onBack}
-        >
-          <Text style={styles.rewindText}>
-            15s
-          </Text>
-        </TouchableOpacity>)
+        <Icon name="replay-10" color="#f5cb23" onPress={onBack} size={40} />
+      )
       }
       <View style={{ width: 60 }} />
       {!paused
         ? (
-          <TouchableOpacity
-            onPress={onPressPause}
-          >
-            <View style={styles.playButton}>
-              <Image source={require('../../img/ic_pause_white_48pt.png')} />
-            </View>
-          </TouchableOpacity>)
+          <Icon name="pause" color="#f5cb23" size={40} onPress={onPressPause} />
+        )
         : (
-          <TouchableOpacity onPress={onPressPlay}>
-            <View style={styles.playButton}>
-              <Image source={require('../../img/ic_play_arrow_white_48pt.png')} />
-            </View>
-          </TouchableOpacity>)
+          <Icon name="play-arrow" color="#f5cb23" size={40} onPress={onPressPlay} />
+        )
       }
-      <View style={{ width: 40 }} />
-      { onForward && (
-        <TouchableOpacity
-          onPress={onForward}
-        >
-          <Text style={styles.rewindText}>
-            15s
-          </Text>
-        </TouchableOpacity>)
+      <View style={{ width: 60 }} />
+      { onForward && renderForwardButton && (
+        <Icon name="forward-10" onPress={onForward} color="#f5cb23" size={40} />
+      )
       }
       { onDownload && (
         <TouchableOpacity onPress={onDownload}>

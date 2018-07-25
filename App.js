@@ -51,7 +51,7 @@ export default class App extends React.Component {
           return <SignedIn screenProps={{ user: this.state.user }} />;
         }
         return <TutorialDisplay screenProps={{ user: this.state.user }} />;
-      }
+      }   
       if (this.state.data.tutorial) {
         if (!this.state.data.extended) {
           return <UserDetails screenProps={{ user: this.state.user }} />;

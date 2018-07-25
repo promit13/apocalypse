@@ -60,9 +60,6 @@ export default function TrackDetails({
         <Text style={styles.title}>
           {title}
         </Text>
-        <Text style={styles.artist}>
-          {artist}
-        </Text>
       </View>
     </View>
   );

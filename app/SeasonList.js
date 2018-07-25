@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { ListItem } from 'react-native-elements';
+import * as Animatable from 'react-native-animatable';
 
 export const SEASONS = [
   {
@@ -26,6 +27,34 @@ export const EXERCISES = {
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   shoulderPress: {
+    imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
+    videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+    title: 'Shoulder press',
+    start: 5,
+    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
+  },
+  benchPressSecond: {
+    imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
+    videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+    title: 'Bench press',
+    start: 0,
+    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
+  },
+  shoulderPressSecond: {
+    imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
+    videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+    title: 'Shoulder press',
+    start: 5,
+    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
+  },
+  benchPressThird: {
+    imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
+    videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+    title: 'Bench press',
+    start: 0,
+    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
+  },
+  shoulderPressThird: {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
     videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
     title: 'Shoulder press',
@@ -66,7 +95,6 @@ export const TRACKS = [
 ];
 
 export default class SeasonList extends React.Component {
- 
   render() {
     const seasons = Object.entries(SEASONS).map(([key, value], i) => {
       return (
@@ -84,7 +112,9 @@ export default class SeasonList extends React.Component {
     });
     return (
       <ScrollView>
-        { seasons }
+        <Animatable.View animation="bounceIn">
+          { seasons }
+        </Animatable.View>
       </ScrollView>
     );
   }

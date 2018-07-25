@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import { Text, Icon } from 'react-native-elements';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 48;
@@ -19,11 +20,23 @@ const styles = StyleSheet.create({
     width: imageSize,
     height: imageSize,
   },
+  infoView: {
+    height: 18,
+    width: 18,
+    borderWidth: 1,
+    borderColor: '#f5cb23',
+    borderRadius: 18 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
+    marginTop: 10,
+  },
 });
 
 export default function AlbumArt({
   url,
   onPress,
+  currentExercise,
 }) {
   return (
     <View style={styles.container}>
@@ -32,6 +45,12 @@ export default function AlbumArt({
           style={styles.image}
           source={{ uri: url }}
         />
+        <View style={styles.infoView}>
+          <Icon type="ionicon" name="ios-information" color="#f5cb23" onPress={onPress} />
+        </View>
+        <Text h4 style={{ alignSelf: 'center', color: 'white' }}>
+          {currentExercise}
+        </Text>
       </TouchableOpacity>
     </View>
   );

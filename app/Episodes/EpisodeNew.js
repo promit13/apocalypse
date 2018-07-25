@@ -187,6 +187,7 @@ export default class EpisodeSingle extends Component {
 
     return (
       <View style={styles.container}>
+       {this.showSeekbar}
         <View style={styles.containerInner}>   
           <AlbumArt
             url={

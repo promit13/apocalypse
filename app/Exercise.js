@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {
   View,
+  ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
 import Controls from './common/Controls';
@@ -18,7 +19,7 @@ const styles = {
   },
   container: {
     flex: 1,
-    backgroundColor: 'rgb(4,4,4)',
+    backgroundColor: '#001331',
   },
   containerInner: {
     marginTop: 90,
@@ -37,17 +38,17 @@ export default class Exercise extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      paused: true,
+      paused: false,
     };
   }
 
   render() {
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <View style={styles.containerInner}>
           <Video
             source={{
-              uri: this.props.navigation.state.params.videoUrl,
+              uri: this.props.navigation.state.params.exercise.value.videoUrl,
             }}
             ref={(c) => { this.video = c; }}
             paused={this.state.paused}
@@ -55,18 +56,16 @@ export default class Exercise extends Component {
             playInBackground={false}
             style={styles.backgroundVideo}
           />
+          <TrackDetails
+            title={this.props.navigation.state.params.exercise.value.title}
+          />
           <Controls
             onPressPlay={() => this.setState({ paused: false })}
             onPressPause={() => this.setState({ paused: true })}
             paused={this.state.paused}
           />
-          <TrackDetails
-            title={this.props.navigation.state.params.title}
-            artist={this.props.navigation.state.params.subtitle}
-          />
-
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }

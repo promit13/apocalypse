@@ -8,9 +8,11 @@ export default Seekbar = ({ totalLength, onDragSeekBar, seekValue }) => (
       minimumValue={0}
       maximumValue={totalLength}
       value={seekValue}
-      minimumTrackTintColor="#009688"
+      thumbTintColor="#FFC300"
+      minimumTrackTintColor="#FFC300"
+      maximumTrackTintColor="#ffffff"
       onValueChange={changedValue => onDragSeekBar(changedValue)}
-      style={{ width: '100%' }}
+      style={{ width: '100%', marginTop: 10 }}
     />
   </View>
 );

@@ -4,6 +4,7 @@ import {
   AppState,
   Text,
   View,
+  ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
@@ -15,10 +16,10 @@ import Seekbar from '../common/Seekbar';
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: 'rgb(4,4,4)',
+    backgroundColor: '#001331',
   },
   containerInner: {
-    marginTop: 90,
+    marginTop: 30,
   },
   text: {
     color: 'white',
@@ -32,6 +33,15 @@ const styles = {
     height: 0,
     width: 0,
   },
+  albumView: {
+    backgroundColor: '#33425a',
+    padding: 20,
+  },
+  line: {
+    width: '100%',
+    height: 1,
+    backgroundColor: 'white',
+  },
 };
 
 export default class TalonIntelPlayer extends Component {
@@ -44,6 +54,9 @@ export default class TalonIntelPlayer extends Component {
       currentTime: 0.0,
       selectedTrack: 0,
       playingExercise: '',
+      listen: false,
+      windowsHeight: 0,
+      windowsWidth: 0,
     };
     this.getTimeFirebase = this.getTimeFirebase.bind(this);
     this.onPressPlay = this.onPressPlay.bind(this);
@@ -67,6 +80,9 @@ export default class TalonIntelPlayer extends Component {
       ? this.setState({ currentTime: this.getTimeFirebase() })
       : null;
     this.getTimeFirebase();
+    this.setState({
+      listen: this.props.navigation.state.params.check,
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -76,13 +92,13 @@ export default class TalonIntelPlayer extends Component {
   }
 
   onBack() {
-    const SEEK_BEHIND = 15;
+    const SEEK_BEHIND = 10;
     this.setState({ currentTime: this.state.currentTime - SEEK_BEHIND });
     this.player.seek(this.state.currentTime - SEEK_BEHIND, 10);
   }
 
   onForward() {
-    const SEEK_FORWARD = 15;
+    const SEEK_FORWARD = 10;
     this.setState({ currentTime: this.state.currentTime + SEEK_FORWARD });
     this.player.seek(this.state.currentTime + SEEK_FORWARD, 10);
   }
@@ -145,7 +161,7 @@ export default class TalonIntelPlayer extends Component {
 
   getCurrentTimeInMs = time => parseInt(time, 10);
 
-  setTimeFirebase() {
+  setTimeFirebase = () =>  {
     firebase.database().ref('videos/example').set({
       timeStamp: this.state.currentTime,
     });
@@ -160,18 +176,142 @@ export default class TalonIntelPlayer extends Component {
     );
   }
 
+  formatTime = (timeToFormat) => {
+    let minutes = 0;
+    const seconds = Math.round(timeToFormat);
+    if (seconds > 60) {
+      minutes = Math.floor(seconds / 60);
+    }
+    const time = `${minutes} : ${seconds % 60}`;
+    return time;
+  }
+
+  detectOrientation = (track) => {
+    if (this.state.windowsHeight > this.state.windowsWidth) {
+      return this.renderPortraitView(track);
+    }
+    return this.renderLandscapeView(track);
+  };
+
   changeExercises() {
     const exercises = Object.entries(this.props.navigation.state.params.exercises)
       .map(([key, value], i) => {
         if (this.state.currentTime > value.start) {
           this.setState({
             playingExercise: {
-              name: key,
+              name: value.title,
               value,
             },
           });
         }
       });
+  }
+
+  renderLandscapeView = (track) => {
+    return (
+      <View style={{ flexDirection: 'row' }}>
+        <View style={styles.albumView}>
+          <AlbumArt
+            url={
+             this.state.playingExercise
+               ? this.state.playingExercise.value.imageUrl
+               : track.workoutImage
+            }
+            currentExercise={this.state.playingExercise.name}
+            onPress={this.onExercisePress}
+          />
+        </View>
+        <View>
+          <TrackDetails title={track.title} />
+          <Controls
+            onPressPlay={this.onPressPlay}
+            onPressPause={this.onPressPause}
+            onBack={this.onBack}
+            onForward={this.onForward}
+            onDownload={this.onDownload}
+            paused={this.state.paused}
+            renderForwardButton={this.state.listen}
+          />
+          { this.state.loading
+            ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+            : (
+              <View>
+                { this.state.listen
+                  && (
+                    <Seekbar
+                      totalLength={this.state.totalLength}
+                      onDragSeekBar={this.onDragSeekBar}
+                      seekValue={this.state.currentTime && this.state.currentTime}
+                    />
+                  )
+                }
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                  <Text style={{ color: 'white' }}>
+                    {this.formatTime(this.state.currentTime)}
+                  </Text>
+                  <Text style={{ color: 'white', alignSelf: 'flex-end' }}>
+                    {this.formatTime(this.state.totalLength - this.state.currentTime)}
+                  </Text>
+                </View>
+              </View>
+            )
+          }
+        </View>
+      </View>
+    );
+  }
+
+  renderPortraitView = (track) => {
+    return (
+      <View>
+        <View style={styles.albumView}>
+          <AlbumArt
+            url={
+             this.state.playingExercise
+               ? this.state.playingExercise.value.imageUrl
+               : track.workoutImage
+            }
+            currentExercise={this.state.playingExercise.name}
+            onPress={this.onExercisePress}
+          />
+        </View>
+        <View style={styles.line} />
+        { this.state.loading
+          ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+          : (
+            <View>
+              { this.state.listen
+                && (
+                  <Seekbar
+                    totalLength={this.state.totalLength}
+                    onDragSeekBar={this.onDragSeekBar}
+                    seekValue={this.state.currentTime && this.state.currentTime}
+                  />
+                )
+              }
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
+                <Text style={{ color: 'white' }}>
+                  {this.formatTime(this.state.currentTime)}
+                </Text>
+                <Text style={{ color: 'white', alignSelf: 'flex-end' }}>
+                  {this.formatTime(this.state.totalLength - this.state.currentTime)}
+                </Text>
+              </View>
+              <TrackDetails title={track.title} />
+              <Controls
+                onPressPlay={this.onPressPlay}
+                onPressPause={this.onPressPause}
+                onBack={this.onBack}
+                onForward={this.onForward}
+                onDownload={this.onDownload}
+                paused={this.state.paused}
+                renderForwardButton={this.state.listen}
+              />
+            </View>
+          )
+        }
+      </View>
+    );
   }
 
   render() {
@@ -193,46 +333,18 @@ export default class TalonIntelPlayer extends Component {
     );
 
     return (
-      <View style={styles.container}>
-        {this.showSeekbar}
-        <View style={styles.containerInner}>
-          <AlbumArt
-            url={
-              this.state.playingExercise
-                ? this.state.playingExercise.value.imageUrl
-                : track.workoutImage
-            }
-            onPress={this.onExercisePress}
-          />
-          { this.state.loading
-            ? <ActivityIndicator size="large" color="white" style={styles.loading} />
-            : (
-              <View>
-                <Controls
-                  onPressPlay={this.onPressPlay}
-                  onPressPause={this.onPressPause}
-                  onBack={this.onBack}
-                  onForward={this.onForward}
-                  onDownload={this.onDownload}
-                  paused={this.state.paused}
-                />
-                <Seekbar
-                  totalLength={this.state.totalLength}
-                  onDragSeekBar={this.onDragSeekBar}
-                  seekValue={this.state.currentTime && this.state.currentTime}
-                />
-                <TrackDetails title={track.title} artist={this.state.playingExercise.name} />
-                <Text style={styles.text}>
-                  { !isNaN(this.state.currentTime) || this.state.currentTime < 0 ? `${parseInt(this.state.currentTime, 10)}s` : '0s' }
-                  /
-                  { `${parseInt(this.state.totalLength, 10)}s` }
-                </Text>
-              </View>
-            )
-          }
-          {video}
-        </View>
-      </View>
+      <ScrollView
+        style={styles.container}
+        onLayout={(event) => {
+          this.setState({
+            windowsWidth: event.nativeEvent.layout.width,
+            windowsHeight: event.nativeEvent.layout.height,
+          });
+        }}
+      >
+        {this.detectOrientation(track)}
+        {video}
+      </ScrollView>
     );
   }
 }

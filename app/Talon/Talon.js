@@ -3,42 +3,36 @@ import {
   ScrollView,
   View,
   Image,
-  Dimensions,
 } from 'react-native';
-import { Text, ListItem, Button } from 'react-native-elements';
+import { Text, ListItem, Icon } from 'react-native-elements';
+import * as Animatable from 'react-native-animatable';
 import firebase from '../config/firebase';
-
-const windowSize = Dimensions.get('window');
+import Loading from '../common/Loading';
 
 const styles = {
-  titleContainerStyle: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#000080',
-    padding: 10,
-  },
-  subtitleContainerStyle: {
-    backgroundColor: '#34495E',
-    padding: 10,
-  },
   imageStyle: {
-    width: windowSize.width,
+    width: '100%',
     height: 200,
   },
   textStyle: {
     color: 'white',
   },
-  buttonContainerStyle: {
+  latestIntelView: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 10,
   },
-  buttonStyle: {
+  circularImageView: {
+    height: 60,
     width: 60,
-    height: 20,
+    borderWidth: 5,
     borderColor: 'white',
-    borderRadius: 2,
-    borderWidth: 2,
+    borderRadius: 60 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 };
 
@@ -46,128 +40,108 @@ export default class Talon extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      bgColor: [
-        '#AD0C18',
-        '#0C6DAD',
-        '#14A403',
-      ],
-      selectedColor: '',
       series: '',
+      index: 0,
+      loading: true,
     };
   }
 
   componentDidMount() {
-    firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val() }));
+    firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }))
   }
 
-  // set color on button randomly
-  getRandomColor() {
-    const item = this.state.bgColor[Math.floor(Math.random() * this.state.bgColor.length)];
-    this.setState({
-      selectedColor: item,
-    });
-  }
-
-  renderLogsList = (logTitle, navigateTo) => {
-    return (
-      <View style={styles.subtitleContainerStyle}>
-        <ListItem
-          subtitle={
-            <Text style={styles.textStyle}>
-              {logTitle}
-            </Text>
-          }
-          onPress={() => this.props.navigation.navigate(navigateTo)}
-        />
-      </View>
-    );
-  }
-
-    renderButton = indexArray => indexArray
-      .map((item, i) => {
-        return (
-          <Button
-            buttonStyle={[styles.buttonStyle, { backgroundColor: this.state.selectedColor }]}
-            title={item.index}
-            // onPress={() => this.props.navigation.navigate('TalonIntelPlayer', {
-              // episode: item.episode,
-            // })}
-          />
-        );
-      })
-
-    renderEpisodes = ({ episodes }) => {
-      const controlArray = [];
-      const strengthArray = [];
-      const speedArray = [];
-      Object.entries(episodes).map(([key, value], i) => {
-        if (value.category === 'Control') {
-          return controlArray.push({ episode: value.title, index: i + 1 });
-        }
-        if (value.category === 'Strength') {
-          return strengthArray.push({ episode: value.title, index: i + 1 });
-        }
-        if (value.category === 'Speed') {
-          return speedArray.push({ episode: value.title, index: i + 1 });
-        }
-      });
+  renderContent = (i) => {
+    if (this.state.index === i) {
       return (
-        <View>
-          <Text style={styles.textStyle}>
-          Control
-          </Text>
-          <View style={styles.buttonContainerStyle}>
-            {this.renderButton(controlArray)}
+        <Animatable.View animation="bounceIn  " style={{ backgroundColor: '#445878' }}>
+          <ListItem
+            title={`Episode ${i} Intel`}
+            titleStyle={{ color: 'white' }}
+            underlayColor="#2a3545"
+            onPress={() => {}}
+          />
+          <View style={{ padding: 15 }}>
+            <Text style={styles.textStyle}>
+              01/02/18 - Ep01 -4.00 km/2.48 m in 31:46
+            </Text>
+            <View style={{
+              marginTop: 10,
+              marginBottom: 10,
+              height: 1,
+              width: '100%',
+              backgroundColor: 'white',
+            }}
+            />
+            <Text style={styles.textStyle}>
+              07/02/18 - Ep01 -4.60 km/2.58 m in 31:46
+            </Text>
           </View>
-          <Text style={styles.textStyle}>
-          Speed
-          </Text>
-          <View style={styles.buttonContainerStyle}>
-            {this.renderButton(speedArray)}
-          </View>
-          <Text style={styles.textStyle}>
-          Strength
-          </Text>
-          <View style={styles.buttonContainerStyle}>
-            {this.renderButton(strengthArray)}
-          </View>
-        </View>
+        </Animatable.View>
       );
     }
+  }
 
-    render() {
-      const series = Object.entries(this.state.series).map(([key, value], i) => {
-        return (
-          <View>
-            <View style={styles.titleContainerStyle}>
-              <Text h4 style={styles.textStyle}>
-                {value.title}
-              </Text>
-            </View>
-            <View style={styles.subtitleContainerStyle}>
-              <View>
-                {this.renderEpisodes({ episodes: value.episodes })}
-              </View>
-            </View>
-          </View>
-        );
-      });
+  render() {
+    const series = Object.entries(this.state.series).map(([key, value], i) => {
       return (
-        <ScrollView>
+        <View>
+          <ListItem
+            key={i}
+            roundAvatar
+            avatar={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
+            title={`Episode ${i + 1} Intel File`}
+            titleStyle={{ color: 'white', fontSize: 16 }}
+            rightIcon={{ name: 'chevron-down', type: 'feather', color: '#f5cb23' }}
+            containerStyle={{ backgroundColor: '#33425a' }}
+            underlayColor="#2a3545"
+            onPress={() => {
+              this.setState({ index: i + 1 });
+            }}
+          />
+          {this.renderContent(i + 1)}
+        </View>
+      );
+    });
+    if (this.state.loading) return <Loading />;
+    return (
+      <ScrollView>
+        <Animatable.View animation="bounceIn">
           <Image
             style={styles.imageStyle}
             source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
           />
-          <View style={styles.titleContainerStyle}>
-            <Text h4 style={styles.textStyle}>
-              Logs
-            </Text>
+          <View style={styles.latestIntelView}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={styles.circularImageView}>
+                <Image
+                  style={{
+                    height: 60,
+                    width: 60,
+                    borderRadius: 60 / 2,
+                  }}
+                  source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
+                />
+              </View>
+              <View>
+                <Text style={{
+                  fontSize: 18,
+                  color: '#001331',
+                  marginLeft: 10,
+                  marginRight: 10,
+                }}
+                >
+                  Play Latest Essential Intel
+                </Text>
+                <Text style={{ color: '#001331', marginLeft: 10, marginRight: 10 }}>
+                  6. The War Within
+                </Text>
+              </View>
+            </View>
+            <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
           </View>
-          {this.renderLogsList('Essential Intel Files', 'TalonEssentialIntel')}
-          {this.renderLogsList('Workout Logs')}
-          {this.renderLogsList('Running Logs')}
           {series}
-        </ScrollView>
-      );
-    }
+        </Animatable.View>
+      </ScrollView>
+    );
+  }
 }
