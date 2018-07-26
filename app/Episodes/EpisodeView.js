@@ -24,7 +24,7 @@ const styles = {
   circularImageView: {
     height: 120,
     width: 120,
-    borderWidth: 5,
+    borderWidth: 1,
     borderColor: 'white',
     borderRadius: 120 / 2,
     alignItems: 'center',
@@ -79,7 +79,7 @@ export default class EpisodeView extends React.Component {
         containerStyle={{ backgroundColor: '#33425a' }}
         underlayColor="#2a3545"
         onPress={() => {
-          this.props.navigation.navigate('Exercise', {
+          this.props.navigation.navigate('ExercisePlayer', {
             exercise: { value },
           });
         }}

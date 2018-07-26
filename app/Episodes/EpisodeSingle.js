@@ -112,7 +112,7 @@ export default class EpisodeSingle extends Component {
   }
 
   onExercisePress() {
-    this.props.navigation.navigate('Exercise', { exercise: this.state.playingExercise });
+    this.props.navigation.navigate('ExercisePlayer', { exercise: this.state.playingExercise });
     this.setState({ paused: true });
     firebase.database().ref('videos/example').set({
       timeStamp: this.state.currentTime,

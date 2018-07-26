@@ -53,7 +53,7 @@ export default class Talon extends React.Component {
   renderContent = (i) => {
     if (this.state.index === i) {
       return (
-        <Animatable.View animation="bounceIn  " style={{ backgroundColor: '#445878' }}>
+        <Animatable.View animation="bounceIn" style={{ backgroundColor: '#445878' }}>
           <ListItem
             title={`Episode ${i} Intel`}
             titleStyle={{ color: 'white' }}

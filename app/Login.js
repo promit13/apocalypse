@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, ScrollView } from 'react-native';
-import { Button } from 'react-native-elements';
+import { StyleSheet, Text, ScrollView, View, TextInput } from 'react-native';
+import { Button, Icon } from 'react-native-elements';
 import t from 'tcomb-form-native';
 import firebase from './config/firebase';
 
@@ -11,13 +11,24 @@ const User = t.struct({
   password: t.String,
 });
 
+function myCustomTemplate(locals) {
+
+  return (
+    <View style={{ flex: 1, flexDirection: 'row', backgroundColor: '#001331' }}>
+      <Icon name="info" />
+      <TextInput />
+    </View>
+  );
+}
+
 const options = {
   fields: {
     email: {
+      auto: 'placeholders',
       error: 'We need an email address',
-      label: 'Email address',
     },
     password: {
+      auto: 'placeholders',
       password: true,
       secureTextEntry: true,
       error: 'We need a password',
