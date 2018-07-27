@@ -10,7 +10,7 @@ import * as Animatable from 'react-native-animatable';
 
 const styles = {
   maincontainer: {
-    flex: 1,
+    flex: 3,
     backgroundColor: '#001331',
   },
   categoryView: {
@@ -25,7 +25,6 @@ const styles = {
     paddingRight: 10,
     paddingTop: 40,
     paddingBottom: 40,
-    height: '30%',
   },
   circularImageView: {
     height: 120,

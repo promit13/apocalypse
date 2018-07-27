@@ -45,6 +45,12 @@ const styles = {
 };
 
 export default class EpisodeSingle extends Component {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: navigation.getParam('mode', ''),
+    };
+  };
+
   constructor(props) {
     super(props);
     this.state = {

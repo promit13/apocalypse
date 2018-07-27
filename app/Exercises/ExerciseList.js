@@ -27,7 +27,7 @@ export default class ExerciseList extends React.Component {
       );
     });
     return (
-      <View style={{ flex: 1, backgroundColor: "#001331" }}>
+      <View style={{ flex: 1, backgroundColor: '#001331' }}>
         <ScrollView>
           { exerciseList }
         </ScrollView>

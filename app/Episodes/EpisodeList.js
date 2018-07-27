@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import firebase from '../config/firebase';
 
@@ -39,9 +39,11 @@ export default class EpisodeList extends React.Component {
       );
     });
     return (
-      <ScrollView>
-        { episodesList }
-      </ScrollView>
+      <View style={{ flex: 1, backgroundColor: '#001331' }}>
+        <ScrollView>
+          { episodesList }
+        </ScrollView>
+      </View>
     );
   }
 }

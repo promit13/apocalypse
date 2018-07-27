@@ -1,6 +1,7 @@
 import React from 'react';
+import { View } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
-import { Icon } from 'react-native-elements';
+import { Icon, Badge } from 'react-native-elements';
 import Login from '../Login';
 import UserNew from '../User/UserNew';
 import UserBodyDetail from '../User/UserBodyDetail';
@@ -17,6 +18,7 @@ import TalonEssentialIntel from '../Talon/TalonEssentialIntel';
 import TalonIntelPlayer from '../Talon/TalonIntelPlayer';
 import ExerciseCategory from '../Exercises/ExerciseCategory';
 import ExerciseList from '../Exercises/ExerciseList';
+import More from '../More/More';
 
 export const SignedOut = createStackNavigator({
   Login: {
@@ -54,7 +56,6 @@ export const UserDetails = createStackNavigator({
 export const TutorialDisplay = createStackNavigator({
   Tutorial: { screen: Tutorial },
 });
-
 export const SignedIn = createBottomTabNavigator({
   Episode: {
     screen: createStackNavigator({
@@ -66,7 +67,9 @@ export const SignedIn = createBottomTabNavigator({
     }),
     navigationOptions: () => ({
       title: 'Episodes',
-      headerTransparent: false,
+      headerStyle: {
+        backgroundColor: '#001331',
+      },
       headerTitleStyle: {
         color: 'white',
       },
@@ -81,6 +84,9 @@ export const SignedIn = createBottomTabNavigator({
     navigationOptions: () => ({
       title: 'Exercises',
       headerTransparent: false,
+      headerStyle: {
+        backgroundColor: '#001331',
+      },
       headerTitleStyle: {
         color: 'white',
       },
@@ -100,24 +106,39 @@ export const SignedIn = createBottomTabNavigator({
       },
     }),
   },
-  More: { screen: UserEdit },
+  More: {
+    screen: createStackNavigator({
+      More: { screen: More },
+      Account: { screen: UserEdit },
+    }),
+  },
 }, {
   initialRouteName: 'Episode',
 
   navigationOptions: ({ navigation }) => ({
     tabBarIcon: ({ tintColor }) => {
       const { routeName } = navigation.state;
-      let iconName;
       if (routeName === 'More') {
-        iconName = 'dots-three-horizontal';
-      } else if (routeName === 'Talon') {
-        iconName = 'network';
-      } else if (routeName === 'Exercises') {
-        iconName = 'man';
-      } else if (routeName === 'Episode') {
-        iconName = 'soundcloud';
+        return (
+          <View>
+            <Badge
+              wrapperStyle={{ marginBottom: -20, marginLeft: 40, zIndex: 2 }}
+              value={5}
+              containerStyle={{ padding: 7, backgroundColor: 'orange' }}
+            />
+            <Icon name="dots-three-horizontal" type="entypo" size={35} color={tintColor} />
+          </View>
+        );
       }
-      return <Icon name={iconName} type="entypo" size={30} color={tintColor} />;
+      if (routeName === 'Talon') {
+        return <Icon name="network" type="entypo" size={30} color={tintColor} />;
+      }
+      if (routeName === 'Exercises') {
+        return <Icon name="man" type="entypo" size={30} color={tintColor} />;
+      }
+      if (routeName === 'Episode') {
+        return <Icon name="soundcloud" type="entypo" size={30} color={tintColor} />;
+      }
     },
   }),
 
@@ -126,6 +147,7 @@ export const SignedIn = createBottomTabNavigator({
     inactiveTintColor: '#fff',
     activeBackgroundColor: '#001331',
     inactiveBackgroundColor: '#001331',
+    style: { height: 65 },
   },
 });
 

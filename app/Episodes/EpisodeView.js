@@ -51,7 +51,13 @@ const styles = {
 };
 
 export default class EpisodeView extends React.Component {
-  navigateToEpisodeSingle = (check) => {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: `Episode ${navigation.getParam('index', 'A Nested Details Screen')}`,
+    };
+  };
+
+  navigateToEpisodeSingle = (check, mode) => {
     const {
       tracks,
       exercises,
@@ -60,6 +66,7 @@ export default class EpisodeView extends React.Component {
       tracks,
       exercises,
       check,
+      mode,
     });
   }
 
@@ -133,7 +140,7 @@ export default class EpisodeView extends React.Component {
               color="#001331"
               fontSize={18}
               title="Workout Mode"
-              onPress={() => this.navigateToEpisodeSingle()}
+              onPress={() => this.navigateToEpisodeSingle(false, 'Workout Mode Player')}
             />
           </View>
           <View style={{
@@ -149,7 +156,7 @@ export default class EpisodeView extends React.Component {
               color="#001331"
               fontSize={18}
               title="Listen Mode"
-              onPress={() => this.navigateToEpisodeSingle(true)}
+              onPress={() => this.navigateToEpisodeSingle(true, 'Listen Mode Player')}
             />
           </View>
         </View>
