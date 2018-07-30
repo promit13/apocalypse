@@ -5,7 +5,6 @@ import {
   Image,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
-import * as Animatable from 'react-native-animatable';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 
@@ -53,7 +52,7 @@ export default class Talon extends React.Component {
   renderContent = (i) => {
     if (this.state.index === i) {
       return (
-        <Animatable.View animation="bounceIn" style={{ backgroundColor: '#445878' }}>
+        <View style={{ backgroundColor: '#445878' }}>
           <ListItem
             title={`Episode ${i} Intel`}
             titleStyle={{ color: 'white' }}
@@ -76,7 +75,7 @@ export default class Talon extends React.Component {
               07/02/18 - Ep01 -4.60 km/2.58 m in 31:46
             </Text>
           </View>
-        </Animatable.View>
+        </View>
       );
     }
   }
@@ -86,7 +85,7 @@ export default class Talon extends React.Component {
       return (
         <View>
           <ListItem
-            key={i}
+            key={key}
             roundAvatar
             avatar={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
             title={`Episode ${i + 1} Intel File`}
@@ -104,8 +103,8 @@ export default class Talon extends React.Component {
     });
     if (this.state.loading) return <Loading />;
     return (
-      <ScrollView>
-        <Animatable.View animation="bounceIn">
+      <View style={{ flex: 1, backgroundColor: '#001331' }}>
+        <ScrollView>
           <Image
             style={styles.imageStyle}
             source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
@@ -140,8 +139,8 @@ export default class Talon extends React.Component {
             <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
           </View>
           {series}
-        </Animatable.View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     );
   }
 }

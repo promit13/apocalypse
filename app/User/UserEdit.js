@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Button, Text } from 'react-native-elements';
-import * as Animatable from 'react-native-animatable';
 import firebase from '../config/firebase';
 
 export default class Main extends React.Component {
@@ -11,7 +10,7 @@ export default class Main extends React.Component {
 
   render() {
     return (
-      <Animatable.View animation="bounceIn" style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+      <View animation="bounceIn" style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
         <Text h3>
           Hi survivor
         </Text>
@@ -28,7 +27,7 @@ export default class Main extends React.Component {
           title="Logout"
           onPress={this.logOut}
         />
-      </Animatable.View>
+      </View>
     );
   }
 }

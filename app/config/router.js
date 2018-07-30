@@ -12,13 +12,20 @@ import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
 import ExercisePlayer from '../ExercisePlayer';
-import SeasonList from '../SeasonList';
 import Talon from '../Talon/Talon';
 import TalonEssentialIntel from '../Talon/TalonEssentialIntel';
 import TalonIntelPlayer from '../Talon/TalonIntelPlayer';
 import ExerciseCategory from '../Exercises/ExerciseCategory';
 import ExerciseList from '../Exercises/ExerciseList';
 import More from '../More/More';
+import Agreement from '../More/Agreement';
+import Credits from '../More/Credits';
+import Downloads from '../More/Downloads';
+import Feedback from '../More/Feedback';
+import Kickstarter from '../More/Kickstarter';
+import Purchases from '../More/Purchases';
+import Tips from '../More/Tips';
+import Trailers from '../More/Trailers';
 
 export const SignedOut = createStackNavigator({
   Login: {
@@ -59,7 +66,6 @@ export const TutorialDisplay = createStackNavigator({
 export const SignedIn = createBottomTabNavigator({
   Episode: {
     screen: createStackNavigator({
-      SeasonList: { screen: SeasonList },
       EpisodeList: { screen: EpisodeList },
       EpisodeView: { screen: EpisodeView },
       EpisodeSingle: { screen: EpisodeSingle },
@@ -110,6 +116,15 @@ export const SignedIn = createBottomTabNavigator({
     screen: createStackNavigator({
       More: { screen: More },
       Account: { screen: UserEdit },
+      Agreement: { screen: Agreement },
+      Credits: { screen: Credits },
+      Downloads: { screen: Downloads },
+      Feedback: { screen: Feedback },
+      Kickstarter: { screen: Kickstarter },
+      Purchases: { screen: Purchases },
+      Tips: { screen: Tips },
+      Trailers: { screen: Trailers },
+      Tutorial: { screen: Tutorial },
     }),
   },
 }, {

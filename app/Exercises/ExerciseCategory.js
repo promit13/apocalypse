@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import * as Animatable from 'react-native-animatable';
 
 const styles = {
   maincontainer: {
@@ -45,7 +44,7 @@ export default class ExerciseCategory extends React.Component {
     renderView = (imageUrl, title, subtitle) => {
       return (
         <TouchableOpacity onPress={() => this.props.navigation.navigate('ExerciseList', { category: title })}>
-          <Animatable.View animation="bounceIn" style={styles.categoryView}>
+          <View style={styles.categoryView}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <View style={styles.circularImageView}>
                 <Image
@@ -68,7 +67,7 @@ export default class ExerciseCategory extends React.Component {
               </View>
             </View>
             <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="white" />
-          </Animatable.View>
+          </View>
         </TouchableOpacity>
       );
     }

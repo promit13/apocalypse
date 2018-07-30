@@ -6,7 +6,7 @@ const menu = {
   account: { title: 'My Account', navigateTo: 'Account', iconName: 'account', iconType: 'material-community' },
   credits: { title: 'Credits', navigateTo: 'Credits', iconName: 'menu', iconType: 'entypo' },
   trailers: { title: 'Trailers', navigateTo: 'Trailers', iconName: 'soundcloud', iconType: 'entypo' },
-  kickstarters: { title: 'Kickstarter Backers', navigateTo: 'Kickstart', iconName: 'ios-ribbon', iconType: 'ionicon' },
+  kickstarters: { title: 'Kickstarter Backers', navigateTo: 'Kickstarter', iconName: 'ios-ribbon', iconType: 'ionicon' },
   tutorial: { title: 'Tutorial', navigateTo: 'Tutorial', iconName: 'question', iconType: 'font-awesome' },
   tips: { title: 'Top Tips & FAQ', navigateTo: 'Tips', iconName: 'star', iconType: 'entypo' },
   downloads: { title: 'Manage Downloads', navigateTo: 'Downloads', iconName: 'ios-cloud-download', iconType: 'ionicon' },

@@ -53,7 +53,7 @@ const styles = {
 export default class EpisodeView extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      title: `Episode ${navigation.getParam('index', 'A Nested Details Screen')}`,
+      title: `Episode ${navigation.getParam('index', '')}`,
     };
   };
 

@@ -14,7 +14,6 @@ export default class ExerciseList extends React.Component {
 
   render() {
     const exerciseList = Object.entries(this.state.exercises).map(([key, value], i) => {
-      // if (this.props.navigation.state.params.category === value.category) { }
       return (
         <ListItem
           key={i}
