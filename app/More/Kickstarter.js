@@ -7,7 +7,7 @@ export default class Kickstarter extends React.Component {
     return (
       <View>
         <Text>
-          KICKSTARTER
+          KICK STARTER
         </Text>
       </View>
     );

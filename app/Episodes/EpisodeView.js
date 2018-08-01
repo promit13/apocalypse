@@ -77,10 +77,11 @@ export default class EpisodeView extends React.Component {
       description,
       category,
       index,
+      imageUrl,
     } = this.props.navigation.state.params;
     const exercisesList = Object.entries(exercises).map(([key, value], i) => (
       <ListItem
-        key={i}
+        key={key}
         title={value.title}
         titleStyle={{ color: 'white' }}
         containerStyle={{ backgroundColor: '#33425a' }}
@@ -103,7 +104,7 @@ export default class EpisodeView extends React.Component {
                 width: 120,
                 borderRadius: 120 / 2,
               }}
-              source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
+              source={{ uri: imageUrl }}
             />
           </View>
           <View style={{ marginLeft: 10 }}>
@@ -126,7 +127,7 @@ export default class EpisodeView extends React.Component {
         </View>
         <View>
           <Text h4 style={styles.text}>
-            {`${index}. ${title}`}
+            {`${title}`}
           </Text>
           <Text style={styles.text}>
             {description}

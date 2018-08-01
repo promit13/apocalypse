@@ -141,7 +141,7 @@ export default class EpisodeList extends React.Component {
     firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }));
   }
 
-  onEpisodeClick = (episodeId, title, category, index) => {
+  onEpisodeClick = (episodeId, title, category, index, imageUrl) => {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       this.setState({ loading: false });
@@ -152,6 +152,7 @@ export default class EpisodeList extends React.Component {
         category,
         description: snapshot.val().description,
         index,
+        imageUrl,
       });
     });
   }
@@ -163,19 +164,21 @@ export default class EpisodeList extends React.Component {
       minIndex = maxIndex + 1;
       maxIndex += Object.keys(value.episodes).length;
       const episodesList = Object.entries(value.episodes)
-        .map(([episodeKey, episodeVlaue], episodeIndex) => {
+        .map(([episodeKey, episodeValue], episodeIndex) => {
           return (
             <ListItem
               key={episodeKey}
-              title={`${episodeIndex + minIndex}. ${episodeVlaue.title}`}
-              subtitle={episodeVlaue.category}
+              title={`${episodeIndex + minIndex}. ${episodeValue.title}`}
+              subtitle={episodeValue.category}
               titleStyle={{ color: 'white', fontSize: 18 }}
               subtitleStyle={{ color: 'white' }}
               rightIcon={{ name: 'download', type: 'feather', color: 'white' }}
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
               onPress={() => {
-                this.onEpisodeClick(episodeKey, episodeVlaue.title, episodeVlaue.category);
+                this.onEpisodeClick(
+                  episodeKey, episodeValue.title, episodeValue.category, episodeValue.intel,
+                );
               }}
             />
           );
