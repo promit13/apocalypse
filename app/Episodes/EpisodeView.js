@@ -9,6 +9,7 @@ import {
   Button,
   Text,
 } from 'react-native-elements';
+import firebase from '../config/firebase';
 
 const styles = {
   mainContainer: {
@@ -53,9 +54,23 @@ const styles = {
 export default class EpisodeView extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      title: `Episode ${navigation.getParam('index', '')}`,
+      // title: `Episode ${navigation.getParam('index', '')}`,
+      title: 'Episode',
     };
   };
+
+  state = {
+    url: '',
+  }
+
+  componentDidMount() {
+    const { title, imageUrl } = this.props.navigation.state.params;
+    firebase.storage().ref(`episodes/${title}/${imageUrl}`).getDownloadURL()
+      .then((url) => {
+        this.setState({ url });
+        console.log(url);
+      });
+  }
 
   navigateToEpisodeSingle = (check, mode) => {
     const {
@@ -76,7 +91,6 @@ export default class EpisodeView extends React.Component {
       title,
       description,
       category,
-      index,
       imageUrl,
     } = this.props.navigation.state.params;
     const exercisesList = Object.entries(exercises).map(([key, value], i) => (
@@ -104,7 +118,7 @@ export default class EpisodeView extends React.Component {
                 width: 120,
                 borderRadius: 120 / 2,
               }}
-              source={{ uri: imageUrl }}
+              source={{ uri: this.state.url }}
             />
           </View>
           <View style={{ marginLeft: 10 }}>

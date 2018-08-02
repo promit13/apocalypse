@@ -45,6 +45,11 @@ const styles = {
 };
 
 export default class TalonIntelPlayer extends Component {
+  static navigationOptions = {
+    title: 'Intel Player',
+    tabBarVisible: false,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -54,7 +59,6 @@ export default class TalonIntelPlayer extends Component {
       currentTime: 0.0,
       selectedTrack: 0,
       playingExercise: '',
-      listen: false,
       windowsHeight: 0,
       windowsWidth: 0,
     };
@@ -80,9 +84,6 @@ export default class TalonIntelPlayer extends Component {
       ? this.setState({ currentTime: this.getTimeFirebase() })
       : null;
     this.getTimeFirebase();
-    this.setState({
-      listen: this.props.navigation.state.params.check,
-    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -112,7 +113,7 @@ export default class TalonIntelPlayer extends Component {
   }
 
   onExercisePress() {
-    this.props.navigation.navigate('Exercise', { exercise: this.state.playingExercise });
+    this.props.navigation.navigate('ExercisePlayer', { exercise: this.state.playingExercise });
     this.setState({ paused: true });
     firebase.database().ref('videos/example').set({
       timeStamp: this.state.currentTime,
@@ -209,8 +210,8 @@ export default class TalonIntelPlayer extends Component {
 
   renderLandscapeView = (track) => {
     return (
-      <View style={{ flexDirection: 'row' }}>
-        <View style={styles.albumView}>
+      <View style={{ flex: 2, flexDirection: 'row' }}>
+        <View style={{ flex: 1, backgroundColor: '#33425a', padding: 20 }}>
           <AlbumArt
             url={
              this.state.playingExercise
@@ -218,10 +219,10 @@ export default class TalonIntelPlayer extends Component {
                : track.workoutImage
             }
             currentExercise={this.state.playingExercise.name}
-            onPress={this.onExercisePress}
+            onPress={() => {}}
           />
         </View>
-        <View>
+        <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <TrackDetails title={track.title} />
           <Controls
             onPressPlay={this.onPressPlay}
@@ -230,21 +231,17 @@ export default class TalonIntelPlayer extends Component {
             onForward={this.onForward}
             onDownload={this.onDownload}
             paused={this.state.paused}
-            renderForwardButton={this.state.listen}
+            renderForwardButton
           />
           { this.state.loading
             ? <ActivityIndicator size="large" color="white" style={styles.loading} />
             : (
               <View>
-                { this.state.listen
-                  && (
-                    <Seekbar
-                      totalLength={this.state.totalLength}
-                      onDragSeekBar={this.onDragSeekBar}
-                      seekValue={this.state.currentTime && this.state.currentTime}
-                    />
-                  )
-                }
+                <Seekbar
+                  totalLength={this.state.totalLength}
+                  onDragSeekBar={this.onDragSeekBar}
+                  seekValue={this.state.currentTime && this.state.currentTime}
+                />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
                   <Text style={{ color: 'white' }}>
                     {this.formatTime(this.state.currentTime)}
@@ -272,7 +269,7 @@ export default class TalonIntelPlayer extends Component {
                : track.workoutImage
             }
             currentExercise={this.state.playingExercise.name}
-            onPress={this.onExercisePress}
+            onPress={() => {}}
           />
         </View>
         <View style={styles.line} />
@@ -280,15 +277,11 @@ export default class TalonIntelPlayer extends Component {
           ? <ActivityIndicator size="large" color="white" style={styles.loading} />
           : (
             <View>
-              { this.state.listen
-                && (
-                  <Seekbar
-                    totalLength={this.state.totalLength}
-                    onDragSeekBar={this.onDragSeekBar}
-                    seekValue={this.state.currentTime && this.state.currentTime}
-                  />
-                )
-              }
+              <Seekbar
+                totalLength={this.state.totalLength}
+                onDragSeekBar={this.onDragSeekBar}
+                seekValue={this.state.currentTime && this.state.currentTime}
+              />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
                 <Text style={{ color: 'white' }}>
                   {this.formatTime(this.state.currentTime)}
@@ -305,7 +298,7 @@ export default class TalonIntelPlayer extends Component {
                 onForward={this.onForward}
                 onDownload={this.onDownload}
                 paused={this.state.paused}
-                renderForwardButton={this.state.listen}
+                renderForwardButton
               />
             </View>
           )

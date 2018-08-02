@@ -215,8 +215,8 @@ export default class EpisodeSingle extends Component {
 
   renderLandscapeView = (track) => {
     return (
-      <View style={{ flexDirection: 'row' }}>
-        <View style={styles.albumView}>
+      <View style={{ flex: 2, flexDirection: 'row' }}>
+        <View style={{ height: '100%', flex: 1, backgroundColor: '#33425a', padding: 20 }}>
           <AlbumArt
             url={
              this.state.playingExercise
@@ -225,9 +225,10 @@ export default class EpisodeSingle extends Component {
             }
             currentExercise={this.state.playingExercise.name}
             onPress={this.onExercisePress}
+            showInfo
           />
         </View>
-        <View>
+        <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <TrackDetails title={track.title} />
           <Controls
             onPressPlay={this.onPressPlay}
@@ -279,6 +280,7 @@ export default class EpisodeSingle extends Component {
             }
             currentExercise={this.state.playingExercise.name}
             onPress={this.onExercisePress}
+            showInfo
           />
         </View>
         <View style={styles.line} />

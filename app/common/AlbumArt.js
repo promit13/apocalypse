@@ -37,6 +37,7 @@ export default function AlbumArt({
   url,
   onPress,
   currentExercise,
+  showInfo,
 }) {
   return (
     <View style={styles.container}>
@@ -45,9 +46,12 @@ export default function AlbumArt({
           style={styles.image}
           source={{ uri: url }}
         />
+        { showInfo && (
         <View style={styles.infoView}>
           <Icon type="ionicon" name="ios-information" color="#f5cb23" onPress={onPress} />
         </View>
+        )
+        }
         <Text h4 style={{ alignSelf: 'center', color: 'white' }}>
           {currentExercise}
         </Text>

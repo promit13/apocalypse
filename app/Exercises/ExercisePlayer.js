@@ -4,8 +4,8 @@ import {
   ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
-import Controls from './common/Controls';
-import TrackDetails from './common/TrackDetails';
+import Controls from '../common/Controls';
+import TrackDetails from '../common/TrackDetails';
 
 
 const styles = {
@@ -43,12 +43,13 @@ export default class Exercise extends Component {
   }
 
   render() {
+    const { videoUrl, title } = this.props.navigation.state.params;
     return (
       <ScrollView style={styles.container}>
         <View style={styles.containerInner}>
           <Video
             source={{
-              uri: this.props.navigation.state.params.exercise.value.videoUrl,
+              uri: videoUrl,
             }}
             ref={(c) => { this.video = c; }}
             paused={this.state.paused}
@@ -57,7 +58,7 @@ export default class Exercise extends Component {
             style={styles.backgroundVideo}
           />
           <TrackDetails
-            title={this.props.navigation.state.params.exercise.value.title}
+            title={title}
           />
           <Controls
             onPressPlay={() => this.setState({ paused: false })}

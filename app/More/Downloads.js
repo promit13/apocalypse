@@ -1,5 +1,10 @@
 import React from 'react';
-import { ScrollView, View, TouchableWithoutFeedback } from 'react-native';
+import {
+  ScrollView,
+  View,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+} from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
 
@@ -9,7 +14,6 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 10,
   },
 };
 export default class Downloads extends React.Component {
@@ -30,12 +34,24 @@ export default class Downloads extends React.Component {
   renderDeleteButton = (i, exerciseId) => {
     if (i === this.state.index) {
       return (
-        <Icon
-          name="delete"
-          color="white"
-          size={30}
-          onPress={() => this.deleteExercise(exerciseId)}
-        />
+        <TouchableOpacity onPress={() => this.deleteExercise(exerciseId)}>
+          <View style={{
+            flex: 1,
+            backgroundColor: 'red',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 5,
+          }}
+          >
+            <Icon
+              name="delete"
+              color="white"
+            />
+            <Text style={{ color: 'white' }}>
+            Delete
+            </Text>
+          </View>
+        </TouchableOpacity>
       );
     }
   }
@@ -46,7 +62,7 @@ export default class Downloads extends React.Component {
         <TouchableWithoutFeedback onLongPress={() => this.setState({ index: i + 1 })}>
           <View>
             <View style={styles.mainContainer}>
-              <Text h4 style={{ color: 'white' }}>
+              <Text style={{ fontSize: 18, color: 'white', margin: 10 }}>
                 {value.title}
               </Text>
               {this.renderDeleteButton(i + 1, key)}

@@ -11,7 +11,7 @@ import UserEdit from '../User/UserEdit';
 import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
-import ExercisePlayer from '../ExercisePlayer';
+import ExercisePlayer from '../Exercises/ExercisePlayer';
 import Talon from '../Talon/Talon';
 import TalonEssentialIntel from '../Talon/TalonEssentialIntel';
 import TalonIntelPlayer from '../Talon/TalonIntelPlayer';
@@ -26,6 +26,17 @@ import Kickstarter from '../More/Kickstarter';
 import Purchases from '../More/Purchases';
 import Tips from '../More/Tips';
 import Trailers from '../More/Trailers';
+
+const homeTabbarVisible = (navigation, screen) => {
+  const { routes } = navigation.state;
+  if (routes && routes.length > 0) {
+    const route = routes[routes.length - 1];
+    if (route.routeName === screen) {
+      return false;
+    }
+  }
+  return true;
+};
 
 export const SignedOut = createStackNavigator({
   Login: {
@@ -71,7 +82,7 @@ export const SignedIn = createBottomTabNavigator({
       EpisodeSingle: { screen: EpisodeSingle },
       ExercisePlayer: { screen: ExercisePlayer },
     }),
-    navigationOptions: () => ({
+    navigationOptions: ({ navigation }) => ({
       title: 'Episodes',
       headerStyle: {
         backgroundColor: '#001331',
@@ -79,15 +90,16 @@ export const SignedIn = createBottomTabNavigator({
       headerTitleStyle: {
         color: 'white',
       },
+      tabBarVisible: homeTabbarVisible(navigation, 'EpisodeSingle'),
     }),
   },
   Exercises: {
     screen: createStackNavigator({
       ExerciseCategory: { screen: ExerciseCategory },
       ExerciseList: { screen: ExerciseList },
-
+      ExercisePlayer: { screen: ExercisePlayer },
     }),
-    navigationOptions: () => ({
+    navigationOptions: ({ navigation }) => ({
       title: 'Exercises',
       headerTransparent: false,
       headerStyle: {
@@ -96,6 +108,7 @@ export const SignedIn = createBottomTabNavigator({
       headerTitleStyle: {
         color: 'white',
       },
+      tabBarVisible: homeTabbarVisible(navigation, 'ExercisePlayer'),
     }),
   },
   Talon: {
@@ -104,12 +117,13 @@ export const SignedIn = createBottomTabNavigator({
       TalonEssentialIntel: { screen: TalonEssentialIntel },
       TalonIntelPlayer: { screen: TalonIntelPlayer },
     }),
-    navigationOptions: () => ({
+    navigationOptions: ({ navigation }) => ({
       title: 'Talon',
       headerTransparent: false,
       headerTitleStyle: {
         color: 'white',
       },
+      tabBarVisible: homeTabbarVisible(navigation, 'TalonIntelPlayer'),
     }),
   },
   More: {

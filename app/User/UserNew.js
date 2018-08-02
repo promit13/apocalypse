@@ -1,67 +1,60 @@
 import React from 'react';
 import {
-  StyleSheet, Text, ScrollView,
+  StyleSheet, View, TextInput, ScrollView,
 } from 'react-native';
-import t from 'tcomb-form-native';
-import { Card, Button, SocialIcon } from 'react-native-elements';
+import { Button, SocialIcon, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
-
-const { Form } = t.form;
-
-const User = t.struct({
-  email: t.String,
-  firstName: t.String,
-  lastName: t.String,
-  password: t.String,
-  passwordRepeat: t.String,
-});
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    marginTop: 50,
-    padding: 20,
-    backgroundColor: '#ffffff',
-    flexDirection: 'column',
     flex: 1,
+    justifyContent: 'center',
+    padding: 10,
+    backgroundColor: '#001331',
+  },
+  fieldContainer: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    borderColor: 'white',
+    padding: 10,
+  },
+  inputStyle: {
+    flex: 1,
+    height: 40,
+    color: 'white',
+    marginLeft: 10,
   },
   button: {
     width: 50,
   },
 });
 
-const options = {
-  fields: {
-    email: {
-      error: 'We need an email address to associate your account with',
-      label: 'Email address',
-    },
-    password: {
-      password: true,
-      secureTextEntry: true,
-      error: 'We need a password for your account',
-    },
-    passwordRepeat: {
-      password: true,
-      secureTextEntry: true,
-      label: 'Confirm password',
-      error: 'We need a password for your account',
-    },
-  },
-};
-
 export default class Signup extends React.Component {
+  state = {
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    confirmPassword: '',
+  }
+
   handleSubmit = () => {
-    const value = this.signup.getValue(); // use that ref to get the form value
-    if (value === null) {
-      return;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+    } = this.state;
+    if (password !== confirmPassword) {
+      return this.setState({ confirmPassword: 'Password did not match' });
     }
-    firebase.auth().createUserWithEmailAndPassword(value.email, value.password)
+    firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((currentUser) => {
         firebase.database().ref(`users/${currentUser.user.uid}`).set({
-          firstName: value.firstName,
-          lastName: value.lastName,
-          email: value.email,
+          firstName,
+          lastName,
+          email,
           age: 0,
           weight: 0,
           height: 0,
@@ -76,23 +69,67 @@ export default class Signup extends React.Component {
 
   render() {
     return (
-      <ScrollView>
-        <Card contentContainerStyle={styles.container}>
-          <Text>
-          Register
-          </Text>
-          <Form
-            ref={(c) => { this.signup = c; }}
-            type={User}
-            options={options}
-          />
+      <View style={styles.container}>
+        <ScrollView>
+          <View style={styles.fieldContainer}>
+            <Icon name="email" color="white" />
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="Email"
+              placeholderTextColor="white"
+              onChangeText={email => this.setState({ email })}
+              value={this.state.email}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Icon name="user" type="entypo" color="white" />
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="First Name"
+              placeholderTextColor="white"
+              onChangeText={firstName => this.setState({ firstName })}
+              value={this.state.firstName}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Icon name="user" type="entypo" color="white" />
+            <TextInput
+              style={styles.inputStyle}
+              placeholder="Last Name"
+              placeholderTextColor="white"
+              onChangeText={lastName => this.setState({ lastName })}
+              value={this.state.lastName}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Icon name="lock" type="entypo" color="white" />
+            <TextInput
+              secureTextEntry
+              style={styles.inputStyle}
+              placeholder="Password"
+              placeholderTextColor="white"
+              onChangeText={password => this.setState({ password })}
+              value={this.state.password}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Icon name="lock" type="entypo" color="white" />
+            <TextInput
+              secureTextEntry
+              style={styles.inputStyle}
+              placeholder="Confirm Password"
+              placeholderTextColor="white"
+              onChangeText={confirmPassword => this.setState({ confirmPassword })}
+              value={this.state.confirmPassword}
+            />
+          </View>
           <Button
-            buttonStyle={{ marginTop: 20 }}
+            buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
             title="Sign up"
-            onPress={this.handleSubmit}
+            onPress={() => this.handleSubmit()}
           />
           <Button
-            buttonStyle={{ marginTop: 20 }}
+            buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
             backgroundColor="transparent"
             textStyle={{ color: '#bcbec1' }}
             title="Sign in"
@@ -101,7 +138,7 @@ export default class Signup extends React.Component {
           <SocialIcon
             title="Register"
             button
-            buttonStyle={{ marginTop: 20 }}
+            buttonStyle={{ marginTop: 10 }}
             type="facebook"
             onPress={this.handleFacebookLogin}
           />
@@ -113,8 +150,8 @@ export default class Signup extends React.Component {
             title="Logout / debug"
             onPress={() => firebase.auth().signOut()}
           />
-        </Card>
-      </ScrollView>
+        </ScrollView>
+      </View>
     );
   }
 }

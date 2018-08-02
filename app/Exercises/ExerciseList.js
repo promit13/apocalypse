@@ -23,7 +23,10 @@ export default class ExerciseList extends React.Component {
             titleStyle={{ color: 'white', fontSize: 18 }}
             containerStyle={{ backgroundColor: '#33425a' }}
             underlayColor="#2a3545"
-            onPress={() => {}}
+            onPress={() => this.props.navigation.navigate('ExercisePlayer', {
+              title: value.title,
+              videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+            })}
           />
         );
       }

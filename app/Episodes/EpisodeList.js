@@ -141,7 +141,7 @@ export default class EpisodeList extends React.Component {
     firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }));
   }
 
-  onEpisodeClick = (episodeId, title, category, index, imageUrl) => {
+  onEpisodeClick = (episodeId, title, category) => {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       this.setState({ loading: false });
@@ -151,8 +151,7 @@ export default class EpisodeList extends React.Component {
         title,
         category,
         description: snapshot.val().description,
-        index,
-        imageUrl,
+        imageUrl: snapshot.val().intel,
       });
     });
   }
