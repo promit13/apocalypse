@@ -25,7 +25,7 @@ export default class ExerciseList extends React.Component {
             underlayColor="#2a3545"
             onPress={() => this.props.navigation.navigate('ExercisePlayer', {
               title: value.title,
-              videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+              videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
             })}
           />
         );

@@ -91,7 +91,6 @@ export default class EpisodeView extends React.Component {
       title,
       description,
       category,
-      imageUrl,
     } = this.props.navigation.state.params;
     const exercisesList = Object.entries(exercises).map(([key, value], i) => (
       <ListItem
@@ -102,7 +101,8 @@ export default class EpisodeView extends React.Component {
         underlayColor="#2a3545"
         onPress={() => {
           this.props.navigation.navigate('ExercisePlayer', {
-            exercise: { value },
+            videoUrl: value.videoUrl,
+            title: value.title,
           });
         }}
       />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, Text } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import firebase from './config/firebase';
 
@@ -14,7 +14,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 10,
     borderColor: 'white',
+    borderWidth: 2,
     padding: 10,
+    marginTop: 5,
   },
   inputStyle: {
     flex: 1,
@@ -23,7 +25,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   button: {
-    width: 50,
+    width: '100%',
   },
 });
 
@@ -32,16 +34,27 @@ export default class Login extends React.Component {
   state = {
     email: '',
     password: '',
+    errorVisible: false,
   }
 
   handleSubmit = () => {
     firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
-      .then((user) => {
-        console.log(user);
+      .then(() => {
+        this.setState({ errorVisible: false });
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
+        this.setState({ errorVisible: true });
       });
+  }
+
+  displayErrorText = () => {
+    if (this.state.errorVisible) {
+      return (
+        <Text style={{ color: 'red', marginLeft: 10, marginTop: 10 }}>
+          Invalid username/password
+        </Text>
+      );
+    }
   }
 
   render() {
@@ -52,7 +65,7 @@ export default class Login extends React.Component {
           <TextInput
             style={styles.inputStyle}
             placeholder="Email"
-            placeholderTextColor="white"
+            placeholderTextColor="gray"
             onChangeText={email => this.setState({ email })}
             value={this.state.email}
           />
@@ -63,11 +76,12 @@ export default class Login extends React.Component {
             secureTextEntry
             style={styles.inputStyle}
             placeholder="Password"
-            placeholderTextColor="white"
+            placeholderTextColor="gray"
             onChangeText={password => this.setState({ password })}
             value={this.state.password}
           />
         </View>
+        {this.displayErrorText()}
         <Button
           buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
           title="Log in"

@@ -7,7 +7,7 @@ import UserNew from '../User/UserNew';
 import UserBodyDetail from '../User/UserBodyDetail';
 import Tutorial from '../User/Tutorial';
 import Play from '../Play';
-import UserEdit from '../User/UserEdit';
+import MyAccount from '../User/UserEdit';
 import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
@@ -26,6 +26,7 @@ import Kickstarter from '../More/Kickstarter';
 import Purchases from '../More/Purchases';
 import Tips from '../More/Tips';
 import Trailers from '../More/Trailers';
+import ChangeEmailPassword from '../User/ChangeEmailPassword';
 
 const homeTabbarVisible = (navigation, screen) => {
   const { routes } = navigation.state;
@@ -39,33 +40,8 @@ const homeTabbarVisible = (navigation, screen) => {
 };
 
 export const SignedOut = createStackNavigator({
-  Login: {
-    screen: Login,
-    title: 'Login',
-    navigationOptions: () => ({
-      title: 'Login',
-      headerTransparent: true,
-      headerTitleStyle: {
-        color: 'white',
-      },
-    }),
-  },
-  Signup: {
-    screen: createStackNavigator({
-      Signup: { screen: UserNew },
-      UserBodyDetail: { screen: UserBodyDetail },
-      Tutorial: { screen: Tutorial },
-    }),
-    navigationOptions: () => ({
-      title: 'Signup',
-      headerTransparent: true,
-      headerTitleStyle: {
-        color: 'white',
-      },
-    }),
-  },
-}, {
-  initialRouteName: 'Login',
+  Login: { screen: Login },
+  Signup: { screen: UserNew },
 });
 export const UserDetails = createStackNavigator({
   UserBodyDetail: { screen: UserBodyDetail },
@@ -129,7 +105,7 @@ export const SignedIn = createBottomTabNavigator({
   More: {
     screen: createStackNavigator({
       More: { screen: More },
-      Account: { screen: UserEdit },
+      Account: { screen: MyAccount },
       Agreement: { screen: Agreement },
       Credits: { screen: Credits },
       Downloads: { screen: Downloads },
@@ -139,6 +115,7 @@ export const SignedIn = createBottomTabNavigator({
       Tips: { screen: Tips },
       Trailers: { screen: Trailers },
       Tutorial: { screen: Tutorial },
+      ChangeEmailPassword: { screen: ChangeEmailPassword },
     }),
   },
 }, {

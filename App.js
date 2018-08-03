@@ -21,8 +21,8 @@ export default class App extends React.Component {
   componentDidMount() {
     this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
       this.setState({
-        loading: false,
         user,
+        loading: false,
       });
       this.handleUserStatus();
     });
@@ -44,44 +44,24 @@ export default class App extends React.Component {
   }
 
   render() {
+    console.disableYellowBox = true;
     if (this.state.loading) return <Loading />;
     if (this.state.user) {
+      if (this.state.data === '') return <Loading />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {
           return <SignedIn screenProps={{ user: this.state.user }} />;
         }
         return <TutorialDisplay screenProps={{ user: this.state.user }} />;
       }
-      if (this.state.data.tutorial) {
-        if (!this.state.data.extended) {
-          return <UserDetails screenProps={{ user: this.state.user }} />;
-        }
-      }
       if (!this.state.data.extended) {
-        if (!this.state.data.tutorial) {
+        if (this.state.data.tutorial) {
           return <SignedIn screenProps={{ user: this.state.user }} />;
         }
+        return <UserDetails screenProps={{ user: this.state.user }} />;
       }
-      if (this.state.data.extended == null) return <Loading />;
+      console.log(this.state.data.extended);
     }
     return <SignedOut />;
-
-    // if (this.state.loading) return <Loading />;
-    // if (this.state.user) {
-    //   if (this.state.data.extended && this.state.data.tutorial) {
-    //     return <SignedIn screenProps={{ user: this.state.user }} />;
-    //   }
-    //   if (this.state.data.extended && !this.state.data.tutorial) {
-    //     return <TutorialDisplay screenProps={{ user: this.state.user }} />;
-    //   }
-    //   if (this.state.data.tutorial && !this.state.data.extended) {
-    //     return <UserDetails screenProps={{ user: this.state.user }} />;
-    //   }
-    //   if (!this.state.data.tutorial && !this.state.data.extended) {
-    //     return <UserDetails screenProps={{ user: this.state.user }} />;
-    //   }
-    //   if (this.state.data.extended == null) { return <Loading />; }
-    // }
-    // return <SignedOut />;
   }
 }

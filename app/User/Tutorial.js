@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, ScrollView, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import Swiper from 'react-native-swiper';
 import firebase from '../config/firebase';
@@ -26,7 +26,6 @@ const styles = {
   },
   buttonStyle: {
     backgroundColor: '#001331',
-    width: '100%',
     borderColor: '#f5cb23',
     borderRadius: 20,
     borderWidth: 2,
@@ -52,8 +51,7 @@ export default class Tutorial extends React.Component {
           title="Take me in"
           onPress={() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
             tutorial: true,
-          })
-      }
+          })}
         />
       );
     }

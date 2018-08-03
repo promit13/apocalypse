@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  StyleSheet, View, TextInput, ScrollView,
+  StyleSheet, View, TextInput, ScrollView, Text,
 } from 'react-native';
 import { Button, SocialIcon, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -14,8 +14,10 @@ const styles = StyleSheet.create({
   },
   fieldContainer: {
     flexDirection: 'row',
-    borderRadius: 10,
+    borderRadius: 5,
     borderColor: 'white',
+    borderWidth: 1,
+    marginTop: 5,
     padding: 10,
   },
   inputStyle: {
@@ -25,7 +27,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   button: {
-    width: 50,
+    width: '100%',
+    backgroundColor: '#445878',
+    borderRadius: 10,
+    marginTop: 10,
   },
 });
 
@@ -36,6 +41,8 @@ export default class Signup extends React.Component {
     firstName: '',
     lastName: '',
     confirmPassword: '',
+    errorVisible: false,
+    errorMessage: '',
   }
 
   handleSubmit = () => {
@@ -46,8 +53,12 @@ export default class Signup extends React.Component {
       password,
       confirmPassword,
     } = this.state;
+    if (email === '' || firstName === ''
+      || lastName === '' || password === '' || confirmPassword === '') {
+      return this.setState({ errorVisible: true, errorMessage: 'Please fill all section' });
+    }
     if (password !== confirmPassword) {
-      return this.setState({ confirmPassword: 'Password did not match' });
+      return this.setState({ errorVisible: true, errorMessage: 'Password did not match' });
     }
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((currentUser) => {
@@ -58,13 +69,25 @@ export default class Signup extends React.Component {
           age: 0,
           weight: 0,
           height: 0,
+          gender: '',
           extended: false,
           tutorial: false,
         })
           .then(() => {
+            this.setState({ errorVisible: false, errorMessage: '' });
             this.props.navigation.navigate('UserBodyDetail');
           });
       });
+  }
+
+  displayErrorText = () => {
+    if (this.state.errorVisible) {
+      return (
+        <Text style={{ color: 'red', marginLeft: 10, marginTop: 10 }}>
+          {this.state.errorMessage}
+        </Text>
+      );
+    }
   }
 
   render() {
@@ -76,7 +99,7 @@ export default class Signup extends React.Component {
             <TextInput
               style={styles.inputStyle}
               placeholder="Email"
-              placeholderTextColor="white"
+              placeholderTextColor="gray"
               onChangeText={email => this.setState({ email })}
               value={this.state.email}
             />
@@ -86,7 +109,7 @@ export default class Signup extends React.Component {
             <TextInput
               style={styles.inputStyle}
               placeholder="First Name"
-              placeholderTextColor="white"
+              placeholderTextColor="gray"
               onChangeText={firstName => this.setState({ firstName })}
               value={this.state.firstName}
             />
@@ -96,7 +119,7 @@ export default class Signup extends React.Component {
             <TextInput
               style={styles.inputStyle}
               placeholder="Last Name"
-              placeholderTextColor="white"
+              placeholderTextColor="gray"
               onChangeText={lastName => this.setState({ lastName })}
               value={this.state.lastName}
             />
@@ -107,7 +130,7 @@ export default class Signup extends React.Component {
               secureTextEntry
               style={styles.inputStyle}
               placeholder="Password"
-              placeholderTextColor="white"
+              placeholderTextColor="gray"
               onChangeText={password => this.setState({ password })}
               value={this.state.password}
             />
@@ -118,19 +141,19 @@ export default class Signup extends React.Component {
               secureTextEntry
               style={styles.inputStyle}
               placeholder="Confirm Password"
-              placeholderTextColor="white"
+              placeholderTextColor="gray"
               onChangeText={confirmPassword => this.setState({ confirmPassword })}
               value={this.state.confirmPassword}
             />
           </View>
+          {this.displayErrorText()}
           <Button
-            buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
+            buttonStyle={styles.button}
             title="Sign up"
             onPress={() => this.handleSubmit()}
           />
           <Button
-            buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
-            backgroundColor="transparent"
+            buttonStyle={styles.button}
             textStyle={{ color: '#bcbec1' }}
             title="Sign in"
             onPress={() => this.props.navigation.navigate('Login')}
@@ -140,7 +163,7 @@ export default class Signup extends React.Component {
             button
             buttonStyle={{ marginTop: 10 }}
             type="facebook"
-            onPress={this.handleFacebookLogin}
+            onPress={() => this.props.navigation.navigate('UserBodyDetail')}
           />
 
           <Button
@@ -148,7 +171,7 @@ export default class Signup extends React.Component {
             backgroundColor="transparent"
             textStyle={{ color: '#bcbec1' }}
             title="Logout / debug"
-            onPress={() => firebase.auth().signOut()}
+            onPress={() => this.props.navigation.navigate('Tutorial')}
           />
         </ScrollView>
       </View>

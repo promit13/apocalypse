@@ -1,55 +1,55 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button, Card } from 'react-native-elements';
-import t from 'tcomb-form-native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  ScrollView,
+} from 'react-native';
+import { Button } from 'react-native-elements';
 import firebase from '../config/firebase';
-
-const { Form } = t.form;
-
-const User = t.struct({
-  age: t.String,
-  weight: t.String,
-  height: t.String,
-});
 
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     marginTop: 50,
     padding: 20,
-    backgroundColor: '#ffffff',
-    flexDirection: 'column',
+    backgroundColor: '#001331',
     flex: 1,
   },
   button: {
     width: 50,
   },
+  inputStyle: {
+    borderColor: 'white',
+    borderRadius: 5,
+    borderWidth: 2,
+    padding: 10,
+    height: 40,
+    color: 'white',
+    margin: 10,
+  },
 });
 
-const options = {
-  fields: {
-    age: {
-      label: 'Age',
-    },
-    weight: {
-      label: 'Weight',
-    },
-    height: {
-      label: 'Height',
-    },
-  },
-};
-
 export default class UserBodyDetail extends React.Component {
+  state = {
+    height: '',
+    weight: '',
+    age: '',
+    gender: '',
+  }
+
   handleSubmit = () => {
-    const value = this.submit.getValue(); // use that ref to get the form value
-    if (value === null) {
-      return;
-    }
+    const {
+      age,
+      height,
+      weight,
+      gender,
+    } = this.state;
     firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
-      age: value.age,
-      weight: value.weight,
-      height: value.height,
+      age,
+      weight,
+      height,
+      gender,
       extended: true,
     })
       .then(() => this.props.navigation.navigate('Tutorial'));
@@ -57,24 +57,48 @@ export default class UserBodyDetail extends React.Component {
 
   render() {
     return (
-      <View>
-        <Card contentContainerStyle={styles.container}>
-          <Form
-            ref={(c) => { this.submit = c; }}
-            type={User}
-            options={options}
+      <View style={styles.container}>
+        <ScrollView>
+          <TextInput
+            style={styles.inputStyle}
+            placeholder="Age"
+            placeholderTextColor="gray"
+            onChangeText={age => this.setState({ age })}
+            value={this.state.age}
+          />
+          <TextInput
+            style={styles.inputStyle}
+            placeholder="Height"
+            placeholderTextColor="gray"
+            onChangeText={height => this.setState({ height })}
+            value={this.state.height}
+          />
+          <TextInput
+            style={styles.inputStyle}
+            placeholder="Weight"
+            placeholderTextColor="gray"
+            onChangeText={weight => this.setState({ weight })}
+            value={this.state.weight}
+          />
+          <TextInput
+            style={styles.inputStyle}
+            placeholder="Gender"
+            placeholderTextColor="gray"
+            onChangeText={gender => this.setState({ gender })}
+            value={this.state.gender}
           />
           <Button
-            buttonStyle={{ marginTop: 20 }}
-            title="Sign up"
-            onPress={this.handleSubmit}
+            buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
+            title="Done"
+            onPress={() => this.handleSubmit()}
           />
           <Button
-            buttonStyle={{ marginTop: 20 }}
-            title="Skip"
+            buttonStyle={{ backgroundColor: 'transparent', borderRadius: 10, marginTop: 10 }}
+            color="white"
+            title="Skip Personalisation info"
             onPress={() => this.props.navigation.navigate('Tutorial')}
           />
-        </Card>
+        </ScrollView>
       </View>
     );
   }

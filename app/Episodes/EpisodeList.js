@@ -16,42 +16,42 @@ import Loading from '../common/Loading';
 export const EXERCISES = {
   benchPress: {
     imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
-    videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
     title: 'Bench press',
     start: 0,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   shoulderPress: {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
-    videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
     title: 'Shoulder press',
     start: 5,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   benchPressSecond: {
     imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
-    videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
     title: 'Bench press',
     start: 0,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   shoulderPressSecond: {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
-    videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
     title: 'Shoulder press',
     start: 5,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   benchPressThird: {
     imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
-    videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
     title: 'Bench press',
     start: 0,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   shoulderPressThird: {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
-    videoUrl: 'http://mirrors.standaloneinstaller.com/video-sample/Catherine_Part1.mkv',
+    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
     title: 'Shoulder press',
     start: 5,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
@@ -63,7 +63,7 @@ export const TRACKS = [
   {
     title: 'Zombie training',
     description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
+    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5',
     exercises: {
       benchPress: 0,
       shoulderPress: 5,
@@ -72,7 +72,7 @@ export const TRACKS = [
   {
     title: 'Apocalypse monkeys',
     description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
+    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5',
     exercises: {
       benchPress: 0,
       shoulderPress: 5,
@@ -81,7 +81,7 @@ export const TRACKS = [
   {
     title: 'Giant squids',
     description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://www.sample-videos.com/audio/mp3/crowd-cheering.mp3',
+    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5',
     exercises: {
       benchPress: 0,
       shoulderPress: 5,
