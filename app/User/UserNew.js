@@ -43,6 +43,7 @@ export default class Signup extends React.Component {
     confirmPassword: '',
     errorVisible: false,
     errorMessage: '',
+    fullNameLowercase: '',
   }
 
   handleSubmit = () => {
@@ -72,6 +73,7 @@ export default class Signup extends React.Component {
           gender: '',
           extended: false,
           tutorial: false,
+          fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
         })
           .then(() => {
             this.setState({ errorVisible: false, errorMessage: '' });

@@ -141,15 +141,16 @@ export default class EpisodeList extends React.Component {
     firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }));
   }
 
-  onEpisodeClick = (episodeId, title, category) => {
+  onEpisodeClick = (episodeId) => {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       this.setState({ loading: false });
       this.props.navigation.navigate('EpisodeView', {
         tracks: TRACKS,
         exercises: EXERCISES,
-        title,
-        category,
+        episodeId,
+        title: snapshot.val().title,
+        category: snapshot.val().category,
         description: snapshot.val().description,
         imageUrl: snapshot.val().intel,
       });
@@ -176,7 +177,7 @@ export default class EpisodeList extends React.Component {
               underlayColor="#2a3545"
               onPress={() => {
                 this.onEpisodeClick(
-                  episodeKey, episodeValue.title, episodeValue.category, episodeValue.intel,
+                  episodeKey,
                 );
               }}
             />

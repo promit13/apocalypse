@@ -57,6 +57,9 @@ export const SignedIn = createBottomTabNavigator({
       EpisodeView: { screen: EpisodeView },
       EpisodeSingle: { screen: EpisodeSingle },
       ExercisePlayer: { screen: ExercisePlayer },
+      Talon: { screen: Talon },
+      TalonEssentialIntel: { screen: TalonEssentialIntel },
+      TalonIntelPlayer: { screen: TalonIntelPlayer },
     }),
     navigationOptions: ({ navigation }) => ({
       title: 'Episodes',

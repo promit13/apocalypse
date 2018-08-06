@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import {
   View,
   ScrollView,
+  ActivityIndicator,
+  Modal, Text, Button,
 } from 'react-native';
 import Video from 'react-native-video';
 import Controls from '../common/Controls';
 import TrackDetails from '../common/TrackDetails';
-
 
 const styles = {
   backgroundVideo: {
@@ -31,16 +32,28 @@ const styles = {
     height: 0,
     width: 0,
   },
+  modal: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  button: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginTop: 10,
+  },
 };
 
 
 export default class Exercise extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      paused: false,
-    };
+  state = {
+    paused: false,
+    loading: true,
   }
+
+  onLoad = () => this.setState({ loading: false });
 
   render() {
     const { videoUrl, title } = this.props.navigation.state.params;
@@ -53,18 +66,28 @@ export default class Exercise extends Component {
             }}
             ref={(c) => { this.video = c; }}
             paused={this.state.paused}
+            onLoad={this.onLoad}
+            onProgress={this.onProgress}
+            onEnd={this.onEnd}
             resizeMode="cover"
             playInBackground={false}
             style={styles.backgroundVideo}
           />
-          <TrackDetails
-            title={title}
-          />
-          <Controls
-            onPressPlay={() => this.setState({ paused: false })}
-            onPressPause={() => this.setState({ paused: true })}
-            paused={this.state.paused}
-          />
+          { this.state.loading
+            ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+            : (
+              <View>
+                <TrackDetails
+                  title={title}
+                />
+                <Controls
+                  onPressPlay={() => this.setState({ paused: false })}
+                  onPressPause={() => this.setState({ paused: true })}
+                  paused={this.state.paused}
+                />
+              </View>
+            )
+          }
         </View>
       </ScrollView>
     );

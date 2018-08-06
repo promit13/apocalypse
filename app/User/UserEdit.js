@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, Modal, TextInput } from 'react-native';
+import {
+  View, Text, Modal, TextInput,
+} from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import firebase from '../config/firebase';
 
@@ -20,8 +22,14 @@ const styles = {
   },
   modalView: {
     flex: 1,
+    flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: '#001331',
+    alignItems: 'center',
+    padding: 10,
+  },
+  modalInnerView: {
+    backgroundColor: '#445878',
+    padding: 10,
   },
   inputStyle: {
     borderColor: 'white',
@@ -70,20 +78,22 @@ export default class MyAccount extends React.Component {
 
   showModal = () => {
     return (
-      <Modal visible={this.state.modalVisible}>
+      <Modal transparent visible={this.state.modalVisible}>
         <View style={styles.modalView}>
-          <TextInput
-            secureTextEntry
-            style={styles.inputStyle}
-            placeholder="Confirm your password"
-            placeholderTextColor="white"
-            onChangeText={password => this.setState({ password })}
-            value={this.state.password}
-          />
-          {this.displayErrorText()}
-          <View style={{ flexDirection: 'row', justifycontent: 'center' }}>
-            <Button color="#001331" buttonStyle={styles.button} title="Confirm" onPress={() => this.deleteAccount()} />
-            <Button color="#001331" buttonStyle={styles.button} title="Cancel" onPress={() => this.setState({ modalVisible: false })} />
+          <View style={styles.modalInnerView}>
+            <TextInput
+              secureTextEntry
+              style={styles.inputStyle}
+              placeholder="Confirm your password"
+              placeholderTextColor="white"
+              onChangeText={password => this.setState({ password })}
+              value={this.state.password}
+            />
+            {this.displayErrorText()}
+            <View style={{ flexDirection: 'row', justifycontent: 'center' }}>
+              <Button color="#001331" buttonStyle={styles.button} title="Confirm" onPress={() => this.deleteAccount()} />
+              <Button color="#001331" buttonStyle={styles.button} title="Cancel" onPress={() => this.setState({ modalVisible: false })} />
+            </View>
           </View>
         </View>
       </Modal>

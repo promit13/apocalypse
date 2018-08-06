@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 40,
     color: 'white',
-    margin: 10,
+    margin: 5,
   },
 });
 
@@ -68,21 +68,21 @@ export default class UserBodyDetail extends React.Component {
           />
           <TextInput
             style={styles.inputStyle}
-            placeholder="Height"
+            placeholder="Height (cm/inches)"
             placeholderTextColor="gray"
             onChangeText={height => this.setState({ height })}
             value={this.state.height}
           />
           <TextInput
             style={styles.inputStyle}
-            placeholder="Weight"
+            placeholder="Weight (kg/lbs)"
             placeholderTextColor="gray"
             onChangeText={weight => this.setState({ weight })}
             value={this.state.weight}
           />
           <TextInput
             style={styles.inputStyle}
-            placeholder="Gender"
+            placeholder="Gender (M/F/Other)"
             placeholderTextColor="gray"
             onChangeText={gender => this.setState({ gender })}
             value={this.state.gender}

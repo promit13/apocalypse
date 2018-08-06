@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import {
   ActivityIndicator,
   AppState,
-  Text,
   View,
   ScrollView,
+  Modal,
 } from 'react-native';
+import { Text, Button } from 'react-native-elements';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
@@ -42,6 +43,24 @@ const styles = {
     height: 1,
     backgroundColor: 'white',
   },
+  modal: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  modalInnerView: {
+    backgroundColor: '#445878',
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginTop: 10,
+  },
 };
 
 export default class EpisodeSingle extends Component {
@@ -63,6 +82,7 @@ export default class EpisodeSingle extends Component {
       listen: false,
       windowsHeight: 0,
       windowsWidth: 0,
+      showDialog: false,
     };
     this.getTimeFirebase = this.getTimeFirebase.bind(this);
     this.onPressPlay = this.onPressPlay.bind(this);
@@ -145,14 +165,17 @@ export default class EpisodeSingle extends Component {
     this.setState({ totalLength: data.duration });
     const firebaseTime = firebase.database().ref('videos/example').on('value', (snapshot) => {
       this.setState({ currentTime: this.getCurrentTimeInMs(snapshot.val().timeStamp) },
-        function () {
+        () => {
           this.changeExercises();
           this.player.seek(this.state.currentTime, 10);
         });
     }, (error) => {
+      console.log(error);
     });
-    this.setState({ loading: false }); 
+    this.setState({ loading: false });
   };
+
+  onEnd = () => { this.setState({ showDialog: true }); }
 
   onDragSeekBar(currentTime) {
     this.player.seek(currentTime, 10);
@@ -174,13 +197,34 @@ export default class EpisodeSingle extends Component {
     });
   }
 
-  getTimeFirebase() {
+  getTimeFirebase = () => {
     firebase.database().ref('videos/example').on(
-      'value', (snapshot) => snapshot.val(),
+      'value', snapshot => snapshot.val(),
       (error) => {
         console.log(error);
       },
     );
+  }
+
+  showModal = () => {
+    console.log('showalert');
+    if (this.state.showDialog) {
+      return (
+        <Modal transparent visible={this.state.showDialog}>
+          <View style={styles.modal}>
+            <View style={styles.modalInnerView}>
+              <Text style={{ color: 'white', fontSize: 16 }}>
+              Go to talon?
+              </Text>
+              <View style={{ flexDirection: 'row' }}>
+                <Button buttonStyle={styles.button} title="Ok" color="#001331" onPress={() => this.setState({ showDialog: false })} />
+                <Button buttonStyle={styles.button} title="Cancel" color="#001331" onPress={() => this.setState({ showDialog: false })} />
+              </View>
+            </View>
+          </View>
+        </Modal>
+      );
+    }
   }
 
   formatTime = (timeToFormat) => {
@@ -217,7 +261,10 @@ export default class EpisodeSingle extends Component {
   renderLandscapeView = (track) => {
     return (
       <View style={{ flex: 2, flexDirection: 'row' }}>
-        <View style={{ height: '100%', flex: 1, backgroundColor: '#33425a', padding: 20 }}>
+        <View style={{
+          height: '100%', flex: 1, backgroundColor: '#33425a', padding: 20,
+        }}
+        >
           <AlbumArt
             url={
              this.state.playingExercise
@@ -245,12 +292,24 @@ export default class EpisodeSingle extends Component {
             : (
               <View>
                 { this.state.listen
-                  && (
+                  ? (
                     <Seekbar
                       totalLength={this.state.totalLength}
                       onDragSeekBar={this.onDragSeekBar}
                       seekValue={this.state.currentTime && this.state.currentTime}
                     />
+                  )
+                  : (
+                    <View>
+                      { this.state.showDialog
+                        ? (
+                          <View>
+                            {this.showModal()}
+                          </View>
+                        )
+                        : null
+                    }
+                    </View>
                   )
                 }
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
@@ -290,12 +349,24 @@ export default class EpisodeSingle extends Component {
           : (
             <View>
               { this.state.listen
-                && (
+                ? (
                   <Seekbar
                     totalLength={this.state.totalLength}
                     onDragSeekBar={this.onDragSeekBar}
                     seekValue={this.state.currentTime && this.state.currentTime}
                   />
+                )
+                : (
+                  <View>
+                    { this.state.showDialog
+                      ? (
+                        <View>
+                          {this.showModal()}
+                        </View>
+                      )
+                      : null
+                  }
+                  </View>
                 )
               }
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
@@ -336,6 +407,7 @@ export default class EpisodeSingle extends Component {
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground // ={true}
         onLoad={this.onLoad}
+        onEnd={this.onEnd}
         onProgress={this.onProgress}
         style={styles.audioElement}
       />

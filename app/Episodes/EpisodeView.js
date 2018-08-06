@@ -64,8 +64,8 @@ export default class EpisodeView extends React.Component {
   }
 
   componentDidMount() {
-    const { title, imageUrl } = this.props.navigation.state.params;
-    firebase.storage().ref(`episodes/${title}/${imageUrl}`).getDownloadURL()
+    const { episodeId, imageUrl } = this.props.navigation.state.params;
+    firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
       .then((url) => {
         this.setState({ url });
         console.log(url);

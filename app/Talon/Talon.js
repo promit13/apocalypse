@@ -3,6 +3,7 @@ import {
   ScrollView,
   View,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -188,35 +189,37 @@ export default class Talon extends React.Component {
             style={styles.imageStyle}
             source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
           />
-          <View style={styles.latestIntelView}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={styles.circularImageView}>
-                <Image
-                  style={{
-                    height: 60,
-                    width: 60,
-                    borderRadius: 60 / 2,
+          <TouchableOpacity onPress={() => {}}>
+            <View style={styles.latestIntelView}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.circularImageView}>
+                  <Image
+                    style={{
+                      height: 60,
+                      width: 60,
+                      borderRadius: 60 / 2,
+                    }}
+                    source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
+                  />
+                </View>
+                <View>
+                  <Text style={{
+                    fontSize: 18,
+                    color: '#001331',
+                    marginLeft: 10,
+                    marginRight: 10,
                   }}
-                  source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
-                />
+                  >
+                    Play Latest Essential Intel
+                  </Text>
+                  <Text style={{ color: '#001331', marginLeft: 10, marginRight: 10 }}>
+                    6. The War Within
+                  </Text>
+                </View>
               </View>
-              <View>
-                <Text style={{
-                  fontSize: 18,
-                  color: '#001331',
-                  marginLeft: 10,
-                  marginRight: 10,
-                }}
-                >
-                  Play Latest Essential Intel
-                </Text>
-                <Text style={{ color: '#001331', marginLeft: 10, marginRight: 10 }}>
-                  6. The War Within
-                </Text>
-              </View>
+              <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
             </View>
-            <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
-          </View>
+          </TouchableOpacity>
           {series}
         </ScrollView>
       </View>

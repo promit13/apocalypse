@@ -41,21 +41,21 @@ export default function AlbumArt({
 }) {
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={onPress}>
-        <Image
-          style={styles.image}
-          source={{ uri: url }}
-        />
-        { showInfo && (
+      <Image
+        style={styles.image}
+        source={{ uri: url }}
+      />
+      { showInfo && (
         <View style={styles.infoView}>
-          <Icon type="ionicon" name="ios-information" color="#f5cb23" onPress={onPress} />
+          <TouchableOpacity onPress={onPress}>
+            <Icon type="ionicon" name="ios-information" color="#f5cb23" />
+          </TouchableOpacity>
         </View>
-        )
+      )
         }
-        <Text h4 style={{ alignSelf: 'center', color: 'white' }}>
-          {currentExercise}
-        </Text>
-      </TouchableOpacity>
+      <Text h4 style={{ alignSelf: 'center', color: 'white' }}>
+        {currentExercise}
+      </Text>
     </View>
   );
 }

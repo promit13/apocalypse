@@ -1,5 +1,10 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, Text } from 'react-native';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  Text,
+} from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
 
@@ -14,7 +19,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 10,
     borderColor: 'white',
+    borderWidth: 1,
     padding: 10,
+    marginTop: 5,
   },
   inputStyle: {
     flex: 1,
