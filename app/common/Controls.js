@@ -2,7 +2,6 @@ import React from 'react';
 
 import {
   View,
-  Text,
   StyleSheet,
   Image,
   TouchableOpacity,
@@ -54,12 +53,20 @@ export default function Controls({
   onForward,
   onDownload,
   renderForwardButton,
+  navigateToPreviousExercise,
+  exercisePlayer,
 }) {
   return (
     <View style={styles.container}>
-      { onBack && (
-        <Icon name="replay-10" color="#f5cb23" onPress={onBack} size={40} />
-      )
+      { renderForwardButton
+        ? (
+          <Icon name="replay-10" color="#f5cb23" onPress={onBack} size={40} />
+        )
+        : (
+          exercisePlayer
+          ? null
+          : <Icon name="replay" color="#f5cb23" onPress={navigateToPreviousExercise} size={40} />
+        )
       }
       <View style={{ width: 60 }} />
       {!paused

@@ -36,7 +36,7 @@ const styles = {
   },
   albumView: {
     backgroundColor: '#33425a',
-    padding: 20,
+    padding: 10,
   },
   line: {
     width: '100%',
@@ -70,9 +70,7 @@ export default class EpisodeSingle extends Component {
     };
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
+    state = {
       loading: true,
       paused: true,
       totalLength: 1,
@@ -83,67 +81,66 @@ export default class EpisodeSingle extends Component {
       windowsHeight: 0,
       windowsWidth: 0,
       showDialog: false,
+      episodeId: '',
+      uid: '',
+      episodeKeysArray: [],
     };
-    this.getTimeFirebase = this.getTimeFirebase.bind(this);
-    this.onPressPlay = this.onPressPlay.bind(this);
-    this.onPressPause = this.onPressPause.bind(this);
-    this.onBack = this.onBack.bind(this);
-    this.onForward = this.onForward.bind(this);
-    this.onExercisePress = this.onExercisePress.bind(this);
-    this.onDragSeekBar = this.onDragSeekBar.bind(this);
-  }
 
-  componentDidMount() {
-    const firstExercise = Object.entries(this.props.navigation.state.params.exercises)
-      .map(([exercise, value], i) => {
-        i === 0
-          ? this.setState({
-            playingExercise: {name: exercise, value: value}
-          })
-          : null;
+    componentDidMount() {
+      const {
+        exercises, check, episodeId, index, episodeKeysArray,
+      } = this.props.navigation.state.params;
+      Object.entries(exercises)
+        .map(([exercise, value], i) => {
+          i === 0
+            ? this.setState({
+              playingExercise: { name: exercise, value }
+            })
+            : null;
+        });
+      this.getTimeFirebase() !== 0
+        ? this.setState({ currentTime: this.getTimeFirebase() })
+        : null;
+      this.getTimeFirebase();
+      this.setState({
+        listen: check,
+        episodeId,
+        uid: this.props.screenProps.user.uid,
+        selectedTrack: index,
+        episodeKeysArray,
       });
-    this.getTimeFirebase() !== 0
-      ? this.setState({ currentTime: this.getTimeFirebase() })
-      : null;
-    this.getTimeFirebase();
-    this.setState({
-      listen: this.props.navigation.state.params.check,
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.currentTime > 0) {
-      this.changeExercises;
+      console.log(index, episodeKeysArray);
     }
-  }
 
-  onBack() {
+    componentDidUpdate(prevProps, prevState) {
+      if (prevState.currentTime > 0) {
+        this.changeExercises;
+      }
+    }
+
+  onBack = () => {
     const SEEK_BEHIND = 10;
     this.setState({ currentTime: this.state.currentTime - SEEK_BEHIND });
     this.player.seek(this.state.currentTime - SEEK_BEHIND, 10);
   }
 
-  onForward() {
+  onForward = () => {
     const SEEK_FORWARD = 10;
     this.setState({ currentTime: this.state.currentTime + SEEK_FORWARD });
     this.player.seek(this.state.currentTime + SEEK_FORWARD, 10);
   }
 
-  onPressPause() {
+  onPressPause = () => {
     this.setState({ paused: true });
-    firebase.database().ref('videos/example').set({
-      timeStamp: this.state.currentTime,
-    });
+    this.setTimeFirebase();
     this.changeExercises();
   }
 
-  onExercisePress() {
+  onExercisePress = () => {
     const { videoUrl, title } = this.state.playingExercise.value;
     this.props.navigation.navigate('ExercisePlayer', { videoUrl, title });
     this.setState({ paused: true });
-    firebase.database().ref('videos/example').set({
-      timeStamp: this.state.currentTime,
-    });
+    this.setTimeFirebase();
   }
 
   onAppStateChange = (nextAppState) => {
@@ -153,7 +150,6 @@ export default class EpisodeSingle extends Component {
 
   onProgress = (data) => {
     this.setState({ currentTime: data.currentTime });
-
     AppState.addEventListener('change', (state) => {
       if (state === 'background') {
         this.setTimeFirebase();
@@ -162,43 +158,58 @@ export default class EpisodeSingle extends Component {
   };
 
   onLoad = (data) => {
+    const { uid, episodeId } = this.state;
     this.setState({ totalLength: data.duration });
-    const firebaseTime = firebase.database().ref('videos/example').on('value', (snapshot) => {
-      this.setState({ currentTime: this.getCurrentTimeInMs(snapshot.val().timeStamp) },
-        () => {
-          this.changeExercises();
-          this.player.seek(this.state.currentTime, 10);
-        });
-    }, (error) => {
-      console.log(error);
-    });
+    if (this.state.listen) {
+      this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
+    } else {
+      firebase.database().ref(`logs/${episodeId}/${uid}/`).on('value', (snapshot) => {
+        if (snapshot.val() === null) {
+          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
+        }
+        this.setState({ currentTime: this.getCurrentTimeInMs(snapshot.val().dateNow) },
+          () => {
+            this.changeExercises();
+            this.player.seek(this.state.currentTime, 10);
+          });
+      }, (error) => {
+        console.log(error);
+      });
+    }
     this.setState({ loading: false });
   };
 
-  onEnd = () => { this.setState({ showDialog: true }); }
+  onEnd = () => {
+    this.setState({ showDialog: true });
+    this.setTimeFirebase();
+  }
 
-  onDragSeekBar(currentTime) {
+  onDragSeekBar = (currentTime) => {
     this.player.seek(currentTime, 10);
   }
 
-  onPressPlay() {
+  onPressPlay = () => {
     this.setState({ paused: false });
   }
 
-  setTime(data) {
+  setTime = (data) => {
     this.setState({ currentPosition: Math.floor(data.currentTime) });
   }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
 
-  setTimeFirebase = () =>  {
-    firebase.database().ref('videos/example').set({
-      timeStamp: this.state.currentTime,
-    });
+  setTimeFirebase = () => {
+    if (!this.state.listen) {
+      const { uid, episodeId } = this.state;
+      firebase.database().ref(`logs/${episodeId}/${uid}/`).set({
+        dateNow: this.state.currentTime,
+      });
+    }
   }
 
   getTimeFirebase = () => {
-    firebase.database().ref('videos/example').on(
+    const { uid, episodeId } = this.state;
+    firebase.database().ref(`logs/${episodeId}/${uid}/`).on(
       'value', snapshot => snapshot.val(),
       (error) => {
         console.log(error);
@@ -207,7 +218,6 @@ export default class EpisodeSingle extends Component {
   }
 
   showModal = () => {
-    console.log('showalert');
     if (this.state.showDialog) {
       return (
         <Modal transparent visible={this.state.showDialog}>
@@ -217,7 +227,15 @@ export default class EpisodeSingle extends Component {
               Go to talon?
               </Text>
               <View style={{ flexDirection: 'row' }}>
-                <Button buttonStyle={styles.button} title="Ok" color="#001331" onPress={() => this.setState({ showDialog: false })} />
+                <Button
+                  buttonStyle={styles.button}
+                  title="Ok"
+                  color="#001331"
+                  onPress={() => {
+                    this.setState({ showDialog: false });
+                    this.props.navigation.navigate('Talon');
+                  }}
+                />
                 <Button buttonStyle={styles.button} title="Cancel" color="#001331" onPress={() => this.setState({ showDialog: false })} />
               </View>
             </View>
@@ -244,10 +262,10 @@ export default class EpisodeSingle extends Component {
     return this.renderLandscapeView(track);
   };
 
-  changeExercises() {
-    const exercises = Object.entries(this.props.navigation.state.params.exercises)
+  changeExercises = () => {
+    Object.entries(this.props.navigation.state.params.exercises)
       .map(([key, value], i) => {
-        if (this.state.currentTime > value.start) {
+        if (this.state.currentTime < value.start) {
           this.setState({
             playingExercise: {
               name: value.title,
@@ -256,6 +274,16 @@ export default class EpisodeSingle extends Component {
           });
         }
       });
+  }
+
+  navigateToPreviousExercise = () => {
+    const { selectedTrack, episodeKeysArray } = this.state;
+    if (selectedTrack === 0) return;
+    this.setState({
+      loading: true,
+      selectedTrack: selectedTrack - 1,
+      episodeId: episodeKeysArray[selectedTrack - 1],
+    });
   }
 
   renderLandscapeView = (track) => {
@@ -285,6 +313,7 @@ export default class EpisodeSingle extends Component {
             onForward={this.onForward}
             onDownload={this.onDownload}
             paused={this.state.paused}
+            navigateToPreviousExercise={this.navigateToPreviousExercise}
             renderForwardButton={this.state.listen}
           />
           { this.state.loading
@@ -385,6 +414,7 @@ export default class EpisodeSingle extends Component {
                 onForward={this.onForward}
                 onDownload={this.onDownload}
                 paused={this.state.paused}
+                navigateToPreviousExercise={this.navigateToPreviousExercise}
                 renderForwardButton={this.state.listen}
               />
             </View>

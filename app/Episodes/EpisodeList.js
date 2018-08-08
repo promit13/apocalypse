@@ -15,7 +15,7 @@ import Loading from '../common/Loading';
 
 export const EXERCISES = {
   benchPress: {
-    imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
     title: 'Bench press',
     start: 0,
@@ -25,11 +25,11 @@ export const EXERCISES = {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
     title: 'Shoulder press',
-    start: 5,
+    start: 0,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   benchPressSecond: {
-    imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
     title: 'Bench press',
     start: 0,
@@ -39,11 +39,11 @@ export const EXERCISES = {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
     title: 'Shoulder press',
-    start: 5,
+    start: 0,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   benchPressThird: {
-    imageUrl: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg',
+    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
     title: 'Bench press',
     start: 0,
@@ -53,7 +53,7 @@ export const EXERCISES = {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
     title: 'Shoulder press',
-    start: 5,
+    start: 0,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
 };
@@ -72,7 +72,7 @@ export const TRACKS = [
   {
     title: 'Apocalypse monkeys',
     description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5',
+    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FSampleAudio_0.7mb.mp3?alt=media&token=9553b552-2aaf-4be8-9489-12b066586579',
     exercises: {
       benchPress: 0,
       shoulderPress: 5,
@@ -82,6 +82,15 @@ export const TRACKS = [
     title: 'Giant squids',
     description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
     audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5',
+    exercises: {
+      benchPress: 0,
+      shoulderPress: 5,
+    },
+  },
+  {
+    title: 'Zombie training',
+    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
+    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FSampleAudio_0.7mb.mp3?alt=media&token=9553b552-2aaf-4be8-9489-12b066586579',
     exercises: {
       benchPress: 0,
       shoulderPress: 5,
@@ -131,6 +140,7 @@ const styles = {
     justifyContent: 'center',
   },
 };
+
 export default class EpisodeList extends React.Component {
   state = {
     series: '',
@@ -141,7 +151,7 @@ export default class EpisodeList extends React.Component {
     firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }));
   }
 
-  onEpisodeClick = (episodeId) => {
+  onEpisodeClick = (episodeId, index, episodeKeysArray) => {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       this.setState({ loading: false });
@@ -153,11 +163,14 @@ export default class EpisodeList extends React.Component {
         category: snapshot.val().category,
         description: snapshot.val().description,
         imageUrl: snapshot.val().intel,
+        index,
+        episodeKeysArray,
       });
     });
   }
 
   renderList = () => {
+    const episodeKeysArray = [];
     let minIndex = 0;
     let maxIndex = 0;
     const seriesList = Object.entries(this.state.series).map(([key, value], i) => {
@@ -165,6 +178,7 @@ export default class EpisodeList extends React.Component {
       maxIndex += Object.keys(value.episodes).length;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
+          episodeKeysArray.push(episodeKey);
           return (
             <ListItem
               key={episodeKey}
@@ -178,6 +192,8 @@ export default class EpisodeList extends React.Component {
               onPress={() => {
                 this.onEpisodeClick(
                   episodeKey,
+                  episodeIndex,
+                  episodeKeysArray,
                 );
               }}
             />

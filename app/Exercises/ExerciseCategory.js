@@ -54,7 +54,7 @@ export default class ExerciseCategory extends React.Component {
                     borderRadius: 120 / 2,
                     borderColor: 'white',
                   }}
-                  source={{ uri: 'https://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Running/580/zombies-run.jpg' }}
+                  source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4' }}
                 />
               </View>
               <View>

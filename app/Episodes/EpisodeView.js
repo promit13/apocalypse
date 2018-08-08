@@ -65,6 +65,7 @@ export default class EpisodeView extends React.Component {
 
   componentDidMount() {
     const { episodeId, imageUrl } = this.props.navigation.state.params;
+    // firebase.storage().ref('temp/zombies-run.jpg').getDownloadURL()
     firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
       .then((url) => {
         this.setState({ url });
@@ -76,12 +77,18 @@ export default class EpisodeView extends React.Component {
     const {
       tracks,
       exercises,
+      episodeId,
+      index,
+      episodeKeysArray,
     } = this.props.navigation.state.params;
     this.props.navigation.navigate('EpisodeSingle', {
       tracks,
       exercises,
       check,
       mode,
+      episodeId,
+      index,
+      episodeKeysArray,
     });
   }
 

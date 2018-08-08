@@ -3,7 +3,6 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
-  Modal, Text, Button,
 } from 'react-native';
 import Video from 'react-native-video';
 import Controls from '../common/Controls';
@@ -67,8 +66,6 @@ export default class Exercise extends Component {
             ref={(c) => { this.video = c; }}
             paused={this.state.paused}
             onLoad={this.onLoad}
-            onProgress={this.onProgress}
-            onEnd={this.onEnd}
             resizeMode="cover"
             playInBackground={false}
             style={styles.backgroundVideo}
@@ -84,6 +81,7 @@ export default class Exercise extends Component {
                   onPressPlay={() => this.setState({ paused: false })}
                   onPressPause={() => this.setState({ paused: true })}
                   paused={this.state.paused}
+                  exercisePlayer
                 />
               </View>
             )
