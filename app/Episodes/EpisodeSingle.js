@@ -45,19 +45,17 @@ const styles = {
   },
   modal: {
     flex: 1,
-    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
   },
   modalInnerView: {
-    backgroundColor: '#445878',
+    backgroundColor: '#fff',
     padding: 10,
-    alignItems: 'center',
     justifyContent: 'center',
   },
   button: {
-    backgroundColor: '#fff',
+    backgroundColor: '#001331',
     borderRadius: 5,
     marginTop: 10,
   },
@@ -223,21 +221,23 @@ export default class EpisodeSingle extends Component {
         <Modal transparent visible={this.state.showDialog}>
           <View style={styles.modal}>
             <View style={styles.modalInnerView}>
-              <Text style={{ color: 'white', fontSize: 16 }}>
-              Go to talon?
-              </Text>
-              <View style={{ flexDirection: 'row' }}>
-                <Button
-                  buttonStyle={styles.button}
-                  title="Ok"
-                  color="#001331"
-                  onPress={() => {
-                    this.setState({ showDialog: false });
-                    this.props.navigation.navigate('Talon');
-                  }}
-                />
-                <Button buttonStyle={styles.button} title="Cancel" color="#001331" onPress={() => this.setState({ showDialog: false })} />
+              <View style={{ justifyContent: 'center' }}>
+                <Text h4 style={{ color: '#001331' }}>
+                Well done! Workout complete.
+                </Text>
+                <Text style={{ color: '#001331', fontSize: 16 }}>
+                Go to TALON to check your workout results
+                </Text>
               </View>
+              <Button
+                buttonStyle={styles.button}
+                title="Ok"
+                color="#fff"
+                onPress={() => {
+                  this.setState({ showDialog: false });
+                  this.props.navigation.navigate('Talon');
+                }}
+              />
             </View>
           </View>
         </Modal>

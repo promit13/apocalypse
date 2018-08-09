@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput,
+  View, Text, Modal, TextInput, TouchableOpacity,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -18,26 +18,25 @@ const styles = {
   },
   button: {
     margin: 10,
-    backgroundColor: 'white',
+    backgroundColor: '#001331',
   },
   modalView: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 10,
   },
   modalInnerView: {
-    backgroundColor: '#445878',
+    backgroundColor: '#fff',
     padding: 10,
   },
   inputStyle: {
-    borderColor: 'white',
+    borderColor: '#001331',
     borderRadius: 5,
     borderWidth: 2,
     padding: 10,
     height: 40,
-    color: 'white',
+    color: '#001331',
     margin: 10,
   },
 };
@@ -80,21 +79,20 @@ export default class MyAccount extends React.Component {
     return (
       <Modal transparent visible={this.state.modalVisible}>
         <View style={styles.modalView}>
-          <View style={styles.modalInnerView}>
-            <TextInput
-              secureTextEntry
-              style={styles.inputStyle}
-              placeholder="Confirm your password"
-              placeholderTextColor="white"
-              onChangeText={password => this.setState({ password })}
-              value={this.state.password}
-            />
-            {this.displayErrorText()}
-            <View style={{ flexDirection: 'row', justifycontent: 'center' }}>
-              <Button color="#001331" buttonStyle={styles.button} title="Confirm" onPress={() => this.deleteAccount()} />
-              <Button color="#001331" buttonStyle={styles.button} title="Cancel" onPress={() => this.setState({ modalVisible: false })} />
+          <TouchableOpacity onPress={() => this.setState({ modalVisible: false, password: '' })}>
+            <View style={styles.modalInnerView}>
+              <TextInput
+                secureTextEntry
+                style={styles.inputStyle}
+                placeholder="Confirm your password"
+                placeholderTextColor="#001331"
+                onChangeText={password => this.setState({ password })}
+                value={this.state.password}
+              />
+              {this.displayErrorText()}
+              <Button color="#fff" buttonStyle={styles.button} title="Confirm" onPress={() => this.deleteAccount()} />
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
       </Modal>
     );

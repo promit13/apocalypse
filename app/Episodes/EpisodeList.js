@@ -189,6 +189,7 @@ export default class EpisodeList extends React.Component {
               rightIcon={{ name: 'download', type: 'feather', color: 'white' }}
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
+              onPressRightIcon={() => {}}
               onPress={() => {
                 this.onEpisodeClick(
                   episodeKey,
