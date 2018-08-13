@@ -60,7 +60,6 @@ export default class App extends React.Component {
         }
         return <UserDetails screenProps={{ user: this.state.user }} />;
       }
-      console.log(this.state.data.extended);
     }
     return <SignedOut />;
   }

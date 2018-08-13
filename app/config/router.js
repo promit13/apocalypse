@@ -12,7 +12,7 @@ import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
 import ExercisePlayer from '../Exercises/ExercisePlayer';
-import Talon from '../Talon/Talon';
+import TalonScreen from '../Talon/TalonScreen';
 import TalonEssentialIntel from '../Talon/TalonEssentialIntel';
 import TalonIntelPlayer from '../Talon/TalonIntelPlayer';
 import ExerciseCategory from '../Exercises/ExerciseCategory';
@@ -57,7 +57,7 @@ export const SignedIn = createBottomTabNavigator({
       EpisodeView: { screen: EpisodeView },
       EpisodeSingle: { screen: EpisodeSingle },
       ExercisePlayer: { screen: ExercisePlayer },
-      Talon: { screen: Talon },
+      TalonScreen: { screen: TalonScreen },
       TalonEssentialIntel: { screen: TalonEssentialIntel },
       TalonIntelPlayer: { screen: TalonIntelPlayer },
     }),
@@ -92,7 +92,7 @@ export const SignedIn = createBottomTabNavigator({
   },
   Talon: {
     screen: createStackNavigator({
-      Talon: { screen: Talon },
+      TalonScreen: { screen: TalonScreen },
       TalonEssentialIntel: { screen: TalonEssentialIntel },
       TalonIntelPlayer: { screen: TalonIntelPlayer },
     }),

@@ -43,7 +43,6 @@ export default class Signup extends React.Component {
     confirmPassword: '',
     errorVisible: false,
     errorMessage: '',
-    fullNameLowercase: '',
   }
 
   handleSubmit = () => {

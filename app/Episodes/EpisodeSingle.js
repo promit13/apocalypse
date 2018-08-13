@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
-  AppState,
-  View,
-  ScrollView,
-  Modal,
+  ActivityIndicator, AppState, View, ScrollView, Modal,
 } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import Video from 'react-native-video';
@@ -81,14 +77,25 @@ export default class EpisodeSingle extends Component {
       showDialog: false,
       episodeId: '',
       uid: '',
-      episodeKeysArray: [],
+      logId: '',
+      lastLoggedDate: null,
+      previousStartTime: [],
     };
 
-    componentDidMount() {
+    componentWillMount() {
       const {
-        exercises, check, episodeId, index, episodeKeysArray,
+        check, episodeId, index,
       } = this.props.navigation.state.params;
-      Object.entries(exercises)
+      this.setState({
+        listen: check,
+        episodeId,
+        uid: this.props.screenProps.user.uid,
+        selectedTrack: index,
+      });
+    }
+
+    componentDidMount() {  
+      Object.entries(this.props.navigation.state.params.exercises)
         .map(([exercise, value], i) => {
           i === 0
             ? this.setState({
@@ -96,18 +103,10 @@ export default class EpisodeSingle extends Component {
             })
             : null;
         });
-      this.getTimeFirebase() !== 0
-        ? this.setState({ currentTime: this.getTimeFirebase() })
-        : null;
+      // this.getTimeFirebase() !== 0
+      //   ? this.setState({ currentTime: this.getTimeFirebase() })
+      //   : null;
       this.getTimeFirebase();
-      this.setState({
-        listen: check,
-        episodeId,
-        uid: this.props.screenProps.user.uid,
-        selectedTrack: index,
-        episodeKeysArray,
-      });
-      console.log(index, episodeKeysArray);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -117,15 +116,17 @@ export default class EpisodeSingle extends Component {
     }
 
   onBack = () => {
+    const { currentTime } = this.state;
     const SEEK_BEHIND = 10;
-    this.setState({ currentTime: this.state.currentTime - SEEK_BEHIND });
-    this.player.seek(this.state.currentTime - SEEK_BEHIND, 10);
+    this.setState({ currentTime: currentTime - SEEK_BEHIND });
+    this.player.seek(currentTime - SEEK_BEHIND, 10);
   }
 
   onForward = () => {
+    const { currentTime } = this.state;
     const SEEK_FORWARD = 10;
-    this.setState({ currentTime: this.state.currentTime + SEEK_FORWARD });
-    this.player.seek(this.state.currentTime + SEEK_FORWARD, 10);
+    this.setState({ currentTime: currentTime + SEEK_FORWARD });
+    this.player.seek(currentTime + SEEK_FORWARD, 10);
   }
 
   onPressPause = () => {
@@ -148,28 +149,33 @@ export default class EpisodeSingle extends Component {
 
   onProgress = (data) => {
     this.setState({ currentTime: data.currentTime });
+    this.changeExercises();
     AppState.addEventListener('change', (state) => {
       if (state === 'background') {
-        this.setTimeFirebase();
+      // this.setTimeFirebase();
       }
     });
   };
 
   onLoad = (data) => {
-    const { uid, episodeId } = this.state;
+    const { uid, episodeId, logId } = this.state;
     this.setState({ totalLength: data.duration });
     if (this.state.listen) {
       this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
     } else {
-      firebase.database().ref(`logs/${episodeId}/${uid}/`).on('value', (snapshot) => {
+      firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
+        console.log(snapshot.val());
         if (snapshot.val() === null) {
           return this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
         }
-        this.setState({ currentTime: this.getCurrentTimeInMs(snapshot.val().dateNow) },
-          () => {
-            this.changeExercises();
-            this.player.seek(this.state.currentTime, 10);
-          });
+        this.setState({
+          currentTime: this.getCurrentTimeInMs(snapshot.val().timeStamp),
+          lastLoggedDate: snapshot.val().dateNow,
+        },
+        () => {
+          this.changeExercises();
+          this.player.seek(this.state.currentTime, 10);
+        });
       }, (error) => {
         console.log(error);
       });
@@ -199,17 +205,47 @@ export default class EpisodeSingle extends Component {
   setTimeFirebase = () => {
     if (!this.state.listen) {
       const { uid, episodeId } = this.state;
-      firebase.database().ref(`logs/${episodeId}/${uid}/`).set({
-        dateNow: this.state.currentTime,
-      });
+      const currentDate = new Date().getTime();
+      if ((currentDate - this.state.lastLoggedDate) > 300000) {
+        firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+          timeStamp: this.state.currentTime,
+          dateNow: new Date().getTime(),
+        });
+      } else {
+        firebase.database().ref(`logs/${uid}/${episodeId}/${this.state.logId}`).set({
+          timeStamp: this.state.currentTime,
+          dateNow: currentDate,
+        });
+      }
     }
   }
 
-  getTimeFirebase = () => {
+  getlastLogId = (snapshot) => {
+    const array = Object.keys(snapshot);
+    const id = array[array.length - 1];
+    console.log(id);
+    this.setState({ logId: id });
+  }
+
+  getTimeFirebase = async () => {
     const { uid, episodeId } = this.state;
-    firebase.database().ref(`logs/${episodeId}/${uid}/`).on(
-      'value', snapshot => snapshot.val(),
-      (error) => {
+    firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+      'value', (snapshot) => {
+        if (snapshot.val() == null) {
+          firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+            timeStamp: 0.0,
+            dateNow: new Date().getTime(),
+          }).then(() => {
+            firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+              'value', (snap) => {
+                this.getlastLogId(snap.val());
+              },
+            );
+          });
+        } else {
+          this.getlastLogId(snapshot.val());
+        }
+      }, (error) => {
         console.log(error);
       },
     );
@@ -235,7 +271,7 @@ export default class EpisodeSingle extends Component {
                 color="#fff"
                 onPress={() => {
                   this.setState({ showDialog: false });
-                  this.props.navigation.navigate('Talon');
+                  this.props.navigation.navigate('TalonScreen');
                 }}
               />
             </View>
@@ -265,25 +301,25 @@ export default class EpisodeSingle extends Component {
   changeExercises = () => {
     Object.entries(this.props.navigation.state.params.exercises)
       .map(([key, value], i) => {
-        if (this.state.currentTime < value.start) {
+        const { title, start } = value;
+        if (this.state.currentTime > start) {
           this.setState({
             playingExercise: {
-              name: value.title,
+              name: title,
               value,
             },
           });
+          this.state.previousStartTime.push(start);
         }
       });
   }
 
   navigateToPreviousExercise = () => {
-    const { selectedTrack, episodeKeysArray } = this.state;
-    if (selectedTrack === 0) return;
-    this.setState({
-      loading: true,
-      selectedTrack: selectedTrack - 1,
-      episodeId: episodeKeysArray[selectedTrack - 1],
-    });
+    const { previousStartTime } = this.state;
+    const startTime = previousStartTime[previousStartTime.length - 2];
+    this.setState({ currentTime: startTime });
+    this.player.seek(startTime, 10);
+    this.state.previousStartTime.pop(); // removes last item of array
   }
 
   renderLandscapeView = (track) => {
@@ -432,7 +468,7 @@ export default class EpisodeSingle extends Component {
         ref={(ref) => {
           this.player = ref;
         }}
-        progressUpdateInterval={100.0}
+        progressUpdateInterval={50.0}
         paused={this.state.paused} // Pauses playback entirely.
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground // ={true}

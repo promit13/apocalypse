@@ -1,10 +1,7 @@
 import React from 'react';
 import { Icon, Text } from 'react-native-elements';
 import {
-  View,
-  ScrollView,
-  Image,
-  TouchableOpacity,
+  View, ScrollView, Image, TouchableOpacity,
 } from 'react-native';
 
 const styles = {

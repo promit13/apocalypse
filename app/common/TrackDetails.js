@@ -1,9 +1,7 @@
 import React from 'react';
 
 import {
-  View,
-  Text,
-  StyleSheet,
+  View, Text, StyleSheet,
 } from 'react-native';
 
 
@@ -52,7 +50,6 @@ const styles = StyleSheet.create({
 
 export default function TrackDetails({
   title,
-  artist,
 }) {
   return (
     <View style={styles.container}>

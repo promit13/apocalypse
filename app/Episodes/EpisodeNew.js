@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
-  AppState,
-  Text,
-  View,
+  ActivityIndicator, AppState, Text, View,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';

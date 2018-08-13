@@ -1,9 +1,6 @@
 import React from 'react';
 import {
-  View,
-  StyleSheet,
-  TextInput,
-  ScrollView,
+  View, StyleSheet, TextInput, ScrollView, Text,
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -36,6 +33,7 @@ export default class UserBodyDetail extends React.Component {
     weight: '',
     age: '',
     gender: '',
+    errorVisible: false,
   }
 
   handleSubmit = () => {
@@ -45,6 +43,9 @@ export default class UserBodyDetail extends React.Component {
       weight,
       gender,
     } = this.state;
+    if (age === '' || height === '' || weight === '' || gender === '') {
+      return this.setState({ errorVisible: true });
+    }
     firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
       age,
       weight,
@@ -53,6 +54,16 @@ export default class UserBodyDetail extends React.Component {
       extended: true,
     })
       .then(() => this.props.navigation.navigate('Tutorial'));
+  }
+
+  displayErrorText = () => {
+    if (this.state.errorVisible) {
+      return (
+        <Text style={{ color: 'red' }}>
+          Please fill all section
+        </Text>
+      );
+    }
   }
 
   render() {
@@ -87,6 +98,7 @@ export default class UserBodyDetail extends React.Component {
             onChangeText={gender => this.setState({ gender })}
             value={this.state.gender}
           />
+          {this.displayErrorText()}
           <Button
             buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
             title="Done"

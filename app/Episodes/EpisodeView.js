@@ -1,13 +1,9 @@
 import React from 'react';
 import {
-  ScrollView,
-  View,
-  Image,
+  ScrollView, View, Image,
 } from 'react-native';
 import {
-  ListItem,
-  Button,
-  Text,
+  ListItem, Button, Text,
 } from 'react-native-elements';
 import firebase from '../config/firebase';
 
@@ -79,7 +75,7 @@ export default class EpisodeView extends React.Component {
       exercises,
       episodeId,
       index,
-      episodeKeysArray,
+      exerciseList,
     } = this.props.navigation.state.params;
     this.props.navigation.navigate('EpisodeSingle', {
       tracks,
@@ -88,7 +84,7 @@ export default class EpisodeView extends React.Component {
       mode,
       episodeId,
       index,
-      episodeKeysArray,
+      exerciseList,
     });
   }
 
@@ -116,7 +112,6 @@ export default class EpisodeView extends React.Component {
     ));
     return (
       <ScrollView style={styles.mainContainer}>
-        <View style={styles.line} />
         <View style={{ flexDirection: 'row', padding: 15 }}>
           <View style={styles.circularImageView}>
             <Image

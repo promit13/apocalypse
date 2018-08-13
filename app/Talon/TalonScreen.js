@@ -1,9 +1,6 @@
 import React from 'react';
 import {
-  ScrollView,
-  View,
-  Image,
-  TouchableOpacity,
+  ScrollView, View, Image, TouchableOpacity,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -104,7 +101,7 @@ const styles = {
   circularImageView: {
     height: 60,
     width: 60,
-    borderWidth: 5,
+    borderWidth: 2,
     borderColor: 'white',
     borderRadius: 60 / 2,
     alignItems: 'center',
@@ -112,7 +109,7 @@ const styles = {
   },
 };
 
-export default class Talon extends React.Component {
+export default class TalonScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -123,7 +120,7 @@ export default class Talon extends React.Component {
   }
 
   componentDidMount() {
-    firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }))
+    firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }));
   }
 
   renderContent = (i) => {

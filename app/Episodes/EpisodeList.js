@@ -1,14 +1,9 @@
 import React from 'react';
 import {
-  ScrollView,
-  View,
-  Image,
+  ScrollView, View, Image, TouchableOpacity,
 } from 'react-native';
 import {
-  Text,
-  ListItem,
-  Icon,
-  Button,
+  Text, ListItem, Icon, Button,
 } from 'react-native-elements';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
@@ -25,35 +20,35 @@ export const EXERCISES = {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
     title: 'Shoulder press',
-    start: 0,
+    start: 10,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   benchPressSecond: {
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
-    title: 'Bench press',
-    start: 0,
+    title: 'Bench press Second',
+    start: 15,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   shoulderPressSecond: {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
-    title: 'Shoulder press',
-    start: 0,
+    title: 'Shoulder press Second',
+    start: 20,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   benchPressThird: {
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
-    title: 'Bench press',
-    start: 0,
+    title: 'Bench press Third',
+    start: 25,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
   shoulderPressThird: {
     imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
     videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
-    title: 'Shoulder press',
-    start: 0,
+    title: 'Shoulder press Third',
+    start: 30,
     subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
   },
 };
@@ -133,7 +128,7 @@ const styles = {
   circularImageView: {
     height: 60,
     width: 60,
-    borderWidth: 5,
+    borderWidth: 2,
     borderColor: 'white',
     borderRadius: 60 / 2,
     alignItems: 'center',
@@ -151,20 +146,22 @@ export default class EpisodeList extends React.Component {
     firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }));
   }
 
-  onEpisodeClick = (episodeId, index, episodeKeysArray) => {
+  onEpisodeClick = (episodeId, index) => {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
+      const value = snapshot.val();
       this.setState({ loading: false });
       this.props.navigation.navigate('EpisodeView', {
         tracks: TRACKS,
         exercises: EXERCISES,
         episodeId,
-        title: snapshot.val().title,
-        category: snapshot.val().category,
-        description: snapshot.val().description,
-        imageUrl: snapshot.val().intel,
+        title: value.title,
+        category: value.category,
+        description: value.description,
+        imageUrl: value.intel,
+        exerciseList: value.exercises,
         index,
-        episodeKeysArray,
+        // episodeKeysArray,
       });
     });
   }
@@ -194,7 +191,6 @@ export default class EpisodeList extends React.Component {
                 this.onEpisodeClick(
                   episodeKey,
                   episodeIndex,
-                  episodeKeysArray,
                 );
               }}
             />
@@ -229,6 +225,7 @@ export default class EpisodeList extends React.Component {
               style={styles.imageStyle}
               source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
             />
+            <TouchableOpacity onPress={() => {}}>
             <View style={styles.playingEpisodeView}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={styles.circularImageView}>
@@ -258,6 +255,7 @@ export default class EpisodeList extends React.Component {
               </View>
               <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
             </View>
+            </TouchableOpacity>
             {this.renderList()}
           </View>
         </ScrollView>

@@ -1,11 +1,7 @@
 import React from 'react';
 
 import {
-  View,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Dimensions,
+  View, StyleSheet, Image, TouchableOpacity, Dimensions,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 

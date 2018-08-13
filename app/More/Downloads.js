@@ -1,9 +1,6 @@
 import React from 'react';
 import {
-  ScrollView,
-  View,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
+  ScrollView, View, TouchableWithoutFeedback, TouchableOpacity,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';

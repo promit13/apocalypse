@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import {
-  View,
-  ScrollView,
-  ActivityIndicator,
+  View, ScrollView, ActivityIndicator,
 } from 'react-native';
 import Video from 'react-native-video';
 import Controls from '../common/Controls';

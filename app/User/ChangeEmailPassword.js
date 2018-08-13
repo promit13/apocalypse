@@ -1,9 +1,6 @@
 import React from 'react';
 import {
-  View,
-  TextInput,
-  StyleSheet,
-  Text,
+  View, TextInput, StyleSheet, Text,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';

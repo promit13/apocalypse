@@ -65,7 +65,7 @@ export default class EssentialIntel extends React.Component {
     const seasons = Object.entries(this.state.episodes).map(([key, value], i) => {
       return (
         <ListItem
-          key={i}
+          key={key}
           title={value.title}
           onPress={() => {
             this.props.navigation.navigate('TalonIntelPlayer', {

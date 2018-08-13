@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
-  AppState,
-  Text,
-  View,
-  ScrollView,
+  ActivityIndicator, AppState, Text, View, ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
@@ -62,17 +58,10 @@ export default class TalonIntelPlayer extends Component {
       windowsHeight: 0,
       windowsWidth: 0,
     };
-    this.getTimeFirebase = this.getTimeFirebase.bind(this);
-    this.onPressPlay = this.onPressPlay.bind(this);
-    this.onPressPause = this.onPressPause.bind(this);
-    this.onBack = this.onBack.bind(this);
-    this.onForward = this.onForward.bind(this);
-    this.onExercisePress = this.onExercisePress.bind(this);
-    this.onDragSeekBar = this.onDragSeekBar.bind(this);
   }
 
   componentDidMount() {
-    const firstExercise = Object.entries(this.props.navigation.state.params.exercises)
+    Object.entries(this.props.navigation.state.params.exercises)
       .map(([exercise, value], i) => {
         i === 0
           ? this.setState({
@@ -80,39 +69,33 @@ export default class TalonIntelPlayer extends Component {
           })
           : null;
       });
-    this.getTimeFirebase() !== 0
-      ? this.setState({ currentTime: this.getTimeFirebase() })
-      : null;
-    this.getTimeFirebase();
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.currentTime > 0) {
-      this.changeExercises;
+      // this.changeExercises;
     }
   }
 
-  onBack() {
+  onBack = () => {
+    const { currentTime } = this.state;
     const SEEK_BEHIND = 10;
-    this.setState({ currentTime: this.state.currentTime - SEEK_BEHIND });
-    this.player.seek(this.state.currentTime - SEEK_BEHIND, 10);
+    this.setState({ currentTime: currentTime - SEEK_BEHIND });
+    this.player.seek(currentTime - SEEK_BEHIND, 10);
   }
 
-  onForward() {
+  onForward = () => {
+    const { currentTime } = this.state;
     const SEEK_FORWARD = 10;
-    this.setState({ currentTime: this.state.currentTime + SEEK_FORWARD });
-    this.player.seek(this.state.currentTime + SEEK_FORWARD, 10);
+    this.setState({ currentTime: currentTime + SEEK_FORWARD });
+    this.player.seek(currentTime + SEEK_FORWARD, 10);
   }
 
-  onPressPause() {
+  onPressPause = () => {
     this.setState({ paused: true });
-    firebase.database().ref('videos/example').set({
-      timeStamp: this.state.currentTime,
-    });
-    this.changeExercises();
   }
 
-  onExercisePress() {
+  onExercisePress = () => {
     this.props.navigation.navigate('ExercisePlayer', { exercise: this.state.playingExercise });
     this.setState({ paused: true });
     firebase.database().ref('videos/example').set({
@@ -130,29 +113,21 @@ export default class TalonIntelPlayer extends Component {
 
     AppState.addEventListener('change', (state) => {
       if (state === 'background') {
-        this.setTimeFirebase();
+        // this.setTimeFirebase();
       }
     });
   };
 
   onLoad = (data) => {
-    this.setState({ totalLength: data.duration });
-    const firebaseTime = firebase.database().ref('videos/example').on('value', (snapshot) => {
-      this.setState({ currentTime: this.getCurrentTimeInMs(snapshot.val().timeStamp) },
-        function () {
-          this.changeExercises();
-          this.player.seek(this.state.currentTime, 10);
-        });
-    }, (error) => {
-    });
-    this.setState({ loading: false }); 
+    this.player.seek(this.state.currentTimem, 10);
+    this.setState({ totalLength: data.duration, loading: false });
   };
 
-  onDragSeekBar(currentTime) {
+  onDragSeekBar = (currentTime) => {
     this.player.seek(currentTime, 10);
   }
 
-  onPressPlay() {
+  onPressPlay = () => {
     this.setState({ paused: false });
   }
 
@@ -161,21 +136,6 @@ export default class TalonIntelPlayer extends Component {
   }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
-
-  setTimeFirebase = () =>  {
-    firebase.database().ref('videos/example').set({
-      timeStamp: this.state.currentTime,
-    });
-  }
-
-  getTimeFirebase() {
-    firebase.database().ref('videos/example').on(
-      'value', (snapshot) => snapshot.val(),
-      (error) => {
-        console.log(error);
-      },
-    );
-  }
 
   formatTime = (timeToFormat) => {
     let minutes = 0;
@@ -194,19 +154,19 @@ export default class TalonIntelPlayer extends Component {
     return this.renderLandscapeView(track);
   };
 
-  changeExercises() {
-    const exercises = Object.entries(this.props.navigation.state.params.exercises)
-      .map(([key, value], i) => {
-        if (this.state.currentTime > value.start) {
-          this.setState({
-            playingExercise: {
-              name: value.title,
-              value,
-            },
-          });
-        }
-      });
-  }
+  // changeExercises() {
+  //   const exercises = Object.entries(this.props.navigation.state.params.exercises)
+  //     .map(([key, value], i) => {
+  //       if (this.state.currentTime > value.start) {
+  //         this.setState({
+  //           playingExercise: {
+  //             name: value.title,
+  //             value,
+  //           },
+  //         });
+  //       }
+  //     });
+  // }
 
   renderLandscapeView = (track) => {
     return (
