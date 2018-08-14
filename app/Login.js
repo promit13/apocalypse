@@ -2,7 +2,8 @@ import React from 'react';
 import {
   View, TextInput, StyleSheet, Text,
 } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
+import { Button, Icon, SocialIcon } from 'react-native-elements';
+import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import firebase from './config/firebase';
 
 const styles = StyleSheet.create({
@@ -59,6 +60,28 @@ export default class Login extends React.Component {
     }
   }
 
+  doLogin = () => {
+    LoginManager.logInWithReadPermissions(['public_profile', 'email', 'user_gender']).then(
+      (result) => {
+        if (result.isCancelled) {
+          console.log('Login was cancelled');
+        } else {
+          AccessToken.getCurrentAccessToken()
+            .then((data) => {
+              console.log(data);
+              const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+              firebase.auth().signInAndRetrieveDataWithCredential(credential)
+                .then(() => {
+                  console.log(`Login was successful with permissions: 
+                  ${result.grantedPermissions.toString()}`);
+                })
+                .catch(error => console.log(error));
+            });
+        }
+      },
+    ).catch(error => console.log(`Login failed with error: ${error}`));
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -88,6 +111,13 @@ export default class Login extends React.Component {
           buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
           title="Log in"
           onPress={() => this.handleSubmit()}
+        />
+        <SocialIcon
+          button
+          style={{ marginTop: 10 }}
+          type="facebook"
+          title="Login with Facebook"
+          onPress={() => this.doLogin()}
         />
         <Button
           buttonStyle={{ backgroundColor: '#fff', borderRadius: 10, marginTop: 10 }}

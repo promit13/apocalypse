@@ -38,7 +38,7 @@ const styles = {
   },
 };
 export default class ExerciseCategory extends React.Component {
-    renderView = (imageUrl, title, subtitle) => {
+    renderView = (title, subtitle, imageUrl) => {
       return (
         <TouchableOpacity onPress={() => this.props.navigation.navigate('ExerciseList', { category: title })}>
           <View style={styles.categoryView}>
@@ -51,7 +51,7 @@ export default class ExerciseCategory extends React.Component {
                     borderRadius: 120 / 2,
                     borderColor: 'white',
                   }}
-                  source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4' }}
+                  source={{ uri: imageUrl }}
                 />
               </View>
               <View>
@@ -73,9 +73,9 @@ export default class ExerciseCategory extends React.Component {
       return (
         <View style={styles.maincontainer}>
           <ScrollView>
-            {this.renderView('imageUrl', 'Speed', 'Running Training')}
-            {this.renderView('imageUrl', 'Strength', 'Bodyweight Circuits')}
-            {this.renderView('imageUrl', 'Control', 'Stretch and Core')}
+            {this.renderView('Speed', 'Running Training', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Running%20Logo%20White%20BG.png?alt=media&token=6df03197-e7cb-4bc2-aac5-b51e6404ff90')}
+            {this.renderView('Strength', 'Bodyweight Circuits', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Circuit%20Logo%20White%20BG.png?alt=media&token=ac1d355d-3a86-417a-9327-8ad00032a077')}
+            {this.renderView('Control', 'Stretch and Core', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Holistic%20Logo%20White%20BG.png?alt=media&token=ad9ce094-4e19-4d7c-b96b-c3550dbfc291')}
           </ScrollView>
         </View>
       );

@@ -42,11 +42,11 @@ export default function AlbumArt({
         source={{ uri: url }}
       />
       { showInfo && (
-        <View style={styles.infoView}>
-          <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={onPress}>
+          <View style={styles.infoView}>
             <Icon type="ionicon" name="ios-information" color="#f5cb23" />
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableOpacity>
       )
         }
       <Text h4 style={{ alignSelf: 'center', color: 'white' }}>

@@ -167,7 +167,6 @@ export default class EpisodeList extends React.Component {
   }
 
   renderList = () => {
-    const episodeKeysArray = [];
     let minIndex = 0;
     let maxIndex = 0;
     const seriesList = Object.entries(this.state.series).map(([key, value], i) => {
@@ -175,7 +174,6 @@ export default class EpisodeList extends React.Component {
       maxIndex += Object.keys(value.episodes).length;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
-          episodeKeysArray.push(episodeKey);
           return (
             <ListItem
               key={episodeKey}
@@ -223,38 +221,38 @@ export default class EpisodeList extends React.Component {
           <View>
             <Image
               style={styles.imageStyle}
-              source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
+              source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029' }}
             />
             <TouchableOpacity onPress={() => {}}>
-            <View style={styles.playingEpisodeView}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.circularImageView}>
-                  <Image
-                    style={{
-                      height: 60,
-                      width: 60,
-                      borderRadius: 60 / 2,
+              <View style={styles.playingEpisodeView}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={styles.circularImageView}>
+                    <Image
+                      style={{
+                        height: 60,
+                        width: 60,
+                        borderRadius: 60 / 2,
+                      }}
+                      source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029' }}
+                    />
+                  </View>
+                  <View>
+                    <Text style={{
+                      fontSize: 18,
+                      color: '#001331',
+                      marginLeft: 10,
+                      marginRight: 10,
                     }}
-                    source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
-                  />
+                    >
+                      Play First Episode
+                    </Text>
+                    <Text style={{ color: '#001331', marginLeft: 10, marginRight: 10 }}>
+                      Welcome to the Apocalypse
+                    </Text>
+                  </View>
                 </View>
-                <View>
-                  <Text style={{
-                    fontSize: 18,
-                    color: '#001331',
-                    marginLeft: 10,
-                    marginRight: 10,
-                  }}
-                  >
-                    Play First Episode
-                  </Text>
-                  <Text style={{ color: '#001331', marginLeft: 10, marginRight: 10 }}>
-                    6. Welcome to the Apocalypse
-                  </Text>
-                </View>
+                <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
               </View>
-              <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
-            </View>
             </TouchableOpacity>
             {this.renderList()}
           </View>
