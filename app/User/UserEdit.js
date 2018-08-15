@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput, TouchableOpacity,
+  View, Text, Modal, TextInput, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import firebase from '../config/firebase';
 
-const listItems = ['Sign Out', 'Change Email or Password', 'Delete Account'];
+const listItems = ['Sign Out', 'Change Password', 'Delete Account'];
 const styles = {
   container: {
     flex: 1,
@@ -45,6 +45,7 @@ export default class MyAccount extends React.Component {
     password: '',
     modalVisible: false,
     errorVisible: false,
+    showLoading: false,
   };
 
   logOut = () => {
@@ -61,8 +62,8 @@ export default class MyAccount extends React.Component {
       .then(() => {
         firebase.auth().currentUser.delete()
           .then(() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove()
-            .then(() => this.setState({ errorVisible: false })));
-      }).catch(() => this.setState({ errorVisible: true }));
+            .then(() => this.setState({ errorVisible: false, showLoading: false })));
+      }).catch(() => this.setState({ errorVisible: true, showLoading: false }));
   }
 
   displayErrorText = () => {
@@ -75,6 +76,12 @@ export default class MyAccount extends React.Component {
     }
   }
 
+  showLoading = () => {
+    if (this.state.showLoading) {
+      return <ActivityIndicator size="large" color="#001331" style={{ marginTop: 20 }} />;
+    }
+  }
+
   showModal = () => {
     return (
       <Modal transparent visible={this.state.modalVisible}>
@@ -82,6 +89,7 @@ export default class MyAccount extends React.Component {
           <TouchableOpacity onPress={() => this.setState({ modalVisible: false, password: '' })}>
             <View style={styles.modalInnerView}>
               <TextInput
+                underlineColorAndroid="transparent"
                 secureTextEntry
                 style={styles.inputStyle}
                 placeholder="Confirm your password"
@@ -90,7 +98,16 @@ export default class MyAccount extends React.Component {
                 value={this.state.password}
               />
               {this.displayErrorText()}
-              <Button color="#fff" buttonStyle={styles.button} title="Confirm" onPress={() => this.deleteAccount()} />
+              {this.showLoading()}
+              <Button
+                color="#fff"
+                buttonStyle={styles.button}
+                title="Confirm"
+                onPress={() => {
+                  this.setState({ showLoading: true });
+                  this.deleteAccount();
+                }}
+              />
             </View>
           </TouchableOpacity>
         </View>

@@ -8,6 +8,9 @@ import Loading from '../common/Loading';
 const styles = {
   containerStyle: {
     flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#001331',
+    padding: 20,
   },
   textStyle: {
     marginTop: 10,
@@ -18,11 +21,8 @@ const styles = {
     height: 200,
   },
   slideStyle: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#001331',
-    padding: 20,
   },
   buttonStyle: {
     backgroundColor: '#001331',
@@ -60,14 +60,16 @@ export default class Tutorial extends React.Component {
   render() {
     const tutorials = Object.entries(this.state.tutorials).map(([key, value], i) => {
       return (
-        <View style={styles.slideStyle}>
-          <Text style={styles.textStyle}>
-            {value.title}
-          </Text>
-          <Image style={styles.imageStyle} source={{ uri: value.file }} />
-          <Text style={styles.textStyle}>
-            {value.description}
-          </Text>
+        <View style={styles.containerStyle}>
+          <View style={styles.slideStyle}>
+            <Text style={styles.textStyle}>
+              {value.title}
+            </Text>
+            <Image style={styles.imageStyle} source={{ uri: value.file }} />
+            <Text style={styles.textStyle}>
+              {value.description}
+            </Text>
+          </View>
           {this.renderButton(i)}
         </View>
       );

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, StyleSheet, TextInput, ScrollView, Text,
+  View, StyleSheet, TextInput, ScrollView, Text, ActivityIndicator,
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -8,7 +8,6 @@ import firebase from '../config/firebase';
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
-    marginTop: 50,
     padding: 20,
     backgroundColor: '#001331',
     flex: 1,
@@ -34,6 +33,7 @@ export default class UserBodyDetail extends React.Component {
     age: '',
     gender: '',
     errorVisible: false,
+    showLoading: false,
   }
 
   handleSubmit = () => {
@@ -44,7 +44,7 @@ export default class UserBodyDetail extends React.Component {
       gender,
     } = this.state;
     if (age === '' || height === '' || weight === '' || gender === '') {
-      return this.setState({ errorVisible: true });
+      return this.setState({ errorVisible: true, showLoading: false });
     }
     firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
       age,
@@ -53,7 +53,10 @@ export default class UserBodyDetail extends React.Component {
       gender,
       extended: true,
     })
-      .then(() => this.props.navigation.navigate('Tutorial'));
+      .then(() => {
+        this.setState({ showLoading: false });
+        this.props.navigation.navigate('Tutorial');
+      });
   }
 
   displayErrorText = () => {
@@ -66,11 +69,18 @@ export default class UserBodyDetail extends React.Component {
     }
   }
 
+  showLoading = () => {
+    if (this.state.showLoading) {
+      return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
+    }
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <ScrollView>
           <TextInput
+            underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Age"
             placeholderTextColor="gray"
@@ -78,6 +88,7 @@ export default class UserBodyDetail extends React.Component {
             value={this.state.age}
           />
           <TextInput
+            underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Height (cm/inches)"
             placeholderTextColor="gray"
@@ -85,6 +96,7 @@ export default class UserBodyDetail extends React.Component {
             value={this.state.height}
           />
           <TextInput
+            underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Weight (kg/lbs)"
             placeholderTextColor="gray"
@@ -92,6 +104,7 @@ export default class UserBodyDetail extends React.Component {
             value={this.state.weight}
           />
           <TextInput
+            underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Gender (M/F/Other)"
             placeholderTextColor="gray"
@@ -99,10 +112,14 @@ export default class UserBodyDetail extends React.Component {
             value={this.state.gender}
           />
           {this.displayErrorText()}
+          {this.showLoading()}
           <Button
             buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
             title="Done"
-            onPress={() => this.handleSubmit()}
+            onPress={() => {
+              this.setState({ showLoading: true });
+              this.handleSubmit();
+            }}
           />
           <Button
             buttonStyle={{ backgroundColor: 'transparent', borderRadius: 10, marginTop: 10 }}

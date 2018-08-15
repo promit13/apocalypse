@@ -44,7 +44,7 @@ const styles = {
 };
 
 
-export default class Exercise extends Component {
+export default class ExercisePlayer extends Component {
   state = {
     paused: false,
     loading: true,

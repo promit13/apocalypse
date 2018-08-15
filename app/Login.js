@@ -1,9 +1,8 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Text,
+  View, TextInput, StyleSheet, Text, ActivityIndicator,
 } from 'react-native';
-import { Button, Icon, SocialIcon } from 'react-native-elements';
-import { LoginManager, AccessToken } from 'react-native-fbsdk';
+import { Button, Icon } from 'react-native-elements';
 import firebase from './config/firebase';
 
 const styles = StyleSheet.create({
@@ -38,15 +37,16 @@ export default class Login extends React.Component {
     email: '',
     password: '',
     errorVisible: false,
+    showLoading: false,
   }
 
   handleSubmit = () => {
     firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
       .then(() => {
-        this.setState({ errorVisible: false });
+        this.setState({ errorVisible: false, showLoading: false });
       })
       .catch(() => {
-        this.setState({ errorVisible: true });
+        this.setState({ errorVisible: true, showLoading: false });
       });
   }
 
@@ -60,26 +60,10 @@ export default class Login extends React.Component {
     }
   }
 
-  doLogin = () => {
-    LoginManager.logInWithReadPermissions(['public_profile', 'email', 'user_gender']).then(
-      (result) => {
-        if (result.isCancelled) {
-          console.log('Login was cancelled');
-        } else {
-          AccessToken.getCurrentAccessToken()
-            .then((data) => {
-              console.log(data);
-              const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-              firebase.auth().signInAndRetrieveDataWithCredential(credential)
-                .then(() => {
-                  console.log(`Login was successful with permissions: 
-                  ${result.grantedPermissions.toString()}`);
-                })
-                .catch(error => console.log(error));
-            });
-        }
-      },
-    ).catch(error => console.log(`Login failed with error: ${error}`));
+  showLoading = () => {
+    if (this.state.showLoading) {
+      return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
+    }
   }
 
   render() {
@@ -88,6 +72,7 @@ export default class Login extends React.Component {
         <View style={styles.fieldContainer}>
           <Icon name="user" type="entypo" color="white" />
           <TextInput
+            underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Email"
             placeholderTextColor="gray"
@@ -98,6 +83,7 @@ export default class Login extends React.Component {
         <View style={styles.fieldContainer}>
           <Icon name="lock" type="entypo" color="white" />
           <TextInput
+            underlineColorAndroid="transparent"
             secureTextEntry
             style={styles.inputStyle}
             placeholder="Password"
@@ -107,17 +93,14 @@ export default class Login extends React.Component {
           />
         </View>
         {this.displayErrorText()}
+        {this.showLoading()}
         <Button
           buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
           title="Log in"
-          onPress={() => this.handleSubmit()}
-        />
-        <SocialIcon
-          button
-          style={{ marginTop: 10 }}
-          type="facebook"
-          title="Login with Facebook"
-          onPress={() => this.doLogin()}
+          onPress={() => {
+            this.setState({ showLoading: true });
+            this.handleSubmit();
+          }}
         />
         <Button
           buttonStyle={{ backgroundColor: '#fff', borderRadius: 10, marginTop: 10 }}

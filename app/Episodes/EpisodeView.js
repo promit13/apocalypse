@@ -90,12 +90,12 @@ export default class EpisodeView extends React.Component {
 
   render() {
     const {
-      exercises,
       title,
       description,
       category,
+      exerciseList,
     } = this.props.navigation.state.params;
-    const exercisesList = Object.entries(exercises).map(([key, value], i) => (
+    const exercisesList = Object.entries(exerciseList).map(([key, value], i) => (
       <ListItem
         key={key}
         title={value.title}
@@ -104,7 +104,9 @@ export default class EpisodeView extends React.Component {
         underlayColor="#2a3545"
         onPress={() => {
           this.props.navigation.navigate('ExercisePlayer', {
-            videoUrl: value.videoUrl,
+            // videoUrl: value.videoUrl,
+            // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
+            exerciseId: key,
             title: value.title,
           });
         }}

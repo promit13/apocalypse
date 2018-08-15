@@ -1,8 +1,10 @@
 import React from 'react';
 import {
-  StyleSheet, View, TextInput, ScrollView, Text,
+  StyleSheet, View, TextInput, ScrollView, Text, ActivityIndicator,
 } from 'react-native';
 import { Button, SocialIcon, Icon } from 'react-native-elements';
+import { LoginManager, AccessToken } from 'react-native-fbsdk';
+import axios from 'axios';
 import firebase from '../config/firebase';
 
 const styles = StyleSheet.create({
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#445878',
     borderRadius: 10,
-    marginTop: 10,
+    marginTop: 20,
   },
 });
 
@@ -43,6 +45,27 @@ export default class Signup extends React.Component {
     confirmPassword: '',
     errorVisible: false,
     errorMessage: '',
+    showLoading: false,
+  }
+
+  setUserData = (currentUser) => {
+    const { firstName, lastName, email } = this.state;
+    firebase.database().ref(`users/${currentUser.user.uid}`).set({
+      firstName,
+      lastName,
+      email,
+      age: 0,
+      weight: 0,
+      height: 0,
+      gender: '',
+      extended: false,
+      tutorial: false,
+      fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
+    })
+      .then(() => {
+        this.setState({ errorVisible: false, errorMessage: '', showLoading: false });
+        this.props.navigation.navigate('UserBodyDetail');
+      });
   }
 
   handleSubmit = () => {
@@ -55,30 +78,41 @@ export default class Signup extends React.Component {
     } = this.state;
     if (email === '' || firstName === ''
       || lastName === '' || password === '' || confirmPassword === '') {
-      return this.setState({ errorVisible: true, errorMessage: 'Please fill all section' });
+      return this.setState({ errorVisible: true, errorMessage: 'Please fill all section', showLoading: false });
     }
     if (password !== confirmPassword) {
-      return this.setState({ errorVisible: true, errorMessage: 'Password did not match' });
+      return this.setState({ errorVisible: true, errorMessage: 'Password did not match', showLoading: false });
     }
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((currentUser) => {
-        firebase.database().ref(`users/${currentUser.user.uid}`).set({
-          firstName,
-          lastName,
-          email,
-          age: 0,
-          weight: 0,
-          height: 0,
-          gender: '',
-          extended: false,
-          tutorial: false,
-          fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
-        })
-          .then(() => {
-            this.setState({ errorVisible: false, errorMessage: '' });
-            this.props.navigation.navigate('UserBodyDetail');
-          });
+        this.setUserData(currentUser);
       });
+  }
+
+  doFacebookSignUp = () => {
+    LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
+      (result) => {
+        if (result.isCancelled) {
+          console.log('Login was cancelled');
+        } else {
+          AccessToken.getCurrentAccessToken()
+            .then((data) => {
+              axios.get(
+                `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
+              ).then((response) => {
+                const { email, first_name, last_name } = response.data;
+                this.setState({ email, firstName: first_name, lastName: last_name });
+                const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+                firebase.auth().signInAndRetrieveDataWithCredential(credential)
+                  .then((currentUser) => {
+                    this.setUserData(currentUser);
+                  })
+                  .catch(error => console.log(error));
+              });
+            });
+        }
+      },
+    ).catch(error => console.log(`Login failed with error: ${error}`));
   }
 
   displayErrorText = () => {
@@ -91,6 +125,12 @@ export default class Signup extends React.Component {
     }
   }
 
+  showLoading = () => {
+    if (this.state.showLoading) {
+      return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
+    }
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -98,6 +138,7 @@ export default class Signup extends React.Component {
           <View style={styles.fieldContainer}>
             <Icon name="email" color="white" />
             <TextInput
+              underlineColorAndroid="transparent"
               style={styles.inputStyle}
               placeholder="Email"
               placeholderTextColor="gray"
@@ -108,6 +149,7 @@ export default class Signup extends React.Component {
           <View style={styles.fieldContainer}>
             <Icon name="user" type="entypo" color="white" />
             <TextInput
+              underlineColorAndroid="transparent"
               style={styles.inputStyle}
               placeholder="First Name"
               placeholderTextColor="gray"
@@ -118,6 +160,7 @@ export default class Signup extends React.Component {
           <View style={styles.fieldContainer}>
             <Icon name="user" type="entypo" color="white" />
             <TextInput
+              underlineColorAndroid="transparent"
               style={styles.inputStyle}
               placeholder="Last Name"
               placeholderTextColor="gray"
@@ -129,6 +172,7 @@ export default class Signup extends React.Component {
             <Icon name="lock" type="entypo" color="white" />
             <TextInput
               secureTextEntry
+              underlineColorAndroid="transparent"
               style={styles.inputStyle}
               placeholder="Password"
               placeholderTextColor="gray"
@@ -140,6 +184,7 @@ export default class Signup extends React.Component {
             <Icon name="lock" type="entypo" color="white" />
             <TextInput
               secureTextEntry
+              underlineColorAndroid="transparent"
               style={styles.inputStyle}
               placeholder="Confirm Password"
               placeholderTextColor="gray"
@@ -148,31 +193,25 @@ export default class Signup extends React.Component {
             />
           </View>
           {this.displayErrorText()}
+          {this.showLoading()}
           <Button
             buttonStyle={styles.button}
             title="Sign up"
-            onPress={() => this.handleSubmit()}
-          />
-          <Button
-            buttonStyle={styles.button}
-            textStyle={{ color: '#bcbec1' }}
-            title="Sign in"
-            onPress={() => this.props.navigation.navigate('Login')}
+            onPress={() => {
+              this.setState({ showLoading: true });
+              this.handleSubmit();
+            }
+          }
           />
           <SocialIcon
-            title="Register"
+            title="Sign up With Facebook"
             button
-            buttonStyle={{ marginTop: 10 }}
+            style={{ marginTop: 15 }}
             type="facebook"
-            onPress={() => this.props.navigation.navigate('UserBodyDetail')}
-          />
-
-          <Button
-            buttonStyle={{ marginTop: 20 }}
-            backgroundColor="transparent"
-            textStyle={{ color: '#bcbec1' }}
-            title="Logout / debug"
-            onPress={() => this.props.navigation.navigate('Tutorial')}
+            onPress={() => {
+              this.setState({ showLoading: true });
+              this.doFacebookSignUp();
+            }}
           />
         </ScrollView>
       </View>

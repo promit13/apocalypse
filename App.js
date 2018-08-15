@@ -48,6 +48,7 @@ export default class App extends React.Component {
     if (this.state.loading) return <Loading />;
     if (this.state.user) {
       if (this.state.data === '') return <Loading />;
+      if (this.state.data === null) return <SignedOut />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {
           return <SignedIn screenProps={{ user: this.state.user }} />;
