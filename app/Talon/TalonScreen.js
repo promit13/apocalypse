@@ -110,6 +110,10 @@ const styles = {
 };
 
 export default class TalonScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Talon',
+  };
+
   constructor(props) {
     super(props);
     this.state = {

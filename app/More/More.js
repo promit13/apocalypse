@@ -35,7 +35,11 @@ const menu = {
   },
 };
 
-export default class ExerciseList extends React.Component {
+export default class More extends React.Component {
+  static navigationOptions = {
+    title: 'More',
+  };
+
   navigateTo = navigateScreen => this.props.navigation.navigate(navigateScreen);
 
   render() {
@@ -59,6 +63,7 @@ export default class ExerciseList extends React.Component {
     });
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
+        <View style={{ height: 1, backgroundColor: 'gray' }} />
         <ScrollView>
           { menuList }
         </ScrollView>

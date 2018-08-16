@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator, AppState, Text, View, ScrollView,
+  AppState, Text, View, ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
@@ -8,6 +8,7 @@ import AlbumArt from '../common/AlbumArt';
 import TrackDetails from '../common/TrackDetails';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
+import Loading from '../common/Loading';
 
 const styles = {
   container: {
@@ -42,8 +43,7 @@ const styles = {
 
 export default class TalonIntelPlayer extends Component {
   static navigationOptions = {
-    title: 'Intel Player',
-    tabBarVisible: false,
+    title: 'Talon Intel Player',
   };
 
   constructor(props) {
@@ -194,7 +194,7 @@ export default class TalonIntelPlayer extends Component {
             renderForwardButton
           />
           { this.state.loading
-            ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+            ? <Loading />
             : (
               <View>
                 <Seekbar
@@ -234,7 +234,7 @@ export default class TalonIntelPlayer extends Component {
         </View>
         <View style={styles.line} />
         { this.state.loading
-          ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+          ? <Loading />
           : (
             <View>
               <Seekbar

@@ -9,6 +9,7 @@ import AlbumArt from '../common/AlbumArt';
 import TrackDetails from '../common/TrackDetails';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
+import Loading from '../common/Loading';
 
 const styles = {
   container: {
@@ -94,7 +95,7 @@ export default class EpisodeSingle extends Component {
       });
     }
 
-    componentDidMount() {  
+    componentDidMount() {
       Object.entries(this.props.navigation.state.params.exercises)
         .map(([exercise, value], i) => {
           i === 0
@@ -103,9 +104,6 @@ export default class EpisodeSingle extends Component {
             })
             : null;
         });
-      // this.getTimeFirebase() !== 0
-      //   ? this.setState({ currentTime: this.getTimeFirebase() })
-      //   : null;
       this.getTimeFirebase();
     }
 
@@ -164,7 +162,6 @@ export default class EpisodeSingle extends Component {
       this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
     } else {
       firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
-        console.log(snapshot.val());
         if (snapshot.val() === null) {
           return this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
         }
@@ -223,7 +220,6 @@ export default class EpisodeSingle extends Component {
   getlastLogId = (snapshot) => {
     const array = Object.keys(snapshot);
     const id = array[array.length - 1];
-    console.log(id);
     this.setState({ logId: id });
   }
 
@@ -353,7 +349,7 @@ export default class EpisodeSingle extends Component {
             renderForwardButton={this.state.listen}
           />
           { this.state.loading
-            ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+            ? <Loading />
             : (
               <View>
                 { this.state.listen
@@ -410,7 +406,7 @@ export default class EpisodeSingle extends Component {
         </View>
         <View style={styles.line} />
         { this.state.loading
-          ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+          ? <Loading />
           : (
             <View>
               { this.state.listen

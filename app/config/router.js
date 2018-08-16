@@ -28,99 +28,165 @@ import Tips from '../More/Tips';
 import Trailers from '../More/Trailers';
 import ChangeEmailPassword from '../User/ChangeEmailPassword';
 
-const homeTabbarVisible = (navigation, screen) => {
-  const { routes } = navigation.state;
-  if (routes && routes.length > 0) {
-    const route = routes[routes.length - 1];
-    if (route.routeName === screen) {
-      return false;
-    }
-  }
-  return true;
-};
-
 export const SignedOut = createStackNavigator({
   Login: { screen: Login },
   Signup: { screen: UserNew },
+},
+{
+  navigationOptions: {
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+  },
 });
 export const UserDetails = createStackNavigator({
   UserBodyDetail: { screen: UserBodyDetail },
   Tutorial: { screen: Tutorial },
+},
+{
+  navigationOptions: {
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  },
 });
 export const TutorialDisplay = createStackNavigator({
   Tutorial: { screen: Tutorial },
+},
+{
+  navigationOptions: {
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  },
 });
+const EpisodeStack = createStackNavigator({
+  EpisodeList: { screen: EpisodeList },
+  EpisodeView: { screen: EpisodeView },
+  TalonScreen: { screen: TalonScreen },
+  TalonEssentialIntel: { screen: TalonEssentialIntel },
+  TalonIntelPlayer: { screen: TalonIntelPlayer },
+  ExercisePlayer: { screen: ExercisePlayer },
+  EpisodeSingle: { screen: EpisodeSingle },
+}, {
+  navigationOptions: () => ({
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  }),
+});
+
+EpisodeStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 1) {
+    tabBarVisible = false;
+  }
+  return {
+    tabBarVisible,
+  };
+};
+
+const ExerciseStack = createStackNavigator({
+  ExerciseCategory: { screen: ExerciseCategory },
+  ExerciseList: { screen: ExerciseList },
+  ExercisePlayer: { screen: ExercisePlayer },
+},
+{
+  navigationOptions: () => ({
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  }),
+});
+
+ExerciseStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 1) {
+    tabBarVisible = false;
+  }
+  return {
+    tabBarVisible,
+  };
+};
+
+const TalonStack = createStackNavigator({
+  TalonScreen: { screen: TalonScreen },
+  TalonIntelPlayer: { screen: TalonIntelPlayer },
+},
+{
+  navigationOptions: () => ({
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  }),
+});
+
+TalonStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 0) {
+    tabBarVisible = false;
+  }
+  return {
+    tabBarVisible,
+  };
+};
+
+const MoreStack = createStackNavigator({
+  More: { screen: More },
+  Account: { screen: MyAccount },
+  Agreement: { screen: Agreement },
+  Credits: { screen: Credits },
+  Downloads: { screen: Downloads },
+  Feedback: { screen: Feedback },
+  Kickstarter: { screen: Kickstarter },
+  Purchases: { screen: Purchases },
+  Tips: { screen: Tips },
+  Trailers: { screen: Trailers },
+  Tutorial: { screen: Tutorial },
+  ChangeEmailPassword: { screen: ChangeEmailPassword },
+},
+{
+  navigationOptions: () => ({
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  }),
+});
+
 export const SignedIn = createBottomTabNavigator({
-  Episode: {
-    screen: createStackNavigator({
-      EpisodeList: { screen: EpisodeList },
-      EpisodeView: { screen: EpisodeView },
-      EpisodeSingle: { screen: EpisodeSingle },
-      ExercisePlayer: { screen: ExercisePlayer },
-      TalonScreen: { screen: TalonScreen },
-      TalonEssentialIntel: { screen: TalonEssentialIntel },
-      TalonIntelPlayer: { screen: TalonIntelPlayer },
-    }),
-    navigationOptions: ({ navigation }) => ({
-      title: 'Episodes',
-      headerStyle: {
-        backgroundColor: '#001331',
-      },
-      headerTitleStyle: {
-        color: 'white',
-      },
-      tabBarVisible: homeTabbarVisible(navigation, 'EpisodeSingle'),
-    }),
-  },
-  Exercises: {
-    screen: createStackNavigator({
-      ExerciseCategory: { screen: ExerciseCategory },
-      ExerciseList: { screen: ExerciseList },
-      ExercisePlayer: { screen: ExercisePlayer },
-    }),
-    navigationOptions: ({ navigation }) => ({
-      title: 'Exercises',
-      headerTransparent: false,
-      headerStyle: {
-        backgroundColor: '#001331',
-      },
-      headerTitleStyle: {
-        color: 'white',
-      },
-      tabBarVisible: homeTabbarVisible(navigation, 'ExercisePlayer'),
-    }),
-  },
-  Talon: {
-    screen: createStackNavigator({
-      TalonScreen: { screen: TalonScreen },
-      TalonEssentialIntel: { screen: TalonEssentialIntel },
-      TalonIntelPlayer: { screen: TalonIntelPlayer },
-    }),
-    navigationOptions: ({ navigation }) => ({
-      title: 'Talon',
-      headerTransparent: false,
-      headerTitleStyle: {
-        color: 'white',
-      },
-      tabBarVisible: homeTabbarVisible(navigation, 'TalonIntelPlayer'),
-    }),
-  },
-  More: {
-    screen: createStackNavigator({
-      More: { screen: More },
-      Account: { screen: MyAccount },
-      Agreement: { screen: Agreement },
-      Credits: { screen: Credits },
-      Downloads: { screen: Downloads },
-      Feedback: { screen: Feedback },
-      Kickstarter: { screen: Kickstarter },
-      Purchases: { screen: Purchases },
-      Tips: { screen: Tips },
-      Trailers: { screen: Trailers },
-      Tutorial: { screen: Tutorial },
-      ChangeEmailPassword: { screen: ChangeEmailPassword },
-    }),
-  },
+  Episode: EpisodeStack,
+  Exercises: ExerciseStack,
+  Talon: TalonStack,
+  More: MoreStack,
 }, {
   initialRouteName: 'Episode',
 

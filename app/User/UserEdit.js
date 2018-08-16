@@ -1,9 +1,11 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput, TouchableOpacity, ActivityIndicator,
+  View, Text, Modal, TextInput, TouchableOpacity,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import firebase from '../config/firebase';
+import Loading from '../common/Loading';
+import ErrorMessage from '../common/Error';
 
 const listItems = ['Sign Out', 'Change Password', 'Delete Account'];
 const styles = {
@@ -41,10 +43,14 @@ const styles = {
   },
 };
 export default class MyAccount extends React.Component {
+  static navigationOptions = {
+    title: 'My Account',
+  };
+
   state = {
     password: '',
-    modalVisible: false,
-    errorVisible: false,
+    showModal: false,
+    showError: false,
     showLoading: false,
   };
 
@@ -62,31 +68,15 @@ export default class MyAccount extends React.Component {
       .then(() => {
         firebase.auth().currentUser.delete()
           .then(() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove()
-            .then(() => this.setState({ errorVisible: false, showLoading: false })));
-      }).catch(() => this.setState({ errorVisible: true, showLoading: false }));
-  }
-
-  displayErrorText = () => {
-    if (this.state.errorVisible) {
-      return (
-        <Text style={{ color: 'red', marginLeft: 10 }}>
-          Invalid password
-        </Text>
-      );
-    }
-  }
-
-  showLoading = () => {
-    if (this.state.showLoading) {
-      return <ActivityIndicator size="large" color="#001331" style={{ marginTop: 20 }} />;
-    }
+            .then(() => this.setState({ showError: false, showLoading: false })));
+      }).catch(() => this.setState({ showError: true, showLoading: false }));
   }
 
   showModal = () => {
     return (
-      <Modal transparent visible={this.state.modalVisible}>
+      <Modal transparent visible={this.state.showModal}>
         <View style={styles.modalView}>
-          <TouchableOpacity onPress={() => this.setState({ modalVisible: false, password: '' })}>
+          <TouchableOpacity onPress={() => this.setState({ showModal: false, password: '' })}>
             <View style={styles.modalInnerView}>
               <TextInput
                 underlineColorAndroid="transparent"
@@ -97,8 +87,8 @@ export default class MyAccount extends React.Component {
                 onChangeText={password => this.setState({ password })}
                 value={this.state.password}
               />
-              {this.displayErrorText()}
-              {this.showLoading()}
+              {this.state.showError ? <ErrorMessage errorMessage="Incorrect password" /> : null}
+              {this.state.showLoading ? <Loading /> : null}
               <Button
                 color="#fff"
                 buttonStyle={styles.button}
@@ -130,7 +120,7 @@ export default class MyAccount extends React.Component {
               return this.props.navigation.navigate('ChangeEmailPassword');
             }
             if (index === 2) {
-              return this.setState({ modalVisible: true });
+              return this.setState({ showModal: true });
             }
           }}
         />

@@ -1,9 +1,12 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Text, ActivityIndicator,
+  View, TextInput, StyleSheet, Text,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import firebase from './config/firebase';
+import Loading from './common/Loading';
+import ErrorMessage from './common/Error';
+
 
 const styles = StyleSheet.create({
   container: {
@@ -33,37 +36,25 @@ const styles = StyleSheet.create({
 
 
 export default class Login extends React.Component {
+  static navigationOptions = {
+    title: 'Login',
+  };
+
   state = {
     email: '',
     password: '',
-    errorVisible: false,
+    showError: false,
     showLoading: false,
   }
 
   handleSubmit = () => {
     firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
       .then(() => {
-        this.setState({ errorVisible: false, showLoading: false });
+        this.setState({ showError: false, showLoading: false });
       })
       .catch(() => {
-        this.setState({ errorVisible: true, showLoading: false });
+        this.setState({ showError: true, showLoading: false });
       });
-  }
-
-  displayErrorText = () => {
-    if (this.state.errorVisible) {
-      return (
-        <Text style={{ color: 'red', marginLeft: 10, marginTop: 10 }}>
-          Invalid username/password
-        </Text>
-      );
-    }
-  }
-
-  showLoading = () => {
-    if (this.state.showLoading) {
-      return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
-    }
   }
 
   render() {
@@ -72,9 +63,10 @@ export default class Login extends React.Component {
         <View style={styles.fieldContainer}>
           <Icon name="user" type="entypo" color="white" />
           <TextInput
+            keyboardType="email-address"
             underlineColorAndroid="transparent"
-            style={styles.inputStyle}
             placeholder="Email"
+            style={styles.inputStyle}
             placeholderTextColor="gray"
             onChangeText={email => this.setState({ email })}
             value={this.state.email}
@@ -92,8 +84,8 @@ export default class Login extends React.Component {
             value={this.state.password}
           />
         </View>
-        {this.displayErrorText()}
-        {this.showLoading()}
+        {this.state.showError ? <ErrorMessage errorMessage="Incorrect username/password" /> : null}
+        {this.state.showLoading ? <Loading /> : null}
         <Button
           buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
           title="Log in"

@@ -8,12 +8,17 @@ import firebase from '../config/firebase';
 const styles = {
   mainContainer: {
     flex: 1,
+    backgroundColor: '#33425a',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
 };
 export default class Downloads extends React.Component {
+  static navigationOptions = {
+    title: 'Downloads',
+  };
+
   state = {
     exercises: '',
     index: 0,
@@ -77,6 +82,7 @@ export default class Downloads extends React.Component {
     });
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
+        <View style={{ height: 1, backgroundColor: 'gray' }} />
         <ScrollView>
           { exerciseList }
         </ScrollView>

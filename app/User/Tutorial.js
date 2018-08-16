@@ -34,6 +34,10 @@ const styles = {
 };
 
 export default class Tutorial extends React.Component {
+  static navigationOptions = {
+    title: 'Tutorials',
+  };
+
   state = {
     tutorials: '',
     loading: true,

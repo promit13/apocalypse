@@ -10,9 +10,5 @@ const styles = StyleSheet.create({
 });
 
 export default function Loading() {
-  return (
-    <View containerStyle={styles.container}>
-      <ActivityIndicator size="large" />
-    </View>
-  );
+  return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
 }

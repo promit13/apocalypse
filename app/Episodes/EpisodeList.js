@@ -6,7 +6,7 @@ import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
 import firebase from '../config/firebase';
-import Loading from '../common/Loading';
+import LoadScreen from '../LoadScreen';
 
 export const EXERCISES = {
   benchPress: {
@@ -137,6 +137,10 @@ const styles = {
 };
 
 export default class EpisodeList extends React.Component {
+  static navigationOptions = {
+    title: 'Home',
+  };
+
   state = {
     series: '',
     loading: true,
@@ -214,7 +218,7 @@ export default class EpisodeList extends React.Component {
   }
 
   render() {
-    if (this.state.loading) return <Loading />;
+    if (this.state.loading) return <LoadScreen />;
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
         <ScrollView>

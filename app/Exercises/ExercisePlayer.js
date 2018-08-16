@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import {
-  View, ScrollView, ActivityIndicator,
+  View, ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
 import Controls from '../common/Controls';
 import TrackDetails from '../common/TrackDetails';
+import Loading from '../common/Loading';
 
 const styles = {
   backgroundVideo: {
@@ -45,6 +46,10 @@ const styles = {
 
 
 export default class ExercisePlayer extends Component {
+  static navigationOptions = {
+    title: 'Exercise Player',
+  };
+
   state = {
     paused: false,
     loading: true,
@@ -69,7 +74,7 @@ export default class ExercisePlayer extends Component {
             style={styles.backgroundVideo}
           />
           { this.state.loading
-            ? <ActivityIndicator size="large" color="white" style={styles.loading} />
+            ? <Loading />
             : (
               <View>
                 <TrackDetails

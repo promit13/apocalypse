@@ -4,6 +4,12 @@ import { ListItem } from 'react-native-elements';
 import firebase from '../config/firebase';
 
 export default class ExerciseList extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: navigation.getParam('category', ''),
+    };
+  };
+
   state = {
     exercises: '',
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import Loading from './app/common/Loading';
+import LoadScreen from './app/LoadScreen';
 import firebase from './app/config/firebase';
 import {
   SignedIn,
@@ -45,9 +45,9 @@ export default class App extends React.Component {
 
   render() {
     console.disableYellowBox = true;
-    if (this.state.loading) return <Loading />;
+    if (this.state.loading) return <LoadScreen />;
     if (this.state.user) {
-      if (this.state.data === '') return <Loading />;
+      if (this.state.data === '') return <LoadScreen />;
       if (this.state.data === null) return <SignedOut />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {

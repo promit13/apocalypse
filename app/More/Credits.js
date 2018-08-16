@@ -3,6 +3,10 @@ import { View, Text, Button } from 'react-native';
 import haversine from 'haversine';
 
 export default class Credits extends Component {
+  static navigationOptions = {
+    title: 'Credits',
+  };
+
   constructor(props) {
     super(props);
 

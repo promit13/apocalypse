@@ -1,9 +1,11 @@
 import React from 'react';
 import {
-  View, StyleSheet, TextInput, ScrollView, Text, ActivityIndicator,
+  View, StyleSheet, TextInput, ScrollView,
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import firebase from '../config/firebase';
+import Loading from '../common/Loading';
+import ErrorMessage from '../common/Error';
 
 const styles = StyleSheet.create({
   container: {
@@ -27,12 +29,16 @@ const styles = StyleSheet.create({
 });
 
 export default class UserBodyDetail extends React.Component {
+  static navigationOptions = {
+    title: 'Details',
+  };
+
   state = {
     height: '',
     weight: '',
     age: '',
     gender: '',
-    errorVisible: false,
+    showError: false,
     showLoading: false,
   }
 
@@ -44,7 +50,7 @@ export default class UserBodyDetail extends React.Component {
       gender,
     } = this.state;
     if (age === '' || height === '' || weight === '' || gender === '') {
-      return this.setState({ errorVisible: true, showLoading: false });
+      return this.setState({ showError: true, showLoading: false });
     }
     firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
       age,
@@ -59,27 +65,12 @@ export default class UserBodyDetail extends React.Component {
       });
   }
 
-  displayErrorText = () => {
-    if (this.state.errorVisible) {
-      return (
-        <Text style={{ color: 'red' }}>
-          Please fill all section
-        </Text>
-      );
-    }
-  }
-
-  showLoading = () => {
-    if (this.state.showLoading) {
-      return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
-    }
-  }
-
   render() {
     return (
       <View style={styles.container}>
         <ScrollView>
           <TextInput
+            keyboardType="numeric"
             underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Age"
@@ -88,6 +79,7 @@ export default class UserBodyDetail extends React.Component {
             value={this.state.age}
           />
           <TextInput
+            keyboardType="numeric"
             underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Height (cm/inches)"
@@ -96,6 +88,7 @@ export default class UserBodyDetail extends React.Component {
             value={this.state.height}
           />
           <TextInput
+            keyboardType="numeric"
             underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Weight (kg/lbs)"
@@ -111,8 +104,8 @@ export default class UserBodyDetail extends React.Component {
             onChangeText={gender => this.setState({ gender })}
             value={this.state.gender}
           />
-          {this.displayErrorText()}
-          {this.showLoading()}
+          {this.state.showError ? <ErrorMessage errorMessage="Please fill all section" /> : null}
+          {this.state.showLoading ? <Loading /> : null}
           <Button
             buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
             title="Done"

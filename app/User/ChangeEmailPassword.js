@@ -1,9 +1,11 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Text, ActivityIndicator,
+  View, TextInput, StyleSheet,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
+import Loading from '../common/Loading';
+import ErrorMessage from '../common/Error';
 
 const styles = StyleSheet.create({
   container: {
@@ -33,11 +35,15 @@ const styles = StyleSheet.create({
 
 
 export default class Login extends React.Component {
+  static navigationOptions = {
+    title: 'Change Password',
+  };
+
   state = {
     password: '',
     newPassword: '',
     confirmPassword: '',
-    errorVisible: false,
+    showError: false,
     error: '',
     showLoading: false,
   }
@@ -45,7 +51,7 @@ export default class Login extends React.Component {
   handleSubmit = async () => {
     const { password, newPassword, confirmPassword } = this.state;
     if (newPassword !== confirmPassword) {
-      return this.setState({ errorVisible: true, error: 'Password does not match', showLoading: false });
+      return this.setState({ showError: true, error: 'Password does not match', showLoading: false });
     }
     const user = firebase.auth().currentUser;
     const credentials = await firebase.auth.EmailAuthProvider.credential(
@@ -56,26 +62,12 @@ export default class Login extends React.Component {
       .then(() => {
         user.updatePassword(newPassword)
           .then(() => {
-            this.setState({ errorVisible: false, showLoading: false });
+            this.setState({ showError: false, showLoading: false });
             this.props.navigation.navigate('Account');
-          });
-      }).catch(() => this.setState({ errorVisible: true, error: 'Invalid password', showLoading: false }));
-  }
-
-  displayErrorText = () => {
-    if (this.state.errorVisible) {
-      return (
-        <Text style={{ color: 'red' }}>
-          {this.state.error}
-        </Text>
-      );
-    }
-  }
-
-  showLoading = () => {
-    if (this.state.showLoading) {
-      return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
-    }
+          }).catch(error => this.setState(
+            { showError: true, error: error.message, showLoading: false },
+          ));
+      }).catch(() => this.setState({ showError: true, error: 'Incorrect password', showLoading: false }));
   }
 
   render() {
@@ -93,7 +85,7 @@ export default class Login extends React.Component {
             value={this.state.password}
           />
         </View>
-        {this.displayErrorText()}
+        {this.state.showError ? <ErrorMessage errorMessage={this.state.error} /> : null}
         <View style={styles.fieldContainer}>
           <Icon name="lock" type="entypo" color="white" />
           <TextInput
@@ -118,7 +110,7 @@ export default class Login extends React.Component {
             value={this.state.confirmPassword}
           />
         </View>
-        {this.showLoading()}
+        {this.state.showLoading ? <Loading /> : null}
         <Button
           buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
           title="Submit"

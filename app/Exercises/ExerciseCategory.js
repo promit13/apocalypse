@@ -38,6 +38,10 @@ const styles = {
   },
 };
 export default class ExerciseCategory extends React.Component {
+  static navigationOptions = {
+    title: 'Exercise Category',
+  };
+
     renderView = (title, subtitle, imageUrl) => {
       return (
         <TouchableOpacity onPress={() => this.props.navigation.navigate('ExerciseList', { category: title })}>

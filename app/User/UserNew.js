@@ -1,11 +1,13 @@
 import React from 'react';
 import {
-  StyleSheet, View, TextInput, ScrollView, Text, ActivityIndicator,
+  StyleSheet, View, TextInput, ScrollView,
 } from 'react-native';
 import { Button, SocialIcon, Icon } from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import axios from 'axios';
 import firebase from '../config/firebase';
+import Loading from '../common/Loading';
+import ErrorMessage from '../common/Error';
 
 const styles = StyleSheet.create({
   container: {
@@ -37,13 +39,17 @@ const styles = StyleSheet.create({
 });
 
 export default class Signup extends React.Component {
+  static navigationOptions = {
+    title: 'Sign Up',
+  };
+
   state = {
     email: '',
     password: '',
     firstName: '',
     lastName: '',
     confirmPassword: '',
-    errorVisible: false,
+    showError: false,
     errorMessage: '',
     showLoading: false,
   }
@@ -63,7 +69,7 @@ export default class Signup extends React.Component {
       fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
     })
       .then(() => {
-        this.setState({ errorVisible: false, errorMessage: '', showLoading: false });
+        this.setState({ showError: false, errorMessage: '', showLoading: false });
         this.props.navigation.navigate('UserBodyDetail');
       });
   }
@@ -78,22 +84,23 @@ export default class Signup extends React.Component {
     } = this.state;
     if (email === '' || firstName === ''
       || lastName === '' || password === '' || confirmPassword === '') {
-      return this.setState({ errorVisible: true, errorMessage: 'Please fill all section', showLoading: false });
+      return this.setState({ showError: true, errorMessage: 'Please fill all section', showLoading: false });
     }
     if (password !== confirmPassword) {
-      return this.setState({ errorVisible: true, errorMessage: 'Password did not match', showLoading: false });
+      return this.setState({ showError: true, errorMessage: 'Password did not match', showLoading: false });
     }
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((currentUser) => {
         this.setUserData(currentUser);
-      });
+      })
+      .catch(error => this.setState({ showError: true, errorMessage: error.message, showLoading: false }));
   }
 
   doFacebookSignUp = () => {
     LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
       (result) => {
         if (result.isCancelled) {
-          console.log('Login was cancelled');
+          this.setState({ showLoading: false });
         } else {
           AccessToken.getCurrentAccessToken()
             .then((data) => {
@@ -115,22 +122,6 @@ export default class Signup extends React.Component {
     ).catch(error => console.log(`Login failed with error: ${error}`));
   }
 
-  displayErrorText = () => {
-    if (this.state.errorVisible) {
-      return (
-        <Text style={{ color: 'red', marginLeft: 10, marginTop: 10 }}>
-          {this.state.errorMessage}
-        </Text>
-      );
-    }
-  }
-
-  showLoading = () => {
-    if (this.state.showLoading) {
-      return <ActivityIndicator size="large" color="white" style={{ marginTop: 20 }} />;
-    }
-  }
-
   render() {
     return (
       <View style={styles.container}>
@@ -138,6 +129,7 @@ export default class Signup extends React.Component {
           <View style={styles.fieldContainer}>
             <Icon name="email" color="white" />
             <TextInput
+              keyboardType="email-address"
               underlineColorAndroid="transparent"
               style={styles.inputStyle}
               placeholder="Email"
@@ -192,8 +184,8 @@ export default class Signup extends React.Component {
               value={this.state.confirmPassword}
             />
           </View>
-          {this.displayErrorText()}
-          {this.showLoading()}
+          {this.state.showError ? <ErrorMessage errorMessage={this.state.errorMessage} /> : null}
+          {this.state.showLoading ? <Loading /> : null}
           <Button
             buttonStyle={styles.button}
             title="Sign up"

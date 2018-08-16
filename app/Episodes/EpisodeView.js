@@ -48,11 +48,8 @@ const styles = {
 };
 
 export default class EpisodeView extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      // title: `Episode ${navigation.getParam('index', '')}`,
-      title: 'Episode',
-    };
+  static navigationOptions = {
+    title: 'Episode',
   };
 
   state = {
@@ -105,7 +102,7 @@ export default class EpisodeView extends React.Component {
         onPress={() => {
           this.props.navigation.navigate('ExercisePlayer', {
             // videoUrl: value.videoUrl,
-            // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
+            videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
             exerciseId: key,
             title: value.title,
           });
