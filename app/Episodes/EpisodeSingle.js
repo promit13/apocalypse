@@ -162,12 +162,14 @@ export default class EpisodeSingle extends Component {
       this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
     } else {
       firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
-        if (snapshot.val() === null) {
-          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
+        const snapValue = snapshot.val();
+        const currentDate = new Date().getTime();
+        if (snapValue === null || (currentDate - snapValue.dateNow > 900000)) {
+          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: snapValue.dateNow });
         }
         this.setState({
-          currentTime: this.getCurrentTimeInMs(snapshot.val().timeStamp),
-          lastLoggedDate: snapshot.val().dateNow,
+          currentTime: this.getCurrentTimeInMs(snapValue.timeStamp),
+          lastLoggedDate: snapValue.dateNow,
         },
         () => {
           this.changeExercises();
@@ -217,11 +219,26 @@ export default class EpisodeSingle extends Component {
     }
   }
 
-  getlastLogId = (snapshot) => {
+  getLastLogId = (snapshot) => {
     const array = Object.keys(snapshot);
     const id = array[array.length - 1];
     this.setState({ logId: id });
   }
+
+  // getLastLogId = (snapshot) => {
+  //   const keyArray = [];
+  //   const dateArray = [];
+  //   Object.entries(snapshot).map(([key, value], i) => {
+  //     keyArray.push(key);
+  //     dateArray.push(value.dateNow);
+  //   });
+  //   const id = keyArray[keyArray.length - 1];
+  //   const dateNow = dateArray[dateArray.length - 1];
+  //   if (new Date().getTime() - dateNow > 900000) {
+  //     this.setState({ currentTime: 0.0 });
+  //   }
+  //   this.setState({ logId: id });
+  // }
 
   getTimeFirebase = async () => {
     const { uid, episodeId } = this.state;
@@ -234,12 +251,12 @@ export default class EpisodeSingle extends Component {
           }).then(() => {
             firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
               'value', (snap) => {
-                this.getlastLogId(snap.val());
+                this.getLastLogId(snap.val());
               },
             );
           });
         } else {
-          this.getlastLogId(snapshot.val());
+          this.getLastLogId(snapshot.val());
         }
       }, (error) => {
         console.log(error);
