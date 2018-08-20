@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  ActivityIndicator, AppState, View, ScrollView, Modal,
+  AppState, View, ScrollView, Modal,
 } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import Video from 'react-native-video';
@@ -33,7 +33,9 @@ const styles = {
   },
   albumView: {
     backgroundColor: '#33425a',
-    padding: 10,
+    paddingRight: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   line: {
     width: '100%',
@@ -100,7 +102,7 @@ export default class EpisodeSingle extends Component {
         .map(([exercise, value], i) => {
           i === 0
             ? this.setState({
-              playingExercise: { name: exercise, value }
+              playingExercise: { value }
             })
             : null;
         });
@@ -109,7 +111,7 @@ export default class EpisodeSingle extends Component {
 
     componentDidUpdate(prevProps, prevState) {
       if (prevState.currentTime > 0) {
-        this.changeExercises;
+        // this.changeExercises;
       }
     }
 
@@ -225,21 +227,6 @@ export default class EpisodeSingle extends Component {
     this.setState({ logId: id });
   }
 
-  // getLastLogId = (snapshot) => {
-  //   const keyArray = [];
-  //   const dateArray = [];
-  //   Object.entries(snapshot).map(([key, value], i) => {
-  //     keyArray.push(key);
-  //     dateArray.push(value.dateNow);
-  //   });
-  //   const id = keyArray[keyArray.length - 1];
-  //   const dateNow = dateArray[dateArray.length - 1];
-  //   if (new Date().getTime() - dateNow > 900000) {
-  //     this.setState({ currentTime: 0.0 });
-  //   }
-  //   this.setState({ logId: id });
-  // }
-
   getTimeFirebase = async () => {
     const { uid, episodeId } = this.state;
     firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
@@ -314,11 +301,10 @@ export default class EpisodeSingle extends Component {
   changeExercises = () => {
     Object.entries(this.props.navigation.state.params.exercises)
       .map(([key, value], i) => {
-        const { title, start } = value;
+        const { start } = value;
         if (this.state.currentTime > start) {
           this.setState({
             playingExercise: {
-              name: title,
               value,
             },
           });
@@ -336,6 +322,7 @@ export default class EpisodeSingle extends Component {
   }
 
   renderLandscapeView = (track) => {
+    // const { imageUrl, title } = this.state.playingExercise.value;
     return (
       <View style={{ flex: 2, flexDirection: 'row' }}>
         <View style={{
@@ -407,16 +394,17 @@ export default class EpisodeSingle extends Component {
   }
 
   renderPortraitView = (track) => {
+    const { imageUrl, title } = this.state.playingExercise.value;
     return (
       <View>
         <View style={styles.albumView}>
           <AlbumArt
             url={
              this.state.playingExercise
-               ? this.state.playingExercise.value.imageUrl
+               ? imageUrl
                : track.workoutImage
             }
-            currentExercise={this.state.playingExercise.name}
+            currentExercise={title}
             onPress={this.onExercisePress}
             showInfo
           />

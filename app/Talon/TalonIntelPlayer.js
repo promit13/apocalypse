@@ -32,7 +32,9 @@ const styles = {
   },
   albumView: {
     backgroundColor: '#33425a',
-    padding: 20,
+    paddingRight: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   line: {
     width: '100%',
@@ -44,6 +46,7 @@ const styles = {
 export default class TalonIntelPlayer extends Component {
   static navigationOptions = {
     title: 'Talon Intel Player',
+    // header: null,
   };
 
   constructor(props) {
@@ -62,10 +65,10 @@ export default class TalonIntelPlayer extends Component {
 
   componentDidMount() {
     Object.entries(this.props.navigation.state.params.exercises)
-      .map(([exercise, value], i) => {
+      .map(([key, value], i) => {
         i === 0
           ? this.setState({
-            playingExercise: {name: exercise, value: value}
+            playingExercise: { value }
           })
           : null;
       });
@@ -154,21 +157,8 @@ export default class TalonIntelPlayer extends Component {
     return this.renderLandscapeView(track);
   };
 
-  // changeExercises() {
-  //   const exercises = Object.entries(this.props.navigation.state.params.exercises)
-  //     .map(([key, value], i) => {
-  //       if (this.state.currentTime > value.start) {
-  //         this.setState({
-  //           playingExercise: {
-  //             name: value.title,
-  //             value,
-  //           },
-  //         });
-  //       }
-  //     });
-  // }
-
   renderLandscapeView = (track) => {
+    // const { imageUrl, title } = this.state.playingExercise.value;
     return (
       <View style={{ flex: 2, flexDirection: 'row' }}>
         <View style={{ flex: 1, backgroundColor: '#33425a', padding: 20 }}>
@@ -219,16 +209,17 @@ export default class TalonIntelPlayer extends Component {
   }
 
   renderPortraitView = (track) => {
+    const { imageUrl, title } = this.state.playingExercise.value;
     return (
       <View>
         <View style={styles.albumView}>
           <AlbumArt
             url={
              this.state.playingExercise
-               ? this.state.playingExercise.value.imageUrl
+               ? imageUrl
                : track.workoutImage
             }
-            currentExercise={this.state.playingExercise.name}
+            currentExercise={title}
             onPress={() => {}}
           />
         </View>

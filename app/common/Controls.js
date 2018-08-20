@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  View, StyleSheet, Image, TouchableOpacity,
+  View, StyleSheet,
 } from 'react-native';
 
 import { Icon } from 'react-native-elements';
@@ -65,7 +65,7 @@ export default function Controls({
           : <Icon name="replay" color="#f5cb23" onPress={navigateToPreviousExercise} size={40} />
         )
       }
-      <View style={{ width: 60 }} />
+      <View style={{ width: 40 }} />
       {!paused
         ? (
           <Icon name="pause" color="#f5cb23" size={40} onPress={onPressPause} />
@@ -74,18 +74,18 @@ export default function Controls({
           <Icon name="play-arrow" color="#f5cb23" size={40} onPress={onPressPlay} />
         )
       }
-      <View style={{ width: 60 }} />
+      <View style={{ width: 40 }} />
       { onForward && renderForwardButton && (
         <Icon name="forward-10" onPress={onForward} color="#f5cb23" size={40} />
       )
       }
-      { onDownload && (
+      {/* { onDownload && (
         <TouchableOpacity onPress={onDownload}>
           <View style={styles.addButton}>
             <Image source={require('../../img/ic_add_circle_outline_white.png')} />
           </View>
         </TouchableOpacity>)
-      }
+      } */}
     </View>
   );
 }
