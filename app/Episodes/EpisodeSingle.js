@@ -98,14 +98,8 @@ export default class EpisodeSingle extends Component {
     }
 
     componentDidMount() {
-      Object.entries(this.props.navigation.state.params.exercises)
-        .map(([exercise, value], i) => {
-          i === 0
-            ? this.setState({
-              playingExercise: { value }
-            })
-            : null;
-        });
+      const exerciseArray = Object.values(this.props.navigation.state.params.exercises);
+      this.setState({ playingExercise: { value: exerciseArray[0] } });
       this.getTimeFirebase();
     }
 
@@ -195,10 +189,6 @@ export default class EpisodeSingle extends Component {
 
   onPressPlay = () => {
     this.setState({ paused: false });
-  }
-
-  setTime = (data) => {
-    this.setState({ currentPosition: Math.floor(data.currentTime) });
   }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
