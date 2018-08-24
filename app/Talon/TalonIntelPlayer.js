@@ -76,16 +76,14 @@ export default class TalonIntelPlayer extends Component {
 
   onBack = () => {
     const { currentTime } = this.state;
-    const SEEK_BEHIND = 10;
-    this.setState({ currentTime: currentTime - SEEK_BEHIND });
-    this.player.seek(currentTime - SEEK_BEHIND, 10);
+    this.setState({ currentTime: currentTime - 10 });
+    this.player.seek(currentTime - 10, 10);
   }
 
   onForward = () => {
     const { currentTime } = this.state;
-    const SEEK_FORWARD = 10;
-    this.setState({ currentTime: currentTime + SEEK_FORWARD });
-    this.player.seek(currentTime + SEEK_FORWARD, 10);
+    this.player.seek(currentTime + 10, 10);
+    this.setState({ currentTime: currentTime + 10 });
   }
 
   onPressPause = () => {
@@ -120,7 +118,12 @@ export default class TalonIntelPlayer extends Component {
     this.setState({ totalLength: data.duration, loading: false });
   };
 
+  onEnd = () => {
+    this.setState({ paused: true });
+  }
+
   onDragSeekBar = (currentTime) => {
+    this.setState({ currentTime });
     this.player.seek(currentTime, 10);
   }
 
@@ -262,6 +265,7 @@ export default class TalonIntelPlayer extends Component {
         playInBackground // ={true}
         onLoad={this.onLoad}
         onProgress={this.onProgress}
+        onEnd={this.onEnd}
         style={styles.audioElement}
       />
     );

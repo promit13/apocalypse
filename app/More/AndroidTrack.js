@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, AsyncStorage, PermissionsAndroid, Alert, Dimensions,
+  View, Text, AsyncStorage, PermissionsAndroid, Alert, Dimensions, Animated, Easing, Image,
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
@@ -16,6 +16,8 @@ const styles = {
     marginLeft: 10,
   },
 };
+const gifImageSource = require('../../img/walk.gif');
+
 const barWidth = Dimensions.get('screen').width - 30;
 const progressCustomStyles = {
   backgroundColor: 'red',
@@ -24,35 +26,39 @@ const progressCustomStyles = {
 };
 
 export default class AndroidTrack extends React.Component {
-    state = {
+  constructor(props) {
+    super(props);
+    this.state = {
       steps: 0,
       distance: 0,
       progressPercentage: 0,
     };
+    this.animatedValue = new Animated.Value(0);
+  }
 
-    componentWillMount() {
-      this.requestPermissions();
-    }
+  componentWillMount() {
+    this.requestPermissions();
+  }
 
-    componentDidMount() {
-      GoogleFit.authorize((error, result) => {
-        if (error) {
-          return console.log(`AUTH ERROR ${error}`);
-        }
-        return console.log(`AUTH SUCCESS ${result}`);
-      });
-      GoogleFit.onAuthorize(() => {
-        console.log('AUTH SUCCESS');
-      });
+  componentDidMount() {
+    GoogleFit.authorize((error, result) => {
+      if (error) {
+        return console.log(`AUTH ERROR ${error}`);
+      }
+      return console.log(`AUTH SUCCESS ${result}`);
+    });
+    GoogleFit.onAuthorize(() => {
+      console.log('AUTH SUCCESS');
+    });
 
-      GoogleFit.onAuthorizeFailure(() => {
-        console.log('AUTH FAILED');
-      });
-    }
+    GoogleFit.onAuthorizeFailure(() => {
+      console.log('AUTH FAILED');
+    });
+  }
 
-    componentWillUnmount() {
-      GoogleFit.unsubscribeListeners();
-    }
+  componentWillUnmount() {
+    GoogleFit.unsubscribeListeners();
+  }
 
     getStepCountAndDistance = async () => {
       const startDate = await AsyncStorage.getItem('startDate');
@@ -60,7 +66,6 @@ export default class AndroidTrack extends React.Component {
         startDate,
         endDate: new Date().toISOString(), // required ISO8601Timestamp
       };
-      console.log(startDate);
       GoogleFit.getDailyStepCountSamples(options, (err, res) => {
         if (err) {
           throw err;
@@ -71,15 +76,16 @@ export default class AndroidTrack extends React.Component {
           return;
         }
         const steps = stepArray[0].value;
-        console.log('Daily steps >>>', res);
         GoogleFit.getDailyDistanceSamples(options, (error, response) => {
           if (error) {
             throw error;
           }
           const distance = ((response[0].distance) / 1000).toFixed(2);
-          const progressPercentage = ((distance / 5) * 100);
-          this.setState({ distance, steps, progressPercentage });
-          console.log('Daily Distance >>>', distance);
+          const progressPercentage = ((distance / 15) * 100);
+          this.setState(
+            { distance, steps, progressPercentage: (progressPercentage > 100 ? 100 : progressPercentage) }
+          );
+          this.animate();
         });
       });
     }
@@ -92,6 +98,18 @@ export default class AndroidTrack extends React.Component {
         console.log(error);
       }
       GoogleFit.startRecording(event => console.log(event));
+    }
+
+    animate = () => {
+      this.animatedValue.setValue(0); // sets icon to start
+      Animated.timing(
+        this.animatedValue,
+        {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.linear,
+        },
+      ).start(); // .start(() => this.animate()) repeats animation
     }
 
     requestPermissions = async () => {
@@ -110,24 +128,33 @@ export default class AndroidTrack extends React.Component {
     }
 
     render() {
+      const moving = this.animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, (((this.state.progressPercentage - 10) / 100) * barWidth)],
+      });
+
       return (
         <View style={styles.container}>
+          <Animated.View style={{ marginLeft: moving }}>
+            <Image style={{ height: 40, width: 40, marginBottom: 5 }} source={gifImageSource} />
+          </Animated.View>
           <ProgressBarAnimated
             width={barWidth}
             {...progressCustomStyles}
             value={this.state.progressPercentage}
+            barAnimationDuration={1000}
             onComplete={() => {
               Alert.alert('Hey!', 'You finished the exercise!');
             }}
           />
           <Text style={styles.text}>
-            {`Steps Android: ${this.state.steps}`}
+            {`Steps: ${this.state.steps}`}
           </Text>
           <Text style={styles.text}>
-            {`Distance Android: ${this.state.distance} km`}
+            {`Distance: ${this.state.distance} km`}
           </Text>
-          <Button buttonStyle={{ marginTop: 10 }} title="Start Android" onPress={() => this.startTrackingSteps()} />
-          <Button buttonStyle={{ marginTop: 10 }} title="End Android" onPress={() => this.getStepCountAndDistance()} />
+          <Button buttonStyle={{ marginTop: 10 }} title="Start" onPress={() => this.startTrackingSteps()} />
+          <Button buttonStyle={{ marginTop: 10 }} title="End" onPress={() => this.getStepCountAndDistance()} />
         </View>
       );
     }

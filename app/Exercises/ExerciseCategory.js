@@ -39,7 +39,7 @@ const styles = {
 };
 export default class ExerciseCategory extends React.Component {
   static navigationOptions = {
-    title: 'Exercise Category',
+    title: 'Exercises',
   };
 
     renderView = (title, subtitle, imageUrl) => {

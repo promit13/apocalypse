@@ -188,21 +188,12 @@ export default class TalonScreen extends React.Component {
         <ScrollView>
           <Image
             style={styles.imageStyle}
-            source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
+            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029' }}
           />
           <TouchableOpacity onPress={() => {}}>
             <View style={styles.latestIntelView}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.circularImageView}>
-                  <Image
-                    style={{
-                      height: 60,
-                      width: 60,
-                      borderRadius: 60 / 2,
-                    }}
-                    source={{ uri: 'https://facebook.github.io/react/logo-og.png' }}
-                  />
-                </View>
+                <Icon name="connectdevelop" type="font-awesome" size={60} color="black" />
                 <View>
                   <Text style={{
                     fontSize: 18,

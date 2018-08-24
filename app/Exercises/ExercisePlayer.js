@@ -57,6 +57,10 @@ export default class ExercisePlayer extends Component {
 
   onLoad = () => this.setState({ loading: false });
 
+  onEnd = () => {
+    this.setState({ paused: true });
+  }
+
   render() {
     const { videoUrl, title } = this.props.navigation.state.params;
     return (
@@ -69,6 +73,7 @@ export default class ExercisePlayer extends Component {
             ref={(c) => { this.video = c; }}
             paused={this.state.paused}
             onLoad={this.onLoad}
+            onEnd={this.onEnd}
             resizeMode="cover"
             playInBackground={false}
             style={styles.backgroundVideo}

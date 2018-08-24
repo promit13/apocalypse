@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, ScrollView } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import Swiper from 'react-native-swiper';
 import firebase from '../config/firebase';
@@ -8,12 +8,12 @@ import Loading from '../common/Loading';
 const styles = {
   containerStyle: {
     flex: 1,
-    justifyContent: 'center',
     backgroundColor: '#001331',
     padding: 20,
   },
   textStyle: {
     marginTop: 10,
+    marginLeft: 10,
     color: 'white',
   },
   imageStyle: {
@@ -64,25 +64,27 @@ export default class Tutorial extends React.Component {
   render() {
     const tutorials = Object.entries(this.state.tutorials).map(([key, value], i) => {
       return (
-        <View style={styles.containerStyle}>
-          <View style={styles.slideStyle}>
-            <Text style={styles.textStyle}>
-              {value.title}
-            </Text>
-            <Image style={styles.imageStyle} source={{ uri: value.file }} />
-            <Text style={styles.textStyle}>
-              {value.description}
-            </Text>
+        <ScrollView style={styles.containerStyle}>
+          <View>
+            <View style={styles.slideStyle}>
+              <Text style={styles.textStyle}>
+                {value.title}
+              </Text>
+              <Image style={styles.imageStyle} source={{ uri: value.file }} />
+              <Text style={styles.textStyle}>
+                {value.description}
+              </Text>
+            </View>
+            {this.renderButton(i)}
           </View>
-          {this.renderButton(i)}
-        </View>
+        </ScrollView>
       );
     });
     if (this.state.loading) return <Loading />;
     return (
       <Swiper
         loop={false}
-        showsButtons
+        showsButtons // shows side arrows
         dotColor="#696238"
         activeDotColor="#f5cb23"
       >

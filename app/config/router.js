@@ -13,7 +13,6 @@ import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
 import ExercisePlayer from '../Exercises/ExercisePlayer';
 import TalonScreen from '../Talon/TalonScreen';
-import TalonEssentialIntel from '../Talon/TalonEssentialIntel';
 import TalonIntelPlayer from '../Talon/TalonIntelPlayer';
 import ExerciseCategory from '../Exercises/ExerciseCategory';
 import ExerciseList from '../Exercises/ExerciseList';
@@ -77,7 +76,6 @@ const EpisodeStack = createStackNavigator({
   EpisodeList: { screen: EpisodeList },
   EpisodeView: { screen: EpisodeView },
   TalonScreen: { screen: TalonScreen },
-  TalonEssentialIntel: { screen: TalonEssentialIntel },
   TalonIntelPlayer: { screen: TalonIntelPlayer },
   ExercisePlayer: { screen: ExercisePlayer },
   EpisodeSingle: { screen: EpisodeSingle },
@@ -199,14 +197,14 @@ export const SignedIn = createBottomTabNavigator({
             <Badge
               wrapperStyle={{ marginBottom: -20, marginLeft: 40, zIndex: 2 }}
               value={5}
-              containerStyle={{ padding: 7, backgroundColor: 'orange' }}
+              containerStyle={{ padding: 7, backgroundColor: 'red' }}
             />
             <Icon name="dots-three-horizontal" type="entypo" size={35} color={tintColor} />
           </View>
         );
       }
       if (routeName === 'Talon') {
-        return <Icon name="network" type="entypo" size={30} color={tintColor} />;
+        return <Icon name="connectdevelop" type="font-awesome" size={30} color={tintColor} />;
       }
       if (routeName === 'Exercises') {
         return <Icon name="man" type="entypo" size={30} color={tintColor} />;
