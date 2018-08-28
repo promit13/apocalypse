@@ -177,7 +177,8 @@ export default class EpisodeSingle extends Component {
   };
 
   onEnd = () => {
-    this.setState({ showDialog: true, paused: true });
+    this.setState({ showDialog: true, paused: true, currentTime: 0.0 });
+    this.player.seek(0, 10);
     this.setTimeFirebase();
   }
 

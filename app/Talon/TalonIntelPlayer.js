@@ -119,7 +119,8 @@ export default class TalonIntelPlayer extends Component {
   };
 
   onEnd = () => {
-    this.setState({ paused: true });
+    this.setState({ paused: true, currentTime: 0.0 });
+    this.player.seek(0, 10);
   }
 
   onDragSeekBar = (currentTime) => {
