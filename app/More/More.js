@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, View, StatusBar } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
 const menu = {
@@ -63,6 +63,9 @@ export default class More extends React.Component {
     });
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
+        <StatusBar
+          backgroundColor="#00000b"
+        />
         <View style={{ height: 1, backgroundColor: 'gray' }} />
         <ScrollView>
           { menuList }

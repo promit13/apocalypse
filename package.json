@@ -18,6 +18,7 @@
     "react-native-fbsdk": "^0.7.0",
     "react-native-fs": "^2.10.14",
     "react-native-google-fit": "^0.5.2",
+    "react-native-iap": "^2.0.0-alpha12",
     "react-native-pedometer": "0.0.7",
     "react-native-progress-bar-animated": "^1.0.6",
     "react-native-swiper": "^1.5.13",

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity,
+  ScrollView, View, Image, TouchableOpacity, StatusBar,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button,
@@ -221,10 +221,14 @@ export default class EpisodeList extends React.Component {
     if (this.state.loading) return <LoadScreen />;
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
+        <StatusBar
+          backgroundColor="#00000b"
+        />
         <ScrollView>
           <View>
             <Image
               style={styles.imageStyle}
+              resizeMode="stretch"
               source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029' }}
             />
             <TouchableOpacity onPress={() => {}}>

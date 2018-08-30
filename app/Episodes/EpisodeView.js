@@ -155,7 +155,7 @@ export default class EpisodeView extends React.Component {
               icon={{ name: 'play-arrow', color: '#001331', size: 30 }}
               color="#001331"
               fontSize={18}
-              title="Workout Mode"
+              title="Workout"
               onPress={() => this.navigateToEpisodeSingle(false, 'Workout Mode Player')}
             />
           </View>
@@ -171,7 +171,7 @@ export default class EpisodeView extends React.Component {
               icon={{ name: 'play-arrow', color: '#001331', size: 30 }}
               color="#001331"
               fontSize={18}
-              title="Listen Mode"
+              title="Listen"
               onPress={() => this.navigateToEpisodeSingle(true, 'Listen Mode Player')}
             />
           </View>

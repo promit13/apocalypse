@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StatusBar } from 'react-native';
 
 const styles = {
   container: {
@@ -13,6 +13,9 @@ const styles = {
 export default function LoadScreen() {
   return (
     <View style={styles.container}>
+      <StatusBar
+          backgroundColor="#00000b"
+        />
       <ActivityIndicator size="large" color="gray" style={{ marginTop: 20 }} />
     </View>
   );

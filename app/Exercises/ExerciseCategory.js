@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon, Text } from 'react-native-elements';
 import {
-  View, ScrollView, Image, TouchableOpacity,
+  View, ScrollView, Image, TouchableOpacity, StatusBar,
 } from 'react-native';
 
 const styles = {
@@ -76,6 +76,9 @@ export default class ExerciseCategory extends React.Component {
     render() {
       return (
         <View style={styles.maincontainer}>
+          <StatusBar
+            backgroundColor="#00000b"
+          />
           <ScrollView>
             {this.renderView('Speed', 'Running Training', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Running%20Logo%20White%20BG.png?alt=media&token=6df03197-e7cb-4bc2-aac5-b51e6404ff90')}
             {this.renderView('Strength', 'Bodyweight Circuits', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Circuit%20Logo%20White%20BG.png?alt=media&token=ac1d355d-3a86-417a-9327-8ad00032a077')}
