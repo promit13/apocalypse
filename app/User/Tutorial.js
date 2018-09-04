@@ -29,7 +29,6 @@ const styles = {
     borderColor: '#f5cb23',
     borderRadius: 20,
     borderWidth: 2,
-    marginTop: 20,
   },
 };
 
@@ -47,9 +46,33 @@ export default class Tutorial extends React.Component {
     firebase.database().ref('tutorials').on('value', snapshot => this.setState({ tutorials: snapshot.val(), loading: false }));
   }
 
-  renderButton = (i) => {
-    if (i === (Object.keys(this.state.tutorials).length - 1)) {
+  render() {
+    const tutorials = Object.entries(this.state.tutorials).map(([key, value], i) => {
       return (
+        <ScrollView>
+          <View style={styles.slideStyle}>
+            <Text style={styles.textStyle}>
+              {value.title}
+            </Text>
+            <Image style={styles.imageStyle} source={{ uri: value.file }} />
+            <Text style={styles.textStyle}>
+              {value.description}
+            </Text>
+          </View>
+        </ScrollView>
+      );
+    });
+    if (this.state.loading) return <Loading />;
+    return (
+      <View style={styles.containerStyle}>
+        <Swiper
+          loop={false}
+          // showsButtons // shows side arrows
+          dotColor="#696238"
+          activeDotColor="#f5cb23"
+        >
+          {tutorials}
+        </Swiper>
         <Button
           buttonStyle={styles.buttonStyle}
           title="Take me in"
@@ -57,39 +80,7 @@ export default class Tutorial extends React.Component {
             tutorial: true,
           })}
         />
-      );
-    }
-  }
-
-  render() {
-    const tutorials = Object.entries(this.state.tutorials).map(([key, value], i) => {
-      return (
-        <ScrollView style={styles.containerStyle}>
-          <View>
-            <View style={styles.slideStyle}>
-              <Text style={styles.textStyle}>
-                {value.title}
-              </Text>
-              <Image style={styles.imageStyle} source={{ uri: value.file }} />
-              <Text style={styles.textStyle}>
-                {value.description}
-              </Text>
-            </View>
-            {this.renderButton(i)}
-          </View>
-        </ScrollView>
-      );
-    });
-    if (this.state.loading) return <Loading />;
-    return (
-      <Swiper
-        loop={false}
-        showsButtons // shows side arrows
-        dotColor="#696238"
-        activeDotColor="#f5cb23"
-      >
-        {tutorials}
-      </Swiper>
+      </View>
     );
   }
 }

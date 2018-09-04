@@ -89,15 +89,25 @@ export default class MyAccount extends React.Component {
               />
               {this.state.showError ? <ErrorMessage errorMessage="Incorrect password" /> : null}
               {this.state.showLoading ? <Loading /> : null}
-              <Button
-                color="#fff"
-                buttonStyle={styles.button}
-                title="Confirm"
-                onPress={() => {
-                  this.setState({ showLoading: true });
-                  this.deleteAccount();
-                }}
-              />
+              <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                <Button
+                  color="#fff"
+                  buttonStyle={styles.button}
+                  title="Cancel"
+                  onPress={() => {
+                    this.setState({ showModal: false });
+                  }}
+                />
+                <Button
+                  color="#fff"
+                  buttonStyle={styles.button}
+                  title="Confirm"
+                  onPress={() => {
+                    this.setState({ showLoading: true });
+                    this.deleteAccount();
+                  }}
+                />
+              </View>
             </View>
           </TouchableOpacity>
         </View>

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  AppState, Text, View, ScrollView,
+  AppState, View, ScrollView,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
@@ -9,6 +9,7 @@ import TrackDetails from '../common/TrackDetails';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
+import FormatTime from '../common/FormatTime';
 
 const styles = {
   container: {
@@ -134,16 +135,6 @@ export default class TalonIntelPlayer extends Component {
 
   getCurrentTimeInMs = time => parseInt(time, 10);
 
-  formatTime = (timeToFormat) => {
-    let minutes = 0;
-    const seconds = Math.round(timeToFormat);
-    if (seconds > 60) {
-      minutes = Math.floor(seconds / 60);
-    }
-    const time = `${minutes} : ${seconds % 60}`;
-    return time;
-  }
-
   detectOrientation = (track) => {
     if (this.state.windowsHeight > this.state.windowsWidth) {
       return this.renderPortraitView(track);
@@ -152,7 +143,6 @@ export default class TalonIntelPlayer extends Component {
   };
 
   renderLandscapeView = (track) => {
-    // const { imageUrl, title } = this.state.playingExercise.value;
     return (
       <View style={{ flex: 2, flexDirection: 'row' }}>
         <View style={{ flex: 1, backgroundColor: '#33425a', padding: 20 }}>
@@ -186,14 +176,10 @@ export default class TalonIntelPlayer extends Component {
                   onDragSeekBar={this.onDragSeekBar}
                   seekValue={this.state.currentTime && this.state.currentTime}
                 />
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-                  <Text style={{ color: 'white' }}>
-                    {this.formatTime(this.state.currentTime)}
-                  </Text>
-                  <Text style={{ color: 'white', alignSelf: 'flex-end' }}>
-                    {this.formatTime(this.state.totalLength - this.state.currentTime)}
-                  </Text>
-                </View>
+                <FormatTime
+                  currentTime={this.state.currentTime}
+                  remainingTime={this.state.totalLength - this.state.currentTime}
+                />
               </View>
             )
           }
@@ -227,14 +213,10 @@ export default class TalonIntelPlayer extends Component {
                 onDragSeekBar={this.onDragSeekBar}
                 seekValue={this.state.currentTime && this.state.currentTime}
               />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-                <Text style={{ color: 'white' }}>
-                  {this.formatTime(this.state.currentTime)}
-                </Text>
-                <Text style={{ color: 'white', alignSelf: 'flex-end' }}>
-                  {this.formatTime(this.state.totalLength - this.state.currentTime)}
-                </Text>
-              </View>
+              <FormatTime
+                currentTime={this.state.currentTime}
+                remainingTime={this.state.totalLength - this.state.currentTime}
+              />
               <TrackDetails title={track.title} />
               <Controls
                 onPressPlay={this.onPressPlay}

@@ -63,6 +63,7 @@ export default function Controls({
           exercisePlayer
           ? null
           : <Icon name="replay" color="#f5cb23" onPress={navigateToPreviousExercise} size={40} />
+          
         )
       }
       <View style={{ width: 40 }} />
@@ -79,13 +80,6 @@ export default function Controls({
         <Icon name="forward-10" onPress={onForward} color="#f5cb23" size={40} />
       )
       }
-      {/* { onDownload && (
-        <TouchableOpacity onPress={onDownload}>
-          <View style={styles.addButton}>
-            <Image source={require('../../img/ic_add_circle_outline_white.png')} />
-          </View>
-        </TouchableOpacity>)
-      } */}
     </View>
   );
 }

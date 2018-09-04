@@ -47,6 +47,11 @@ const styles = {
   },
 };
 
+const imageUrls = [
+  'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Running%20Logo%20White%20BG.png?alt=media&token=6df03197-e7cb-4bc2-aac5-b51e6404ff90',
+  'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Circuit%20Logo%20White%20BG.png?alt=media&token=ac1d355d-3a86-417a-9327-8ad00032a077',
+  'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Holistic%20Logo%20White%20BG.png?alt=media&token=ad9ce094-4e19-4d7c-b96b-c3550dbfc291',
+];
 export default class EpisodeView extends React.Component {
   static navigationOptions = {
     title: 'Episode',
@@ -57,13 +62,22 @@ export default class EpisodeView extends React.Component {
   }
 
   componentDidMount() {
-    const { episodeId, imageUrl } = this.props.navigation.state.params;
+    const { category } = this.props.navigation.state.params;
+    if (category === 'Speed') {
+      return this.setState({ url: imageUrls[0] });
+    }
+    if (category === 'Strength') {
+      return this.setState({ url: imageUrls[1] });
+    }
+    if (category === 'Control') {
+      return this.setState({ url: imageUrls[2] });
+    }
     // firebase.storage().ref('temp/Home.jpg').getDownloadURL()
-    firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
-      .then((url) => {
-        this.setState({ url });
-        console.log(url);
-      });
+    // firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
+    //   .then((url) => {
+    //     this.setState({ url });
+    //     console.log(url);
+    //   });
   }
 
   navigateToEpisodeSingle = (check, mode) => {

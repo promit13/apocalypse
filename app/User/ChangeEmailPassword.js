@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet,
+  View, TextInput, StyleSheet, Alert,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -63,6 +63,7 @@ export default class Login extends React.Component {
         user.updatePassword(newPassword)
           .then(() => {
             this.setState({ showError: false, showLoading: false });
+            Alert.alert('Password changed successfully!');
             this.props.navigation.navigate('Account');
           }).catch(error => this.setState(
             { showError: true, error: error.message, showLoading: false },

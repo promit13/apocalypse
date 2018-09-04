@@ -6,10 +6,10 @@ import { Text, Button } from 'react-native-elements';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
-import TrackDetails from '../common/TrackDetails';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
+import FormatTime from '../common/FormatTime';
 
 const styles = {
   container: {
@@ -19,10 +19,11 @@ const styles = {
   containerInner: {
     marginTop: 30,
   },
-  text: {
+  textTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    marginTop: 20,
   },
   loading: {
     marginTop: 30,
@@ -33,7 +34,6 @@ const styles = {
   },
   albumView: {
     backgroundColor: '#33425a',
-    paddingRight: 20,
     paddingTop: 10,
     paddingBottom: 10,
   },
@@ -271,16 +271,6 @@ export default class EpisodeSingle extends Component {
     }
   }
 
-  formatTime = (timeToFormat) => {
-    let minutes = 0;
-    const seconds = Math.round(timeToFormat);
-    if (seconds > 60) {
-      minutes = Math.floor(seconds / 60);
-    }
-    const time = `${minutes} : ${seconds % 60}`;
-    return time;
-  }
-
   detectOrientation = (track) => {
     if (this.state.windowsHeight > this.state.windowsWidth) {
       return this.renderPortraitView(track);
@@ -312,11 +302,11 @@ export default class EpisodeSingle extends Component {
   }
 
   renderLandscapeView = (track) => {
-    // const { imageUrl, title } = this.state.playingExercise.value;
+    // const { imageUrl } = this.state.playingExercise.value;
     return (
-      <View style={{ flex: 2, flexDirection: 'row' }}>
+      <View style={{ flex: 1, flexDirection: 'row' }}>
         <View style={{
-          height: '100%', flex: 1, backgroundColor: '#33425a', padding: 20,
+          flex: 0.5, backgroundColor: '#33425a', padding: 20,
         }}
         >
           <AlbumArt
@@ -330,8 +320,10 @@ export default class EpisodeSingle extends Component {
             showInfo
           />
         </View>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <TrackDetails title={track.title} />
+        <View style={{ flex: 0.5, justifyContent: 'space-between' }}>
+          <Text style={styles.textTitle}>
+            {track.title}
+          </Text>
           <Controls
             onPressPlay={this.onPressPlay}
             onPressPause={this.onPressPause}
@@ -367,14 +359,10 @@ export default class EpisodeSingle extends Component {
                     </View>
                   )
                 }
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-                  <Text style={{ color: 'white' }}>
-                    {this.formatTime(this.state.currentTime)}
-                  </Text>
-                  <Text style={{ color: 'white', alignSelf: 'flex-end' }}>
-                    {this.formatTime(this.state.totalLength - this.state.currentTime)}
-                  </Text>
-                </View>
+                <FormatTime
+                  currentTime={this.state.currentTime}
+                  remainingTime={this.state.totalLength - this.state.currentTime}
+                />
               </View>
             )
           }
@@ -425,15 +413,13 @@ export default class EpisodeSingle extends Component {
                   </View>
                 )
               }
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-                <Text style={{ color: 'white' }}>
-                  {this.formatTime(this.state.currentTime)}
-                </Text>
-                <Text style={{ color: 'white', alignSelf: 'flex-end' }}>
-                  {this.formatTime(this.state.totalLength - this.state.currentTime)}
-                </Text>
-              </View>
-              <TrackDetails title={track.title} />
+              <FormatTime
+                currentTime={this.state.currentTime}
+                remainingTime={this.state.totalLength - this.state.currentTime}
+              />
+              <Text style={styles.textTitle}>
+                {track.title}
+              </Text>
               <Controls
                 onPressPlay={this.onPressPlay}
                 onPressPause={this.onPressPause}

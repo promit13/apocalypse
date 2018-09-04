@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, StatusBar,
+  ScrollView, View, Image, TouchableOpacity, StatusBar, Alert,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button,
@@ -109,6 +109,13 @@ const styles = {
     borderColor: 'white',
     borderRadius: 5,
   },
+  priceButtonStyle: {
+    alignItems: 'flex-end',
+    backgroundColor: 'green',
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 5,
+  },
   episodeHeaderView: {
     padding: 15,
     flex: 1,
@@ -144,10 +151,18 @@ export default class EpisodeList extends React.Component {
   state = {
     series: '',
     loading: true,
+    purchasedSeries: [],
   }
 
   componentDidMount() {
-    firebase.database().ref('series').on('value', snapshot => this.setState({ series: snapshot.val(), loading: false }));
+    firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).on('value', (snap) => {
+      firebase.database().ref('series').on('value', (snapshot) => {
+        const purchasedSeries = Object.entries(snap.val()).map(([key, value], i) => {
+          return value.seriesId;
+        });
+        this.setState({ series: snapshot.val(), purchasedSeries, loading: false });
+      });
+    });
   }
 
   onEpisodeClick = (episodeId, index) => {
@@ -162,7 +177,6 @@ export default class EpisodeList extends React.Component {
         title: value.title,
         category: value.category,
         description: value.description,
-        imageUrl: value.intel,
         exerciseList: value.exercises,
         index,
         // episodeKeysArray,
@@ -174,6 +188,7 @@ export default class EpisodeList extends React.Component {
     let minIndex = 0;
     let maxIndex = 0;
     const seriesList = Object.entries(this.state.series).map(([key, value], i) => {
+      const buy = this.state.purchasedSeries.includes(key);
       minIndex = maxIndex + 1;
       maxIndex += Object.keys(value.episodes).length;
       const episodesList = Object.entries(value.episodes)
@@ -188,8 +203,16 @@ export default class EpisodeList extends React.Component {
               rightIcon={{ name: 'download', type: 'feather', color: 'white' }}
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
-              onPressRightIcon={() => {}}
+              onPressRightIcon={() => {
+                if (!buy) {
+                  return Alert.alert('Item not purchased');
+                }
+              }
+              }
               onPress={() => {
+                if (!buy) {
+                  return Alert.alert('Item not purchased');
+                }
                 this.onEpisodeClick(
                   episodeKey,
                   episodeIndex,
@@ -204,7 +227,24 @@ export default class EpisodeList extends React.Component {
             <Text style={styles.textStyle}>
               {`Part ${i + 1} (Episodes ${minIndex}-${maxIndex})`}
             </Text>
-            <Button title="Purchased" buttonStyle={styles.purchaseButtonStyle} />
+            <View>
+              {
+                buy
+                  ? (
+                    <Button
+                      title="Purchased"
+                      buttonStyle={styles.purchaseButtonStyle}
+                      onPress={() => {}}
+                    />)
+                  : (
+                    <Button
+                      title={`£${value.price} (Buy)`}
+                      buttonStyle={styles.priceButtonStyle}
+                      onPress={() => {}}
+                    />
+                  )
+              }
+            </View>
           </View>
           {episodesList}
         </View>

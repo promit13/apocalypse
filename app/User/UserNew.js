@@ -67,6 +67,7 @@ export default class Signup extends React.Component {
       extended: false,
       tutorial: false,
       fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
+      purchases: '',
     })
       .then(() => {
         this.setState({ showError: false, errorMessage: '', showLoading: false });

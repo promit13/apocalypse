@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Platform, Alert } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import * as RNIap from 'react-native-iap';
+import firebase from '../config/firebase';
 
 const styles = {
   containerView: {
@@ -12,16 +13,13 @@ const styles = {
     marginTop: 10,
   },
 };
-const itemSkus = Platform.select({
+const productItems = Platform.select({
   ios: [
     'com.example.coins100',
   ],
   android: [
-    'astapp.iap.s1',
-    'astapp.iap.s1p1',
-    'astapp.iap.s1p2',
-    'astapp.iap.s1p3',
-    'astapp.iap.s1p4',
+    'test.ep.1',
+    'test.ep.2',
   ],
 });
 export default class Purchases extends React.Component {
@@ -33,28 +31,32 @@ export default class Purchases extends React.Component {
     productList: [],
     receipt: '',
     availableItemsMessage: '',
+    error: '',
   };
 
-  componentDidMount = async () => {
-    try {
-      await RNIap.prepare();
-      const products = await RNIap.getProducts(itemSkus);
-      console.log('PRODUCTS', products);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // componentDidMount = async () => {
+  //   try {
+  //     await RNIap.prepare();
+  //     const products = await RNIap.getProducts(productItems);
+  //     this.setState({ productList: products });
+  //     console.log('PRODUCTS', products);
+  //   } catch (err) {
+  //     this.setState({ error: err });
+  //     console.log(err);
+  //   }
+  // }
 
-  componentWillUnmount() {
-    RNIap.endConnection();
-  }
+  // componentWillUnmount() {
+  //   RNIap.endConnection();
+  // }
 
   getItems = async () => {
     try {
-      const products = await RNIap.getProducts(itemSkus);
+      const products = await RNIap.getProducts(productItems);
       this.setState({ productList: products });
       console.log('Products', this.state.productList);
     } catch (err) {
+      this.setState({ error: err });
       console.warn(err.code, err.message);
     }
   }
@@ -72,31 +74,55 @@ export default class Purchases extends React.Component {
         console.log('Receipt', this.state.receipt);
       }
     } catch (err) {
+      this.setState({ error: err });
       console.warn(err.code, err.message);
       Alert.alert(err.message);
     }
   }
 
-  buySubscribeItem = async (sku) => {
+  buySubscribeItem = async (item) => {
     try {
-      console.log('buySubscribeItem: ', sku);
-      const purchase = await RNIap.buySubscription(sku);
+      console.log('buySubscribeItem: ', item);
+      const purchase = await RNIap.buySubscription(item);
       console.log(purchase);
       this.setState({ receipt: purchase.transactionReceipt }, () => this.goToNext());
     } catch (err) {
+      this.setState({ error: err });
       console.warn(err.code, err.message);
       Alert.alert(err.message);
     }
   }
 
-  buyItem = async (sku) => {
+  updateUserData = (item) => {
+    firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
+      storeId: item,
+      seriesId: '-LLZ2Bk2zWKgph0GXgGR',
+      price: 2,
+      date: 1,
+    })
+      .then(() => {
+        Alert.alert('Item purchased');
+      });
+  };
+
+  buyItem = async (item) => {
     try {
-      console.log('buyItem: ', sku);
+      console.log('buyItem: ', item);
       // const purchase = await RNIap.buyProduct(sku);
-      const purchase = await RNIap.buyProductWithoutFinishTransaction(sku);
+      const purchase = await RNIap.buyProductWithoutFinishTransaction(item);
       console.log(purchase);
-      this.setState({ receipt: purchase.transactionReceipt }, () => this.goToNext());
+      this.setState({ receipt: purchase.transactionReceipt });
+      firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).set({
+        storeId: item,
+        seriesId: item,
+        value: 1,
+        date: 1,
+      })
+        .then(() => {
+          Alert.alert('Item purchased');
+        });
     } catch (err) {
+      this.setState({ error: err });
       console.warn(err.code, err.message);
       Alert.alert(err.message);
     }
@@ -107,16 +133,22 @@ export default class Purchases extends React.Component {
     return (
       <View>
         <Text>
-          PURCHASES
+          {this.state.receipt}
+        </Text>
+        <Text>
+          {this.state.availableItemsMessage}
+        </Text>
+        <Text>
+          {this.state.error}
         </Text>
         <Button
           title="Get Products"
-          onPress={() => this.getItems()}
+          onPress={() => this.updateUserData('test.ep.1')}
           buttonStyle={styles.button}
         />
         <Button
           title="Get Available Purchases"
-          onPress={() => this.getItems()}
+          onPress={() => this.getAvailablePurchases()}
           buttonStyle={styles.button}
         />
       </View>

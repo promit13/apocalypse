@@ -6,13 +6,14 @@ import {
 import { Text, Icon } from 'react-native-elements';
 
 const { width } = Dimensions.get('window');
-const imageSize = width - 48;
+const imageSize = width - 80;
 const styles = StyleSheet.create({
   container: {
     paddingLeft: 24,
     paddingRight: 24,
   },
   image: {
+    alignSelf: 'center',
     width: imageSize,
     height: imageSize,
   },
@@ -26,6 +27,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'flex-end',
     marginTop: 10,
+  },
+  text: {
+    color: 'white',
+    alignSelf: 'center',
   },
 });
 
@@ -49,7 +54,7 @@ export default function AlbumArt({
         </TouchableOpacity>
       )
         }
-      <Text h4 style={{ alignSelf: 'center', color: 'white' }}>
+      <Text h4 style={styles.text}>
         {currentExercise}
       </Text>
     </View>

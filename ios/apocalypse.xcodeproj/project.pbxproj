@@ -1491,6 +1491,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.imaginactive.apocalypse;
 				PRODUCT_NAME = apocalypse;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -1519,6 +1520,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.imaginactive.apocalypse;
 				PRODUCT_NAME = apocalypse;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
