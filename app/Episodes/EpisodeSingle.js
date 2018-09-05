@@ -83,15 +83,17 @@ export default class EpisodeSingle extends Component {
       logId: '',
       lastLoggedDate: null,
       previousStartTime: [],
+      videoUrl: '',
     };
 
     componentWillMount() {
       const {
-        check, episodeId, index,
+        check, episodeId, index, videoUrl,
       } = this.props.navigation.state.params;
       this.setState({
         listen: check,
         episodeId,
+        videoUrl,
         uid: this.props.screenProps.user.uid,
         selectedTrack: index,
       });
@@ -441,7 +443,7 @@ export default class EpisodeSingle extends Component {
     const track = this.props.navigation.state.params.tracks[this.state.selectedTrack];
     const video = (
       <Video
-        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/episodes%2F-LJroYZjhB9uS0OvOAtP%2FAST%20Ep1%20Master%2017.12.2017.m4a?alt=media&token=0f515faa-47fc-4393-a152-12cdbf6e10b2' }} // Can be a URL or a local file.
+        source={{ uri: this.state.videoUrl }} // Can be a URL or a local file.
         ref={(ref) => {
           this.player = ref;
         }}

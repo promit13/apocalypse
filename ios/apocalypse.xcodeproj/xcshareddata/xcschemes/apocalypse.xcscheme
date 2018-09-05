@@ -124,6 +124,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
+      customArchiveName = "apocalypse"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

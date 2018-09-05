@@ -87,6 +87,7 @@ export default class EpisodeView extends React.Component {
       episodeId,
       index,
       exerciseList,
+      videoUrl,
     } = this.props.navigation.state.params;
     this.props.navigation.navigate('EpisodeSingle', {
       tracks,
@@ -96,6 +97,7 @@ export default class EpisodeView extends React.Component {
       episodeId,
       index,
       exerciseList,
+      videoUrl,
     });
   }
 

@@ -178,6 +178,7 @@ export default class EpisodeList extends React.Component {
         category: value.category,
         description: value.description,
         exerciseList: value.exercises,
+        videoUrl: value.video,
         index,
         // episodeKeysArray,
       });

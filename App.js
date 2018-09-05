@@ -1,4 +1,5 @@
 import React from 'react';
+import { NetInfo } from 'react-native';
 import LoadScreen from './app/LoadScreen';
 import firebase from './app/config/firebase';
 import {
@@ -6,6 +7,7 @@ import {
   SignedOut,
   UserDetails,
   TutorialDisplay,
+  DownloadDisplay,
 } from './app/config/router';
 
 export default class App extends React.Component {
@@ -15,24 +17,35 @@ export default class App extends React.Component {
       loading: true,
       user: '',
       data: '',
+      isConnected: true,
     };
   }
 
   componentDidMount() {
-    this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
-      this.setState({
-        user,
-        loading: false,
-      });
-      this.handleUserStatus();
-    });
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
   }
 
   componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
     this.authSubscription();
   }
 
-  handleUserStatus() {
+  handleConnectivityChange = (isConnected) => {
+    if (isConnected) {
+      this.setState({ isConnected });
+      this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+        this.setState({
+          user,
+          loading: false,
+        });
+        this.handleUserStatus();
+      });
+    } else {
+      this.setState({ isConnected });
+    }
+  };
+
+  handleUserStatus = () => {
     if (this.state.user == null) {
       return;
     }
@@ -45,6 +58,7 @@ export default class App extends React.Component {
 
   render() {
     console.disableYellowBox = true;
+    if (!this.state.isConnected) return <DownloadDisplay />;
     if (this.state.loading) return <LoadScreen />;
     if (this.state.user) {
       if (this.state.data === '') return <LoadScreen />;

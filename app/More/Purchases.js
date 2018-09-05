@@ -15,7 +15,8 @@ const styles = {
 };
 const productItems = Platform.select({
   ios: [
-    'com.example.coins100',
+    'test.ep.1',
+    'test.ep.2',
   ],
   android: [
     'test.ep.1',
@@ -96,7 +97,7 @@ export default class Purchases extends React.Component {
   updateUserData = (item) => {
     firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
       storeId: item,
-      seriesId: '-LLZ2Bk2zWKgph0GXgGR',
+      seriesId: '-LLdahoNtWtLZThILTvp',
       price: 2,
       date: 1,
     })

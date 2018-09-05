@@ -1,9 +1,10 @@
 import React from 'react';
 import {
-  ScrollView, View, TouchableWithoutFeedback, TouchableOpacity,
+  ScrollView, View, TouchableWithoutFeedback, TouchableOpacity, NetInfo,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
+import OfflineMsg from '../common/OfflineMsg';
 
 const styles = {
   mainContainer: {
@@ -22,11 +23,25 @@ export default class Downloads extends React.Component {
   state = {
     exercises: '',
     index: 0,
+    isConnected: false,
   }
 
   componentDidMount() {
-    firebase.database().ref('exercises').on('value', snapshot => this.setState({ exercises: snapshot.val() }));
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
   }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+  }
+
+  handleConnectivityChange = (isConnected) => {
+    if (isConnected) {
+      this.setState({ isConnected });
+      firebase.database().ref('exercises').on('value', snapshot => this.setState({ exercises: snapshot.val() }));
+    } else {
+      this.setState({ isConnected });
+    }
+  };
 
   deleteExercise = (exerciseId) => {
     firebase.database().ref(`exercises/${exerciseId}`).remove()
@@ -82,6 +97,7 @@ export default class Downloads extends React.Component {
     });
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
+        { !this.state.isConnected ? <OfflineMsg /> : null }
         <View style={{ height: 1, backgroundColor: 'gray' }} />
         <ScrollView>
           { exerciseList }

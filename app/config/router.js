@@ -72,6 +72,22 @@ export const TutorialDisplay = createStackNavigator({
     },
   },
 });
+
+export const DownloadDisplay = createStackNavigator({
+  Download: { screen: Downloads },
+},
+{
+  navigationOptions: {
+    headerStyle: {
+      backgroundColor: '#001331',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  },
+});
+
 const EpisodeStack = createStackNavigator({
   EpisodeList: { screen: EpisodeList },
   EpisodeView: { screen: EpisodeView },
