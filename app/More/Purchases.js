@@ -97,7 +97,7 @@ export default class Purchases extends React.Component {
   updateUserData = (item) => {
     firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
       storeId: item,
-      seriesId: '-LLdahoNtWtLZThILTvp',
+      seriesId: '-LL_L_vlY6JVcE91Fj_V',
       price: 2,
       date: 1,
     })

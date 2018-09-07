@@ -47,30 +47,29 @@ const styles = {
   },
 };
 
-const imageUrls = [
-  'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Running%20Logo%20White%20BG.png?alt=media&token=6df03197-e7cb-4bc2-aac5-b51e6404ff90',
-  'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Circuit%20Logo%20White%20BG.png?alt=media&token=ac1d355d-3a86-417a-9327-8ad00032a077',
-  'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Holistic%20Logo%20White%20BG.png?alt=media&token=ad9ce094-4e19-4d7c-b96b-c3550dbfc291',
-];
+const speedImage = require('../../img/speed.png');
+const strengthImage = require('../../img/strength.png');
+const controlImage = require('../../img/control.png');
+
 export default class EpisodeView extends React.Component {
   static navigationOptions = {
     title: 'Episode',
   };
 
   state = {
-    url: '',
+    imageSource: '',
   }
 
   componentDidMount() {
     const { category } = this.props.navigation.state.params;
     if (category === 'Speed') {
-      return this.setState({ url: imageUrls[0] });
+      return this.setState({ imageSource: speedImage });
     }
     if (category === 'Strength') {
-      return this.setState({ url: imageUrls[1] });
+      return this.setState({ imageSource: strengthImage });
     }
     if (category === 'Control') {
-      return this.setState({ url: imageUrls[2] });
+      return this.setState({ imageSource: controlImage });
     }
     // firebase.storage().ref('temp/Home.jpg').getDownloadURL()
     // firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
@@ -85,6 +84,7 @@ export default class EpisodeView extends React.Component {
       tracks,
       exercises,
       episodeId,
+      title,
       index,
       exerciseList,
       videoUrl,
@@ -94,6 +94,7 @@ export default class EpisodeView extends React.Component {
       exercises,
       check,
       mode,
+      title,
       episodeId,
       index,
       exerciseList,
@@ -118,9 +119,8 @@ export default class EpisodeView extends React.Component {
         onPress={() => {
           this.props.navigation.navigate('ExercisePlayer', {
             // videoUrl: value.videoUrl,
-            videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
-            exerciseId: key,
-            title: value.title,
+            // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
+            exerciseId: value.uid,
           });
         }}
       />
@@ -135,7 +135,7 @@ export default class EpisodeView extends React.Component {
                 width: 120,
                 borderRadius: 120 / 2,
               }}
-              source={{ uri: this.state.url }}
+              source={this.state.imageSource}
             />
           </View>
           <View style={{ marginLeft: 10 }}>

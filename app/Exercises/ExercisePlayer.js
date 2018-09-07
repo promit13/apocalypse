@@ -6,6 +6,7 @@ import Video from 'react-native-video';
 import Controls from '../common/Controls';
 import TrackDetails from '../common/TrackDetails';
 import Loading from '../common/Loading';
+import firebase from '../config/firebase';
 
 const styles = {
   backgroundVideo: {
@@ -51,8 +52,19 @@ export default class ExercisePlayer extends Component {
   };
 
   state = {
+    title: '',
+    video: '',
     paused: false,
     loading: true,
+  }
+
+  componentDidMount() {
+    const { exerciseId } = this.props.navigation.state.params;
+    console.log(exerciseId);
+    firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
+      const { video, title } = snapshot.val();
+      this.setState({ video, title });
+    });
   }
 
   onLoad = () => this.setState({ loading: false });
@@ -62,13 +74,13 @@ export default class ExercisePlayer extends Component {
   }
 
   render() {
-    const { videoUrl, title } = this.props.navigation.state.params;
+    const { video, title } = this.state;
     return (
       <ScrollView style={styles.container}>
         <View style={styles.containerInner}>
           <Video
             source={{
-              uri: videoUrl,
+              uri: video,
             }}
             ref={(c) => { this.video = c; }}
             paused={this.state.paused}

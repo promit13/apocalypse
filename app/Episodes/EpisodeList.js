@@ -165,7 +165,7 @@ export default class EpisodeList extends React.Component {
     });
   }
 
-  onEpisodeClick = (episodeId, index) => {
+  onEpisodeClick = (episodeId, index, seriesImageUrl) => {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       const value = snapshot.val();
@@ -180,7 +180,7 @@ export default class EpisodeList extends React.Component {
         exerciseList: value.exercises,
         videoUrl: value.video,
         index,
-        // episodeKeysArray,
+        seriesImageUrl,
       });
     });
   }
@@ -205,18 +205,19 @@ export default class EpisodeList extends React.Component {
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
               onPressRightIcon={() => {
-                if (!buy) {
-                  return Alert.alert('Item not purchased');
-                }
+                // if (!buy) {
+                //   return Alert.alert('Item not purchased');
+                // }
               }
               }
               onPress={() => {
-                if (!buy) {
-                  return Alert.alert('Item not purchased');
-                }
+                // if (!buy) {
+                //   return Alert.alert('Item not purchased');
+                // }
                 this.onEpisodeClick(
                   episodeKey,
                   episodeIndex,
+                  value.file,
                 );
               }}
             />

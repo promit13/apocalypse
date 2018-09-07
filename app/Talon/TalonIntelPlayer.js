@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView,
+  AppState, View, ScrollView, Text,
 } from 'react-native';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
-import TrackDetails from '../common/TrackDetails';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
@@ -19,10 +18,11 @@ const styles = {
   containerInner: {
     marginTop: 30,
   },
-  text: {
+  textTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    marginTop: 20,
   },
   loading: {
     marginTop: 30,
@@ -43,6 +43,7 @@ const styles = {
     backgroundColor: 'white',
   },
 };
+const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Ftalon.png?alt=media&token=8e8e51e4-e270-408d-a57d-b08c96eb98a9';
 
 export default class TalonIntelPlayer extends Component {
   static navigationOptions = {
@@ -50,23 +51,30 @@ export default class TalonIntelPlayer extends Component {
     // header: null,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: true,
-      paused: true,
-      totalLength: 1,
-      currentTime: 0.0,
-      selectedTrack: 0,
-      playingExercise: '',
-      windowsHeight: 0,
-      windowsWidth: 0,
-    };
+  state = {
+    loading: true,
+    paused: true,
+    totalLength: 1,
+    currentTime: 0.0,
+    playingExercise: '',
+    windowsHeight: 0,
+    windowsWidth: 0,
+    episodeTitle: '',
+    videoUrl: '',
+  };
+
+  componentWillMount() {
+    this.setState({ playingExercise: { value: { image: albumImage, title: '' } } });
   }
 
   componentDidMount() {
-    const exerciseArray = Object.values(this.props.navigation.state.params.exercises);
-    this.setState({ playingExercise: { value: exerciseArray[0] } });
+    const { episodeId } = this.props.navigation.state.params;
+    // const exerciseArray = Object.values(this.props.navigation.state.params.exercises);
+    // this.setState({ playingExercise: { value: exerciseArray[0] } });
+    firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
+      const { title, intel } = snapshot.val();
+      this.setState({ episodeTitle: title, videoUrl: intel, loading: false });
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -142,22 +150,25 @@ export default class TalonIntelPlayer extends Component {
     return this.renderLandscapeView(track);
   };
 
-  renderLandscapeView = (track) => {
+  renderLandscapeView = () => {
+    const { image, title } = this.state.playingExercise.value;
     return (
       <View style={{ flex: 2, flexDirection: 'row' }}>
         <View style={{ flex: 1, backgroundColor: '#33425a', padding: 20 }}>
           <AlbumArt
             url={
              this.state.playingExercise
-               ? this.state.playingExercise.value.imageUrl
-               : track.workoutImage
+               ? image
+               : null
             }
-            currentExercise={this.state.playingExercise.name}
+            currentExercise={title}
             onPress={() => {}}
           />
         </View>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <TrackDetails title={track.title} />
+          <Text style={styles.textTitle}>
+            {this.state.episodeTitle}
+          </Text>
           <Controls
             onPressPlay={this.onPressPlay}
             onPressPause={this.onPressPause}
@@ -188,16 +199,16 @@ export default class TalonIntelPlayer extends Component {
     );
   }
 
-  renderPortraitView = (track) => {
-    const { imageUrl, title } = this.state.playingExercise.value;
+  renderPortraitView = () => {
+    const { image, title } = this.state.playingExercise.value;
     return (
       <View>
         <View style={styles.albumView}>
           <AlbumArt
             url={
              this.state.playingExercise
-               ? imageUrl
-               : track.workoutImage
+               ? image
+               : null
             }
             currentExercise={title}
             onPress={() => {}}
@@ -217,7 +228,9 @@ export default class TalonIntelPlayer extends Component {
                 currentTime={this.state.currentTime}
                 remainingTime={this.state.totalLength - this.state.currentTime}
               />
-              <TrackDetails title={track.title} />
+              <Text style={styles.textTitle}>
+                {this.state.episodeTitle}
+              </Text>
               <Controls
                 onPressPlay={this.onPressPlay}
                 onPressPause={this.onPressPause}
@@ -235,10 +248,10 @@ export default class TalonIntelPlayer extends Component {
   }
 
   render() {
-    const track = this.props.navigation.state.params.tracks[this.state.selectedTrack];
+    const { videoUrl } = this.state;
     const video = (
       <Video
-        source={{ uri: track.audioUrl }} // Can be a URL or a local file.
+        source={{ uri: videoUrl }} // Can be a URL or a local file.
         ref={(ref) => {
           this.player = ref;
         }}
@@ -263,7 +276,7 @@ export default class TalonIntelPlayer extends Component {
           });
         }}
       >
-        {this.detectOrientation(track)}
+        {this.detectOrientation()}
         {video}
       </ScrollView>
     );

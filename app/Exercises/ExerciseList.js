@@ -30,8 +30,7 @@ export default class ExerciseList extends React.Component {
             containerStyle={{ backgroundColor: '#33425a' }}
             underlayColor="#2a3545"
             onPress={() => this.props.navigation.navigate('ExercisePlayer', {
-              title: value.title,
-              videoUrl: value.video,
+              exerciseId: key,
             })}
           />
         );

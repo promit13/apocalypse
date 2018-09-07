@@ -59,6 +59,7 @@ const styles = {
     marginTop: 10,
   },
 };
+const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Ftalon.png?alt=media&token=8e8e51e4-e270-408d-a57d-b08c96eb98a9';
 
 export default class EpisodeSingle extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -72,13 +73,13 @@ export default class EpisodeSingle extends Component {
       paused: true,
       totalLength: 1,
       currentTime: 0.0,
-      selectedTrack: 0,
       playingExercise: '',
       listen: false,
       windowsHeight: 0,
       windowsWidth: 0,
       showDialog: false,
       episodeId: '',
+      episodeTitle: '',
       uid: '',
       logId: '',
       lastLoggedDate: null,
@@ -88,20 +89,28 @@ export default class EpisodeSingle extends Component {
 
     componentWillMount() {
       const {
-        check, episodeId, index, videoUrl,
+        check, episodeId, index, videoUrl, title,
       } = this.props.navigation.state.params;
       this.setState({
         listen: check,
         episodeId,
         videoUrl,
+        episodeTitle: title,
         uid: this.props.screenProps.user.uid,
-        selectedTrack: index,
+        playingExercise: { value: { image: albumImage, title: '' } },
       });
     }
 
     componentDidMount() {
-      const exerciseArray = Object.values(this.props.navigation.state.params.exercises);
-      this.setState({ playingExercise: { value: exerciseArray[0] } });
+      // console.log(this.props.navigation.state.params.exerciseList);
+      // const { exerciseList } = this.props.navigation.state.params;
+      // const { exerciseArray } = this.state;
+      // // const exerciseArray = Object.values(this.props.navigation.state.params.exercises);
+      // exerciseList.map((value, i) => {
+      //   firebase.database().ref(`exercises/${value.uid}`).on('value', (snapshot) => {
+      //     this.setState({ exerciseArray: snapshot.val() });
+      //   });
+      // });
       this.getTimeFirebase();
     }
 
@@ -109,6 +118,10 @@ export default class EpisodeSingle extends Component {
       if (prevState.currentTime > 0) {
         // this.changeExercises;
       }
+    }
+
+    componentWillUnmount() {
+     
     }
 
   onBack = () => {
@@ -130,8 +143,8 @@ export default class EpisodeSingle extends Component {
   }
 
   onExercisePress = () => {
-    const { videoUrl, title } = this.state.playingExercise.value;
-    this.props.navigation.navigate('ExercisePlayer', { videoUrl, title });
+    const { exerciseId } = this.state.playingExercise.value;
+    this.props.navigation.navigate('ExercisePlayer', { exerciseId });
     this.setState({ paused: true });
     this.setTimeFirebase();
   }
@@ -197,7 +210,7 @@ export default class EpisodeSingle extends Component {
 
   setTimeFirebase = () => {
     if (!this.state.listen) {
-      const { uid, episodeId } = this.state;
+      const { uid, episodeId, episodeTitle } = this.state;
       const currentDate = new Date().getTime();
       if ((currentDate - this.state.lastLoggedDate) > 300000) {
         firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
@@ -208,6 +221,7 @@ export default class EpisodeSingle extends Component {
         firebase.database().ref(`logs/${uid}/${episodeId}/${this.state.logId}`).set({
           timeStamp: this.state.currentTime,
           dateNow: currentDate,
+          episodeTitle,
         });
       }
     }
@@ -223,7 +237,7 @@ export default class EpisodeSingle extends Component {
     const { uid, episodeId } = this.state;
     firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
       'value', (snapshot) => {
-        if (snapshot.val() == null) {
+        if (snapshot.val() === null) {
           firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
             timeStamp: 0.0,
             dateNow: new Date().getTime(),
@@ -244,7 +258,8 @@ export default class EpisodeSingle extends Component {
   }
 
   showModal = () => {
-    if (this.state.showDialog) {
+    const { showDialog, episodeId } = this.state;
+    if (showDialog) {
       return (
         <Modal transparent visible={this.state.showDialog}>
           <View style={styles.modal}>
@@ -263,7 +278,7 @@ export default class EpisodeSingle extends Component {
                 color="#fff"
                 onPress={() => {
                   this.setState({ showDialog: false });
-                  this.props.navigation.navigate('TalonScreen');
+                  this.props.navigation.navigate('TalonIntelPlayer', { episodeId });
                 }}
               />
             </View>
@@ -281,18 +296,21 @@ export default class EpisodeSingle extends Component {
   };
 
   changeExercises = () => {
-    Object.entries(this.props.navigation.state.params.exercises)
-      .map(([key, value], i) => {
-        const { start } = value;
-        if (this.state.currentTime > start) {
+    const { exerciseList } = this.props.navigation.state.params;
+    exerciseList.map((value, i) => {
+      const { length } = value;
+      if (this.state.currentTime > length) {
+        firebase.database().ref(`exercises/${value.uid}`).on('value', (snapshot) => {
+          const { image, title } = snapshot.val();
           this.setState({
             playingExercise: {
-              value,
+              value: { image, title, exerciseId: value.uid },
             },
           });
-          this.state.previousStartTime.push(start);
-        }
-      });
+        });
+        this.state.previousStartTime.push(length);
+      }
+    });
   }
 
   navigateToPreviousExercise = () => {
@@ -303,8 +321,8 @@ export default class EpisodeSingle extends Component {
     this.state.previousStartTime.pop(); // removes last item of array
   }
 
-  renderLandscapeView = (track) => {
-    // const { imageUrl } = this.state.playingExercise.value;
+  renderLandscapeView = () => {
+    const { image, title } = this.state.playingExercise.value;
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
         <View style={{
@@ -314,17 +332,17 @@ export default class EpisodeSingle extends Component {
           <AlbumArt
             url={
              this.state.playingExercise
-               ? this.state.playingExercise.value.imageUrl
-               : track.workoutImage
+               ? image
+               : null
             }
-            currentExercise={this.state.playingExercise.name}
+            currentExercise={title}
             onPress={this.onExercisePress}
             showInfo
           />
         </View>
         <View style={{ flex: 0.5, justifyContent: 'space-between' }}>
           <Text style={styles.textTitle}>
-            {track.title}
+            {this.state.episodeTitle}
           </Text>
           <Controls
             onPressPlay={this.onPressPlay}
@@ -373,16 +391,16 @@ export default class EpisodeSingle extends Component {
     );
   }
 
-  renderPortraitView = (track) => {
-    const { imageUrl, title } = this.state.playingExercise.value;
+  renderPortraitView = () => {
+    const { image, title } = this.state.playingExercise.value;
     return (
       <View>
         <View style={styles.albumView}>
           <AlbumArt
             url={
              this.state.playingExercise
-               ? imageUrl
-               : track.workoutImage
+               ? image
+               : null
             }
             currentExercise={title}
             onPress={this.onExercisePress}
@@ -420,7 +438,7 @@ export default class EpisodeSingle extends Component {
                 remainingTime={this.state.totalLength - this.state.currentTime}
               />
               <Text style={styles.textTitle}>
-                {track.title}
+                {this.state.episodeTitle}
               </Text>
               <Controls
                 onPressPlay={this.onPressPlay}
@@ -440,10 +458,9 @@ export default class EpisodeSingle extends Component {
   }
 
   render() {
-    const track = this.props.navigation.state.params.tracks[this.state.selectedTrack];
     const video = (
       <Video
-        source={{ uri: this.state.videoUrl }} // Can be a URL or a local file.
+        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5' }} // Can be a URL or a local file.
         ref={(ref) => {
           this.player = ref;
         }}
@@ -468,7 +485,7 @@ export default class EpisodeSingle extends Component {
           });
         }}
       >
-        {this.detectOrientation(track)}
+        {this.detectOrientation()}
         {video}
       </ScrollView>
     );
