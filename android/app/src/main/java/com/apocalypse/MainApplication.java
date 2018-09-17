@@ -3,6 +3,7 @@ package com.apocalypse;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.RNFetchBlob.RNFetchBlobPackage;
 import com.dooboolab.RNIap.RNIapPackage;
 import com.reactnative.googlefit.GoogleFitPackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
@@ -40,6 +41,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNFetchBlobPackage(),
             new RNIapPackage(),
             new GoogleFitPackage(BuildConfig.APPLICATION_ID),
             new FBSDKPackage(mCallbackManager),

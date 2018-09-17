@@ -1,97 +1,14 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, StatusBar, Alert,
+  ScrollView, View, Image, TouchableOpacity, StatusBar, Alert, PermissionsAndroid,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
+import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import LoadScreen from '../LoadScreen';
-
-export const EXERCISES = {
-  benchPress: {
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
-    title: 'Bench press',
-    start: 0,
-    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-  },
-  shoulderPress: {
-    imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
-    title: 'Shoulder press',
-    start: 10,
-    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-  },
-  benchPressSecond: {
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
-    title: 'Bench press Second',
-    start: 15,
-    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-  },
-  shoulderPressSecond: {
-    imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
-    title: 'Shoulder press Second',
-    start: 20,
-    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-  },
-  benchPressThird: {
-    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fzombies-run.jpg?alt=media&token=8e582554-079a-4bd6-acc6-666b381c04d4',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
-    title: 'Bench press Third',
-    start: 25,
-    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-  },
-  shoulderPressThird: {
-    imageUrl: 'https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif',
-    videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FCatherine_Part1.mkv?alt=media&token=923656c5-ca39-4aab-94d3-283a22b513be',
-    title: 'Shoulder press Third',
-    start: 30,
-    subtitle: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-  },
-};
-
-
-export const TRACKS = [
-  {
-    title: 'Zombie training',
-    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5',
-    exercises: {
-      benchPress: 0,
-      shoulderPress: 5,
-    },
-  },
-  {
-    title: 'Apocalypse monkeys',
-    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FSampleAudio_0.7mb.mp3?alt=media&token=9553b552-2aaf-4be8-9489-12b066586579',
-    exercises: {
-      benchPress: 0,
-      shoulderPress: 5,
-    },
-  },
-  {
-    title: 'Giant squids',
-    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5',
-    exercises: {
-      benchPress: 0,
-      shoulderPress: 5,
-    },
-  },
-  {
-    title: 'Zombie training',
-    description: 'Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked.',
-    audioUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FSampleAudio_0.7mb.mp3?alt=media&token=9553b552-2aaf-4be8-9489-12b066586579',
-    exercises: {
-      benchPress: 0,
-      shoulderPress: 5,
-    },
-  },
-];
+import DownloadFiles from '../common/DownloadFiles';
 
 const styles = {
   imageStyle: {
@@ -155,6 +72,7 @@ export default class EpisodeList extends React.Component {
   }
 
   componentDidMount() {
+    this.requestPermissions();
     firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).on('value', (snap) => {
       firebase.database().ref('series').on('value', (snapshot) => {
         const purchasedSeries = Object.entries(snap.val()).map(([key, value], i) => {
@@ -165,24 +83,80 @@ export default class EpisodeList extends React.Component {
     });
   }
 
-  onEpisodeClick = (episodeId, index, seriesImageUrl) => {
+  onEpisodeClick = (episodeId, index, seriesImageUrl, download) => {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
-      const value = snapshot.val();
+      const {
+        title, category, description, exercises, video,
+      } = snapshot.val();
       this.setState({ loading: false });
+      if (download) {
+        // return this.donwloadFile(title, video);
+        return this.props.navigation.navigate('DownloadFiles', {
+          episodeId,
+          episodeTitle: title,
+          category,
+          description,
+          exercises,
+          video,
+        });
+        // return (
+        //   <DownloadFiles
+        //     episodeTitle={title}
+        //     episodeId={episodeId}
+        //     category={category}
+        //     description={description}
+        //     exercises={exercises}
+        //     video={video}
+        //   />
+        // );
+      }
       this.props.navigation.navigate('EpisodeView', {
-        tracks: TRACKS,
-        exercises: EXERCISES,
         episodeId,
-        title: value.title,
-        category: value.category,
-        description: value.description,
-        exerciseList: value.exercises,
-        videoUrl: value.video,
+        title,
+        category,
+        description,
+        exercises,
+        video,
         index,
         seriesImageUrl,
       });
     });
+  }
+
+  requestPermissions = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can access location');
+      } else {
+        console.log('Location permission denied');
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  donwloadFile = (fileTitle, downloadUrl) => {
+    const { dirs } = RNFetchBlob.fs;
+    RNFetchBlob.fs.mkdir(`${dirs.MovieDir}/AST/${fileTitle}`)
+      .then(() => {
+        RNFetchBlob
+          .config({
+          // response data will be saved to this path if it has access right.
+            path: `${dirs.MovieDir}/AST/${fileTitle}/${fileTitle}.mp4`,
+          })
+          // .fetch('GET', `${downloadUrl}`, {
+          .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
+            // some headers ..
+          })
+          .then((res) => {
+          // the path should be dirs.DocumentDir + 'path-to-file.anything'
+            console.log('The file saved to ', res.path());
+          });
+      });
   }
 
   renderList = () => {
@@ -208,6 +182,12 @@ export default class EpisodeList extends React.Component {
                 // if (!buy) {
                 //   return Alert.alert('Item not purchased');
                 // }
+                this.onEpisodeClick(
+                  episodeKey,
+                  episodeIndex,
+                  value.file,
+                  true,
+                );
               }
               }
               onPress={() => {

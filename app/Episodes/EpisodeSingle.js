@@ -215,7 +215,8 @@ export default class EpisodeSingle extends Component {
       if ((currentDate - this.state.lastLoggedDate) > 300000) {
         firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
           timeStamp: this.state.currentTime,
-          dateNow: new Date().getTime(),
+          dateNow: currentDate,
+          episodeTitle,
         });
       } else {
         firebase.database().ref(`logs/${uid}/${episodeId}/${this.state.logId}`).set({
@@ -234,13 +235,14 @@ export default class EpisodeSingle extends Component {
   }
 
   getTimeFirebase = async () => {
-    const { uid, episodeId } = this.state;
+    const { uid, episodeId, episodeTitle } = this.state;
     firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
       'value', (snapshot) => {
         if (snapshot.val() === null) {
           firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
             timeStamp: 0.0,
             dateNow: new Date().getTime(),
+            episodeTitle,
           }).then(() => {
             firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
               'value', (snap) => {
@@ -288,16 +290,16 @@ export default class EpisodeSingle extends Component {
     }
   }
 
-  detectOrientation = (track) => {
+  detectOrientation = () => {
     if (this.state.windowsHeight > this.state.windowsWidth) {
-      return this.renderPortraitView(track);
+      return this.renderPortraitView();
     }
-    return this.renderLandscapeView(track);
+    return this.renderLandscapeView();
   };
 
   changeExercises = () => {
-    const { exerciseList } = this.props.navigation.state.params;
-    exerciseList.map((value, i) => {
+    const { exercises } = this.props.navigation.state.params;
+    exercises.map((value, i) => {
       const { length } = value;
       if (this.state.currentTime > length) {
         firebase.database().ref(`exercises/${value.uid}`).on('value', (snapshot) => {

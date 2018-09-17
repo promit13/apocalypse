@@ -4,6 +4,10 @@ import {
   View, ScrollView, Image, TouchableOpacity, StatusBar,
 } from 'react-native';
 
+const speedImage = require('../../img/speed.png');
+const strengthImage = require('../../img/strength.png');
+const controlImage = require('../../img/control.png');
+
 const styles = {
   maincontainer: {
     flex: 3,
@@ -42,7 +46,7 @@ export default class ExerciseCategory extends React.Component {
     title: 'Exercises',
   };
 
-    renderView = (title, subtitle, imageUrl) => {
+    renderView = (title, subtitle, imageSource) => {
       return (
         <TouchableOpacity onPress={() => this.props.navigation.navigate('ExerciseList', { category: title })}>
           <View style={styles.categoryView}>
@@ -55,7 +59,7 @@ export default class ExerciseCategory extends React.Component {
                     borderRadius: 120 / 2,
                     borderColor: 'white',
                   }}
-                  source={{ uri: imageUrl }}
+                  source={imageSource}
                 />
               </View>
               <View>
@@ -80,9 +84,9 @@ export default class ExerciseCategory extends React.Component {
             backgroundColor="#00000b"
           />
           <ScrollView>
-            {this.renderView('Speed', 'Running Training', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Running%20Logo%20White%20BG.png?alt=media&token=6df03197-e7cb-4bc2-aac5-b51e6404ff90')}
-            {this.renderView('Strength', 'Bodyweight Circuits', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Circuit%20Logo%20White%20BG.png?alt=media&token=ac1d355d-3a86-417a-9327-8ad00032a077')}
-            {this.renderView('Control', 'Stretch and Core', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/Holistic%20Logo%20White%20BG.png?alt=media&token=ad9ce094-4e19-4d7c-b96b-c3550dbfc291')}
+            {this.renderView('Speed', 'Running Training', speedImage)}
+            {this.renderView('Strength', 'Bodyweight Circuits', strengthImage)}
+            {this.renderView('Control', 'Stretch and Core', controlImage)}
           </ScrollView>
         </View>
       );

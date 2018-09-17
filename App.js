@@ -26,8 +26,10 @@ export default class App extends React.Component {
   }
 
   componentWillUnmount() {
+    if (this.state.isConnected) {
+      this.authSubscription();
+    }
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
-    this.authSubscription();
   }
 
   handleConnectivityChange = (isConnected) => {
@@ -46,7 +48,7 @@ export default class App extends React.Component {
   };
 
   handleUserStatus = () => {
-    if (this.state.user == null) {
+    if (this.state.user === null) {
       return;
     }
     firebase.database().ref(`users/${this.state.user.uid}`)
@@ -58,22 +60,22 @@ export default class App extends React.Component {
 
   render() {
     console.disableYellowBox = true;
-    if (!this.state.isConnected) return <DownloadDisplay />;
+    if (!this.state.isConnected) return <DownloadDisplay screenProps={{ isConnected: this.state.isConnected }} />;
     if (this.state.loading) return <LoadScreen />;
     if (this.state.user) {
       if (this.state.data === '') return <LoadScreen />;
       if (this.state.data === null) return <SignedOut />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {
-          return <SignedIn screenProps={{ user: this.state.user }} />;
+          return <SignedIn screenProps={{ user: this.state.user, isConnected: this.state.isConnected }} />;
         }
-        return <TutorialDisplay screenProps={{ user: this.state.user }} />;
+        return <TutorialDisplay screenProps={{ user: this.state.user, isConnected: this.state.isConnected }} />;
       }
       if (!this.state.data.extended) {
         if (this.state.data.tutorial) {
-          return <SignedIn screenProps={{ user: this.state.user }} />;
+          return <SignedIn screenProps={{ user: this.state.user, isConnected: this.state.isConnected }} />;
         }
-        return <UserDetails screenProps={{ user: this.state.user }} />;
+        return <UserDetails screenProps={{ user: this.state.user, isConnected: this.state.isConnected }} />;
       }
     }
     return <SignedOut />;

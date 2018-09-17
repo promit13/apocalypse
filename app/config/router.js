@@ -26,6 +26,8 @@ import Purchases from '../More/Purchases';
 import Tips from '../More/Tips';
 import Trailers from '../More/Trailers';
 import ChangeEmailPassword from '../User/ChangeEmailPassword';
+import DownloadFiles from '../common/DownloadFiles';
+import DownloadPlayer from '../More/DownloadPlayer';
 
 export const SignedOut = createStackNavigator({
   Login: { screen: Login },
@@ -75,6 +77,7 @@ export const TutorialDisplay = createStackNavigator({
 
 export const DownloadDisplay = createStackNavigator({
   Download: { screen: Downloads },
+  DownloadPlayer: { screen: DownloadPlayer },
 },
 {
   navigationOptions: {
@@ -88,6 +91,16 @@ export const DownloadDisplay = createStackNavigator({
   },
 });
 
+DownloadDisplay.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 0) {
+    tabBarVisible = false;
+  }
+  return {
+    tabBarVisible,
+  };
+};
+
 const EpisodeStack = createStackNavigator({
   EpisodeList: { screen: EpisodeList },
   EpisodeView: { screen: EpisodeView },
@@ -95,6 +108,7 @@ const EpisodeStack = createStackNavigator({
   TalonIntelPlayer: { screen: TalonIntelPlayer },
   ExercisePlayer: { screen: ExercisePlayer },
   EpisodeSingle: { screen: EpisodeSingle },
+  DownloadFiles: { screen: DownloadFiles },
 }, {
   navigationOptions: () => ({
     headerStyle: {
@@ -183,6 +197,7 @@ const MoreStack = createStackNavigator({
   Trailers: { screen: Trailers },
   Tutorial: { screen: Tutorial },
   ChangeEmailPassword: { screen: ChangeEmailPassword },
+  DownloadPlayer: { screen: DownloadPlayer },
 },
 {
   navigationOptions: () => ({
@@ -195,6 +210,16 @@ const MoreStack = createStackNavigator({
     },
   }),
 });
+
+MoreStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 1) {
+    tabBarVisible = false;
+  }
+  return {
+    tabBarVisible,
+  };
+};
 
 export const SignedIn = createBottomTabNavigator({
   Episode: EpisodeStack,

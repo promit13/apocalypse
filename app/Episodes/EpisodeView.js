@@ -81,23 +81,19 @@ export default class EpisodeView extends React.Component {
 
   navigateToEpisodeSingle = (check, mode) => {
     const {
-      tracks,
-      exercises,
       episodeId,
       title,
       index,
-      exerciseList,
+      exercises,
       videoUrl,
     } = this.props.navigation.state.params;
     this.props.navigation.navigate('EpisodeSingle', {
-      tracks,
-      exercises,
       check,
       mode,
       title,
       episodeId,
       index,
-      exerciseList,
+      exercises,
       videoUrl,
     });
   }
@@ -107,9 +103,9 @@ export default class EpisodeView extends React.Component {
       title,
       description,
       category,
-      exerciseList,
+      exercises,
     } = this.props.navigation.state.params;
-    const exercisesList = Object.entries(exerciseList).map(([key, value], i) => (
+    const exercisesList = Object.entries(exercises).map(([key, value], i) => (
       <ListItem
         key={key}
         title={value.title}

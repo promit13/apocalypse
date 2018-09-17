@@ -148,6 +148,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-fetch-blob')
     compile project(':react-native-iap')
     compile project(':react-native-google-fit')
     compile 'com.facebook.android:facebook-android-sdk:4.35.0'

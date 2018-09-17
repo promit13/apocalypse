@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ScrollView, View, TouchableWithoutFeedback, TouchableOpacity, NetInfo,
 } from 'react-native';
+import RNFetchBlob from 'react-native-fetch-blob';
 import { Text, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
 import OfflineMsg from '../common/OfflineMsg';
@@ -23,29 +24,31 @@ export default class Downloads extends React.Component {
   state = {
     exercises: '',
     index: 0,
-    isConnected: false,
+    filesList: [],
   }
 
   componentDidMount() {
-    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+    this.setState({ isConnected: this.props.screenProps.isConnected });
+    this.readDirectory();
   }
 
   componentWillUnmount() {
-    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+    NetInfo.isConnected.removeEventListener('connectionChange');
   }
-
-  handleConnectivityChange = (isConnected) => {
-    if (isConnected) {
-      this.setState({ isConnected });
-      firebase.database().ref('exercises').on('value', snapshot => this.setState({ exercises: snapshot.val() }));
-    } else {
-      this.setState({ isConnected });
-    }
-  };
 
   deleteExercise = (exerciseId) => {
     firebase.database().ref(`exercises/${exerciseId}`).remove()
       .then(() => this.setState({ index: 0 }));
+  }
+
+  readDirectory = () => {
+    const { dirs } = RNFetchBlob.fs;
+    RNFetchBlob.fs.ls(`${dirs.MovieDir}/AST`)
+    // files will an array contains filenames
+      .then((files) => {
+        this.setState({ filesList: files });
+        console.log(files);
+      });
   }
 
   renderDeleteButton = (i, exerciseId) => {
@@ -74,15 +77,19 @@ export default class Downloads extends React.Component {
   }
 
   render() {
-    const exerciseList = Object.entries(this.state.exercises).map(([key, value], i) => {
+    const filesList = this.state.filesList.map((file, i) => {
       return (
-        <TouchableWithoutFeedback onLongPress={() => this.setState({ index: i + 1 })}>
+        <TouchableWithoutFeedback
+          onPress={() => this.props.navigation.navigate('DownloadPlayer', {
+            file,
+          })}
+          onLongPress={() => this.setState({ index: i + 1 })}
+        >
           <View>
             <View style={styles.mainContainer}>
               <Text style={{ fontSize: 18, color: 'white', margin: 10 }}>
-                {value.title}
+                {file}
               </Text>
-              {this.renderDeleteButton(i + 1, key)}
             </View>
             <View style={{
               height: 1,
@@ -100,7 +107,7 @@ export default class Downloads extends React.Component {
         { !this.state.isConnected ? <OfflineMsg /> : null }
         <View style={{ height: 1, backgroundColor: 'gray' }} />
         <ScrollView>
-          { exerciseList }
+          {filesList}
         </ScrollView>
       </View>
     );
