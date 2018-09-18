@@ -148,6 +148,7 @@ android {
 }
 
 dependencies {
+    compile project(':realm')
     compile project(':react-native-fetch-blob')
     compile project(':react-native-iap')
     compile project(':react-native-google-fit')

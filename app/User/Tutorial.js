@@ -51,9 +51,9 @@ export default class Tutorial extends React.Component {
       return (
         <ScrollView>
           <View style={styles.slideStyle}>
-            <Text style={styles.textStyle}>
+            {/* <Text style={styles.textStyle}>
               {value.title}
-            </Text>
+            </Text> */}
             <Image style={styles.imageStyle} source={{ uri: value.file }} />
             <Text style={styles.textStyle}>
               {value.description}

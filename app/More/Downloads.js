@@ -43,7 +43,7 @@ export default class Downloads extends React.Component {
 
   readDirectory = () => {
     const { dirs } = RNFetchBlob.fs;
-    RNFetchBlob.fs.ls(`${dirs.MovieDir}/AST`)
+    RNFetchBlob.fs.ls(`${dirs.MovieDir}/AST/episodes`)
     // files will an array contains filenames
       .then((files) => {
         this.setState({ filesList: files });

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   AppState, View, ScrollView, Text,
 } from 'react-native';
+import Realm from 'realm';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
 import firebase from '../config/firebase';
@@ -10,6 +11,7 @@ import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
 import FormatTime from '../common/FormatTime';
+import realm from '../config/Database';
 
 const styles = {
   container: {
@@ -72,7 +74,13 @@ export default class DownloadPlayer extends Component {
   componentDidMount() {
     const { dirs } = RNFetchBlob.fs;
     const { episodeTitle } = this.state;
-    this.setState({ videoUrl: `${dirs.MovieDir}/AST/${episodeTitle}/${episodeTitle}.mp4` });
+    this.setState({ videoUrl: `${dirs.MovieDir}/AST/${episodeTitle}.mp4` });
+
+    // const episodeDetail = Array.from(realm.objects('SavedEpisodes'));
+
+    const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`id = "${episodeTitle}"`));
+    // const episodeDetail = realm.objects('SavedEpisodes').filtered(`'id = ${episodeTitle}`);;
+    console.log(episodeDetail);
   }
 
   onBack = () => {

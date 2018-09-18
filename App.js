@@ -34,11 +34,12 @@ export default class App extends React.Component {
 
   handleConnectivityChange = (isConnected) => {
     if (isConnected) {
-      this.setState({ isConnected });
+      // this.setState({ isConnected });
       this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
         this.setState({
           user,
           loading: false,
+          isConnected,
         });
         this.handleUserStatus();
       });
