@@ -198,6 +198,8 @@ const MoreStack = createStackNavigator({
   Tutorial: { screen: Tutorial },
   ChangeEmailPassword: { screen: ChangeEmailPassword },
   DownloadPlayer: { screen: DownloadPlayer },
+  EpisodeView: { screen: EpisodeView },
+  ExercisePlayer: { screen: ExercisePlayer },
 },
 {
   navigationOptions: () => ({

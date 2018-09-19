@@ -36,7 +36,6 @@ const styles = {
   },
   albumView: {
     backgroundColor: '#33425a',
-    paddingRight: 20,
     paddingTop: 10,
     paddingBottom: 10,
   },
@@ -64,23 +63,30 @@ export default class DownloadPlayer extends Component {
     windowsWidth: 0,
     episodeTitle: '',
     videoUrl: '',
+    previousStartTime: [],
   };
 
   componentWillMount() {
-    const { file } = this.props.navigation.state.params;
-    this.setState({ episodeTitle: file, playingExercise: { value: { image: albumImage, title: '' } } });
+   // const { file } = this.props.navigation.state.params;
+    const { title, exerciseLengthList, exercises } = this.props.navigation.state.params;
+    console.log(exerciseLengthList);
+    console.log(exercises);
+    this.setState({ episodeTitle: title, playingExercise: { value: { image: albumImage, title: '' } } });
   }
 
   componentDidMount() {
     const { dirs } = RNFetchBlob.fs;
     const { episodeTitle } = this.state;
-    this.setState({ videoUrl: `${dirs.MovieDir}/AST/${episodeTitle}.mp4` });
+    this.setState({ videoUrl: `${dirs.MovieDir}/AST/episodes/${episodeTitle}.mp4` });
+    console.log(episodeTitle);
 
     // const episodeDetail = Array.from(realm.objects('SavedEpisodes'));
+  }
 
-    const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`id = "${episodeTitle}"`));
-    // const episodeDetail = realm.objects('SavedEpisodes').filtered(`'id = ${episodeTitle}`);;
-    console.log(episodeDetail);
+  onExercisePress = () => {
+    const { exerciseId, title } = this.state.playingExercise.value;
+    this.props.navigation.navigate('ExercisePlayer', { exerciseId, offline: true, exerciseTitle: title });
+    this.setState({ paused: true });
   }
 
   onBack = () => {
@@ -114,7 +120,7 @@ export default class DownloadPlayer extends Component {
 
   onProgress = (data) => {
     this.setState({ currentTime: data.currentTime });
-
+    this.changeExercises();
     AppState.addEventListener('change', (state) => {
       if (state === 'background') {
         // this.setTimeFirebase();
@@ -150,6 +156,31 @@ export default class DownloadPlayer extends Component {
     return this.renderLandscapeView(track);
   };
 
+  changeExercises = () => {
+    const { exerciseLengthList, exerciseIdlist, exercises } = this.props.navigation.state.params;
+    exerciseLengthList.map((value, i) => {
+      // const exercise = value[0];
+      // const { length } = value;
+      if (this.state.currentTime > value) {
+        const exercise = exercises[i];
+        this.setState({
+          playingExercise: {
+            value: { image: exercise[0].title, title: exercise[0].title, exerciseId: exercise[0].path },
+          },
+        });
+        this.state.previousStartTime.push(value);
+      }
+    });
+  }
+
+  navigateToPreviousExercise = () => {
+    const { previousStartTime } = this.state;
+    const startTime = previousStartTime[previousStartTime.length - 2];
+    this.setState({ currentTime: startTime });
+    this.player.seek(startTime, 10);
+    this.state.previousStartTime.pop(); // removes last item of array
+  }
+
   renderLandscapeView = () => {
     const { image, title } = this.state.playingExercise.value;
     return (
@@ -162,7 +193,8 @@ export default class DownloadPlayer extends Component {
                : null
             }
             currentExercise={title}
-            onPress={() => {}}
+            onPress={this.onExercisePress}
+            showInfo
           />
         </View>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
@@ -211,7 +243,9 @@ export default class DownloadPlayer extends Component {
                : null
             }
             currentExercise={title}
-            onPress={() => {}}
+            onPress={this.onExercisePress}
+            showInfo
+            offline
           />
         </View>
         <View style={styles.line} />

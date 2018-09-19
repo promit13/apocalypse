@@ -20,7 +20,9 @@ SavedEpisodes.schema = {
     title: 'string',
     category: 'string',
     description: 'string',
-    exercises: 'string?[]',
+    exerciseLengthList: 'string?[]',
+    exerciseIdList: 'string?[]',
+    exerciseDetail: { type: 'list', objectType: 'SavedExercises' },
   },
 };
 

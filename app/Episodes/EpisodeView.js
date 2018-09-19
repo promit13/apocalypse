@@ -5,6 +5,8 @@ import {
 import {
   ListItem, Button, Text,
 } from 'react-native-elements';
+import realm from '../config/Database';
+import LoadScreen from '../LoadScreen';
 import firebase from '../config/firebase';
 
 const styles = {
@@ -57,18 +59,46 @@ export default class EpisodeView extends React.Component {
   };
 
   state = {
+    loading: true,
     imageSource: '',
+    episodeId: '',
+    title: '',
+    description: '',
+    category: '',
+    index: '',
+    videoUrl: '',
+    exercises: [],
+    exerciseIdlist: [],
+    exerciseLengthList: [],
+    offline: false,
   }
 
   componentDidMount() {
-    const { category } = this.props.navigation.state.params;
-    if (category === 'Speed') {
+    const { offline, title } = this.props.navigation.state.params;
+    this.setState({ offline });
+    if (offline) {
+      console.log('OFF');
+      this.getOfflineDatas(title);
+    } else {
+      const {
+        category,
+        episodeId,
+        index,
+        exercises,
+        description,
+        videoUrl,
+      } = this.props.navigation.state.params;
+      this.setState({
+        episodeId, title, category, description, index, exercises, videoUrl, loading: false,
+      });
+    }
+    if (this.state.category === 'Speed') {
       return this.setState({ imageSource: speedImage });
     }
-    if (category === 'Strength') {
+    if (this.state.category === 'Strength') {
       return this.setState({ imageSource: strengthImage });
     }
-    if (category === 'Control') {
+    if (this.state.category === 'Control') {
       return this.setState({ imageSource: controlImage });
     }
     // firebase.storage().ref('temp/Home.jpg').getDownloadURL()
@@ -79,15 +109,41 @@ export default class EpisodeView extends React.Component {
     //   });
   }
 
-  navigateToEpisodeSingle = (check, mode) => {
+  getOfflineDatas = (episodeTitle) => {
+    console.log('OFFLINEDATAS');
+    const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
+    console.log(episodeDetail);
+    // const exerciseList = Array.from(episodeDetail[0].exercises);
+    // const exerciseDetail = Array.from(episodeDetail[0].exerciseDetail);
+    // const episodeDetail = realm.objects('SavedEpisodes').filtered(`'id = ${episodeTitle}`);;
+
+    const {
+      category, description, exerciseIdList, id, title, exerciseLengthList,
+    } = episodeDetail[0];
+    const exercises = exerciseIdList.map((value, i) => {
+      return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
+    });
+    console.log(exercises);
+    this.setState({
+      category, description, episodeId: id, title, exercises, loading: false, exerciseLengthList: Array.from(exerciseLengthList),
+    });
+    console.log(episodeDetail);
+    // exercises: Array.from(exerciseDetail)
+    // console.log(exerciseList);
+    // console.log(exerciseDetail);
+  }
+
+  navigateToEpisodeSingle = (check, mode, navigateTo) => {
     const {
       episodeId,
       title,
       index,
       exercises,
       videoUrl,
-    } = this.props.navigation.state.params;
-    this.props.navigation.navigate('EpisodeSingle', {
+      exerciseIdlist,
+      exerciseLengthList,
+    } = this.state;
+    this.props.navigation.navigate(navigateTo, {
       check,
       mode,
       title,
@@ -95,16 +151,56 @@ export default class EpisodeView extends React.Component {
       index,
       exercises,
       videoUrl,
+      exerciseIdlist,
+      exerciseLengthList,
     });
   }
 
-  render() {
-    const {
-      title,
-      description,
-      category,
-      exercises,
-    } = this.props.navigation.state.params;
+  renderListItem = (value) => {
+    return (
+      <ListItem
+        title={value.title}
+        titleStyle={{ color: 'white' }}
+        containerStyle={{ backgroundColor: '#33425a' }}
+        underlayColor="#2a3545"
+        onPress={() => {
+          this.props.navigation.navigate('ExercisePlayer', {
+            // videoUrl: value.videoUrl,
+            // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
+            exerciseId: value.uid,
+          });
+        }}
+      />
+    );
+  }
+
+  renderOfflineExerciseList = () => {
+    const { exercises } = this.state;
+    const exercisesList = exercises.map((value, i) => {
+      const exercise = value[0];
+      return (
+        <ListItem
+          title={exercise.title}
+          titleStyle={{ color: 'white' }}
+          containerStyle={{ backgroundColor: '#33425a' }}
+          underlayColor="#2a3545"
+          onPress={() => {
+            this.props.navigation.navigate('ExercisePlayer', {
+              // videoUrl: value.videoUrl,
+              // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
+              exerciseId: exercise.title,
+              offline: true,
+              exerciseTitle: exercise.title,
+            });
+          }}
+        />
+      );
+    });
+    return exercisesList;
+  }
+
+  renderExerciseList = () => {
+    const { exercises } = this.state;
     const exercisesList = Object.entries(exercises).map(([key, value], i) => (
       <ListItem
         key={key}
@@ -121,6 +217,14 @@ export default class EpisodeView extends React.Component {
         }}
       />
     ));
+    return exercisesList;
+  }
+
+  render() {
+    if (this.state.loading) return <LoadScreen />;
+    const {
+      title, description, category, offline,
+    } = this.state;
     return (
       <ScrollView style={styles.mainContainer}>
         <View style={{ flexDirection: 'row', padding: 15 }}>
@@ -168,7 +272,12 @@ export default class EpisodeView extends React.Component {
               color="#001331"
               fontSize={18}
               title="Workout"
-              onPress={() => this.navigateToEpisodeSingle(false, 'Workout Mode Player')}
+              onPress={() => {
+                if (offline) {
+                  return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadPlayer');
+                }
+                this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
+              }}
             />
           </View>
           <View style={{
@@ -184,7 +293,12 @@ export default class EpisodeView extends React.Component {
               color="#001331"
               fontSize={18}
               title="Listen"
-              onPress={() => this.navigateToEpisodeSingle(true, 'Listen Mode Player')}
+              onPress={() => {
+                if (offline) {
+                  return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadPlayer');
+                }
+                this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
+              }}
             />
           </View>
         </View>
@@ -193,7 +307,7 @@ export default class EpisodeView extends React.Component {
         </Text>
         <View style={styles.line} />
         <View />
-        {exercisesList}
+        { offline ? this.renderOfflineExerciseList() : this.renderExerciseList()}
       </ScrollView>
     );
   }

@@ -15,6 +15,7 @@ const styles = {
     marginTop: 10,
     marginLeft: 10,
     color: 'white',
+    alignSelf: 'center',
   },
   imageStyle: {
     width: 200,

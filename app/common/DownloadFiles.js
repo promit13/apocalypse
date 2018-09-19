@@ -7,7 +7,8 @@ import Loading from './Loading';
 import realm from '../config/Database';
 
 let exercisesList = [];
-let exerciseIdLength = [];
+let exerciseLengthList = [];
+let exerciseIdList = [];
 
 export default class DownloadFiles extends React.Component {
   state = {
@@ -27,20 +28,22 @@ export default class DownloadFiles extends React.Component {
         // exercise.id = value.uid;
         // const exercise = snapShot.val();
         // exerciseIdLength.push({ length: value.length, exerciseId: value.uid });
-        exerciseIdLength.push(value.length);
+        exerciseLengthList.push(value.length);
+        exerciseIdList.push(value.uid);
         exercisesList.push(exercise);
       });
     });
   }
 
   componentWillUnmount() {
-    exerciseIdLength = [];
+    exerciseLengthList = [];
     exercisesList = [];
+    exerciseIdList = [];
   }
 
   download = () => {
     console.log(exercisesList);
-    console.log(exerciseIdLength);
+    console.log(exerciseLengthList);
     const {
       episodeTitle, episodeId, category, description, exercises, video,
     } = this.props.navigation.state.params;
@@ -63,9 +66,12 @@ export default class DownloadFiles extends React.Component {
             title: episodeTitle,
             category,
             description,
-            exercises: exerciseIdLength,
+            exerciseLengthList,
+            exerciseIdList,
+          // console.log(episodeData);
           });
           console.log(episodeData);
+          console.log(Array.from(episodeData.exerciseIdList));
         });
         // the path should be dirs.DocumentDir + 'path-to-file.anything'
         console.log('The file saved to ', res.path());

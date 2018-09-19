@@ -1,5 +1,5 @@
 import React from 'react';
-
+import RNFetchBlob from 'react-native-fetch-blob';
 import {
   View, StyleSheet, Image, TouchableOpacity, Dimensions,
 } from 'react-native';
@@ -39,13 +39,24 @@ export default function AlbumArt({
   onPress,
   currentExercise,
   showInfo,
+  offline,
 }) {
+  const { dirs } = RNFetchBlob.fs;
   return (
     <View style={styles.container}>
-      <Image
-        style={styles.image}
-        source={{ uri: url }}
-      />
+      {
+        offline
+          ? (
+            <Image
+              style={styles.image}
+              source={{ uri: `file://${dirs.MovieDir}/AST/images/${url}.png` }}
+            />)
+          : (
+            <Image
+              style={styles.image}
+              source={{ uri: url }}
+            />)
+      }
       { showInfo && (
         <TouchableOpacity onPress={onPress}>
           <View style={styles.infoView}>

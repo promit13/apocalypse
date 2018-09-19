@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   View, ScrollView,
 } from 'react-native';
+import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
 import Controls from '../common/Controls';
 import TrackDetails from '../common/TrackDetails';
@@ -59,8 +60,12 @@ export default class ExercisePlayer extends Component {
   }
 
   componentDidMount() {
-    const { exerciseId } = this.props.navigation.state.params;
+    const { dirs } = RNFetchBlob.fs;
+    const { exerciseId, offline, exerciseTitle } = this.props.navigation.state.params;
     console.log(exerciseId);
+    if (offline) {
+      return this.setState({ video: `${dirs.MovieDir}/AST/exercises/${exerciseTitle}.mp4`, title: exerciseTitle });
+    }
     firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
       const { video, title } = snapshot.val();
       this.setState({ video, title });

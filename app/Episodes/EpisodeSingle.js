@@ -102,15 +102,6 @@ export default class EpisodeSingle extends Component {
     }
 
     componentDidMount() {
-      // console.log(this.props.navigation.state.params.exerciseList);
-      // const { exerciseList } = this.props.navigation.state.params;
-      // const { exerciseArray } = this.state;
-      // // const exerciseArray = Object.values(this.props.navigation.state.params.exercises);
-      // exerciseList.map((value, i) => {
-      //   firebase.database().ref(`exercises/${value.uid}`).on('value', (snapshot) => {
-      //     this.setState({ exerciseArray: snapshot.val() });
-      //   });
-      // });
       this.getTimeFirebase();
     }
 
