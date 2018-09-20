@@ -308,6 +308,7 @@ export default class EpisodeSingle extends Component {
 
   navigateToPreviousExercise = () => {
     const { previousStartTime } = this.state;
+    console.log(previousStartTime);
     const startTime = previousStartTime[previousStartTime.length - 2];
     this.setState({ currentTime: startTime });
     this.player.seek(startTime, 10);

@@ -59,6 +59,7 @@ export default class DownloadPlayer extends Component {
     totalLength: 1,
     currentTime: 0.0,
     playingExercise: '',
+    listen: false,
     windowsHeight: 0,
     windowsWidth: 0,
     episodeTitle: '',
@@ -67,17 +68,19 @@ export default class DownloadPlayer extends Component {
   };
 
   componentWillMount() {
-   // const { file } = this.props.navigation.state.params;
-    const { title, exerciseLengthList, exercises } = this.props.navigation.state.params;
+    // const { file } = this.props.navigation.state.params;
+    const {
+      check, title, exerciseLengthList, exercises,
+    } = this.props.navigation.state.params;
     console.log(exerciseLengthList);
     console.log(exercises);
-    this.setState({ episodeTitle: title, playingExercise: { value: { image: albumImage, title: '' } } });
+    this.setState({ listen: check, episodeTitle: title, playingExercise: { value: { image: albumImage, title: '' } } });
   }
 
   componentDidMount() {
     const { dirs } = RNFetchBlob.fs;
     const { episodeTitle } = this.state;
-    this.setState({ videoUrl: `${dirs.MovieDir}/AST/episodes/${episodeTitle}.mp4` });
+    this.setState({ videoUrl: `${dirs.DocumentDir}/AST/episodes/${episodeTitle}.mp4` });
     console.log(episodeTitle);
 
     // const episodeDetail = Array.from(realm.objects('SavedEpisodes'));
@@ -104,14 +107,6 @@ export default class DownloadPlayer extends Component {
   onPressPause = () => {
     this.setState({ paused: true });
   }
-
-//   onExercisePress = () => {
-//     this.props.navigation.navigate('ExercisePlayer', { exercise: this.state.playingExercise });
-//     this.setState({ paused: true });
-//     firebase.database().ref('videos/example').set({
-//       timeStamp: this.state.currentTime,
-//     });
-//   }
 
   onAppStateChange = (nextAppState) => {
     if (nextAppState === 'background') {
@@ -174,7 +169,9 @@ export default class DownloadPlayer extends Component {
   }
 
   navigateToPreviousExercise = () => {
+    console.log("previousStartTime");
     const { previousStartTime } = this.state;
+    console.log(previousStartTime);
     const startTime = previousStartTime[previousStartTime.length - 2];
     this.setState({ currentTime: startTime });
     this.player.seek(startTime, 10);
@@ -208,17 +205,23 @@ export default class DownloadPlayer extends Component {
             onForward={this.onForward}
             onDownload={this.onDownload}
             paused={this.state.paused}
-            renderForwardButton
+            navigateToPreviousExercise={this.navigateToPreviousExercise}
+            renderForwardButton={this.state.listen}
           />
           { this.state.loading
             ? <Loading />
             : (
               <View>
-                <Seekbar
-                  totalLength={this.state.totalLength}
-                  onDragSeekBar={this.onDragSeekBar}
-                  seekValue={this.state.currentTime && this.state.currentTime}
-                />
+                { this.state.listen
+                  ? (
+                    <Seekbar
+                      totalLength={this.state.totalLength}
+                      onDragSeekBar={this.onDragSeekBar}
+                      seekValue={this.state.currentTime && this.state.currentTime}
+                    />
+                  )
+                  : null
+               }
                 <FormatTime
                   currentTime={this.state.currentTime}
                   remainingTime={this.state.totalLength - this.state.currentTime}
@@ -253,11 +256,16 @@ export default class DownloadPlayer extends Component {
           ? <Loading />
           : (
             <View>
-              <Seekbar
-                totalLength={this.state.totalLength}
-                onDragSeekBar={this.onDragSeekBar}
-                seekValue={this.state.currentTime && this.state.currentTime}
-              />
+              { this.state.listen
+                ? (
+                  <Seekbar
+                    totalLength={this.state.totalLength}
+                    onDragSeekBar={this.onDragSeekBar}
+                    seekValue={this.state.currentTime && this.state.currentTime}
+                  />
+                )
+                : null
+              }
               <FormatTime
                 currentTime={this.state.currentTime}
                 remainingTime={this.state.totalLength - this.state.currentTime}
@@ -271,8 +279,9 @@ export default class DownloadPlayer extends Component {
                 onBack={this.onBack}
                 onForward={this.onForward}
                 onDownload={this.onDownload}
+                navigateToPreviousExercise={this.navigateToPreviousExercise}
                 paused={this.state.paused}
-                renderForwardButton
+                renderForwardButton={this.state.listen}
               />
             </View>
           )

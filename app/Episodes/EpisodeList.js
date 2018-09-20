@@ -8,7 +8,6 @@ import {
 import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import LoadScreen from '../LoadScreen';
-import DownloadFiles from '../common/DownloadFiles';
 
 const styles = {
   imageStyle: {
@@ -147,7 +146,7 @@ export default class EpisodeList extends React.Component {
         RNFetchBlob
           .config({
           // response data will be saved to this path if it has access right.
-            path: `${dirs.MovieDir}/AST/${fileTitle}/${fileTitle}.mp4`,
+            path: `${dirs.DocumentDir}/AST/${fileTitle}/${fileTitle}.mp4`,
           })
           // .fetch('GET', `${downloadUrl}`, {
           .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {

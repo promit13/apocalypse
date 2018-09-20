@@ -49,7 +49,7 @@ export default function AlbumArt({
           ? (
             <Image
               style={styles.image}
-              source={{ uri: `file://${dirs.MovieDir}/AST/images/${url}.png` }}
+              source={{ uri: `file://${dirs.DocumentDir}/AST/images/${url}.png` }}
             />)
           : (
             <Image

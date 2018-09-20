@@ -64,7 +64,7 @@ export default class ExercisePlayer extends Component {
     const { exerciseId, offline, exerciseTitle } = this.props.navigation.state.params;
     console.log(exerciseId);
     if (offline) {
-      return this.setState({ video: `${dirs.MovieDir}/AST/exercises/${exerciseTitle}.mp4`, title: exerciseTitle });
+      return this.setState({ video: `${dirs.DocumentDir}/AST/exercises/${exerciseTitle}.mp4`, title: exerciseTitle });
     }
     firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
       const { video, title } = snapshot.val();

@@ -1,14 +1,33 @@
 import React from 'react';
-import { View, Button } from 'react-native';
+import { View, Alert } from 'react-native';
+import { Button, Text } from 'react-native-elements';
 import RNFetchBlob from 'react-native-fetch-blob';
-import Realm from 'realm';
 import firebase from '../config/firebase';
-import Loading from './Loading';
+import Loading from '../common/Loading';
 import realm from '../config/Database';
 
 let exercisesList = [];
 let exerciseLengthList = [];
 let exerciseIdList = [];
+
+const styles = {
+  mainContaier: {
+    flex: 1,
+    backgroundColor: '#001331',
+    justifyContent: 'center',
+    padding: 15,
+  },
+  text: {
+    color: 'white',
+    fontSize: 18,
+    margin: 20,
+    alignSelf: 'center',
+  },
+  button: {
+    backgroundColor: '#33425a',
+    padding: 10,
+  },
+};
 
 export default class DownloadFiles extends React.Component {
   state = {
@@ -53,7 +72,7 @@ export default class DownloadFiles extends React.Component {
     RNFetchBlob
       .config({
       // response data will be saved to this path if it has access right.
-        path: `${dirs.MovieDir}/AST/episodes/${episodeTitle}.mp4`,
+        path: `${dirs.DocumentDir}/AST/episodes/${episodeTitle}.mp4`,
       })
       // .fetch('GET', `${downloadUrl}`, {
       .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
@@ -79,7 +98,7 @@ export default class DownloadFiles extends React.Component {
           return RNFetchBlob
             .config({
             // response data will be saved to this path if it has access right.
-              path: `${dirs.MovieDir}/AST/exercises/${exercise.title}.mp4`,
+              path: `${dirs.DocumentDir}/AST/exercises/${exercise.title}.mp4`,
             })
             // .fetch('GET', `${exercise.video}`, {
             .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
@@ -88,7 +107,7 @@ export default class DownloadFiles extends React.Component {
               RNFetchBlob
                 .config({
                 // response data will be saved to this path if it has access right.
-                  path: `${dirs.MovieDir}/AST/images/${exercise.title}.png`,
+                  path: `${dirs.DocumentDir}/AST/images/${exercise.title}.png`,
                 })
                 // .fetch('GET', `${exercise.image}`, {
                 .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029', {
@@ -98,8 +117,8 @@ export default class DownloadFiles extends React.Component {
                     const exerciseDetail = realm.create('SavedExercises', {
                       id: exercise.id,
                       title: exercise.title,
-                      image: `${dirs.MovieDir}/AST/images/${exercise.title}.png`,
-                      path: `${dirs.MovieDir}/AST/exercises/${exercise.title}.mp4`,
+                      image: `${dirs.DownloadDir}/AST/images/${exercise.title}.png`,
+                      path: `${dirs.DownloadDir}/AST/exercises/${exercise.title}.mp4`,
                     });
                     console.log(exerciseDetail);
                   });
@@ -113,23 +132,30 @@ export default class DownloadFiles extends React.Component {
               console.log(error);
             });
         });
+        return Alert.alert('Download Complete');
       }).catch((error) => {
         console.log(error);
+        this.setState({ loading: false });
+        return Alert.alert('Episode already downloaded');
       });
   // });
   }
 
   render() {
     return (
-      <View>
-        { this.state.loading ? <Loading /> : null }
+      <View style={styles.mainContaier}>
+        <Text style={styles.text}>
+          {`Download ${this.props.navigation.state.params.episodeTitle} ?` }
+        </Text>
         <Button
           title="Download"
+          buttonStyle={styles.button}
           onPress={() => {
             this.setState({ loading: true });
             this.download();
           }}
         />
+        { this.state.loading ? <Loading /> : null }
       </View>
     );
   }

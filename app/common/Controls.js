@@ -57,27 +57,27 @@ export default function Controls({
     <View style={styles.container}>
       { renderForwardButton
         ? (
-          <Icon name="replay-10" color="#f5cb23" onPress={onBack} size={40} />
+          <Icon name="replay-10" color="#f5cb23" underlayColor="#001331" onPress={onBack} size={40} />
         )
         : (
           exercisePlayer
           ? null
-          : <Icon name="replay" color="#f5cb23" onPress={navigateToPreviousExercise} size={40} />
+          : <Icon name="replay" color="#f5cb23" underlayColor="#001331" onPress={navigateToPreviousExercise} size={40} />
           
         )
       }
       <View style={{ width: 40 }} />
       {!paused
         ? (
-          <Icon name="pause" color="#f5cb23" size={40} onPress={onPressPause} />
+          <Icon name="pause" color="#f5cb23" underlayColor="#001331" size={40} onPress={onPressPause} />
         )
         : (
-          <Icon name="play-arrow" color="#f5cb23" size={40} onPress={onPressPlay} />
+          <Icon name="play-arrow" color="#f5cb23" underlayColor="#001331" size={40} onPress={onPressPlay} />
         )
       }
       <View style={{ width: 40 }} />
       { onForward && renderForwardButton && (
-        <Icon name="forward-10" onPress={onForward} color="#f5cb23" size={40} />
+        <Icon name="forward-10" onPress={onForward} underlayColor="#001331" color="#f5cb23" size={40} />
       )
       }
     </View>
