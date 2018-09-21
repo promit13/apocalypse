@@ -6,6 +6,7 @@ import { Button } from 'react-native-elements';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import GoogleFit from 'react-native-google-fit';
 
+
 const styles = {
   container: {
     flex: 1,
@@ -37,10 +38,12 @@ export default class AndroidTrack extends React.Component {
   }
 
   componentWillMount() {
+    console.log('CWM');
     this.requestPermissions();
   }
 
   componentDidMount() {
+    console.log('CDM');
     GoogleFit.authorize((error, result) => {
       if (error) {
         return console.log(`AUTH ERROR ${error}`);
@@ -57,6 +60,7 @@ export default class AndroidTrack extends React.Component {
   }
 
   componentWillUnmount() {
+    console.log('CWUM');
     GoogleFit.unsubscribeListeners();
   }
 
@@ -66,32 +70,48 @@ export default class AndroidTrack extends React.Component {
         startDate,
         endDate: new Date().toISOString(), // required ISO8601Timestamp
       };
-      GoogleFit.getDailyStepCountSamples(options, (err, res) => {
-        if (err) {
-          throw err;
+      // GoogleFit.getDailyStepCountSamples(options, (err, res) => {
+      //   if (err) {
+      //     throw err;
+      //   }
+      //   const stepsResponse = res[0];
+      //   const stepArray = stepsResponse.steps;
+      //   if (stepArray.length === 0) {
+      //     return;
+      //   }
+      //   const steps = stepArray[0].value;
+      //   GoogleFit.getDailyDistanceSamples(options, (error, response) => {
+      //     if (error) {
+      //       throw error;
+      //     }
+      //     const distance = ((response[0].distance) / 1000).toFixed(2);
+      //     const progressPercentage = ((distance / 15) * 100);
+      //     this.setState(
+      //       { distance, steps, progressPercentage: (progressPercentage > 100 ? 100 : progressPercentage) }
+      //     );
+      //     this.animate();
+      //   });
+      // });
+      GoogleFit.getDailyDistanceSamples(options, (error, response) => {
+        if (error) {
+          throw error;
         }
-        const stepsResponse = res[0];
-        const stepArray = stepsResponse.steps;
-        if (stepArray.length === 0) {
+        const distanceResponse = response[0];
+        const distanceArray = distanceResponse.distance;
+        if (distanceArray.length === 0) {
           return;
         }
-        const steps = stepArray[0].value;
-        GoogleFit.getDailyDistanceSamples(options, (error, response) => {
-          if (error) {
-            throw error;
-          }
-          const distance = ((response[0].distance) / 1000).toFixed(2);
-          const progressPercentage = ((distance / 15) * 100);
-          this.setState(
-            { distance, steps, progressPercentage: (progressPercentage > 100 ? 100 : progressPercentage) }
-          );
-          this.animate();
-        });
+        const distance = (distanceArray / 1000).toFixed(2);
+        console.log(distance);
+        this.setState({ distance });
       });
     }
 
+    getState = () => {
+      return this.state.distance;
+    }
+
     startTrackingSteps = async () => {
-      this.setState({ steps: 0, distance: 0 });
       try {
         await AsyncStorage.setItem('startDate', new Date().toISOString());
       } catch (error) {
@@ -127,6 +147,10 @@ export default class AndroidTrack extends React.Component {
       }
     }
 
+    testFunction = () => {
+      console.log('HELLO THIS IS TEST');
+    }
+
     render() {
       const moving = this.animatedValue.interpolate({
         inputRange: [0, 1],
@@ -134,8 +158,8 @@ export default class AndroidTrack extends React.Component {
       });
 
       return (
-        <View style={styles.container}>
-          <Animated.View style={{ marginLeft: moving }}>
+        <View>
+          {/* <Animated.View style={{ marginLeft: moving }}>
             <Image style={{ height: 40, width: 40, marginBottom: 5 }} source={gifImageSource} />
           </Animated.View>
           <ProgressBarAnimated
@@ -154,7 +178,7 @@ export default class AndroidTrack extends React.Component {
             {`Distance: ${this.state.distance} km`}
           </Text>
           <Button buttonStyle={{ marginTop: 10 }} title="Start" onPress={() => this.startTrackingSteps()} />
-          <Button buttonStyle={{ marginTop: 10 }} title="End" onPress={() => this.getStepCountAndDistance()} />
+          <Button buttonStyle={{ marginTop: 10 }} title="End" onPress={() => this.getStepCountAndDistance()} /> */}
         </View>
       );
     }

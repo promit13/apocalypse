@@ -49,9 +49,9 @@ export default class Downloads extends React.Component {
 
     RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${fileName}.mp4`)
       .then(() => {
-        exerciseIdList.map((value, i) => {
+        exerciseIdList.map((value) => {
           let count = 0;
-          allEpisodes.map((episodeValue, index) => {
+          allEpisodes.map((episodeValue) => {
             const eachExerciseIdList = Array.from(episodeValue.exerciseIdList);
             if (eachExerciseIdList.includes(value)) {
               count += 1;
@@ -82,13 +82,13 @@ export default class Downloads extends React.Component {
     // files will an array contains filenames
       .then((files) => {
         if (files.length === 0) {
-          return Alert.alert('You have no any downloads');
+          Alert.alert('You have no any downloads');
         }
         this.setState({ filesList: files });
         console.log(files);
       })
-      .catch(() => {
-        return Alert.alert('You have no any downloads');
+      .catch((error) => {
+        console.log(error);
       });
   }
 
@@ -121,21 +121,6 @@ export default class Downloads extends React.Component {
     const filesList = this.state.filesList.map((file, i) => {
       const fileName = file.split('.');
       return (
-        // <ListItem
-        //   key={i}
-        //   title={fileName[0]}
-        //   hideChevron={this.state.hideChevron}
-        //   titleStyle={{ color: 'white', fontSize: 18 }}
-        //   containerStyle={{ backgroundColor: '#33425a' }}
-        //   underlayColor="#2a3545"
-        //   onPress={() => {
-        //     this.props.navigation.navigate('EpisodeView', {
-        //       offline: true,
-        //       title: fileName[0],
-        //     });
-        //   }}
-        //   onLongPress={() => this.setState({ hideChevron: false })}
-        // />
         <TouchableWithoutFeedback
           onPress={() => {
             this.setState({ showDeleteButton: false });

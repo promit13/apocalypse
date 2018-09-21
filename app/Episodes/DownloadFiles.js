@@ -123,7 +123,8 @@ export default class DownloadFiles extends React.Component {
                     console.log(exerciseDetail);
                   });
                   if (i === (exercisesList.length - 1)) {
-                    return this.setState({ loading: false });
+                    this.setState({ loading: false });
+                    return Alert.alert('Download Complete');
                   }
                 }).catch((error) => {
                   console.log(error);
@@ -132,7 +133,6 @@ export default class DownloadFiles extends React.Component {
               console.log(error);
             });
         });
-        return Alert.alert('Download Complete');
       }).catch((error) => {
         console.log(error);
         this.setState({ loading: false });
