@@ -66,9 +66,11 @@ export default class MyAccount extends React.Component {
     );
     firebase.auth().currentUser.reauthenticateAndRetrieveDataWithCredential(credentials)
       .then(() => {
-        firebase.auth().currentUser.delete()
-          .then(() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove()
-            .then(() => this.setState({ showError: false, showLoading: false })));
+        firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove()
+          .then(() => firebase.auth().currentUser.delete()
+            .then(() => {
+              this.setState({ showError: false, showLoading: false });
+            }));
       }).catch(() => this.setState({ showError: true, showLoading: false }));
   }
 

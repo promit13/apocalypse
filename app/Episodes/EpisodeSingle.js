@@ -86,28 +86,29 @@ export default class EpisodeSingle extends Component {
     logId: '',
     lastLoggedDate: null,
     previousStartTime: [],
-    currentDate: null,
+    currentDate: 0,
     pausedDate: 0,
+    startDate: 0,
     videoUrl: '',
   };
 
   componentWillMount() {
-    const currentDate = this.getDate();
-    this.setState({ playingExercise: { value: { image: albumImage, title: '' } }, currentDate });
-  }
-
-  componentDidMount() {
     const {
       check, episodeId, index, videoUrl, title,
     } = this.props.navigation.state.params;
+    const currentDate = this.getDate();
     this.setState({
       listen: check,
       episodeId,
       videoUrl,
       episodeTitle: title,
       uid: this.props.screenProps.user.uid,
+      playingExercise: { value: { image: albumImage, title: '' } },
+      currentDate,
     });
-    console.log(this.state.currentDate);
+  }
+
+  componentDidMount() {
     this.getTimeFirebase();
   }
 
@@ -162,7 +163,7 @@ export default class EpisodeSingle extends Component {
     }
     AppState.addEventListener('change', (state) => {
       if (state === 'background') {
-      // this.setTimeFirebase();
+        // this.getD();
       }
     });
   };
@@ -210,7 +211,8 @@ export default class EpisodeSingle extends Component {
     if (!this.state.listen) {
       const currentDate = this.getDate();
       if ((currentDate - this.state.pausedDate) > 600000) {
-        this.child.startTrackingSteps();
+        this.setState({ startDate: currentDate });
+       // this.child.startTrackingSteps();
       }
     }
   }
@@ -227,8 +229,13 @@ export default class EpisodeSingle extends Component {
 
   setTimeFirebase = () => {
     if (!this.state.listen) {
-      const { uid, episodeId, episodeTitle } = this.state;
+      const {
+        uid, episodeId, episodeTitle, startDate,
+      } = this.state;
       const currentDate = this.getDate();
+      console.log(startDate);
+      console.log(currentDate);
+      const timeInterval = ((currentDate - startDate) / 60000).toFixed(2);
       const distance = this.child.getState();
       console.log(distance);
       if ((currentDate - this.state.lastLoggedDate) > 300000) {
@@ -237,14 +244,16 @@ export default class EpisodeSingle extends Component {
           dateNow: currentDate,
           episodeTitle,
           distance,
-        });
+          timeInterval,
+        }).then(() => this.setState({ lastLoggedDate: currentDate }));
       } else {
         firebase.database().ref(`logs/${uid}/${episodeId}/${this.state.logId}`).set({
           timeStamp: this.state.currentTime,
           dateNow: currentDate,
           episodeTitle,
           distance,
-        });
+          timeInterval,
+        }).then(() => this.setState({ lastLoggedDate: currentDate }));
       }
     }
   }
@@ -270,6 +279,7 @@ export default class EpisodeSingle extends Component {
             dateNow: new Date().getTime(),
             episodeTitle,
             distance: 0.0,
+            timeInterval: 0,
           }).then(() => {
             firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
               'value', (snap) => {

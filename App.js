@@ -1,5 +1,5 @@
 import React from 'react';
-import { NetInfo } from 'react-native';
+import { NetInfo, View } from 'react-native';
 import LoadScreen from './app/LoadScreen';
 import firebase from './app/config/firebase';
 import {
@@ -15,8 +15,8 @@ export default class App extends React.Component {
     super();
     this.state = {
       loading: true,
-      user: '',
-      data: '',
+      user: null,
+      data: null,
       isConnected: true,
     };
   }
@@ -28,8 +28,8 @@ export default class App extends React.Component {
   componentWillUnmount() {
     if (this.state.isConnected) {
       this.authSubscription();
+      NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
     }
-    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
   }
 
   handleConnectivityChange = (isConnected) => {
@@ -39,7 +39,9 @@ export default class App extends React.Component {
         this.setState({
           user,
           loading: false,
+          isConnected,
         });
+        console.log('check');
         this.handleUserStatus();
       });
     } else {
@@ -48,6 +50,8 @@ export default class App extends React.Component {
   };
 
   handleUserStatus = () => {
+    console.log(' 2 check');
+    console.log(this.state.user);
     if (this.state.user === null) {
       return;
     }
@@ -58,13 +62,14 @@ export default class App extends React.Component {
       });
   }
 
-  render() {
-    console.disableYellowBox = true;
+  renderComponent = () => {
+    console.log(this.state.user);
+    console.log(this.state.data);
     if (this.state.loading) return <LoadScreen />;
     if (!this.state.isConnected) return <DownloadDisplay screenProps={{ netInfo: this.state.isConnected }} />;
     if (this.state.user) {
-      if (this.state.data === '') return <LoadScreen />;
-      if (this.state.data === null) return <SignedOut />;
+     // if (this.state.data === '') return <LoadScreen />;
+      if (this.state.data === null) return <LoadScreen />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {
           return <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
@@ -79,5 +84,14 @@ export default class App extends React.Component {
       }
     }
     return <SignedOut />;
+  }
+
+  render() {
+    console.disableYellowBox = true;
+    return (
+      <View style={{ flex: 1 }}>
+        {this.renderComponent()}
+      </View>
+    );
   }
 }

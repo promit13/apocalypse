@@ -46,6 +46,7 @@ const styles = {
   },
 };
 const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Ftalon.png?alt=media&token=8e8e51e4-e270-408d-a57d-b08c96eb98a9';
+// const albumImage = require('../../img/talon.png');
 
 export default class DownloadPlayer extends Component {
   static navigationOptions = {

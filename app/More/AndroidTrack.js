@@ -33,6 +33,8 @@ export default class AndroidTrack extends React.Component {
       steps: 0,
       distance: 0,
       progressPercentage: 0,
+      timeInterval: 0,
+      datas: [],
     };
     this.animatedValue = new Animated.Value(0);
   }
@@ -66,9 +68,10 @@ export default class AndroidTrack extends React.Component {
 
     getStepCountAndDistance = async () => {
       const startDate = await AsyncStorage.getItem('startDate');
+      const endDate = new Date().toISOString().Button;
       const options = {
         startDate,
-        endDate: new Date().toISOString(), // required ISO8601Timestamp
+        endDate, // required ISO8601Timestamp
       };
       // GoogleFit.getDailyStepCountSamples(options, (err, res) => {
       //   if (err) {
@@ -102,12 +105,15 @@ export default class AndroidTrack extends React.Component {
           return;
         }
         const distance = (distanceArray / 1000).toFixed(2);
-        console.log(distance);
         this.setState({ distance });
       });
     }
 
     getState = () => {
+      // const datas = [];
+      // const { distance, timeInterval } = this.state;
+      // datas.push(distance);
+      // datas.push(timeInterval);
       return this.state.distance;
     }
 

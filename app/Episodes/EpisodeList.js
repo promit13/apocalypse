@@ -71,6 +71,7 @@ export default class EpisodeList extends React.Component {
   }
 
   componentDidMount() {
+    console.log('EPISODE');
     this.requestPermissions();
     firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).on('value', (snap) => {
       firebase.database().ref('series').on('value', (snapshot) => {

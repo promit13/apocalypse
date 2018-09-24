@@ -86,10 +86,10 @@ export default class TalonScreen extends React.Component {
           {
             Object.entries(logs).map(([key, value], index) => {
               const date = new Date(value.dateNow);
-              const formatDate = `${date.getDate()}/${date.getMonth()}/ ${date.getFullYear()}`;
+              const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
               return (
                 <ListItem
-                  title={`${formatDate} -Ep${i}- ${value.timeStamp}`}
+                  title={`${formatDate} - ${value.distance} k.m. in ${value.timeInterval} mins`}
                   titleStyle={{ color: 'white', fontSize: 18 }}
                   containerStyle={{ marginLeft: 10, marginRight: 10 }}
                   hideChevron

@@ -81,8 +81,8 @@ export default class EpisodeView extends React.Component {
       this.getOfflineDatas(title);
     } else {
       const {
-        category,
         episodeId,
+        category,
         index,
         exercises,
         description,
@@ -91,15 +91,7 @@ export default class EpisodeView extends React.Component {
       this.setState({
         episodeId, title, category, description, index, exercises, videoUrl, loading: false,
       });
-    }
-    if (this.state.category === 'Speed') {
-      return this.setState({ imageSource: speedImage });
-    }
-    if (this.state.category === 'Strength') {
-      return this.setState({ imageSource: strengthImage });
-    }
-    if (this.state.category === 'Control') {
-      return this.setState({ imageSource: controlImage });
+      this.setImage(category);
     }
     // firebase.storage().ref('temp/Home.jpg').getDownloadURL()
     // firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
@@ -127,11 +119,24 @@ export default class EpisodeView extends React.Component {
     this.setState({
       category, description, episodeId: id, title, exercises, loading: false, exerciseLengthList: Array.from(exerciseLengthList),
     });
+    this.setImage(category);
     console.log(episodeDetail);
     // exercises: Array.from(exerciseDetail)
     // console.log(exerciseList);
     // console.log(exerciseDetail);
   }
+
+   setImage = (category) => {
+     if (category === 'Speed') {
+       return this.setState({ imageSource: speedImage });
+     }
+     if (category === 'Strength') {
+       return this.setState({ imageSource: strengthImage });
+     }
+     if (category === 'Control') {
+       return this.setState({ imageSource: controlImage });
+     }
+   }
 
   navigateToEpisodeSingle = (check, mode, navigateTo) => {
     const {
@@ -223,7 +228,7 @@ export default class EpisodeView extends React.Component {
   render() {
     if (this.state.loading) return <LoadScreen />;
     const {
-      title, description, category, offline,
+      title, description, category, offline, imageSource,
     } = this.state;
     return (
       <ScrollView style={styles.mainContainer}>
@@ -235,7 +240,7 @@ export default class EpisodeView extends React.Component {
                 width: 120,
                 borderRadius: 120 / 2,
               }}
-              source={this.state.imageSource}
+              source={imageSource}
             />
           </View>
           <View style={{ marginLeft: 10 }}>
