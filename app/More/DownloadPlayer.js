@@ -45,7 +45,7 @@ const styles = {
     backgroundColor: 'white',
   },
 };
-const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Ftalon.png?alt=media&token=8e8e51e4-e270-408d-a57d-b08c96eb98a9';
+const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2Ftalondark.png?alt=media&token=fdaf448b-dc43-4a72-a9e3-470aa68d9390';
 // const albumImage = require('../../img/talon.png');
 
 export default class DownloadPlayer extends Component {

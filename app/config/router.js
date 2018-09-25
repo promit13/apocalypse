@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import { Icon, Badge } from 'react-native-elements';
 import Login from '../Login';
@@ -28,6 +28,8 @@ import Trailers from '../More/Trailers';
 import ChangeEmailPassword from '../User/ChangeEmailPassword';
 import DownloadFiles from '../Episodes/DownloadFiles';
 import DownloadPlayer from '../More/DownloadPlayer';
+
+const talonImage = require('../../img/talondark.png');
 
 export const SignedOut = createStackNavigator({
   Login: { screen: Login },
@@ -95,7 +97,7 @@ export const DownloadDisplay = createStackNavigator({
 
 DownloadDisplay.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
-  if (navigation.state.index > 1) {
+  if (navigation.state.index > 2) {
     tabBarVisible = false;
   }
   return {
@@ -231,7 +233,7 @@ export const SignedIn = createBottomTabNavigator({
   Talon: TalonStack,
   More: MoreStack,
 }, {
-  initialRouteName: 'Episode',
+  // initialRouteName: 'Episode',
 
   navigationOptions: ({ navigation }) => ({
     tabBarIcon: ({ tintColor }) => {
@@ -249,7 +251,8 @@ export const SignedIn = createBottomTabNavigator({
         );
       }
       if (routeName === 'Talon') {
-        return <Icon name="connectdevelop" type="font-awesome" size={30} color={tintColor} />;
+        // return <Icon name="connectdevelop" type="font-awesome" size={30} color={tintColor} />;
+        return <Image source={talonImage} style={{ height: 30, width: 30, tintColor: '#fff' }} />;
       }
       if (routeName === 'Exercises') {
         return <Icon name="man" type="entypo" size={30} color={tintColor} />;

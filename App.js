@@ -41,17 +41,14 @@ export default class App extends React.Component {
           loading: false,
           isConnected,
         });
-        console.log('check');
         this.handleUserStatus();
       });
     } else {
-      this.setState({ isConnected });
+      this.setState({ isConnected, loading: false });
     }
   };
 
   handleUserStatus = () => {
-    console.log(' 2 check');
-    console.log(this.state.user);
     if (this.state.user === null) {
       return;
     }
@@ -63,12 +60,10 @@ export default class App extends React.Component {
   }
 
   renderComponent = () => {
-    console.log(this.state.user);
-    console.log(this.state.data);
     if (this.state.loading) return <LoadScreen />;
-    if (!this.state.isConnected) return <DownloadDisplay screenProps={{ netInfo: this.state.isConnected }} />;
+    if (!this.state.isConnected) return <SignedIn screenProps={{ netInfo: this.state.isConnected, user: this.state.user }} />;
     if (this.state.user) {
-     // if (this.state.data === '') return <LoadScreen />;
+      // if (this.state.data === '') return <LoadScreen />;
       if (this.state.data === null) return <LoadScreen />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {

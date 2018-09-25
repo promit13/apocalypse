@@ -1,5 +1,7 @@
 import React from 'react';
-import { ScrollView, View, StatusBar } from 'react-native';
+import {
+  ScrollView, View, StatusBar, Alert,
+} from 'react-native';
 import { ListItem } from 'react-native-elements';
 
 const menu = {
@@ -40,7 +42,16 @@ export default class More extends React.Component {
     title: 'More',
   };
 
-  navigateTo = navigateScreen => this.props.navigation.navigate(navigateScreen);
+  componentWillMount() {
+    this.setState({ isConnected: this.props.screenProps.netInfo });
+  }
+
+  navigateTo = (navigateScreen) => {
+    if (!this.state.isConnected && navigateScreen !== 'Downloads') {
+      return Alert.alert('No internet connection');
+    }
+    this.props.navigation.navigate(navigateScreen);
+  }
 
   render() {
     const menuList = Object.entries(menu).map(([key, value], i) => {

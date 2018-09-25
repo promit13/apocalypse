@@ -1,10 +1,11 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, StatusBar,
+  ScrollView, View, Image, TouchableOpacity, StatusBar, AsyncStorage, Alert,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
+import OfflineMsg from '../common/OfflineMsg';
 
 const styles = {
   mainContainer: {
@@ -37,8 +38,9 @@ const styles = {
     justifyContent: 'center',
   },
 };
-const talonImage = require('../../img/talon.png');
+const talonImage = require('../../img/talondark.png');
 const speedImage = require('../../img/speed.png');
+const talonCover = require('../../img/taloncover.jpg');
 
 export default class TalonScreen extends React.Component {
   static navigationOptions = {
@@ -55,12 +57,21 @@ export default class TalonScreen extends React.Component {
     };
   }
 
-  componentDidMount() {
+  componentWillMount() {
+    this.setState({ isConnected: this.props.screenProps.netInfo });
+  }
+
+  componentDidMount = async () => {
+    if (!this.state.isConnected) {
+      const talonLogs = await AsyncStorage.getItem('talonLogs');
+      return this.setState({ loading: false, talonLogs: JSON.parse(talonLogs) });
+    }
     firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).on('value', (snapshot) => {
       this.setState({
         talonLogs: snapshot.val(),
         loading: false,
       });
+      AsyncStorage.setItem('talonLogs', JSON.stringify(snapshot.val()));
       console.log(this.state.lastIntel);
     });
   }
@@ -78,7 +89,7 @@ export default class TalonScreen extends React.Component {
             }}
             >
               <Text style={{ fontSize: 18, color: 'white' }}>
-                {`${Object.values(logs)[0].episodeTitle}`}
+                {`${Object.values(logs)[0].episodeTitle} Intel`}
               </Text>
               <Icon name="chevron-right" type="feather" color="white" />
             </View>
@@ -125,6 +136,9 @@ export default class TalonScreen extends React.Component {
             containerStyle={{ backgroundColor: '#33425a' }}
             underlayColor="#2a3545"
             onPress={() => {
+              if (!this.state.isConnected) {
+                return Alert.alert('No internet connection');
+              }
               this.setState({ index: i + 1 });
             }}
           />
@@ -142,11 +156,13 @@ export default class TalonScreen extends React.Component {
           <Image
             style={styles.imageStyle}
             resizeMode="stretch"
-            source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029' }}
+            source={talonCover}
           />
           <TouchableOpacity onPress={() => {
+            console.log(this.state.talonLogs);
             // const array = Object.keys(this.state.talonLogs);
-            const episodeId = Object.keys(this.state.talonLogs)[0];
+            const episodeId = (Object.keys(this.state.talonLogs))[0];
+            console.log('EpisodeId', episodeId);
             this.props.navigation.navigate('TalonIntelPlayer', {
               episodeId,
             });

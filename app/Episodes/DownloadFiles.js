@@ -74,8 +74,8 @@ export default class DownloadFiles extends React.Component {
       // response data will be saved to this path if it has access right.
         path: `${dirs.DocumentDir}/AST/episodes/${episodeTitle}.mp4`,
       })
-      // .fetch('GET', `${downloadUrl}`, {
-      .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
+      .fetch('GET', `${video}`, {
+      // .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
         // some headers ..
       })
       .then((res) => {
@@ -100,8 +100,8 @@ export default class DownloadFiles extends React.Component {
             // response data will be saved to this path if it has access right.
               path: `${dirs.DocumentDir}/AST/exercises/${exercise.title}.mp4`,
             })
-            // .fetch('GET', `${exercise.video}`, {
-            .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
+            .fetch('GET', `${exercise.video}`, {
+            // .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
               // some headers ..
             }).then(() => {
               RNFetchBlob
@@ -109,8 +109,8 @@ export default class DownloadFiles extends React.Component {
                 // response data will be saved to this path if it has access right.
                   path: `${dirs.DocumentDir}/AST/images/${exercise.title}.png`,
                 })
-                // .fetch('GET', `${exercise.image}`, {
-                .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029', {
+                .fetch('GET', `${exercise.image}`, {
+                // .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029', {
                   // some headers ..
                 }).then(() => {
                   realm.write(() => {

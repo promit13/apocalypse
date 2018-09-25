@@ -61,7 +61,7 @@ const styles = {
     marginTop: 10,
   },
 };
-const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Ftalon.png?alt=media&token=8e8e51e4-e270-408d-a57d-b08c96eb98a9';
+const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2Ftalondark.png?alt=media&token=fdaf448b-dc43-4a72-a9e3-470aa68d9390';
 
 export default class EpisodeSingle extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -89,18 +89,18 @@ export default class EpisodeSingle extends Component {
     currentDate: 0,
     pausedDate: 0,
     startDate: 0,
-    videoUrl: '',
+    video: '',
   };
 
   componentWillMount() {
     const {
-      check, episodeId, index, videoUrl, title,
+      check, episodeId, index, video, title,
     } = this.props.navigation.state.params;
     const currentDate = this.getDate();
     this.setState({
       listen: check,
       episodeId,
-      videoUrl,
+      video,
       episodeTitle: title,
       uid: this.props.screenProps.user.uid,
       playingExercise: { value: { image: albumImage, title: '' } },
@@ -157,7 +157,7 @@ export default class EpisodeSingle extends Component {
     this.setState({ currentTime: data.currentTime });
     this.changeExercises();
     const currentDate = this.getDate();
-    if ((currentDate - this.state.currentDate) > 10000) {
+    if ((currentDate - this.state.currentDate) > 60000) {
       this.getDistance();
       this.setState({ currentDate });
     }
@@ -210,9 +210,9 @@ export default class EpisodeSingle extends Component {
     this.setState({ paused: false });
     if (!this.state.listen) {
       const currentDate = this.getDate();
-      if ((currentDate - this.state.pausedDate) > 600000) {
+      if ((currentDate - this.state.pausedDate) > 3600000) {
         this.setState({ startDate: currentDate });
-       // this.child.startTrackingSteps();
+        this.child.startTrackingSteps();
       }
     }
   }
@@ -438,7 +438,7 @@ export default class EpisodeSingle extends Component {
         {
           Platform.OS === 'android'
             ? <AndroidTrack ref={c => this.child = c} />
-            : <IosTrack ref={c => this.child = c} />
+            : null
           }
         <View style={styles.albumView}>
           <AlbumArt
@@ -505,7 +505,7 @@ export default class EpisodeSingle extends Component {
   render() {
     const video = (
       <Video
-        source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5' }} // Can be a URL or a local file.
+        source={{ uri: this.state.video }} // 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5'
         ref={(ref) => {
           this.player = ref;
         }}

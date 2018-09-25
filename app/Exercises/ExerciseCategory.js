@@ -1,8 +1,9 @@
 import React from 'react';
 import { Icon, Text } from 'react-native-elements';
 import {
-  View, ScrollView, Image, TouchableOpacity, StatusBar,
+  View, ScrollView, Image, TouchableOpacity, StatusBar, Alert,
 } from 'react-native';
+import OfflineMsg from '../common/OfflineMsg';
 
 const speedImage = require('../../img/speed.png');
 const strengthImage = require('../../img/strength.png');
@@ -46,9 +47,19 @@ export default class ExerciseCategory extends React.Component {
     title: 'Exercises',
   };
 
+  componentWillMount() {
+    this.setState({ isConnected: this.props.screenProps.netInfo });
+  }
+
     renderView = (title, subtitle, imageSource) => {
       return (
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('ExerciseList', { category: title })}>
+        <TouchableOpacity onPress={() => {
+          if (!this.state.isConnected) {
+            return Alert.alert('No internet connection');
+          }
+          this.props.navigation.navigate('ExerciseList', { category: title })} 
+        }
+        >
           <View style={styles.categoryView}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <View style={styles.circularImageView}>

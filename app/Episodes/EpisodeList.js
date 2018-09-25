@@ -1,13 +1,15 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, StatusBar, Alert, PermissionsAndroid,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, Alert, PermissionsAndroid, AsyncStorage,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
+import * as RNIap from 'react-native-iap';
 import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import LoadScreen from '../LoadScreen';
+import OfflineMsg from '../common/OfflineMsg';
 
 const styles = {
   imageStyle: {
@@ -58,6 +60,7 @@ const styles = {
     justifyContent: 'center',
   },
 };
+const homeCover = require('../../img/homecover.jpg');
 
 export default class EpisodeList extends React.Component {
   static navigationOptions = {
@@ -70,20 +73,37 @@ export default class EpisodeList extends React.Component {
     purchasedSeries: [],
   }
 
-  componentDidMount() {
-    console.log('EPISODE');
+  componentWillMount() {
+    this.setState({ isConnected: this.props.screenProps.netInfo });
+  }
+
+  componentDidMount= async () => {
+    if (!this.state.isConnected) {
+      const series = await AsyncStorage.getItem('series');
+      const purchasedSeries = await AsyncStorage.getItem('purchasedSeries');
+      return this.setState({ loading: false, series: JSON.parse(series), purchasedSeries: JSON.parse(purchasedSeries) });
+    }
     this.requestPermissions();
     firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).on('value', (snap) => {
+      if (snap.val() === null) {
+        return;
+      }
       firebase.database().ref('series').on('value', (snapshot) => {
         const purchasedSeries = Object.entries(snap.val()).map(([key, value], i) => {
           return value.seriesId;
         });
         this.setState({ series: snapshot.val(), purchasedSeries, loading: false });
+        AsyncStorage.setItem('series', JSON.stringify(snapshot.val())).then(() => {
+          AsyncStorage.setItem('purchasedSeries', JSON.stringify(purchasedSeries));
+        });
       });
     });
   }
 
   onEpisodeClick = (episodeId, index, seriesImageUrl, download) => {
+    if (!this.state.isConnected ) {
+      return Alert.alert('No internet connection');
+    }
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       const {
@@ -129,6 +149,8 @@ export default class EpisodeList extends React.Component {
       const granted = await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
       ]);
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('You can access location');
@@ -140,25 +162,46 @@ export default class EpisodeList extends React.Component {
     }
   }
 
-  donwloadFile = (fileTitle, downloadUrl) => {
-    const { dirs } = RNFetchBlob.fs;
-    RNFetchBlob.fs.mkdir(`${dirs.MovieDir}/AST/${fileTitle}`)
-      .then(() => {
-        RNFetchBlob
-          .config({
-          // response data will be saved to this path if it has access right.
-            path: `${dirs.DocumentDir}/AST/${fileTitle}/${fileTitle}.mp4`,
-          })
-          // .fetch('GET', `${downloadUrl}`, {
-          .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
-            // some headers ..
-          })
-          .then((res) => {
-          // the path should be dirs.DocumentDir + 'path-to-file.anything'
-            console.log('The file saved to ', res.path());
-          });
-      });
+  buyItem = async (item) => {
+    try {
+      console.log('buyItem: ', item);
+      // const purchase = await RNIap.buyProduct(sku);
+      const purchase = await RNIap.buyProductWithoutFinishTransaction(item);
+      console.log(purchase);
+      // this.setState({ receipt: purchase.transactionReceipt });
+      firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).set({
+        storeId: item,
+        seriesId: item,
+        value: 1,
+        date: 1,
+      })
+        .then(() => {
+          Alert.alert('Item purchased');
+        });
+    } catch (err) {
+      Alert.alert(err.message);
+    }
   }
+
+  // donwloadFile = (fileTitle, downloadUrl) => {
+  //   const { dirs } = RNFetchBlob.fs;
+  //   RNFetchBlob.fs.mkdir(`${dirs.MovieDir}/AST/${fileTitle}`)
+  //     .then(() => {
+  //       RNFetchBlob
+  //         .config({
+  //         // response data will be saved to this path if it has access right.
+  //           path: `${dirs.DocumentDir}/AST/${fileTitle}/${fileTitle}.mp4`,
+  //         })
+  //         // .fetch('GET', `${downloadUrl}`, {
+  //         .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
+  //           // some headers ..
+  //         })
+  //         .then((res) => {
+  //         // the path should be dirs.DocumentDir + 'path-to-file.anything'
+  //           console.log('The file saved to ', res.path());
+  //         });
+  //     });
+  // }
 
   renderList = () => {
     let minIndex = 0;
@@ -174,15 +217,18 @@ export default class EpisodeList extends React.Component {
               key={episodeKey}
               title={`${episodeIndex + minIndex}. ${episodeValue.title}`}
               subtitle={episodeValue.category}
-              titleStyle={{ color: 'white', fontSize: 18 }}
-              subtitleStyle={{ color: 'white' }}
-              rightIcon={{ name: 'download', type: 'feather', color: 'white' }}
-              containerStyle={{ backgroundColor: '#33425a' }}
+              titleStyle={{ color: buy ? 'white' : 'gray', fontSize: 18 }}
+              subtitleStyle={{ color: buy ? 'white' : 'gray' }}
+              rightIcon={{ name: 'download', type: 'feather', color: buy ? 'white' : 'gray' }}
+              containerStyle={{ backgroundColor: buy ? '#33425a' : '#2a3545' }}
               underlayColor="#2a3545"
               onPressRightIcon={() => {
-                // if (!buy) {
-                //   return Alert.alert('Item not purchased');
-                // }
+                if (!this.state.isConnected) {
+                  return Alert.alert('No internet connection');
+                }
+                if (!buy) {
+                  return Alert.alert('Item not purchased');
+                }
                 this.onEpisodeClick(
                   episodeKey,
                   episodeIndex,
@@ -192,9 +238,12 @@ export default class EpisodeList extends React.Component {
               }
               }
               onPress={() => {
-                // if (!buy) {
-                //   return Alert.alert('Item not purchased');
-                // }
+                if (!this.state.isConnected) {
+                  return Alert.alert('No internet connection');
+                }
+                if (!buy) {
+                  return Alert.alert('Item not purchased');
+                }
                 this.onEpisodeClick(
                   episodeKey,
                   episodeIndex,
@@ -217,18 +266,30 @@ export default class EpisodeList extends React.Component {
                     <Button
                       title="Purchased"
                       buttonStyle={styles.purchaseButtonStyle}
-                      onPress={() => {}}
+                      onPress={() => {
+                        if (!this.state.isConnected) {
+                          return Alert.alert('No internet connection');
+                        }
+                      }}
                     />)
                   : (
                     <Button
                       title={`£${value.price} (Buy)`}
                       buttonStyle={styles.priceButtonStyle}
-                      onPress={() => {}}
+                      onPress={() => {
+                        if (!this.state.isConnected) {
+                          return Alert.alert('No internet connection');
+                        }
+                        // const purchaseId = Platform.OS === 'android' ? value.googleId : value.iosId;
+                        // this.buyItem(purchaseId);
+                      }
+                    }
                     />
                   )
               }
             </View>
           </View>
+          <View style={{ height: 1, backgroundColor: 'gray' }} />
           {episodesList}
         </View>
       );
@@ -252,7 +313,7 @@ export default class EpisodeList extends React.Component {
             <Image
               style={styles.imageStyle}
               resizeMode="stretch"
-              source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029' }}
+              source={homeCover}
             />
             <TouchableOpacity onPress={() => {}}>
               <View style={styles.playingEpisodeView}>

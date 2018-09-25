@@ -66,7 +66,7 @@ export default class EpisodeView extends React.Component {
     description: '',
     category: '',
     index: '',
-    videoUrl: '',
+    video: '',
     exercises: [],
     exerciseIdlist: [],
     exerciseLengthList: [],
@@ -86,10 +86,10 @@ export default class EpisodeView extends React.Component {
         index,
         exercises,
         description,
-        videoUrl,
+        video,
       } = this.props.navigation.state.params;
       this.setState({
-        episodeId, title, category, description, index, exercises, videoUrl, loading: false,
+        episodeId, title, category, description, index, exercises, video, loading: false,
       });
       this.setImage(category);
     }
@@ -144,7 +144,7 @@ export default class EpisodeView extends React.Component {
       title,
       index,
       exercises,
-      videoUrl,
+      video,
       exerciseIdlist,
       exerciseLengthList,
     } = this.state;
@@ -155,7 +155,7 @@ export default class EpisodeView extends React.Component {
       episodeId,
       index,
       exercises,
-      videoUrl,
+      video,
       exerciseIdlist,
       exerciseLengthList,
     });
