@@ -1,8 +1,10 @@
 import React from 'react';
 import {
-  ScrollView, View, StatusBar, Alert,
+  ScrollView, View, StatusBar, Alert, Image,
 } from 'react-native';
 import { ListItem } from 'react-native-elements';
+
+const episodesIcon = require('../../img/episodes.png');
 
 const menu = {
   account: {
@@ -26,9 +28,9 @@ const menu = {
   downloads: {
     title: 'Manage Downloads', navigateTo: 'Downloads', iconName: 'ios-cloud-download', iconType: 'ionicon',
   },
-  purchases: {
-    title: 'Restore Purchases', navigateTo: 'Purchases', iconName: 'replay', iconType: 'material-community',
-  },
+  // purchases: {
+  //   title: 'Restore Purchases', navigateTo: 'Purchases', iconName: 'replay', iconType: 'material-community',
+  // },
   agreement: {
     title: 'User Agreement', navigateTo: 'Agreement', iconName: 'check', iconType: 'entypo',
   },
@@ -61,12 +63,21 @@ export default class More extends React.Component {
           title={value.title}
           titleStyle={{ color: 'white', fontSize: 18 }}
           containerStyle={{ backgroundColor: '#33425a' }}
-          leftIcon={{
-            name: value.iconName,
-            type: value.iconType,
-            size: 30,
-            color: 'white',
-          }}
+          leftIcon={value.title === 'Trailers'
+            ? (
+              <Image
+                source={episodesIcon}
+                style={{
+                  height: 30, width: 30, tintColor: 'white', marginRight: 5,
+                }}
+              />
+            )
+            : {
+              name: value.iconName,
+              type: value.iconType,
+              size: 30,
+              color: 'white',
+            }}
           underlayColor="#2a3545"
           onPress={() => this.navigateTo(value.navigateTo)}
         />

@@ -293,6 +293,7 @@ export default class DownloadPlayer extends Component {
 
   render() {
     const { videoUrl } = this.state;
+    console.log(videoUrl);
     const video = (
       <Video
         source={{ uri: videoUrl }} // Can be a URL or a local file.

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   View, Text, AsyncStorage, Alert, Dimensions, Animated, Easing, Image,
 } from 'react-native';
+import Permissions from 'react-native-permissions';
 import { Button } from 'react-native-elements';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import Pedometer from 'react-native-pedometer';
@@ -37,29 +38,48 @@ export default class IosTrack extends React.Component {
     this.animatedValue = new Animated.Value(0);
   }
 
+  componentDidMount() {
+    this.requestPermissions();
+  }
+
   getStepCountAndDistance = async () => {
-    const endDate = new Date();
+    const endDate = new Date().getTime();
     const startDate = await AsyncStorage.getItem('startDate');
-    console.log('COUNT', startDate);
+    console.log('C P', Date.parse(startDate));
+    console.log('C DATE', startDate);
+    console.log(' End Date', endDate);
     Pedometer.queryPedometerDataBetweenDates(
-      new Date(startDate).getTime(), endDate.getTime(), (pedometerData) => {
-        console.log('COUNT', pedometerData);
+      Date.parse(startDate), endDate, (pedometerData) => {
+        console.log('C S', pedometerData);
+        this.setState({ steps: pedometerData.toString() });
       },
     );
   };
 
+  requestPermissions = async () => {
+    Permissions.check('motion').then((response) => {
+      console.log(response);
+      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+      if (response !== 'authorized') {
+        Permissions.request('motion').then((res) => {
+          console.log(res);
+        });
+      }
+    });
+  }
+
   startTrackingSteps = async () => {
     this.setState({ steps: 0, distance: 0 });
     const startDate = new Date();
-    console.log('Date', startDate);
     try {
       await AsyncStorage.setItem('startDate', startDate.toString());
+      console.log('G DATE', startDate.toString());
+      Pedometer.startPedometerUpdatesFromDate(startDate.getTime(), (pedometerData) => {
+        console.log('G PED', pedometerData);
+      });
     } catch (error) {
       console.log('START ERROR', error);
     }
-    Pedometer.startPedometerUpdatesFromDate(startDate.getTime(), (pedometerData) => {
-      console.log('START RESPONSE', pedometerData);
-    });
   }
 
   increase = () => {
@@ -88,9 +108,9 @@ export default class IosTrack extends React.Component {
     });
     return (
       <View style={styles.container}>
-        <Animated.View style={{ marginLeft: moving }}>
+        {/* <Animated.View style={{ marginLeft: moving }}>
           <Image style={{ height: 40, width: 40, marginBottom: 5 }} source={gifImageSource} />
-        </Animated.View>
+        </Animated.View> */}
         <ProgressBarAnimated
           {...progressCustomStyles}
           width={barWidth}

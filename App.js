@@ -61,21 +61,37 @@ export default class App extends React.Component {
 
   renderComponent = () => {
     if (this.state.loading) return <LoadScreen />;
-    if (!this.state.isConnected) return <SignedIn screenProps={{ netInfo: this.state.isConnected, user: this.state.user }} />;
+    if (!this.state.isConnected) {
+      return <SignedIn screenProps={{ netInfo: this.state.isConnected, user: this.state.user }} />;
+    }
     if (this.state.user) {
       // if (this.state.data === '') return <LoadScreen />;
       if (this.state.data === null) return <LoadScreen />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {
-          return <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
+          return (
+            <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />
+          );
         }
-        return <TutorialDisplay screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
+        return (
+          <TutorialDisplay
+            screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
+          />
+        );
       }
       if (!this.state.data.extended) {
         if (this.state.data.tutorial) {
-          return <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
+          return (
+            <SignedIn
+              screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
+            />
+          );
         }
-        return <UserDetails screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
+        return (
+          <UserDetails
+            screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
+          />
+        );
       }
     }
     return <SignedOut />;
