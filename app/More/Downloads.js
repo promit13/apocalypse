@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ScrollView, View, TouchableWithoutFeedback, TouchableOpacity, NetInfo, Alert,
 } from 'react-native';
+import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { Text, Icon, ListItem } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -33,6 +34,7 @@ export default class Downloads extends React.Component {
 
   componentDidMount() {
     this.setState({ isConnected: this.props.screenProps.netInfo });
+    this.requestPermissions();
     this.readDirectory();
   }
 
@@ -77,8 +79,8 @@ export default class Downloads extends React.Component {
   }
 
   readDirectory = () => {
-    const { dirs } = RNFetchBlob.fs;
-    RNFetchBlob.fs.ls(`${dirs.DocumentDir}/AST/episodes`)
+    const { dirs, ls } = RNFetchBlob.fs;
+    ls(`${dirs.DocumentDir}/AST/episodes`)
     // files will an array contains filenames
       .then((files) => {
         if (files.length === 0) {
@@ -90,6 +92,18 @@ export default class Downloads extends React.Component {
       .catch((error) => {
         console.log(error);
       });
+  }
+
+  requestPermissions = async () => {
+    Permissions.check('mediaLibrary').then((response) => {
+      console.log(response);
+      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+      if (response !== 'authorized') {
+        Permissions.request('mediaLibrary').then((res) => {
+          console.log(res);
+        });
+      }
+    });
   }
 
   renderDeleteButton = (i, fileName) => {

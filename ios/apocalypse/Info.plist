@@ -53,6 +53,8 @@
 	<string/>
 	<key>NSMotionUsageDescription</key>
 	<string>Motion is used to track distance you cover</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Play downloaded episodes</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Entypo.ttf</string>

@@ -110,10 +110,6 @@ export default class AndroidTrack extends React.Component {
     }
 
     getState = () => {
-      // const datas = [];
-      // const { distance, timeInterval } = this.state;
-      // datas.push(distance);
-      // datas.push(timeInterval);
       return this.state.distance;
     }
 

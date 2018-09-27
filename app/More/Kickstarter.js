@@ -1,7 +1,8 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import AndroidTrack from './AndroidTrack';
+import IosTrack from './IosTrack';
 
 export default class Kickstarter extends React.Component {
   static navigationOptions = {
@@ -27,7 +28,11 @@ export default class Kickstarter extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, justifyContent: 'center' }}>
-        <AndroidTrack ref={c => this.child = c} />
+        {
+          Platform.OS === 'android'
+            ? <AndroidTrack ref={c => this.child = c} />
+            : <IosTrack ref={c => this.child = c} />
+        }
         <Button title="Start" onPress={this.onButtonPressStart} />
         <Button title="End" onPress={this.onButtonPress} />
         <Button title="State" onPress={this.getState} />

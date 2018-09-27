@@ -45,21 +45,23 @@ export default class IosTrack extends React.Component {
   getStepCountAndDistance = async () => {
     const endDate = new Date().getTime();
     const startDate = await AsyncStorage.getItem('startDate');
-    console.log('C P', Date.parse(startDate));
-    console.log('C DATE', startDate);
-    console.log(' End Date', endDate);
     Pedometer.queryPedometerDataBetweenDates(
-      Date.parse(startDate), endDate, (pedometerData) => {
-        console.log('C S', pedometerData);
-        this.setState({ steps: pedometerData.toString() });
+      new Date(startDate).getTime(), endDate, (error, pedometerData) => {
+        if (error) {
+          console.log(error);
+        }
+        const { distance, numberOfSteps } = pedometerData;
+        this.setState({ distance: (distance / 1000).toFixed(2), steps: numberOfSteps });
       },
     );
   };
 
+  getState = () => {
+    return this.state.distance;
+  }
+
   requestPermissions = async () => {
     Permissions.check('motion').then((response) => {
-      console.log(response);
-      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       if (response !== 'authorized') {
         Permissions.request('motion').then((res) => {
           console.log(res);
@@ -68,17 +70,24 @@ export default class IosTrack extends React.Component {
     });
   }
 
+
+  // { floorsAscended: 0,
+  //   startDate: '2018-09-27T10:13:31.234Z',
+  //   numberOfSteps: 11,
+  //   floorsDescended: 0,
+  //   endDate: '2018-09-27T10:13:42.390Z',
+  //   distance: 11.549999999999955 }
+
   startTrackingSteps = async () => {
     this.setState({ steps: 0, distance: 0 });
     const startDate = new Date();
     try {
-      await AsyncStorage.setItem('startDate', startDate.toString());
-      console.log('G DATE', startDate.toString());
+      await AsyncStorage.setItem('startDate', startDate);
       Pedometer.startPedometerUpdatesFromDate(startDate.getTime(), (pedometerData) => {
-        console.log('G PED', pedometerData);
+        console.log(pedometerData);
       });
     } catch (error) {
-      console.log('START ERROR', error);
+      console.log(error);
     }
   }
 
@@ -102,15 +111,15 @@ export default class IosTrack extends React.Component {
   }
 
   render() {
-    const moving = this.animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, (((this.state.progress - 10) / 100) * barWidth)],
-    });
+    // const moving = this.animatedValue.interpolate({
+    //   inputRange: [0, 1],
+    //   outputRange: [0, (((this.state.progress - 10) / 100) * barWidth)],
+    // });
     return (
-      <View style={styles.container}>
+      <View>
         {/* <Animated.View style={{ marginLeft: moving }}>
           <Image style={{ height: 40, width: 40, marginBottom: 5 }} source={gifImageSource} />
-        </Animated.View> */}
+        </Animated.View>
         <ProgressBarAnimated
           {...progressCustomStyles}
           width={barWidth}
@@ -128,7 +137,7 @@ export default class IosTrack extends React.Component {
         </Text>
         <Button buttonStyle={{ marginTop: 10 }} title="Increase" onPress={() => this.increase()} />
         <Button buttonStyle={{ marginTop: 10 }} title="Start" onPress={() => this.startTrackingSteps()} />
-        <Button buttonStyle={{ marginTop: 10 }} title="End" onPress={() => this.getStepCountAndDistance()} />
+        <Button buttonStyle={{ marginTop: 10 }} title="End" onPress={() => this.getStepCountAndDistance()} /> */}
       </View>
     );
   }

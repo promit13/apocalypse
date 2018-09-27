@@ -86,7 +86,7 @@ export default class EpisodeSingle extends Component {
     logId: '',
     lastLoggedDate: null,
     previousStartTime: [],
-    currentDate: 0,
+    playDate: 0,
     pausedDate: 0,
     startDate: 0,
     video: '',
@@ -96,7 +96,7 @@ export default class EpisodeSingle extends Component {
     const {
       check, episodeId, index, video, title,
     } = this.props.navigation.state.params;
-    const currentDate = this.getDate();
+    // const currentDate = this.getDate();
     this.setState({
       listen: check,
       episodeId,
@@ -104,7 +104,7 @@ export default class EpisodeSingle extends Component {
       episodeTitle: title,
       uid: this.props.screenProps.user.uid,
       playingExercise: { value: { image: albumImage, title: '' } },
-      currentDate,
+      // currentDate,
     });
   }
 
@@ -157,9 +157,9 @@ export default class EpisodeSingle extends Component {
     this.setState({ currentTime: data.currentTime });
     this.changeExercises();
     const currentDate = this.getDate();
-    if ((currentDate - this.state.currentDate) > 60000) {
+    if ((currentDate - this.state.playDate) > 30000) {
       this.getDistance();
-      this.setState({ currentDate });
+      this.setState({ playDate: currentDate });
     }
     AppState.addEventListener('change', (state) => {
       if (state === 'background') {
@@ -210,8 +210,8 @@ export default class EpisodeSingle extends Component {
     this.setState({ paused: false });
     if (!this.state.listen) {
       const currentDate = this.getDate();
-      if ((currentDate - this.state.pausedDate) > 3600000) {
-        this.setState({ startDate: currentDate });
+      if ((currentDate - this.state.pausedDate) > 900000) {
+        this.setState({ startDate: currentDate, playDate: currentDate });
         this.child.startTrackingSteps();
       }
     }
@@ -365,6 +365,11 @@ export default class EpisodeSingle extends Component {
     const { image, title } = this.state.playingExercise.value;
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
+        {
+          Platform.OS === 'android'
+            ? <AndroidTrack ref={c => this.child = c} />
+            : <IosTrack ref={c => this.child = c} />
+        }
         <View style={{
           flex: 0.5, backgroundColor: '#33425a', padding: 20,
         }}
@@ -438,8 +443,8 @@ export default class EpisodeSingle extends Component {
         {
           Platform.OS === 'android'
             ? <AndroidTrack ref={c => this.child = c} />
-            : null
-          }
+            : <IosTrack ref={c => this.child = c} />
+        }
         <View style={styles.albumView}>
           <AlbumArt
             url={

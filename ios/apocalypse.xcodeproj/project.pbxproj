@@ -1729,7 +1729,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Promit Rai (7SBLZMRND2)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Imaginactive Ltd (5783T8MTVQ)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -1757,7 +1757,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.imaginactive.apocalypse;
 				PRODUCT_NAME = apocalypse;
-				PROVISIONING_PROFILE_SPECIFIER = TickleMediaDevelopmentProfile;
+				PROVISIONING_PROFILE_SPECIFIER = TickleMediaDistributionProfile;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

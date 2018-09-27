@@ -241,16 +241,17 @@ export const SignedIn = createBottomTabNavigator({
     tabBarIcon: ({ tintColor }) => {
       const { routeName } = navigation.state;
       if (routeName === 'More') {
-        return (
-          <View>
-            <Badge
-              wrapperStyle={{ marginBottom: -20, marginLeft: 40, zIndex: 2 }}
-              value={5}
-              containerStyle={{ padding: 7, backgroundColor: 'red' }}
-            />
-            <Icon name="dots-three-horizontal" type="entypo" size={35} color={tintColor} />
-          </View>
-        );
+        return <Icon name="dots-three-horizontal" type="entypo" size={30} color={tintColor} />;
+        // return (
+        //   <View>
+        //     <Badge
+        //       wrapperStyle={{ marginBottom: -20, marginLeft: 40, zIndex: 2 }}
+        //       value={5}
+        //       containerStyle={{ padding: 7, backgroundColor: 'red' }}
+        //     />
+        //     <Icon name="dots-three-horizontal" type="entypo" size={35} color={tintColor} />
+        //   </View>
+        // );
       }
       if (routeName === 'Talon') {
         // return <Icon name="connectdevelop" type="font-awesome" size={30} color={tintColor} />;

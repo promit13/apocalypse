@@ -8,7 +8,7 @@ const episodesIcon = require('../../img/episodes.png');
 
 const menu = {
   account: {
-    title: 'My Account', navigateTo: 'Account', iconName: 'account', iconType: 'material-community',
+    title: 'Account', navigateTo: 'Account', iconName: 'account', iconType: 'material-community',
   },
   credits: {
     title: 'Credits', navigateTo: 'Credits', iconName: 'menu', iconType: 'entypo',

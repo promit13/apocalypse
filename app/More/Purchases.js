@@ -86,7 +86,7 @@ export default class Purchases extends React.Component {
       console.log('buySubscribeItem: ', item);
       const purchase = await RNIap.buySubscription(item);
       console.log(purchase);
-      this.setState({ receipt: purchase.transactionReceipt }, () => this.goToNext());
+      this.setState({ receipt: purchase.transactionReceipt });
     } catch (err) {
       this.setState({ error: err });
       console.warn(err.code, err.message);

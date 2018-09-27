@@ -78,26 +78,35 @@ export default class EpisodeList extends React.Component {
   }
 
   componentDidMount= async () => {
-    if (!this.state.isConnected) {
-      const series = await AsyncStorage.getItem('series');
-      const purchasedSeries = await AsyncStorage.getItem('purchasedSeries');
-      return this.setState({ loading: false, series: JSON.parse(series), purchasedSeries: JSON.parse(purchasedSeries) });
-    }
-    this.requestPermissions();
-    firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).on('value', (snap) => {
-      if (snap.val() === null) {
-        return;
+    try {
+      if (!this.state.isConnected) {
+        const series = await AsyncStorage.getItem('series');
+        const purchasedSeries = await AsyncStorage.getItem('purchasedSeries');
+        return this.setState({ loading: false, series: JSON.parse(series), purchasedSeries: JSON.parse(purchasedSeries) });
       }
-      firebase.database().ref('series').on('value', (snapshot) => {
-        const purchasedSeries = Object.entries(snap.val()).map(([key, value], i) => {
-          return value.seriesId;
-        });
-        this.setState({ series: snapshot.val(), purchasedSeries, loading: false });
-        AsyncStorage.setItem('series', JSON.stringify(snapshot.val())).then(() => {
-          AsyncStorage.setItem('purchasedSeries', JSON.stringify(purchasedSeries));
+      // await RNIap.initConnection();
+      this.requestPermissions();
+      firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).on('value', (snap) => {
+        if (snap.val() === null) {
+          return;
+        }
+        firebase.database().ref('series').on('value', (snapshot) => {
+          const purchasedSeries = Object.entries(snap.val()).map(([key, value], i) => {
+            return value.seriesId;
+          });
+          this.setState({ series: snapshot.val(), purchasedSeries, loading: false });
+          AsyncStorage.setItem('series', JSON.stringify(snapshot.val())).then(() => {
+            AsyncStorage.setItem('purchasedSeries', JSON.stringify(purchasedSeries));
+          });
         });
       });
-    });
+    } catch (err) {
+      console.warn(err.code, err.message);
+    }
+  }
+
+  componentWillUnmount() {
+    RNIap.endConnection();
   }
 
   onEpisodeClick = (episodeId, index, seriesImageUrl, download) => {
@@ -162,21 +171,24 @@ export default class EpisodeList extends React.Component {
     }
   }
 
-  buyItem = async (item) => {
+  buyItem = async (item, itemId, itemPrice) => {
     try {
       console.log('buyItem: ', item);
-      // const purchase = await RNIap.buyProduct(sku);
-      const purchase = await RNIap.buyProductWithoutFinishTransaction(item);
-      console.log(purchase);
-      // this.setState({ receipt: purchase.transactionReceipt });
-      firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).set({
-        storeId: item,
+      await RNIap.prepare();
+      const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
+      // to something in your server
+      const { transactionReceipt, purchaseToken } = purchase;
+      firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
+        inAppPurchaseId: itemId,
         seriesId: item,
-        value: 1,
-        date: 1,
+        price: itemPrice,
+        date: new Date(),
+        transactionReceipt,
+        purchaseToken,
       })
         .then(() => {
           Alert.alert('Item purchased');
+          RNIap.finishTransaction();
         });
     } catch (err) {
       Alert.alert(err.message);
@@ -280,8 +292,8 @@ export default class EpisodeList extends React.Component {
                         if (!this.state.isConnected) {
                           return Alert.alert('No internet connection');
                         }
-                        // const purchaseId = Platform.OS === 'android' ? value.googleId : value.iosId;
-                        // this.buyItem(purchaseId);
+                        const purchaseId = Platform.OS === 'android' ? value.googleId : value.iosId;
+                        this.buyItem(key, purchaseId, value.price);
                       }
                     }
                     />

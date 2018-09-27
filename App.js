@@ -7,7 +7,6 @@ import {
   SignedOut,
   UserDetails,
   TutorialDisplay,
-  DownloadDisplay,
 } from './app/config/router';
 
 export default class App extends React.Component {
@@ -28,7 +27,7 @@ export default class App extends React.Component {
   componentWillUnmount() {
     if (this.state.isConnected) {
       this.authSubscription();
-      NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+      NetInfo.isConnected.removeEventListener('connectionChange');
     }
   }
 
@@ -36,12 +35,14 @@ export default class App extends React.Component {
     if (isConnected) {
       // this.setState({ isConnected });
       this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
-        this.setState({
-          user,
-          loading: false,
-          isConnected,
-        });
-        this.handleUserStatus();
+        if (user) {
+          this.setState({
+            user,
+            loading: false,
+            isConnected,
+          });
+          this.handleUserStatus();
+        }
       });
     } else {
       this.setState({ isConnected, loading: false });
