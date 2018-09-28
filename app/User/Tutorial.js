@@ -9,17 +9,18 @@ const styles = {
   containerStyle: {
     flex: 1,
     backgroundColor: '#001331',
-    padding: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+    justifyContent: 'center',
   },
   textStyle: {
-    marginTop: 10,
-    marginLeft: 10,
+    marginTop: 20,
     color: 'white',
-    alignSelf: 'center',
+    textAlign: 'center',
   },
   imageStyle: {
-    width: 200,
     height: 200,
+    width: 200,
   },
   slideStyle: {
     justifyContent: 'center',
@@ -55,7 +56,7 @@ export default class Tutorial extends React.Component {
             {/* <Text style={styles.textStyle}>
               {value.title}
             </Text> */}
-            <Image style={styles.imageStyle} source={{ uri: value.file }} />
+            <Image resizeMode="contain" style={styles.imageStyle} source={{ uri: value.file }} />
             <Text style={styles.textStyle}>
               {value.description}
             </Text>

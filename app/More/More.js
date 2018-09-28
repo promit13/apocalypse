@@ -23,7 +23,7 @@ const menu = {
     title: 'Tutorial', navigateTo: 'Tutorial', iconName: 'question', iconType: 'font-awesome',
   },
   tips: {
-    title: 'Top Tips & FAQ', navigateTo: 'Tips', iconName: 'star', iconType: 'entypo',
+    title: 'FAQ', navigateTo: 'Tips', iconName: 'star', iconType: 'entypo',
   },
   downloads: {
     title: 'Manage Downloads', navigateTo: 'Downloads', iconName: 'ios-cloud-download', iconType: 'ionicon',

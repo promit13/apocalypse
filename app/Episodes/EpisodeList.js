@@ -243,7 +243,7 @@ export default class EpisodeList extends React.Component {
                 }
                 this.onEpisodeClick(
                   episodeKey,
-                  episodeIndex,
+                  (episodeIndex + minIndex),
                   value.file,
                   true,
                 );

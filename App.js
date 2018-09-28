@@ -27,7 +27,7 @@ export default class App extends React.Component {
   componentWillUnmount() {
     if (this.state.isConnected) {
       this.authSubscription();
-      NetInfo.isConnected.removeEventListener('connectionChange');
+      NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
     }
   }
 

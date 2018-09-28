@@ -24,14 +24,12 @@ const styles = {
     borderWidth: 1,
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop: 40,
-    paddingBottom: 40,
+    paddingTop: 30,
+    paddingBottom: 30,
   },
   circularImageView: {
     height: 120,
     width: 120,
-    borderWidth: 1,
-    borderColor: 'white',
     borderRadius: 120 / 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -90,16 +88,12 @@ export default class ExerciseCategory extends React.Component {
 
     render() {
       return (
-        <View style={styles.maincontainer}>
-          <StatusBar
-            backgroundColor="#00000b"
-          />
-          <ScrollView>
-            {this.renderView('Speed', 'Running Training', speedImage)}
-            {this.renderView('Strength', 'Bodyweight Circuits', strengthImage)}
-            {this.renderView('Control', 'Stretch and Core', controlImage)}
-          </ScrollView>
-        </View>
+        <ScrollView style={styles.maincontainer}>
+          <StatusBar backgroundColor="#00000b" />
+          {this.renderView('Speed', 'Running Training', speedImage)}
+          {this.renderView('Strength', 'Bodyweight Circuits', strengthImage)}
+          {this.renderView('Control', 'Stretch and Core', controlImage)}
+        </ScrollView>
       );
     }
 }

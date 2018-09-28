@@ -18,7 +18,7 @@ const styles = {
   },
   textStyle: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 14,
   },
   latestIntelView: {
     flex: 1,
@@ -54,6 +54,7 @@ export default class TalonScreen extends React.Component {
       index: 0,
       loading: true,
       lastIntel: '',
+      showTalon: false,
     };
   }
 
@@ -77,19 +78,26 @@ export default class TalonScreen extends React.Component {
   }
 
   renderContent = (i, episodeId, logs) => {
-    if (this.state.index === i && logs !== null) {
+    const { index, showTalon } = this.state;
+    if (index === i && logs !== null && showTalon) {
       return (
         <View style={{ backgroundColor: '#445878' }}>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('TalonIntelPlayer', {
-            episodeId,
-          })}
+          <TouchableOpacity onPress={() => {
+            if (!this.state.isConnected) {
+              return Alert.alert('No internet connection');
+            }
+            this.props.navigation.navigate('TalonIntelPlayer', {
+              episodeId,
+            });
+          }}
           >
             <View style={{
               flexDirection: 'row', padding: 16, justifyContent: 'space-between', borderWidth: 1, borderColor: 'gray',
             }}
             >
-              <Text style={{ fontSize: 18, color: 'white' }}>
-                {`${Object.values(logs)[0].episodeTitle} Intel`}
+              <Text style={styles.textStyle}>
+                {/* {`${Object.values(logs)[0].episodeTitle} Intel`} */}
+                {`Ep. ${i} Intel`}
               </Text>
               <Icon name="chevron-right" type="feather" color="white" />
             </View>
@@ -101,7 +109,7 @@ export default class TalonScreen extends React.Component {
               return (
                 <ListItem
                   title={`${formatDate} - ${value.distance} k.m. in ${value.timeInterval} mins`}
-                  titleStyle={{ color: 'white', fontSize: 18 }}
+                  titleStyle={styles.textStyle}
                   containerStyle={{ marginLeft: 10, marginRight: 10 }}
                   hideChevron
                 />
@@ -117,7 +125,7 @@ export default class TalonScreen extends React.Component {
     if (this.state.talonLogs === null) {
       return (
         <View style={[styles.mainContainer, { justifyContent: 'center', alignItems: 'center' }]}>
-          <Text style={styles.textStyle}>
+          <Text style={[styles.textStyle, { fontSize: 16 }]}>
             Sorry you have no any logged talon.
           </Text>
         </View>
@@ -136,10 +144,7 @@ export default class TalonScreen extends React.Component {
             containerStyle={{ backgroundColor: '#33425a' }}
             underlayColor="#2a3545"
             onPress={() => {
-              if (!this.state.isConnected) {
-                return Alert.alert('No internet connection');
-              }
-              this.setState({ index: i + 1 });
+              this.setState({ index: i + 1, showTalon: !this.state.showTalon });
             }}
           />
           { this.renderContent((i + 1), key, value) }
