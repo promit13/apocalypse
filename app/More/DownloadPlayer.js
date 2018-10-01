@@ -307,7 +307,9 @@ export default class DownloadPlayer extends Component {
         onLoad={this.onLoad}
         onProgress={this.onProgress}
         onEnd={this.onEnd}
+        ignoreSilentSwitch="ignore"
         style={styles.audioElement}
+        allowsExternalPlayback
       />
     );
 

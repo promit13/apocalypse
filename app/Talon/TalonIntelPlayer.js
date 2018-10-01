@@ -259,6 +259,7 @@ export default class TalonIntelPlayer extends Component {
         paused={this.state.paused} // Pauses playback entirely.
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground // ={true}
+        ignoreSilentSwitch="ignore"
         onLoad={this.onLoad}
         onProgress={this.onProgress}
         onEnd={this.onEnd}

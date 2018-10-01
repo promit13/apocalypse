@@ -164,10 +164,10 @@ export default class TalonScreen extends React.Component {
             source={talonCover}
           />
           <TouchableOpacity onPress={() => {
-            console.log(this.state.talonLogs);
-            // const array = Object.keys(this.state.talonLogs);
+            if (!this.state.isConnected) {
+              return Alert.alert('No internet connection');
+            }
             const episodeId = (Object.keys(this.state.talonLogs))[0];
-            console.log('EpisodeId', episodeId);
             this.props.navigation.navigate('TalonIntelPlayer', {
               episodeId,
             });

@@ -23,8 +23,6 @@ const styles = {
   circularImageView: {
     height: 120,
     width: 120,
-    borderWidth: 1,
-    borderColor: 'white',
     borderRadius: 120 / 2,
     alignItems: 'center',
     justifyContent: 'center',

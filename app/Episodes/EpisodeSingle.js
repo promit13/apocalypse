@@ -84,7 +84,7 @@ export default class EpisodeSingle extends Component {
     episodeTitle: '',
     uid: '',
     logId: '',
-    lastLoggedDate: null,
+    lastLoggedDate: 0,
     previousStartTime: [],
     playDate: 0,
     pausedDate: 0,
@@ -156,10 +156,13 @@ export default class EpisodeSingle extends Component {
   onProgress = (data) => {
     this.setState({ currentTime: data.currentTime });
     this.changeExercises();
-    const currentDate = this.getDate();
-    if ((currentDate - this.state.playDate) > 30000) {
-      this.getDistance();
-      this.setState({ playDate: currentDate });
+    if (!this.state.paused) { // onProgress gets called when component starts in IOS
+      const currentDate = this.getDate();
+      if ((currentDate - this.state.playDate) > 15000) {
+        console.log('CHECK');
+        this.getDistance();
+        this.setState({ playDate: currentDate });
+      }
     }
     AppState.addEventListener('change', (state) => {
       if (state === 'background') {
@@ -177,7 +180,7 @@ export default class EpisodeSingle extends Component {
       firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
         const snapValue = snapshot.val();
         const currentDate = this.getDate();
-        if (snapValue === null || ((currentDate - snapValue.dateNow) > 900000)) {
+        if (snapValue === null || (currentDate - snapValue.dateNow) > 900000) {
           return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: currentDate });
         }
         this.setState({
@@ -223,6 +226,7 @@ export default class EpisodeSingle extends Component {
     setTimeout(() => {
       this.setTimeFirebase();
     }, 3000);
+    // this.setTimeFirebase();
   }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
@@ -236,14 +240,13 @@ export default class EpisodeSingle extends Component {
       console.log(startDate);
       console.log(currentDate);
       const timeInterval = ((currentDate - startDate) / 60000).toFixed(2);
-      const distance = this.child.getState();
-      console.log(distance);
+      // const distance = this.child.getState();
       if ((currentDate - this.state.lastLoggedDate) > 300000) {
         firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
           timeStamp: this.state.currentTime,
           dateNow: currentDate,
           episodeTitle,
-          distance,
+          distance: 0,
           timeInterval,
         }).then(() => this.setState({ lastLoggedDate: currentDate }));
       } else {
@@ -251,7 +254,7 @@ export default class EpisodeSingle extends Component {
           timeStamp: this.state.currentTime,
           dateNow: currentDate,
           episodeTitle,
-          distance,
+          distance: 0,
           timeInterval,
         }).then(() => this.setState({ lastLoggedDate: currentDate }));
       }
@@ -517,7 +520,9 @@ export default class EpisodeSingle extends Component {
         progressUpdateInterval={50.0}
         paused={this.state.paused} // Pauses playback entirely.
         resizeMode="cover" // Fill the whole screen at aspect ratio.
-        playInBackground // ={true}
+        playInBackground
+        ignoreSilentSwitch="ignore"
+        playWhenInactive
         onLoad={this.onLoad}
         onEnd={this.onEnd}
         onProgress={this.onProgress}

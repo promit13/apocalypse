@@ -173,7 +173,6 @@ export default class EpisodeList extends React.Component {
 
   buyItem = async (item, itemId, itemPrice) => {
     try {
-      console.log('buyItem: ', item);
       await RNIap.prepare();
       const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
       // to something in your server
@@ -192,6 +191,7 @@ export default class EpisodeList extends React.Component {
         });
     } catch (err) {
       Alert.alert(err.message);
+      RNIap.endConnection();
     }
   }
 
@@ -292,7 +292,7 @@ export default class EpisodeList extends React.Component {
                         if (!this.state.isConnected) {
                           return Alert.alert('No internet connection');
                         }
-                        const purchaseId = Platform.OS === 'android' ? value.googleId : value.iosId;
+                        const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
                         this.buyItem(key, purchaseId, value.price);
                       }
                     }

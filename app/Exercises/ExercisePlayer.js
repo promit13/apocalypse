@@ -60,10 +60,10 @@ export default class ExercisePlayer extends Component {
   }
 
   componentDidMount() {
-    const { dirs } = RNFetchBlob.fs;
     const { exerciseId, offline, exerciseTitle } = this.props.navigation.state.params;
     console.log(exerciseId);
     if (offline) {
+      const { dirs } = RNFetchBlob.fs;
       return this.setState({ video: `${dirs.DocumentDir}/AST/exercises/${exerciseTitle}.mp4`, title: exerciseTitle });
     }
     firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {

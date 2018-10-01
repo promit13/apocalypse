@@ -79,34 +79,6 @@ export const TutorialDisplay = createStackNavigator({
   },
 });
 
-export const DownloadDisplay = createStackNavigator({
-  Download: { screen: Downloads },
-  DownloadPlayer: { screen: DownloadPlayer },
-  EpisodeView: { screen: EpisodeView },
-  ExercisePlayer: { screen: ExercisePlayer },
-},
-{
-  navigationOptions: {
-    headerStyle: {
-      backgroundColor: '#001331',
-    },
-    headerTintColor: '#fff',
-    headerTitleStyle: {
-      fontWeight: 'bold',
-    },
-  },
-});
-
-DownloadDisplay.navigationOptions = ({ navigation }) => {
-  let tabBarVisible = true;
-  if (navigation.state.index > 2) {
-    tabBarVisible = false;
-  }
-  return {
-    tabBarVisible,
-  };
-};
-
 const EpisodeStack = createStackNavigator({
   EpisodeList: { screen: EpisodeList },
   EpisodeView: { screen: EpisodeView },

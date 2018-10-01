@@ -7,8 +7,8 @@ import { ListItem } from 'react-native-elements';
 const episodesIcon = require('../../img/episodes.png');
 
 const menu = {
-  account: {
-    title: 'Account', navigateTo: 'Account', iconName: 'account', iconType: 'material-community',
+  account: { 
+    title: 'My Account', navigateTo: 'Account', iconName: 'account', iconType: 'material-community',
   },
   credits: {
     title: 'Credits', navigateTo: 'Credits', iconName: 'menu', iconType: 'entypo',
