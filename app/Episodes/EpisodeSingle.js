@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView, Modal, Platform,
+  AppState, View, ScrollView, Modal, Platform, AsyncStorage,
 } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import Video from 'react-native-video';
+import Pedometer from 'react-native-pedometer';
+import GoogleFit from 'react-native-google-fit';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
@@ -90,6 +92,8 @@ export default class EpisodeSingle extends Component {
     pausedDate: 0,
     startDate: 0,
     video: '',
+    distance: 0,
+    platform: '',
   };
 
   componentWillMount() {
@@ -108,7 +112,24 @@ export default class EpisodeSingle extends Component {
     });
   }
 
-  componentDidMount() {
+  componentDidMount = async () => {
+    GoogleFit.authorize((error, result) => {
+      if (error) {
+        return console.log(`AUTH ERROR ${error}`);
+      }
+      return console.log(`AUTH SUCCESS ${result}`);
+    });
+    GoogleFit.onAuthorize(() => {
+      console.log('AUTH SUCCESS');
+    });
+
+    GoogleFit.onAuthorizeFailure(() => {
+      console.log('AUTH FAILED');
+    });
+
+    const startDate = await AsyncStorage.getItem('startDate');
+    console.log('CDM', startDate);
+    this.setState({ startDate: new Date(startDate).getTime(), platform: Platform.OS });
     this.getTimeFirebase();
   }
 
@@ -137,7 +158,7 @@ export default class EpisodeSingle extends Component {
   onPressPause = () => {
     const currentDate = this.getDate();
     this.setState({ paused: true, pausedDate: currentDate });
-    this.getDistance();
+    this.setTimeFirebase();
     this.changeExercises();
   }
 
@@ -158,9 +179,11 @@ export default class EpisodeSingle extends Component {
     this.changeExercises();
     if (!this.state.paused) { // onProgress gets called when component starts in IOS
       const currentDate = this.getDate();
-      if ((currentDate - this.state.playDate) > 15000) {
+      if ((currentDate - this.state.playDate) > 60000) {
         console.log('CHECK');
-        this.getDistance();
+        // this.setTimeFirebase();
+        // this.getDistance();
+        this.getStepCountAndDistance();
         this.setState({ playDate: currentDate });
       }
     }
@@ -211,42 +234,49 @@ export default class EpisodeSingle extends Component {
 
   onPressPlay = () => {
     this.setState({ paused: false });
+    const { startDate, pausedDate } = this.state;
     if (!this.state.listen) {
       const currentDate = this.getDate();
-      if ((currentDate - this.state.pausedDate) > 900000) {
-        this.setState({ startDate: currentDate, playDate: currentDate });
-        this.child.startTrackingSteps();
+      // this.startTrackingSteps();
+      // if ((currentDate - pausedDate) > 120000) {
+        if ((currentDate - startDate) > 900000) {
+          this.setState({ startDate: currentDate, playDate: currentDate });
+          // this.child.startTrackingSteps();
+          this.startTrackingSteps();
+        // }
       }
     }
   }
 
-  getDistance = () => {
-    this.child.getStepCountAndDistance();
-    console.log('getDistance');
-    setTimeout(() => {
-      this.setTimeFirebase();
-    }, 3000);
-    // this.setTimeFirebase();
-  }
+  // getDistance = () => {
+  //   this.child.getStepCountAndDistance();
+  //   console.log('getDistance');
+  //   setTimeout(() => {
+  //     this.setTimeFirebase();
+  //   }, 3000);
+  //   this.setTimeFirebase();
+  //   this.getStepCountAndDistance();
+  // }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
 
-  setTimeFirebase = () => {
+  setTimeFirebase = async () => {
     if (!this.state.listen) {
       const {
         uid, episodeId, episodeTitle, startDate,
       } = this.state;
-      const currentDate = this.getDate();
       console.log(startDate);
+      const currentDate = this.getDate();
       console.log(currentDate);
+      const distance = await AsyncStorage.getItem('distance');
       const timeInterval = ((currentDate - startDate) / 60000).toFixed(2);
       // const distance = this.child.getState();
-      if ((currentDate - this.state.lastLoggedDate) > 300000) {
+      if ((currentDate - this.state.lastLoggedDate) > 900000) {
         firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
           timeStamp: this.state.currentTime,
           dateNow: currentDate,
           episodeTitle,
-          distance: 0,
+          distance,
           timeInterval,
         }).then(() => this.setState({ lastLoggedDate: currentDate }));
       } else {
@@ -254,7 +284,7 @@ export default class EpisodeSingle extends Component {
           timeStamp: this.state.currentTime,
           dateNow: currentDate,
           episodeTitle,
-          distance: 0,
+          distance,
           timeInterval,
         }).then(() => this.setState({ lastLoggedDate: currentDate }));
       }
@@ -297,6 +327,65 @@ export default class EpisodeSingle extends Component {
         console.log(error);
       },
     );
+  }
+
+  getStepCountAndDistance = async () => {
+    const startDate = await AsyncStorage.getItem('startDate');
+    if (this.state.platform === 'android') {
+      const isoStringDate = new Date(startDate).toISOString();
+      const endDate = new Date().toISOString();
+      const options = {
+        isoStringDate,
+        endDate, // required ISO8601Timestamp
+      };
+      GoogleFit.getDailyDistanceSamples(options, async (error, response) => {
+        if (error) {
+          throw error;
+        }
+        const distance = ((response[0].distance) / 1000).toFixed(2);
+        console.log('GOOGLE DISTANCE', distance);
+        try {
+          await AsyncStorage.setItem('distance', distance);
+        } catch (err) {
+          console.log(err);
+        }
+      });
+    } else {
+      const endDate = new Date().getTime();
+      Pedometer.queryPedometerDataBetweenDates(
+        new Date(startDate).getTime(), endDate, async (error, pedometerData) => {
+        // startDate, endDate, async (error, pedometerData) => {
+          if (error) {
+            console.log(error);
+          }
+          const { distance } = pedometerData;
+          try {
+            await AsyncStorage.setItem('distance', ((distance / 1000).toFixed(2)).toString());
+          } catch (err) {
+            console.log(err);
+          }
+          // this.setState({ distance: (distance / 1000).toFixed(2) });
+        },
+      );
+    }
+  };
+
+  startTrackingSteps = async () => {
+    const startDate = new Date();
+    this.setState({ startDate: startDate.getTime() });
+    console.log(startDate.getTime());
+    try {
+      await AsyncStorage.setItem('startDate', startDate);
+      if (this.state.platform === 'android') {
+        GoogleFit.startRecording(event => console.log(event));
+      } else {
+        Pedometer.startPedometerUpdatesFromDate(startDate.getTime(), (pedometerData) => {
+          console.log(pedometerData);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   showModal = () => {
@@ -368,11 +457,11 @@ export default class EpisodeSingle extends Component {
     const { image, title } = this.state.playingExercise.value;
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
-        {
+        {/* {
           Platform.OS === 'android'
             ? <AndroidTrack ref={c => this.child = c} />
             : <IosTrack ref={c => this.child = c} />
-        }
+        } */}
         <View style={{
           flex: 0.5, backgroundColor: '#33425a', padding: 20,
         }}
@@ -443,11 +532,11 @@ export default class EpisodeSingle extends Component {
     const { image, title } = this.state.playingExercise.value;
     return (
       <View>
-        {
+        {/* {
           Platform.OS === 'android'
             ? <AndroidTrack ref={c => this.child = c} />
             : <IosTrack ref={c => this.child = c} />
-        }
+        } */}
         <View style={styles.albumView}>
           <AlbumArt
             url={

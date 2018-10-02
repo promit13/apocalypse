@@ -68,7 +68,7 @@ export default class AndroidTrack extends React.Component {
 
     getStepCountAndDistance = async () => {
       const startDate = await AsyncStorage.getItem('startDate');
-      const endDate = new Date().toISOString().Button;
+      const endDate = new Date().toISOString();
       const options = {
         startDate,
         endDate, // required ISO8601Timestamp
