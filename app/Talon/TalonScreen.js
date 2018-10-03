@@ -103,7 +103,10 @@ export default class TalonScreen extends React.Component {
             </View>
           </TouchableOpacity>
           {
-            Object.entries(logs).map(([key, value], index) => {
+            Object.entries(logs).map(([key, value], ind) => {
+              if (ind === 0) {
+                return;
+              }
               const date = new Date(value.dateNow);
               const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
               return (

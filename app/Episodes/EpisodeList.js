@@ -6,6 +6,7 @@ import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
 import * as RNIap from 'react-native-iap';
+import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import LoadScreen from '../LoadScreen';
@@ -155,16 +156,26 @@ export default class EpisodeList extends React.Component {
 
   requestPermissions = async () => {
     try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-      ]);
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can access location');
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        ]);
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can access location');
+        } else {
+          console.log('Location permission denied');
+        }
       } else {
-        console.log('Location permission denied');
+        Permissions.check('motion').then((response) => {
+          if (response !== 'authorized') {
+            Permissions.request('motion').then((res) => {
+              console.log(res);
+            });
+          }
+        });
       }
     } catch (err) {
       console.log(err);
@@ -224,11 +235,12 @@ export default class EpisodeList extends React.Component {
       maxIndex += Object.keys(value.episodes).length;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
+          const { uid, title, category } = episodeValue;
           return (
             <ListItem
               key={episodeKey}
-              title={`${episodeIndex + minIndex}. ${episodeValue.title}`}
-              subtitle={episodeValue.category}
+              title={`${episodeIndex + minIndex}. ${title}`}
+              subtitle={category}
               titleStyle={{ color: buy ? 'white' : 'gray', fontSize: 18 }}
               subtitleStyle={{ color: buy ? 'white' : 'gray' }}
               rightIcon={{ name: 'download', type: 'feather', color: buy ? 'white' : 'gray' }}
@@ -242,7 +254,7 @@ export default class EpisodeList extends React.Component {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
-                  episodeKey,
+                  uid,
                   (episodeIndex + minIndex),
                   value.file,
                   true,
@@ -257,8 +269,8 @@ export default class EpisodeList extends React.Component {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
-                  episodeKey,
-                  episodeIndex,
+                  uid,
+                  (episodeIndex + minIndex),
                   value.file,
                 );
               }}
