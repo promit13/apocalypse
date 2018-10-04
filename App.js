@@ -1,5 +1,5 @@
 import React from 'react';
-import { NetInfo, View } from 'react-native';
+import { NetInfo, View, AsyncStorage } from 'react-native';
 import LoadScreen from './app/LoadScreen';
 import firebase from './app/config/firebase';
 import {
@@ -38,10 +38,11 @@ export default class App extends React.Component {
         if (user) {
           this.setState({
             user,
-            loading: false,
             isConnected,
           });
           this.handleUserStatus();
+        } else {
+          this.setState({ loading: false, isConnected });
         }
       });
     } else {
@@ -49,14 +50,29 @@ export default class App extends React.Component {
     }
   };
 
-  handleUserStatus = () => {
+  handleUserStatus = async () => {
     if (this.state.user === null) {
-      return;
+      return this.setState({ loading: false });
+    }
+    const toLogDataObject = await AsyncStorage.getItem('distance');
+    if (toLogDataObject !== null) {
+      const toLogData = JSON.parse(toLogDataObject);
+      const {
+        uid, episodeId, logId, timeStamp, dateNow, episodeTitle, distance, timeInterval,
+      } = toLogData;
+      const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
+      firebase.database().ref(`logs/${uid}/${episodeId}`).push({
+        timeStamp,
+        dateNow,
+        episodeTitle,
+        distance,
+        timeInterval: formattedTimeInterval,
+      }).then(() => AsyncStorage.removeItem('distance'));
     }
     firebase.database().ref(`users/${this.state.user.uid}`)
       .on('value', (snapshot) => {
         snapshot.val();
-        this.setState({ data: snapshot.val() });
+        this.setState({ loading: false, data: snapshot.val() });
       });
   }
 

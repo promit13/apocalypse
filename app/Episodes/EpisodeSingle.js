@@ -66,9 +66,8 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#001331',
-    height: 40,
+    height: 50,
     width: '100%',
-    marginTop: 30,
   },
 };
 const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2Ftalondark.png?alt=media&token=fdaf448b-dc43-4a72-a9e3-470aa68d9390';
@@ -100,7 +99,9 @@ export default class EpisodeSingle extends Component {
     playDate: 0,
     pausedDate: 0,
     startDate: 0,
+    timeInterval: 0,
     video: '',
+    category: '',
     distance: 0.0,
     mode: '',
     platform: '',
@@ -109,12 +110,13 @@ export default class EpisodeSingle extends Component {
   componentWillMount() {
     const platform = Platform.OS;
     const {
-      check, episodeId, index, video, title, mode,
+      check, episodeId, index, video, title, mode, category,
     } = this.props.navigation.state.params;
     // const currentDate = this.getDate();
     this.setState({
       listen: check,
       episodeId,
+      category,
       platform,
       video,
       mode,
@@ -185,8 +187,10 @@ export default class EpisodeSingle extends Component {
   onPressPause = () => {
     const currentDate = this.getDate();
     this.setState({ paused: true, pausedDate: currentDate });
-    this.setTimeFirebase();
-    this.changeExercises();
+    // if (!this.state.listen) {
+    //   this.setTimeFirebase();
+    // }
+    // this.changeExercises();
   }
 
   onExercisePress = () => {
@@ -204,14 +208,16 @@ export default class EpisodeSingle extends Component {
   onProgress = (data) => {
     this.setState({ currentTime: data.currentTime });
     this.changeExercises();
-    if (!this.state.paused) { // onProgress gets called when component starts in IOS
-      const currentDate = this.getDate();
-      if ((currentDate - this.state.playDate) > 30000) {
-        console.log('CHECK');
-        // this.setTimeFirebase();
-        // this.getDistance();
-        this.getStepCountAndDistance();
-        this.setState({ playDate: currentDate });
+    if (!this.state.listen) {
+      if (!this.state.paused) { // onProgress gets called when component starts in IOS
+        const currentDate = this.getDate();
+        if ((currentDate - this.state.playDate) > 30000) {
+          console.log('CHECK');
+          // this.setTimeFirebase();
+          // this.getDistance();
+          this.getStepCountAndDistance();
+          this.setState({ playDate: currentDate });
+        }
       }
     }
     AppState.addEventListener('change', (state) => {
@@ -228,18 +234,18 @@ export default class EpisodeSingle extends Component {
       this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
     } else {
       firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
-        const snapValue = snapshot.val();
+        const { dateNow, timeStamp } = snapshot.val();
         const currentDate = this.getDate();
         // if (snapValue === null) {
         //   return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: currentDate, startDate: 0 });
         // }
-        if ((currentDate - snapValue.dateNow) > 900000) {
-          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: snapValue.dateNow, startDate: 0 });
+        if ((currentDate - dateNow) > 900000) {
+          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: dateNow, startDate: 0 });
         }
         this.setState({
-          currentTime: this.getCurrentTimeInMs(snapValue.timeStamp),
-          lastLoggedDate: snapValue.dateNow,
-          startDate: snapValue.dateNow,
+          currentTime: this.getCurrentTimeInMs(timeStamp),
+          lastLoggedDate: dateNow,
+          startDate: dateNow,
         },
         () => {
           this.changeExercises();
@@ -253,10 +259,13 @@ export default class EpisodeSingle extends Component {
   };
 
   onEnd = () => {
-    this.setState({ showDialog: true, paused: true, currentTime: 0.0 });
     this.player.seek(0, 10);
-    this.getDistance();
-    AsyncStorage.removeItem(this.state.episodeId);
+    this.setState({ paused: true, currentTime: 0.0 });
+    if (!this.state.listen) {
+      this.setTimeFirebase();
+      // AsyncStorage.removeItem(this.state.episodeId);
+      this.setState({ showDialog: true });
+    }
   }
 
   onDragSeekBar = (currentTime) => {
@@ -296,34 +305,31 @@ export default class EpisodeSingle extends Component {
   getCurrentTimeInMs = time => parseInt(time, 10);
 
   setTimeFirebase = async () => {
-    if (!this.state.listen) {
-      const {
-        uid, episodeId, episodeTitle, startDate, distance,
-      } = this.state;
-      console.log(startDate);
-      const currentDate = this.getDate();
-      console.log(currentDate);
-      // const distance = await AsyncStorage.getItem('distance');
-      const timeInterval = ((currentDate - startDate) / 60000).toFixed(2);
-      // const distance = this.child.getState();
-      if ((currentDate - this.state.lastLoggedDate) > 900000) {
-        console.log('check');
-        firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-          timeStamp: this.state.currentTime,
-          dateNow: currentDate,
-          episodeTitle,
-          distance,
-          timeInterval,
-        }).then(() => this.setState({ lastLoggedDate: currentDate }));
-      } else {
-        firebase.database().ref(`logs/${uid}/${episodeId}/${this.state.logId}`).set({
-          timeStamp: this.state.currentTime,
-          dateNow: currentDate,
-          episodeTitle,
-          distance,
-          timeInterval,
-        }).then(() => this.setState({ lastLoggedDate: currentDate }));
-      }
+    const {
+      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId,
+    } = this.state;
+    const currentDate = this.getDate();
+    console.log(currentDate);
+    const startDate = await AsyncStorage.getItem(episodeId);
+    const timeInterval = ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
+    // const distance = this.child.getState();
+    if ((currentDate - lastLoggedDate) > 900000) {
+      console.log('check');
+      firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+        timeStamp: currentTime,
+        dateNow: currentDate,
+        episodeTitle,
+        distance,
+        timeInterval,
+      }).then(() => this.setState({ lastLoggedDate: currentDate, timeInterval }));
+    } else {
+      firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
+        timeStamp: currentTime,
+        dateNow: currentDate,
+        episodeTitle,
+        distance,
+        timeInterval,
+      }).then(() => this.setState({ lastLoggedDate: currentDate, timeInterval }));
     }
   }
 
@@ -370,55 +376,77 @@ export default class EpisodeSingle extends Component {
     const startDate = await AsyncStorage.getItem(this.state.episodeId);
     // const { startDate } = this.state;
     if (this.state.platform === 'android') {
-      const isoStringDate = new Date(startDate).toISOString();
+      // const isoStringDate = new Date(startDate).toISOString();
       const endDate = new Date().toISOString();
+      console.log('STEP COUNT', startDate, endDate);
       const options = {
-        isoStringDate,
+        startDate,
         endDate, // required ISO8601Timestamp
       };
       GoogleFit.getDailyDistanceSamples(options, async (error, response) => {
         if (error) {
           throw error;
         }
+        console.log(response);
         const distance = ((response[0].distance) / 1000).toFixed(2);
         console.log('GOOGLE DISTANCE', distance);
         this.setState({ distance });
-        // try {
-        //   await AsyncStorage.setItem('distance', distance);
-        // } catch (err) {
-        //   console.log(err);
-        // }
+        this.storeDistance(new Date(endDate - startDate).getTime());
       });
     } else {
       const endDate = new Date().getTime();
+      const formattedDate = new Date(startDate).getTime();
       Pedometer.queryPedometerDataBetweenDates(
-        new Date(startDate).getTime(), endDate, async (error, pedometerData) => {
+        formattedDate, endDate, async (error, pedometerData) => {
         // startDate, endDate, async (error, pedometerData) => {
           if (error) {
             console.log(error);
           }
           const { distance } = pedometerData;
-          // try {
-          //   await AsyncStorage.setItem('distance', ((distance / 1000).toFixed(2)).toString());
-          // } catch (err) {
-          //   console.log(err);
-          // }
           this.setState({ distance: (distance / 1000).toFixed(2) });
+          this.storeDistance(endDate - formattedDate);
         },
       );
     }
   };
 
+  storeDistance = async (timeInterval) => {
+    const {
+      uid, episodeId, episodeTitle, distance, currentTime,
+    } = this.state;
+    try {
+      await AsyncStorage.setItem('distance', JSON.stringify({
+        uid,
+        episodeId,
+        timeStamp: currentTime,
+        dateNow: new Date().getTime(),
+        episodeTitle,
+        distance,
+        timeInterval,
+      }));
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  deleteDistance = async () => {
+    try {
+      await AsyncStorage.removeItem('distance');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   startTrackingSteps = async () => {
     const startDate = new Date();
-    // this.setState({ startDate: startDate.getTime() });
     // console.log(startDate.getTime());
     // const { startDate } = this.state;
     try {
-      await AsyncStorage.setItem(this.state.episodeId, startDate); // unique for different episodes
       if (this.state.platform === 'android') {
+        await AsyncStorage.setItem(this.state.episodeId, startDate.toISOString()); // unique for different episodes
         GoogleFit.startRecording(event => console.log('START TRACKING', event));
       } else {
+        await AsyncStorage.setItem(this.state.episodeId, startDate); // unique for different episodes
         Pedometer.startPedometerUpdatesFromDate(startDate, (pedometerData) => {
           console.log('START TRACKING', pedometerData);
         });
@@ -496,73 +524,120 @@ export default class EpisodeSingle extends Component {
   renderLandscapeView = () => {
     const { image, title } = this.state.playingExercise.value;
     return (
-      <View style={{ flex: 1, flexDirection: 'row' }}>
-        {/* {
-          Platform.OS === 'android'
-            ? <AndroidTrack ref={c => this.child = c} />
-            : <IosTrack ref={c => this.child = c} />
-        } */}
-        <View style={{
-          flex: 0.5, backgroundColor: '#33425a', padding: 20,
-        }}
-        >
-          <AlbumArt
-            url={
-             this.state.playingExercise
-               ? image
-               : null
-            }
-            currentExercise={title}
-            onPress={this.onExercisePress}
-            showInfo
-          />
-        </View>
-        <View style={{ flex: 0.5, justifyContent: 'space-between' }}>
-          <Text style={styles.textTitle}>
-            {this.state.episodeTitle}
-          </Text>
-          <Controls
-            onPressPlay={this.onPressPlay}
-            onPressPause={this.onPressPause}
-            onBack={this.onBack}
-            onForward={this.onForward}
-            onDownload={this.onDownload}
-            paused={this.state.paused}
-            navigateToPreviousExercise={this.navigateToPreviousExercise}
-            renderForwardButton={this.state.listen}
-          />
-          { this.state.loading
-            ? <Loading />
-            : (
-              <View>
-                { this.state.listen
-                  ? (
-                    <Seekbar
-                      totalLength={this.state.totalLength}
-                      onDragSeekBar={this.onDragSeekBar}
-                      seekValue={this.state.currentTime && this.state.currentTime}
-                    />
-                  )
-                  : (
-                    <View>
-                      { this.state.showDialog
-                        ? (
-                          <View>
-                            {this.showModal()}
-                          </View>
-                        )
-                        : null
-                    }
-                    </View>
-                  )
-                }
-                <FormatTime
-                  currentTime={this.state.currentTime}
-                  remainingTime={this.state.totalLength - this.state.currentTime}
-                />
+      <View style={{ flex: 1 }}>
+        { this.state.platform === 'android'
+          ? (
+            <View style={styles.headerView}>
+              <Icon
+                iconStyle={{ marginLeft: 15 }}
+                name="arrow-left"
+                type="material-community"
+                size={25}
+                color="white"
+                onPress={() => {
+                  if (!this.state.listen) {
+                    this.setTimeFirebase();
+                    this.deleteDistance();
+                  }
+                  this.props.navigation.navigate('EpisodeView');
+                }}
+              />
+              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 18 }]}>
+                {this.state.mode}
+              </Text>
+            </View>
+          )
+          : (
+            <View style={styles.headerView}>
+              <Icon
+                name="chevron-left"
+                type="feather"
+                size={38}
+                color="white"
+                onPress={() => {
+                  if (!this.state.listen) {
+                    this.setTimeFirebase();
+                    this.deleteDistance();
+                  }
+                  this.props.navigation.navigate('EpisodeView');
+                }}
+              />
+              <View style={{ flex: 1, marginLeft: -10 }}>
+                <Text style={[styles.textTitle, { fontSize: 18 }]}>
+                  {this.state.mode}
+                </Text>
               </View>
-            )
-          }
+            </View>
+          )
+        }
+        <View style={{ flex: 1, flexDirection: 'row' }}>
+          {/* {
+            Platform.OS === 'android'
+              ? <AndroidTrack ref={c => this.child = c} />
+              : <IosTrack ref={c => this.child = c} />
+          } */}
+          <View style={{
+            flex: 0.5, backgroundColor: '#33425a', padding: 20,
+          }}
+          >
+            <AlbumArt
+              url={
+              this.state.playingExercise
+                ? image
+                : null
+              }
+              currentExercise={title}
+              onPress={this.onExercisePress}
+              showInfo
+            />
+          </View>
+          <View style={{ flex: 0.5, justifyContent: 'space-between' }}>
+            <Text style={styles.textTitle}>
+              {this.state.episodeTitle}
+            </Text>
+            <Controls
+              onPressPlay={this.onPressPlay}
+              onPressPause={this.onPressPause}
+              onBack={this.onBack}
+              onForward={this.onForward}
+              onDownload={this.onDownload}
+              paused={this.state.paused}
+              navigateToPreviousExercise={this.navigateToPreviousExercise}
+              renderForwardButton={this.state.listen}
+            />
+            { this.state.loading
+              ? <Loading />
+              : (
+                <View>
+                  { this.state.listen
+                    ? (
+                      <Seekbar
+                        totalLength={this.state.totalLength}
+                        onDragSeekBar={this.onDragSeekBar}
+                        seekValue={this.state.currentTime && this.state.currentTime}
+                      />
+                    )
+                    : (
+                      <View>
+                        { this.state.showDialog
+                          ? (
+                            <View>
+                              {this.showModal()}
+                            </View>
+                          )
+                          : null
+                      }
+                      </View>
+                    )
+                  }
+                  <FormatTime
+                    currentTime={this.state.currentTime}
+                    remainingTime={this.state.totalLength - this.state.currentTime}
+                  />
+                </View>
+              )
+            }
+          </View>
         </View>
       </View>
     );
@@ -577,22 +652,53 @@ export default class EpisodeSingle extends Component {
             ? <AndroidTrack ref={c => this.child = c} />
             : <IosTrack ref={c => this.child = c} />
         } */}
-        <View style={styles.headerView}>
-          <Icon
-            name="chevron-left"
-            type="feather"
-            size={38}
-            color="white"
-            onPress={() => {
-              this.props.navigation.navigate('EpisodeView');
-            }}
-          />
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.textTitle, { alignSelf: 'center' }]}>
-              {this.state.mode}
-            </Text>
-          </View>
-        </View>
+        { this.state.platform === 'android'
+          ? (
+            <View style={styles.headerView}>
+              <Icon
+                iconStyle={{ marginLeft: 15 }}
+                name="arrow-left"
+                type="material-community"
+                size={25}
+                color="white"
+                underlayColor="#001331"
+                onPress={() => {
+                  if (!this.state.listen) {
+                    this.setTimeFirebase();
+                    this.deleteDistance();
+                  }
+                  this.props.navigation.navigate('EpisodeView');
+                }}
+              />
+              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 16 }]}>
+                {this.state.mode}
+              </Text>
+            </View>
+          )
+          : (
+            <View style={[styles.headerView, { marginTop: 15 }]}>
+              <Icon
+                name="chevron-left"
+                type="feather"
+                size={38}
+                color="white"
+                underlayColor="#001331"
+                onPress={() => {
+                  if (!this.state.listen) {
+                    this.setTimeFirebase();
+                    this.deleteDistance();
+                  }
+                  this.props.navigation.navigate('EpisodeView');
+                }}
+              />
+              <View style={{ flex: 1, marginLeft: -10 }}>
+                <Text style={[styles.textTitle, { fontSize: 18 }]}>
+                  {this.state.mode}
+                </Text>
+              </View>
+            </View>
+          )
+          }
         <View style={styles.albumView}>
           <AlbumArt
             url={

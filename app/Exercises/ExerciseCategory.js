@@ -69,6 +69,7 @@ export default class ExerciseCategory extends React.Component {
                     borderColor: 'white',
                   }}
                   source={imageSource}
+                  resizeMethod="resize"
                 />
               </View>
               <View>

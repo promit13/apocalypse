@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image,
+  ScrollView, View, Image, AsyncStorage,
 } from 'react-native';
 import {
   ListItem, Button, Text,
@@ -71,7 +71,7 @@ export default class EpisodeView extends React.Component {
     offline: false,
   }
 
-  componentDidMount() {
+  componentDidMount= async () => {
     const { offline, title } = this.props.navigation.state.params;
     this.setState({ offline });
     if (offline) {
@@ -90,6 +90,12 @@ export default class EpisodeView extends React.Component {
         episodeId, title, category, description, index, exercises, video, loading: false,
       });
       this.setImage(category);
+    }
+    console.log('EV CDM');
+    try {
+      await AsyncStorage.removeItem('distance');
+    } catch (err) {
+      console.log(err);
     }
     // firebase.storage().ref('temp/Home.jpg').getDownloadURL()
     // firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
@@ -145,6 +151,7 @@ export default class EpisodeView extends React.Component {
       video,
       exerciseIdlist,
       exerciseLengthList,
+      category,
     } = this.state;
     this.props.navigation.navigate(navigateTo, {
       check,
@@ -153,6 +160,7 @@ export default class EpisodeView extends React.Component {
       episodeId,
       index,
       exercises,
+      category,
       video,
       exerciseIdlist,
       exerciseLengthList,

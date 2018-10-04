@@ -163,7 +163,7 @@ export default class TalonScreen extends React.Component {
         <ScrollView>
           <Image
             style={styles.imageStyle}
-            resizeMode="stretch"
+            resizeMethod="resize"
             source={talonCover}
           />
           <TouchableOpacity onPress={() => {
@@ -178,7 +178,7 @@ export default class TalonScreen extends React.Component {
           >
             <View style={styles.latestIntelView}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image style={{ height: 60, width: 60 }} source={talonImage} />
+                <Image style={{ height: 60, width: 60 }} source={talonImage} resizeMethod="resize" />
                 <View>
                   <Text
                     style={{

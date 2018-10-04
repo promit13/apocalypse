@@ -232,7 +232,7 @@ export default class EpisodeList extends React.Component {
     const seriesList = Object.entries(this.state.series).map(([key, value], i) => {
       const buy = this.state.purchasedSeries.includes(key);
       minIndex = maxIndex + 1;
-      maxIndex += Object.keys(value.episodes).length;
+      maxIndex += value.episodes.length; // Object.keys(value.episodes).length;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
           const { uid, title, category } = episodeValue;
@@ -301,11 +301,20 @@ export default class EpisodeList extends React.Component {
                       title={`£${value.price} (Buy)`}
                       buttonStyle={styles.priceButtonStyle}
                       onPress={() => {
-                        if (!this.state.isConnected) {
-                          return Alert.alert('No internet connection');
-                        }
                         const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
-                        this.buyItem(key, purchaseId, value.price);
+                        firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
+                          inAppPurchaseId: purchaseId,
+                          seriesId: key,
+                          price: value.price,
+                          date: new Date(),
+                          transactionReceipt: 'asdfasdf',
+                          purchaseToken: 'asdfasdf',
+                        });
+                        // if (!this.state.isConnected) {
+                        //   return Alert.alert('No internet connection');
+                        // }
+                        // const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
+                        // this.buyItem(key, purchaseId, value.price);
                       }
                     }
                     />
@@ -336,7 +345,7 @@ export default class EpisodeList extends React.Component {
           <View>
             <Image
               style={styles.imageStyle}
-              resizeMode="stretch"
+              resizeMethod="resize"
               source={homeCover}
             />
             <TouchableOpacity onPress={() => {}}>
