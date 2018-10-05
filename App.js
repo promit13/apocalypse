@@ -54,26 +54,31 @@ export default class App extends React.Component {
     if (this.state.user === null) {
       return this.setState({ loading: false });
     }
-    const toLogDataObject = await AsyncStorage.getItem('distance');
-    if (toLogDataObject !== null) {
-      const toLogData = JSON.parse(toLogDataObject);
-      const {
-        uid, episodeId, logId, timeStamp, dateNow, episodeTitle, distance, timeInterval,
-      } = toLogData;
-      const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
-      firebase.database().ref(`logs/${uid}/${episodeId}`).push({
-        timeStamp,
-        dateNow,
-        episodeTitle,
-        distance,
-        timeInterval: formattedTimeInterval,
-      }).then(() => AsyncStorage.removeItem('distance'));
+    try {
+      const toLogDataObject = await AsyncStorage.getItem('distance');
+      if (toLogDataObject !== null) {
+        const toLogData = JSON.parse(toLogDataObject);
+        console.log(toLogData);
+        const {
+          uid, episodeId, logId, timeStamp, dateNow, episodeTitle, distance, timeInterval,
+        } = toLogData;
+        const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
+        firebase.database().ref(`logs/${uid}/${episodeId}`).push({
+          timeStamp,
+          dateNow,
+          episodeTitle,
+          distance,
+          timeInterval: formattedTimeInterval,
+        }).then(() => AsyncStorage.removeItem('distance'));
+      }
+      firebase.database().ref(`users/${this.state.user.uid}`)
+        .on('value', (snapshot) => {
+          snapshot.val();
+          this.setState({ loading: false, data: snapshot.val() });
+        });
+    } catch (err) {
+      console.log(err);
     }
-    firebase.database().ref(`users/${this.state.user.uid}`)
-      .on('value', (snapshot) => {
-        snapshot.val();
-        this.setState({ loading: false, data: snapshot.val() });
-      });
   }
 
   renderComponent = () => {

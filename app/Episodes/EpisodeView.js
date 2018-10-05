@@ -92,11 +92,6 @@ export default class EpisodeView extends React.Component {
       this.setImage(category);
     }
     console.log('EV CDM');
-    try {
-      await AsyncStorage.removeItem('distance');
-    } catch (err) {
-      console.log(err);
-    }
     // firebase.storage().ref('temp/Home.jpg').getDownloadURL()
     // firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
     //   .then((url) => {

@@ -232,7 +232,7 @@ export default class EpisodeList extends React.Component {
     const seriesList = Object.entries(this.state.series).map(([key, value], i) => {
       const buy = this.state.purchasedSeries.includes(key);
       minIndex = maxIndex + 1;
-      maxIndex += value.episodes.length; // Object.keys(value.episodes).length;
+      maxIndex += Object.keys(value.episodes).length; // value.episodes.length ;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
           const { uid, title, category } = episodeValue;

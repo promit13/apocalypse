@@ -169,7 +169,7 @@ export default class EpisodeSingle extends Component {
   }
 
   componentWillUnmount() {
-    
+    GoogleFit.unsubscribeListeners();
   }
 
   onBack = () => {
@@ -197,7 +197,7 @@ export default class EpisodeSingle extends Component {
     const { exerciseId } = this.state.playingExercise.value;
     this.props.navigation.navigate('ExercisePlayer', { exerciseId });
     this.setState({ paused: true });
-    this.getDistance();
+    // this.getDistance();
   }
 
   onAppStateChange = (nextAppState) => {
@@ -211,8 +211,7 @@ export default class EpisodeSingle extends Component {
     if (!this.state.listen) {
       if (!this.state.paused) { // onProgress gets called when component starts in IOS
         const currentDate = this.getDate();
-        if ((currentDate - this.state.playDate) > 30000) {
-          console.log('CHECK');
+        if ((currentDate - this.state.playDate) > 60000) {
           // this.setTimeFirebase();
           // this.getDistance();
           this.getStepCountAndDistance();
@@ -240,12 +239,13 @@ export default class EpisodeSingle extends Component {
         //   return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: currentDate, startDate: 0 });
         // }
         if ((currentDate - dateNow) > 900000) {
-          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: dateNow, startDate: 0 });
+          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: dateNow, startDate: 0, playDate: currentDate });
         }
         this.setState({
           currentTime: this.getCurrentTimeInMs(timeStamp),
           lastLoggedDate: dateNow,
           startDate: dateNow,
+          playDate: currentDate,
         },
         () => {
           this.changeExercises();
@@ -274,33 +274,17 @@ export default class EpisodeSingle extends Component {
   }
 
   onPressPlay = () => {
-    console.log('PLAY PRESSED 1');
     this.setState({ paused: false });
     const { startDate, pausedDate } = this.state;
-    console.log(startDate);
     if (!this.state.listen) {
       const currentDate = this.getDate();
-      // this.startTrackingSteps();
-      // if ((currentDate - pausedDate) > 120000) {
       if ((currentDate - startDate) > 900000) {
-        console.log('PLAY PRESSED 2');
         this.setState({ startDate: currentDate });
-        // this.child.startTrackingSteps();
         this.startTrackingSteps();
         // }
       }
     }
   }
-
-  // getDistance = () => {
-  //   this.child.getStepCountAndDistance();
-  //   console.log('getDistance');
-  //   setTimeout(() => {
-  //     this.setTimeFirebase();
-  //   }, 3000);
-  //   this.setTimeFirebase();
-  //   this.getStepCountAndDistance();
-  // }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
 
@@ -309,12 +293,10 @@ export default class EpisodeSingle extends Component {
       uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId,
     } = this.state;
     const currentDate = this.getDate();
-    console.log(currentDate);
     const startDate = await AsyncStorage.getItem(episodeId);
     const timeInterval = ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
     // const distance = this.child.getState();
     if ((currentDate - lastLoggedDate) > 900000) {
-      console.log('check');
       firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
         timeStamp: currentTime,
         dateNow: currentDate,
@@ -374,31 +356,26 @@ export default class EpisodeSingle extends Component {
 
   getStepCountAndDistance = async () => {
     const startDate = await AsyncStorage.getItem(this.state.episodeId);
-    // const { startDate } = this.state;
     if (this.state.platform === 'android') {
-      // const isoStringDate = new Date(startDate).toISOString();
       const endDate = new Date().toISOString();
-      console.log('STEP COUNT', startDate, endDate);
       const options = {
         startDate,
         endDate, // required ISO8601Timestamp
       };
-      GoogleFit.getDailyDistanceSamples(options, async (error, response) => {
+      GoogleFit.getDailyDistanceSamples(options, (error, response) => {
         if (error) {
-          throw error;
+          return console.log(error);
+          // throw error;
         }
-        console.log(response);
         const distance = ((response[0].distance) / 1000).toFixed(2);
-        console.log('GOOGLE DISTANCE', distance);
         this.setState({ distance });
-        this.storeDistance(new Date(endDate - startDate).getTime());
+        // this.storeDistance(new Date(endDate - startDate).getTime());
       });
     } else {
       const endDate = new Date().getTime();
       const formattedDate = new Date(startDate).getTime();
       Pedometer.queryPedometerDataBetweenDates(
-        formattedDate, endDate, async (error, pedometerData) => {
-        // startDate, endDate, async (error, pedometerData) => {
+        formattedDate, endDate, (error, pedometerData) => {
           if (error) {
             console.log(error);
           }
@@ -439,16 +416,13 @@ export default class EpisodeSingle extends Component {
 
   startTrackingSteps = async () => {
     const startDate = new Date();
-    // console.log(startDate.getTime());
-    // const { startDate } = this.state;
     try {
       if (this.state.platform === 'android') {
         await AsyncStorage.setItem(this.state.episodeId, startDate.toISOString()); // unique for different episodes
-        GoogleFit.startRecording(event => console.log('START TRACKING', event));
+        GoogleFit.startRecording((event) => {});
       } else {
         await AsyncStorage.setItem(this.state.episodeId, startDate); // unique for different episodes
         Pedometer.startPedometerUpdatesFromDate(startDate, (pedometerData) => {
-          console.log('START TRACKING', pedometerData);
         });
       }
     } catch (error) {
@@ -514,7 +488,6 @@ export default class EpisodeSingle extends Component {
 
   navigateToPreviousExercise = () => {
     const { previousStartTime } = this.state;
-    console.log(previousStartTime);
     const startTime = previousStartTime[previousStartTime.length - 2];
     this.setState({ currentTime: startTime });
     this.player.seek(startTime, 10);
