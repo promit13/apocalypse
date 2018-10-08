@@ -1,11 +1,10 @@
 import React from 'react';
 import {
-  ScrollView, View, TouchableWithoutFeedback, TouchableOpacity, NetInfo, Alert,
+  ScrollView, View, TouchableWithoutFeedback, TouchableOpacity, Alert,
 } from 'react-native';
 import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
-import { Text, Icon, ListItem } from 'react-native-elements';
-import firebase from '../config/firebase';
+import { Text, Icon } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
 import realm from '../config/Database';
 import Loading from '../common/Loading';
@@ -42,14 +41,15 @@ export default class Downloads extends React.Component {
   //   NetInfo.isConnected.removeEventListener('connectionChange');
   // }
 
-  deleteExercise = (fileName) => {
+  deleteEpisode = (fileName) => {
     this.setState({ showLoading: true });
     const { dirs } = RNFetchBlob.fs;
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${fileName}"`));
     const exerciseIdList = Array.from(episodeDetail[0].exerciseIdList);
     const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
+    const formattedFileName = fileName.replace(/ /g, '_');
 
-    RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${fileName}.mp4`)
+    RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
       .then(() => {
         exerciseIdList.map((value) => {
           let count = 0;
@@ -73,7 +73,6 @@ export default class Downloads extends React.Component {
         this.setState({ showLoading: false, showDeleteButton: false });
       })
       .catch((err) => {
-        console.log(err);
         this.setState({ showLoading: false });
       });
   }
@@ -87,7 +86,6 @@ export default class Downloads extends React.Component {
           Alert.alert('You have no any downloads');
         }
         this.setState({ filesList: files });
-        console.log(files);
       })
       .catch((error) => {
         console.log(error);
@@ -96,7 +94,6 @@ export default class Downloads extends React.Component {
 
   requestPermissions = async () => {
     Permissions.check('mediaLibrary').then((response) => {
-      console.log(response);
       // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       if (response !== 'authorized') {
         Permissions.request('mediaLibrary').then((res) => {
@@ -109,7 +106,7 @@ export default class Downloads extends React.Component {
   renderDeleteButton = (i, fileName) => {
     if (i === this.state.index && this.state.showDeleteButton) {
       return (
-        <TouchableOpacity onPress={() => this.deleteExercise(fileName)}>
+        <TouchableOpacity onPress={() => this.deleteEpisode(fileName)}>
           <View style={{
             backgroundColor: 'red',
             justifyContent: 'center',
@@ -134,13 +131,14 @@ export default class Downloads extends React.Component {
   render() {
     const filesList = this.state.filesList.map((file, i) => {
       const fileName = file.split('.');
+      const formattedFile = fileName[0].replace(/_/g, ' ');
       return (
         <TouchableWithoutFeedback
           onPress={() => {
             this.setState({ showDeleteButton: false });
             this.props.navigation.navigate('EpisodeView', {
               offline: true,
-              title: fileName[0],
+              title: formattedFile,
             });
           }}
           onLongPress={() => {
@@ -150,9 +148,9 @@ export default class Downloads extends React.Component {
           <View>
             <View style={styles.mainContainer}>
               <Text style={{ fontSize: 18, color: 'white', margin: 15 }}>
-                {fileName[0]}
+                {formattedFile}
               </Text>
-              {this.renderDeleteButton((i + 1), fileName[0])}
+              {this.renderDeleteButton((i + 1), formattedFile)}
             </View>
             {this.state.showLoading ? <Loading /> : null}
             <View style={{

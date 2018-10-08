@@ -2,16 +2,13 @@ import React, { Component } from 'react';
 import {
   AppState, View, ScrollView, Text,
 } from 'react-native';
-import Realm from 'realm';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
-import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
 import FormatTime from '../common/FormatTime';
-import realm from '../config/Database';
 
 const styles = {
   container: {
@@ -70,22 +67,27 @@ export default class DownloadPlayer extends Component {
 
   componentWillMount() {
     // const { file } = this.props.navigation.state.params;
+    const { dirs } = RNFetchBlob.fs;
     const {
       check, title, exerciseLengthList, exercises,
     } = this.props.navigation.state.params;
-    console.log(exerciseLengthList);
-    console.log(exercises);
-    this.setState({ listen: check, episodeTitle: title, playingExercise: { value: { image: albumImage, title: '' } } });
+    const formattedFileName = title.replace(/ /g, '_');
+    this.setState({
+      videoUrl: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`,
+      listen: check,
+      episodeTitle: title,
+      playingExercise: { value: { image: albumImage, title: '' } },
+    });
   }
 
-  componentDidMount() {
-    const { dirs } = RNFetchBlob.fs;
-    const { episodeTitle } = this.state;
-    this.setState({ videoUrl: `${dirs.DocumentDir}/AST/episodes/${episodeTitle}.mp4` });
-    console.log(episodeTitle);
+  // componentDidMount() {
+  //   const { dirs } = RNFetchBlob.fs;
+  //   const { episodeTitle } = this.state;
+  //   this.setState({ videoUrl: `${dirs.DocumentDir}/AST/episodes/${episodeTitle}.mp4` });
+  //   console.log(episodeTitle);
 
-    // const episodeDetail = Array.from(realm.objects('SavedEpisodes'));
-  }
+  //   const episodeDetail = Array.from(realm.objects('SavedEpisodes'));
+  // }
 
   onExercisePress = () => {
     const { exerciseId, title } = this.state.playingExercise.value;
@@ -170,9 +172,7 @@ export default class DownloadPlayer extends Component {
   }
 
   navigateToPreviousExercise = () => {
-    console.log("previousStartTime");
     const { previousStartTime } = this.state;
-    console.log(previousStartTime);
     const startTime = previousStartTime[previousStartTime.length - 2];
     this.setState({ currentTime: startTime });
     this.player.seek(startTime, 10);
@@ -293,7 +293,6 @@ export default class DownloadPlayer extends Component {
 
   render() {
     const { videoUrl } = this.state;
-    console.log(videoUrl);
     const video = (
       <Video
         source={{ uri: videoUrl }} // Can be a URL or a local file.

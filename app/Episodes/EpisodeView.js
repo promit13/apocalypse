@@ -101,6 +101,7 @@ export default class EpisodeView extends React.Component {
   }
 
   getOfflineDatas = (episodeTitle) => {
+   // const formattedFileName = episodeTitle.replace(/\s+/g, '');
     console.log('OFFLINEDATAS');
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
     console.log(episodeDetail);

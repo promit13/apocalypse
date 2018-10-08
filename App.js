@@ -10,14 +10,11 @@ import {
 } from './app/config/router';
 
 export default class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      loading: true,
-      user: null,
-      data: null,
-      isConnected: true,
-    };
+  state = {
+    loading: true,
+    user: null,
+    data: null,
+    isConnected: true,
   }
 
   componentDidMount() {
@@ -33,7 +30,6 @@ export default class App extends React.Component {
 
   handleConnectivityChange = (isConnected) => {
     if (isConnected) {
-      // this.setState({ isConnected });
       this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           this.setState({
@@ -74,20 +70,20 @@ export default class App extends React.Component {
       firebase.database().ref(`users/${this.state.user.uid}`)
         .on('value', (snapshot) => {
           snapshot.val();
-          this.setState({ loading: false, data: snapshot.val() });
+          this.setState({ data: snapshot.val(), loading: false });
         });
     } catch (err) {
       console.log(err);
     }
   }
 
+  // if (!this.state.isConnected) {
+  //   return <SignedIn screenProps={{ netInfo: this.state.isConnected, user: this.state.user }} />;
+  // }
+
   renderComponent = () => {
     if (this.state.loading) return <LoadScreen />;
-    if (!this.state.isConnected) {
-      return <SignedIn screenProps={{ netInfo: this.state.isConnected, user: this.state.user }} />;
-    }
     if (this.state.user) {
-      // if (this.state.data === '') return <LoadScreen />;
       if (this.state.data === null) return <LoadScreen />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {

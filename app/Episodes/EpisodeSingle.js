@@ -143,6 +143,7 @@ export default class EpisodeSingle extends Component {
         console.log('AUTH FAILED');
       });
     }
+
     // try {
     //   const currentDate = this.getDate();
     //   const startDate = await AsyncStorage.getItem(this.state.episodeId);
@@ -406,9 +407,13 @@ export default class EpisodeSingle extends Component {
     }
   }
 
-  deleteDistance = async () => {
+  navigateToEpisodeView = async () => {
     try {
-      await AsyncStorage.removeItem('distance');
+      const distance = await AsyncStorage.getItem('distance');
+      if (distance !== null) {
+        this.setTimeFirebase();
+        AsyncStorage.removeItem('distance');
+      }
     } catch (error) {
       console.log(error);
     }
@@ -509,13 +514,12 @@ export default class EpisodeSingle extends Component {
                 color="white"
                 onPress={() => {
                   if (!this.state.listen) {
-                    this.setTimeFirebase();
-                    this.deleteDistance();
+                    this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
                 }}
               />
-              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 18 }]}>
+              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 20 }]}>
                 {this.state.mode}
               </Text>
             </View>
@@ -529,8 +533,7 @@ export default class EpisodeSingle extends Component {
                 color="white"
                 onPress={() => {
                   if (!this.state.listen) {
-                    this.setTimeFirebase();
-                    this.deleteDistance();
+                    this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
                 }}
@@ -637,8 +640,7 @@ export default class EpisodeSingle extends Component {
                 underlayColor="#001331"
                 onPress={() => {
                   if (!this.state.listen) {
-                    this.setTimeFirebase();
-                    this.deleteDistance();
+                    this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
                 }}
@@ -658,8 +660,7 @@ export default class EpisodeSingle extends Component {
                 underlayColor="#001331"
                 onPress={() => {
                   if (!this.state.listen) {
-                    this.setTimeFirebase();
-                    this.deleteDistance();
+                    this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
                 }}

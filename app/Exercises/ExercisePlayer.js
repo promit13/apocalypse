@@ -54,21 +54,28 @@ export default class ExercisePlayer extends Component {
 
   state = {
     title: '',
-    video: '',
+    video: 'fasdfsdfsd',
     paused: false,
     loading: true,
   }
 
-  componentDidMount() {
-    const { exerciseId, offline, exerciseTitle } = this.props.navigation.state.params;
-    console.log(exerciseId);
+  componentWillMount() {
+    const { offline, exerciseTitle } = this.props.navigation.state.params;
     if (offline) {
+      const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
       const { dirs } = RNFetchBlob.fs;
-      return this.setState({ video: `${dirs.DocumentDir}/AST/exercises/${exerciseTitle}.mp4`, title: exerciseTitle });
+      return this.setState({ video: `${dirs.DocumentDir}/AST/exercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loading: false });
+    }
+  }
+
+  componentDidMount() {
+    const { offline, exerciseId } = this.props.navigation.state.params;
+    if (offline) {
+      return;
     }
     firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
       const { video, title } = snapshot.val();
-      this.setState({ video, title });
+      this.setState({ video, title, loading: false });
     });
   }
 
@@ -83,22 +90,22 @@ export default class ExercisePlayer extends Component {
     return (
       <ScrollView style={styles.container}>
         <View style={styles.containerInner}>
-          <Video
-            source={{
-              uri: video,
-            }}
-            ref={(c) => { this.video = c; }}
-            paused={this.state.paused}
-            onLoad={this.onLoad}
-            onEnd={this.onEnd}
-            resizeMode="cover"
-            playInBackground={false}
-            style={styles.backgroundVideo}
-          />
           { this.state.loading
             ? <Loading />
             : (
               <View>
+                <Video
+                  source={{
+                    uri: video,
+                  }}
+                  ref={(c) => { this.video = c; }}
+                  paused={this.state.paused}
+                  onLoad={this.onLoad}
+                  onEnd={this.onEnd}
+                  resizeMode="cover"
+                  playInBackground={false}
+                  style={styles.backgroundVideo}
+                />
                 <TrackDetails
                   title={title}
                 />
