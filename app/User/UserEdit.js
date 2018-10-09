@@ -121,6 +121,7 @@ export default class MyAccount extends React.Component {
     const items = listItems.map((item, index) => {
       return (
         <ListItem
+          key={item}
           title={item}
           titleStyle={{ color: 'white' }}
           underlayColor="#2a3545"

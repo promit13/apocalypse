@@ -370,7 +370,7 @@ export default class EpisodeSingle extends Component {
         }
         const distance = ((response[0].distance) / 1000).toFixed(2);
         this.setState({ distance });
-        // this.storeDistance(new Date(endDate - startDate).getTime());
+        this.storeDistance(new Date(endDate - startDate).getTime());
       });
     } else {
       const endDate = new Date().getTime();

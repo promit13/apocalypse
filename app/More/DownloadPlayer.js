@@ -193,6 +193,7 @@ export default class DownloadPlayer extends Component {
             currentExercise={title}
             onPress={this.onExercisePress}
             showInfo
+            offline
           />
         </View>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>

@@ -107,7 +107,7 @@ export default class DownloadFiles extends React.Component {
                   RNFetchBlob
                     .config({
                     // response data will be saved to this path if it has access right.
-                      path: `${dirs.DocumentDir}/AST/images/${exercise}.png`,
+                      path: `${dirs.DocumentDir}/AST/images/${formattedExerciseName}.png`,
                     })
                     .fetch('GET', `${exercise.image}`, {
                     // .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029', {

@@ -277,8 +277,15 @@ export default class TalonIntelPlayer extends Component {
           });
         }}
       >
-        {this.detectOrientation()}
-        {video}
+        { this.state.loading
+          ? <Loading />
+          : (
+            <View>
+              {this.detectOrientation()}
+              {video}
+            </View>
+          )
+        }
       </ScrollView>
     );
   }

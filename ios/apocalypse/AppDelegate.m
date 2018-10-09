@@ -34,5 +34,4 @@
                            didFinishLaunchingWithOptions:launchOptions];
   return YES;
 }
-
 @end

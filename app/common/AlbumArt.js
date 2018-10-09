@@ -42,6 +42,8 @@ export default function AlbumArt({
   offline,
 }) {
   const { dirs } = RNFetchBlob.fs;
+  const formattedUrl = offline ? currentExercise.replace(/\s+/g, '') : '';
+  console.log(formattedUrl);
   return (
     <View style={styles.container}>
       {
@@ -49,7 +51,7 @@ export default function AlbumArt({
           ? (
             <Image
               style={styles.image}
-              source={{ uri: `file://${dirs.DocumentDir}/AST/images/${url}.png` }}
+              source={{ uri: `${dirs.DocumentDir}/AST/images/${formattedUrl}.png` }}
             />)
           : (
             <Image

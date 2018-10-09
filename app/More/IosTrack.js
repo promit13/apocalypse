@@ -111,13 +111,13 @@ export default class IosTrack extends React.Component {
   }
 
   render() {
-    // const moving = this.animatedValue.interpolate({
-    //   inputRange: [0, 1],
-    //   outputRange: [0, (((this.state.progress - 10) / 100) * barWidth)],
-    // });
+    const moving = this.animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, (((this.state.progress - 10) / 100) * barWidth)],
+    });
     return (
       <View>
-        {/* <Animated.View style={{ marginLeft: moving }}>
+        <Animated.View style={{ marginLeft: moving }}>
           <Image style={{ height: 40, width: 40, marginBottom: 5 }} source={gifImageSource} />
         </Animated.View>
         <ProgressBarAnimated
@@ -137,7 +137,7 @@ export default class IosTrack extends React.Component {
         </Text>
         <Button buttonStyle={{ marginTop: 10 }} title="Increase" onPress={() => this.increase()} />
         <Button buttonStyle={{ marginTop: 10 }} title="Start" onPress={() => this.startTrackingSteps()} />
-        <Button buttonStyle={{ marginTop: 10 }} title="End" onPress={() => this.getStepCountAndDistance()} /> */}
+        <Button buttonStyle={{ marginTop: 10 }} title="End" onPress={() => this.getStepCountAndDistance()} />
       </View>
     );
   }
