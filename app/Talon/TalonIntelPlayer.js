@@ -73,7 +73,7 @@ export default class TalonIntelPlayer extends Component {
     // this.setState({ playingExercise: { value: exerciseArray[0] } });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       const { title, intel } = snapshot.val();
-      this.setState({ episodeTitle: title, videoUrl: intel });
+      this.setState({ episodeTitle: title, videoUrl: intel, loading: false });
     });
   }
 

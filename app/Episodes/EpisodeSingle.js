@@ -102,6 +102,7 @@ export default class EpisodeSingle extends Component {
     timeInterval: 0,
     video: '',
     category: '',
+    advance: false,
     distance: 0.0,
     mode: '',
     platform: '',
@@ -110,13 +111,14 @@ export default class EpisodeSingle extends Component {
   componentWillMount() {
     const platform = Platform.OS;
     const {
-      check, episodeId, index, video, title, mode, category,
+      check, episodeId, index, video, title, mode, category, advance,
     } = this.props.navigation.state.params;
     // const currentDate = this.getDate();
     this.setState({
       listen: check,
       episodeId,
       category,
+      advance,
       platform,
       video,
       mode,
@@ -196,7 +198,7 @@ export default class EpisodeSingle extends Component {
 
   onExercisePress = () => {
     const { exerciseId } = this.state.playingExercise.value;
-    this.props.navigation.navigate('ExercisePlayer', { exerciseId });
+    this.props.navigation.navigate('ExercisePlayer', { exerciseId, advance: this.state.advance });
     this.setState({ paused: true });
     // this.getDistance();
   }
@@ -271,7 +273,7 @@ export default class EpisodeSingle extends Component {
 
   onDragSeekBar = (currentTime) => {
     this.setState({ currentTime });
-    this.player.seek(currentTime, 10);
+    this.player.seek(currentTime, 100);
   }
 
   onPressPlay = () => {
@@ -388,7 +390,25 @@ export default class EpisodeSingle extends Component {
     }
   };
 
+  setCurrentExercise = (snapshot, uid) => {
+    const { image, title, advanced } = snapshot;
+    if (this.state.advance && advanced !== null) {
+      this.setState({
+        playingExercise: {
+          value: { image: advanced.image, title, exerciseId: uid },
+        },
+      });
+      return;
+    }
+    this.setState({
+      playingExercise: {
+        value: { image, title, exerciseId: uid },
+      },
+    });
+  }
+
   storeDistance = async (timeInterval) => {
+    console.log(timeInterval);
     const {
       uid, episodeId, episodeTitle, distance, currentTime,
     } = this.state;
@@ -417,6 +437,14 @@ export default class EpisodeSingle extends Component {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  navigateToPreviousExercise = () => {
+    const { previousStartTime } = this.state;
+    const startTime = previousStartTime[previousStartTime.length - 2];
+    this.setState({ currentTime: startTime });
+    this.player.seek(startTime, 10);
+    this.state.previousStartTime.pop(); // removes last item of array
   }
 
   startTrackingSteps = async () => {
@@ -476,27 +504,14 @@ export default class EpisodeSingle extends Component {
   changeExercises = () => {
     const { exercises } = this.props.navigation.state.params;
     exercises.map((value, i) => {
-      const { length } = value;
+      const { length, uid } = value;
       if (this.state.currentTime > length) {
-        firebase.database().ref(`exercises/${value.uid}`).on('value', (snapshot) => {
-          const { image, title } = snapshot.val();
-          this.setState({
-            playingExercise: {
-              value: { image, title, exerciseId: value.uid },
-            },
-          });
+        firebase.database().ref(`exercises/${uid}`).on('value', (snapshot) => {
+          this.setCurrentExercise(snapshot.val(), uid);
         });
         this.state.previousStartTime.push(length);
       }
     });
-  }
-
-  navigateToPreviousExercise = () => {
-    const { previousStartTime } = this.state;
-    const startTime = previousStartTime[previousStartTime.length - 2];
-    this.setState({ currentTime: startTime });
-    this.player.seek(startTime, 10);
-    this.state.previousStartTime.pop(); // removes last item of array
   }
 
   renderLandscapeView = () => {
@@ -645,7 +660,7 @@ export default class EpisodeSingle extends Component {
                   this.props.navigation.navigate('EpisodeView');
                 }}
               />
-              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 16 }]}>
+              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 20 }]}>
                 {this.state.mode}
               </Text>
             </View>

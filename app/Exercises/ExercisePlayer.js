@@ -54,27 +54,34 @@ export default class ExercisePlayer extends Component {
 
   state = {
     title: '',
-    video: 'fasdfsdfsd',
+    video: '',
     paused: false,
     loading: true,
   }
 
   componentWillMount() {
-    const { offline, exerciseTitle } = this.props.navigation.state.params;
+    const { offline, exerciseTitle, advance } = this.props.navigation.state.params;
     if (offline) {
       const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
       const { dirs } = RNFetchBlob.fs;
-      return this.setState({ video: `${dirs.DocumentDir}/AST/exercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loading: false });
+      if (advance) {
+        this.setState({ video: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loading: false });
+      } else {
+        this.setState({ video: `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loading: false });
+      }
     }
   }
 
   componentDidMount() {
-    const { offline, exerciseId } = this.props.navigation.state.params;
+    const { offline, exerciseId, advance } = this.props.navigation.state.params;
     if (offline) {
       return;
     }
     firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
-      const { video, title } = snapshot.val();
+      const { video, title, advanced } = snapshot.val();
+      if (advance && advanced !== null) {
+        return this.setState({ video: advanced.video, title, loading: false });
+      }
       this.setState({ video, title, loading: false });
     });
   }

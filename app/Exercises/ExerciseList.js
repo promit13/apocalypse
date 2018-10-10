@@ -1,7 +1,26 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { ListItem, Button } from 'react-native-elements';
 import firebase from '../config/firebase';
+
+const styles = {
+  mainViewContainer: {
+    flex: 1,
+    backgroundColor: '#001331',
+  },
+  buttonsViewContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#f5cb23',
+    alignItems: 'center',
+  },
+  buttonView: {
+    flex: 1,
+  },
+  button: {
+    backgroundColor: '#f5cb23',
+    color: 'blue',
+  },
+};
 
 export default class ExerciseList extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -12,6 +31,9 @@ export default class ExerciseList extends React.Component {
 
   state = {
     exercises: '',
+    introButtonColor: '#f5cb23',
+    advancedButtonColor: '#fff',
+    advance: false,
   }
 
   componentDidMount() {
@@ -31,13 +53,46 @@ export default class ExerciseList extends React.Component {
             underlayColor="#2a3545"
             onPress={() => this.props.navigation.navigate('ExercisePlayer', {
               exerciseId: key,
+              advance: this.state.advance,
             })}
           />
         );
       }
     });
     return (
-      <View style={{ flex: 1, backgroundColor: '#001331' }}>
+      <View style={styles.mainViewContainer}>
+        <View style={styles.buttonsViewContainer}>
+          <View style={[styles.buttonView, { backgroundColor: this.state.introButtonColor }]}>
+            <Button
+              buttonStyle={{ backgroundColor: 'transparent' }}
+              color="#001331"
+              fontSize={18}
+              title="Intro"
+              onPress={() => {
+                this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
+                // if (offline) {
+                //   return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadPlayer');
+                // }
+                // this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
+              }}
+            />
+          </View>
+          <View style={[styles.buttonView, { backgroundColor: this.state.advancedButtonColor }]}>
+            <Button
+              buttonStyle={{ backgroundColor: 'transparent' }}
+              color="#001331"
+              fontSize={18}
+              title="Advanced"
+              onPress={() => {
+                this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
+                // if (offline) {
+                //   return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadPlayer');
+                // }
+                // this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
+              }}
+            />
+          </View>
+        </View>
         <ScrollView>
           { exerciseList }
         </ScrollView>

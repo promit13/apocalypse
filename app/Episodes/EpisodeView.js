@@ -69,6 +69,9 @@ export default class EpisodeView extends React.Component {
     exerciseIdlist: [],
     exerciseLengthList: [],
     offline: false,
+    introButtonColor: '#f5cb23',
+    advancedButtonColor: '#fff',
+    advance: false,
   }
 
   componentDidMount= async () => {
@@ -148,6 +151,7 @@ export default class EpisodeView extends React.Component {
       exerciseIdlist,
       exerciseLengthList,
       category,
+      advance,
     } = this.state;
     this.props.navigation.navigate(navigateTo, {
       check,
@@ -160,29 +164,12 @@ export default class EpisodeView extends React.Component {
       video,
       exerciseIdlist,
       exerciseLengthList,
+      advance,
     });
   }
 
-  renderListItem = (value) => {
-    return (
-      <ListItem
-        title={value.title}
-        titleStyle={{ color: 'white' }}
-        containerStyle={{ backgroundColor: '#33425a' }}
-        underlayColor="#2a3545"
-        onPress={() => {
-          this.props.navigation.navigate('ExercisePlayer', {
-            // videoUrl: value.videoUrl,
-            // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
-            exerciseId: value.uid,
-          });
-        }}
-      />
-    );
-  }
-
   renderOfflineExerciseList = () => {
-    const { exercises } = this.state;
+    const { exercises, advance } = this.state;
     const exercisesList = exercises.map((value, i) => {
       const exercise = value[0];
       return (
@@ -193,11 +180,10 @@ export default class EpisodeView extends React.Component {
           underlayColor="#2a3545"
           onPress={() => {
             this.props.navigation.navigate('ExercisePlayer', {
-              // videoUrl: value.videoUrl,
-              // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
               exerciseId: exercise.title,
               offline: true,
               exerciseTitle: exercise.title,
+              advance,
             });
           }}
         />
@@ -207,7 +193,7 @@ export default class EpisodeView extends React.Component {
   }
 
   renderExerciseList = () => {
-    const { exercises } = this.state;
+    const { exercises, advance } = this.state;
     const exercisesList = Object.entries(exercises).map(([key, value], i) => (
       <ListItem
         key={key}
@@ -217,9 +203,8 @@ export default class EpisodeView extends React.Component {
         underlayColor="#2a3545"
         onPress={() => {
           this.props.navigation.navigate('ExercisePlayer', {
-            // videoUrl: value.videoUrl,
-            // videoUrl: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fsmall.mp4?alt=media&token=ff107dd4-0a01-41ce-a84a-4e65cf306e9c',
             exerciseId: value.uid,
+            advance,
           });
         }}
       />
@@ -270,6 +255,30 @@ export default class EpisodeView extends React.Component {
           <Text style={styles.text}>
             {description}
           </Text>
+        </View>
+        <View style={[styles.buttonsViewContainer, { backgroundColor: '#001331' }]}>
+          <View style={[styles.buttonView, { backgroundColor: this.state.introButtonColor }]}>
+            <Button
+              buttonStyle={{ backgroundColor: 'transparent' }}
+              color="#001331"
+              fontSize={18}
+              title="Intro"
+              onPress={() => {
+                this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
+              }}
+            />
+          </View>
+          <View style={[styles.buttonView, { backgroundColor: this.state.advancedButtonColor }]}>
+            <Button
+              buttonStyle={{ backgroundColor: 'transparent' }}
+              color="#001331"
+              fontSize={18}
+              title="Advanced"
+              onPress={() => {
+                this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
+              }}
+            />
+          </View>
         </View>
         <View style={styles.buttonsViewContainer}>
           <View style={styles.buttonView}>

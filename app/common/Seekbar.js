@@ -4,7 +4,7 @@ import { View, Slider } from 'react-native';
 export default Seekbar = ({ totalLength, onDragSeekBar, seekValue }) => (
   <View>
     <Slider
-      step={0}
+      step={1}
       minimumValue={0}
       maximumValue={totalLength}
       value={seekValue}

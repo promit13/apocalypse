@@ -40,6 +40,7 @@ export default function AlbumArt({
   currentExercise,
   showInfo,
   offline,
+  advance,
 }) {
   const { dirs } = RNFetchBlob.fs;
   const formattedUrl = offline ? currentExercise.replace(/\s+/g, '') : '';
@@ -51,13 +52,19 @@ export default function AlbumArt({
           ? (
             <Image
               style={styles.image}
-              source={{ uri: `${dirs.DocumentDir}/AST/images/${formattedUrl}.png` }}
-            />)
+              source={{
+                uri: advance
+                  ? `${dirs.DocumentDir}/AST/advanceImages/${formattedUrl}.png`
+                  : `${dirs.DocumentDir}/AST/introImages/${formattedUrl}.png`,
+              }}
+            />
+          )
           : (
             <Image
               style={styles.image}
               source={{ uri: url }}
-            />)
+            />
+          )
       }
       { showInfo && (
         <TouchableOpacity onPress={onPress}>
@@ -66,7 +73,7 @@ export default function AlbumArt({
           </View>
         </TouchableOpacity>
       )
-        }
+      }
       <Text h4 style={styles.text}>
         {currentExercise}
       </Text>

@@ -33,8 +33,8 @@ SavedExercises.schema = {
   properties: {
     id: 'string',
     title: 'string',
-    image: 'string',
-    path: 'string',
+    // image: 'string',
+    // path: 'string',
   },
 };
 

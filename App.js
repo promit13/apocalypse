@@ -84,6 +84,7 @@ export default class App extends React.Component {
   renderComponent = () => {
     if (this.state.loading) return <LoadScreen />;
     if (this.state.user) {
+      if (!this.state.isConnected) return <SignedIn />;
       if (this.state.data === null) return <LoadScreen />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {

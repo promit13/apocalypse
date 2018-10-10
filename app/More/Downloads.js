@@ -61,9 +61,24 @@ export default class Downloads extends React.Component {
           });
           if (count < 2) {
             const exerciseDetail = realm.objects('SavedExercises').filtered(`id="${value}"`);
-            realm.write(() => {
-              realm.delete(exerciseDetail);
-            });
+            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
+              .then(() => {
+                RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceExercises/${formattedFileName}.mp4`)
+                  .then(() => {
+                    RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introExercises/${formattedFileName}.png`)
+                      .then(() => {
+                        RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introImages/${formattedFileName}.mp4`)
+                          .then(() => {
+                            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceImages/${formattedFileName}.png`)
+                              .then(() => {
+                                realm.write(() => {
+                                  realm.delete(exerciseDetail);
+                                });
+                              }).catch(error => console.log(error));
+                          }).catch(error => console.log(error));
+                      }).catch(error => console.log(error));
+                  }).catch(error => console.log(error));
+              }).catch(error => console.log(error));
           }
         });
         realm.write(() => {

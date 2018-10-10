@@ -63,19 +63,21 @@ export default class DownloadPlayer extends Component {
     episodeTitle: '',
     videoUrl: '',
     previousStartTime: [],
+    advance: false,
   };
 
   componentWillMount() {
     // const { file } = this.props.navigation.state.params;
     const { dirs } = RNFetchBlob.fs;
     const {
-      check, title, exerciseLengthList, exercises,
+      check, title, exerciseLengthList, exercises, advance,
     } = this.props.navigation.state.params;
     const formattedFileName = title.replace(/ /g, '_');
     this.setState({
       videoUrl: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`,
       listen: check,
       episodeTitle: title,
+      advance,
       playingExercise: { value: { image: albumImage, title: '' } },
     });
   }
@@ -90,8 +92,8 @@ export default class DownloadPlayer extends Component {
   // }
 
   onExercisePress = () => {
-    const { exerciseId, title } = this.state.playingExercise.value;
-    this.props.navigation.navigate('ExercisePlayer', { exerciseId, offline: true, exerciseTitle: title });
+    const { title } = this.state.playingExercise.value;
+    this.props.navigation.navigate('ExercisePlayer', { offline: true, exerciseTitle: title, advance: this.state.advance });
     this.setState({ paused: true });
   }
 
@@ -163,7 +165,7 @@ export default class DownloadPlayer extends Component {
         const exercise = exercises[i];
         this.setState({
           playingExercise: {
-            value: { image: exercise[0].title, title: exercise[0].title, exerciseId: exercise[0].path },
+            value: { image: exercise[0].title, title: exercise[0].title },
           },
         });
         this.state.previousStartTime.push(value);
@@ -194,6 +196,7 @@ export default class DownloadPlayer extends Component {
             onPress={this.onExercisePress}
             showInfo
             offline
+            advance={this.state.advance}
           />
         </View>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
@@ -251,6 +254,7 @@ export default class DownloadPlayer extends Component {
             onPress={this.onExercisePress}
             showInfo
             offline
+            advance={this.state.advance}
           />
         </View>
         <View style={styles.line} />
