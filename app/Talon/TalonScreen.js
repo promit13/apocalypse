@@ -116,43 +116,45 @@ export default class TalonScreen extends React.Component {
           {
             Object.entries(logs).map(([key, value], ind) => {
               if (ind === 0) {
-                return;
-              }
-              const { dateNow, timeInterval, distance } = value;
-              const progressPercentage = ((distance / 2) * 100) > 100 ? 100 : (distance / 2) * 100;
-              const date = new Date(dateNow);
-              const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-              return (
+                console.log(value);
+              } else {
+                const { dateNow, timeInterval, distance } = value;
+                const progressPercentage = ((distance / 2) * 100) > 100 ? 100 : (distance / 2) * 100;
+                const date = new Date(dateNow);
+                const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                return (
                   <ListItem
                     title={`${formatDate} - ${distance} k.m. in ${timeInterval} mins`}
                     titleStyle={styles.textStyle}
                     subtitle={
-                      <View>
-                        {/* <Icon iconStyle={{ marginLeft: (progressPercentage * barWidth) }} size={40} color="white" name="run" type="material-community" /> */}
-                        <Image
-                          style={{
-                            height: 40,
-                            width: 40,
-                            marginBottom: 5,
-                            marginLeft: (progressPercentage <= 0 ? 0 : (progressPercentage / 100) * barWidth),
-                          }}
-                          source={gifImageSource}
-                        />
-                        <ProgressBarAnimated
-                          width={barWidth}
-                          {...progressCustomStyles}
-                          value={progressPercentage}
-                          barAnimationDuration={500}
-                          onComplete={() => {
-                            Alert.alert('Hey!', 'You finished the exercise!');
-                          }}
-                        />
-                      </View>
-                    }
+                      (
+                        <View>
+                          <Image
+                            style={{
+                              height: 40,
+                              width: 40,
+                              marginBottom: 5,
+                              marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth),
+                            }}
+                            source={gifImageSource}
+                          />
+                          <ProgressBarAnimated
+                            width={barWidth}
+                            {...progressCustomStyles}
+                            value={progressPercentage}
+                            barAnimationDuration={500}
+                            onComplete={() => {
+                              Alert.alert('Hey!', 'You finished the exercise!');
+                            }}
+                          />
+                        </View>
+                      )
+                      }
                     containerStyle={{ marginLeft: 10, marginRight: 10 }}
                     hideChevron
                   />
-              );
+                );
+              }
             })
           }
         </View>

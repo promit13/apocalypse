@@ -31,6 +31,7 @@ export default class App extends React.Component {
   handleConnectivityChange = (isConnected) => {
     if (isConnected) {
       this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+        console.log(user);
         if (user) {
           this.setState({
             user,
@@ -38,7 +39,7 @@ export default class App extends React.Component {
           });
           this.handleUserStatus();
         } else {
-          this.setState({ loading: false, isConnected });
+          this.setState({ loading: false, isConnected, user: null });
         }
       });
     } else {
@@ -54,7 +55,6 @@ export default class App extends React.Component {
       const toLogDataObject = await AsyncStorage.getItem('distance');
       if (toLogDataObject !== null) {
         const toLogData = JSON.parse(toLogDataObject);
-        console.log(toLogData);
         const {
           uid, episodeId, logId, timeStamp, dateNow, episodeTitle, distance, timeInterval,
         } = toLogData;

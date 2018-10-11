@@ -145,23 +145,6 @@ export default class EpisodeSingle extends Component {
         console.log('AUTH FAILED');
       });
     }
-
-    // try {
-    //   const currentDate = this.getDate();
-    //   const startDate = await AsyncStorage.getItem(this.state.episodeId);
-    //   const formattedDate = new Date(startDate).getTime();
-    //   if (startDate !== null) {
-    //     if ((currentDate - formattedDate) < 900000) {
-    //       console.log('CDM CD', currentDate);
-    //       this.setState({ startDate: currentDate });
-    //     } else {
-    //       console.log('CDM FD', currentDate);
-    //       this.setState({ startDate: formattedDate });
-    //     }
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
     this.getTimeFirebase();
   }
 
@@ -329,32 +312,40 @@ export default class EpisodeSingle extends Component {
     this.setState({ logId: id });
   }
 
-  getTimeFirebase = async () => {
-    const { uid, episodeId, episodeTitle } = this.state;
-    const currentDate = this.getDate();
-    firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-      'value', (snapshot) => {
-        if (snapshot.val() === null) {
-          firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-            timeStamp: 0.0,
-            dateNow: 0,
-            episodeTitle,
-            distance: 0.0,
-            timeInterval: 0,
-          }).then(() => {
-            firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-              'value', (snap) => {
-                this.getLastLogId(snap.val());
-              },
-            );
-          });
-        } else {
-          this.getLastLogId(snapshot.val());
-        }
-      }, (error) => {
-        console.log(error);
+  getTimeFirebase = () => {
+    const { uid, episodeId, episodeTitle, category } = this.state;
+    firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+      {
+        episodeTitle,
+        episodeId,
+        category,
       },
-    );
+    ).then(() => {
+      firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+        'value', (snapshot) => {
+          if (snapshot.val() === null) {
+            firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+              timeStamp: 0.0,
+              dateNow: 0,
+              episodeTitle,
+              distance: 0.0,
+              timeInterval: 0,
+            }).then(() => {
+              firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+                'value', (snap) => {
+                  this.getLastLogId(snap.val());
+                },
+              );
+            });
+          } else {
+            this.getLastLogId(snapshot.val());
+          }
+        }, (error) => {
+          console.log(error);
+        },
+      );
+    })
+      .catch(error => console.log(error));
   }
 
   getStepCountAndDistance = async () => {
@@ -372,7 +363,7 @@ export default class EpisodeSingle extends Component {
         }
         const distance = ((response[0].distance) / 1000).toFixed(2);
         this.setState({ distance });
-        this.storeDistance(new Date(endDate - startDate).getTime());
+        this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
       });
     } else {
       const endDate = new Date().getTime();

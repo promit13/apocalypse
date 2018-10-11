@@ -12,6 +12,11 @@ import firebase from '../config/firebase';
 import LoadScreen from '../LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 
+const homeCover = require('../../img/homecover.jpg');
+const speedImage = require('../../img/speed.png');
+const strengthImage = require('../../img/strength.png');
+const controlImage = require('../../img/control.png');
+
 const styles = {
   imageStyle: {
     width: '100%',
@@ -61,7 +66,6 @@ const styles = {
     justifyContent: 'center',
   },
 };
-const homeCover = require('../../img/homecover.jpg');
 
 export default class EpisodeList extends React.Component {
   static navigationOptions = {
@@ -72,6 +76,7 @@ export default class EpisodeList extends React.Component {
     series: '',
     loading: true,
     purchasedSeries: [],
+    lastPlayedEpisode: '',
   }
 
   componentWillMount() {
@@ -81,23 +86,39 @@ export default class EpisodeList extends React.Component {
   componentDidMount= async () => {
     try {
       if (!this.state.isConnected) {
-        const series = await AsyncStorage.getItem('series');
-        const purchasedSeries = await AsyncStorage.getItem('purchasedSeries');
-        return this.setState({ loading: false, series: JSON.parse(series), purchasedSeries: JSON.parse(purchasedSeries) });
+        const offlineData = await AsyncStorage.getItem('series');
+        // const series = await AsyncStorage.getItem('series);
+        // const purchasedSeries = await AsyncStorage.getItem('purchasedSeries');
+        // return this.setState({ loading: false, series: JSON.parse(series), purchasedSeries: JSON.parse(purchasedSeries) });
+        const jsonObjectData = JSON.parse(offlineData);
+        const { series, purchasedSeries, lastPlayedEpisode } = jsonObjectData;
+        return this.setState({
+          loading: false, series, purchasedSeries, lastPlayedEpisode,
+        });
       }
       // await RNIap.initConnection();
       this.requestPermissions();
-      firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).on('value', (snap) => {
+      firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
         if (snap.val() === null) {
           return;
         }
+        const { purchases, lastPlayedEpisode } = snap.val();
         firebase.database().ref('series').on('value', (snapshot) => {
-          const purchasedSeries = Object.entries(snap.val()).map(([key, value], i) => {
+          const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
             return value.seriesId;
           });
-          this.setState({ series: snapshot.val(), purchasedSeries, loading: false });
-          AsyncStorage.setItem('series', JSON.stringify(snapshot.val())).then(() => {
-            AsyncStorage.setItem('purchasedSeries', JSON.stringify(purchasedSeries));
+          this.setState({
+            series: snapshot.val(), lastPlayedEpisode, purchasedSeries, loading: false,
+          });
+          // AsyncStorage.setItem('series', JSON.stringify(snapshot.val())).then(() => {
+          //   AsyncStorage.setItem('purchasedSeries', JSON.stringify(purchasedSeries));
+          // });
+          AsyncStorage.setItem('series', JSON.stringify({
+            series: snapshot.val(),
+            purchasedSeries,
+            lastPlayedEpisode,
+          })).then(() => {
+
           });
         });
       });
@@ -110,7 +131,7 @@ export default class EpisodeList extends React.Component {
     RNIap.endConnection();
   }
 
-  onEpisodeClick = (episodeId, index, seriesImageUrl, download) => {
+  onEpisodeClick = (episodeId, index, download) => {
     if (!this.state.isConnected ) {
       return Alert.alert('No internet connection');
     }
@@ -149,7 +170,6 @@ export default class EpisodeList extends React.Component {
         exercises,
         video,
         index,
-        seriesImageUrl,
       });
     });
   }
@@ -206,26 +226,6 @@ export default class EpisodeList extends React.Component {
     }
   }
 
-  // donwloadFile = (fileTitle, downloadUrl) => {
-  //   const { dirs } = RNFetchBlob.fs;
-  //   RNFetchBlob.fs.mkdir(`${dirs.MovieDir}/AST/${fileTitle}`)
-  //     .then(() => {
-  //       RNFetchBlob
-  //         .config({
-  //         // response data will be saved to this path if it has access right.
-  //           path: `${dirs.DocumentDir}/AST/${fileTitle}/${fileTitle}.mp4`,
-  //         })
-  //         // .fetch('GET', `${downloadUrl}`, {
-  //         .fetch('GET', 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5', {
-  //           // some headers ..
-  //         })
-  //         .then((res) => {
-  //         // the path should be dirs.DocumentDir + 'path-to-file.anything'
-  //           console.log('The file saved to ', res.path());
-  //         });
-  //     });
-  // }
-
   renderList = () => {
     let minIndex = 0;
     let maxIndex = 0;
@@ -256,7 +256,6 @@ export default class EpisodeList extends React.Component {
                 this.onEpisodeClick(
                   uid,
                   (episodeIndex + minIndex),
-                  value.file,
                   true,
                 );
               }
@@ -271,7 +270,6 @@ export default class EpisodeList extends React.Component {
                 this.onEpisodeClick(
                   uid,
                   (episodeIndex + minIndex),
-                  value.file,
                 );
               }}
             />
@@ -335,6 +333,7 @@ export default class EpisodeList extends React.Component {
   }
 
   render() {
+    const { isConnected, lastPlayedEpisode } = this.state;
     if (this.state.loading) return <LoadScreen />;
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
@@ -348,7 +347,16 @@ export default class EpisodeList extends React.Component {
               resizeMethod="resize"
               source={homeCover}
             />
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity onPress={() => {
+              if (!isConnected) {
+                return Alert.alert('No internet connection');
+              }
+              if (lastPlayedEpisode === '') {
+                return Alert.alert('No episode played yet.');
+              }
+              this.onEpisodeClick(lastPlayedEpisode.episodeId);
+            }}
+            >
               <View style={styles.playingEpisodeView}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={styles.circularImageView}>
@@ -358,21 +366,45 @@ export default class EpisodeList extends React.Component {
                         width: 60,
                         borderRadius: 60 / 2,
                       }}
-                      source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2FHome.jpg?alt=media&token=8c4beb9d-d6c3-43f7-a5a6-27527fe21029' }}
+                      source={
+                        lastPlayedEpisode === ''
+                          ? homeCover
+                          : (
+                            lastPlayedEpisode.category === 'Speed'
+                              ? speedImage 
+                              : (
+                                lastPlayedEpisode.category === 'Strength'
+                                  ? strengthImage
+                                  : controlImage
+                                )
+                            )
+                        }
                     />
                   </View>
                   <View>
                     <Text style={{
-                      fontSize: 18,
+                      fontSize: 20,
+                      fontWeight: 'bold',
                       color: '#001331',
                       marginLeft: 10,
                       marginRight: 10,
                     }}
                     >
-                      Play First Episode
+                      Last Played Episode
                     </Text>
-                    <Text style={{ color: '#001331', marginLeft: 10, marginRight: 10 }}>
-                      Welcome to the Apocalypse
+                    <Text style={{
+                      color: '#001331',
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      marginLeft: 10,
+                      marginRight: 10,
+                    }}
+                    >
+                      {
+                        lastPlayedEpisode === ''
+                          ? 'No episode played'
+                          : lastPlayedEpisode.episodeTitle
+                      }
                     </Text>
                   </View>
                 </View>

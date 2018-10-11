@@ -78,7 +78,6 @@ export default class EpisodeView extends React.Component {
     const { offline, title } = this.props.navigation.state.params;
     this.setState({ offline });
     if (offline) {
-      console.log('OFF');
       this.getOfflineDatas(title);
     } else {
       const {
@@ -94,39 +93,26 @@ export default class EpisodeView extends React.Component {
       });
       this.setImage(category);
     }
-    console.log('EV CDM');
-    // firebase.storage().ref('temp/Home.jpg').getDownloadURL()
-    // firebase.storage().ref(`episodes/${episodeId}/${imageUrl}`).getDownloadURL()
-    //   .then((url) => {
-    //     this.setState({ url });
-    //     console.log(url);
-    //   });
   }
 
   getOfflineDatas = (episodeTitle) => {
-   // const formattedFileName = episodeTitle.replace(/\s+/g, '');
-    console.log('OFFLINEDATAS');
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
-    console.log(episodeDetail);
-    // const exerciseList = Array.from(episodeDetail[0].exercises);
-    // const exerciseDetail = Array.from(episodeDetail[0].exerciseDetail);
-    // const episodeDetail = realm.objects('SavedEpisodes').filtered(`'id = ${episodeTitle}`);;
-
     const {
       category, description, exerciseIdList, id, title, exerciseLengthList,
     } = episodeDetail[0];
     const exercises = exerciseIdList.map((value, i) => {
       return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
     });
-    console.log(exercises);
     this.setState({
-      category, description, episodeId: id, title, exercises, loading: false, exerciseLengthList: Array.from(exerciseLengthList),
+      category,
+      description,
+      episodeId: id,
+      title,
+      exercises,
+      loading: false,
+      exerciseLengthList: Array.from(exerciseLengthList),
     });
     this.setImage(category);
-    console.log(episodeDetail);
-    // exercises: Array.from(exerciseDetail)
-    // console.log(exerciseList);
-    // console.log(exerciseDetail);
   }
 
    setImage = (category) => {

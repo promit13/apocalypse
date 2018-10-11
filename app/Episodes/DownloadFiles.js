@@ -41,9 +41,6 @@ export default class DownloadFiles extends React.Component {
     exercises.map((value, i) => {
       firebase.database().ref(`exercises/${value.uid}`).on('value', (snapShot) => {
         const exercise = { ...snapShot.val(), id: value.uid };
-        // exercise.id = value.uid;
-        // const exercise = snapShot.val();
-        // exerciseIdLength.push({ length: value.length, exerciseId: value.uid });
         exerciseLengthList.push(value.length);
         exerciseIdList.push(value.uid);
         exercisesList.push(exercise);
@@ -57,9 +54,9 @@ export default class DownloadFiles extends React.Component {
     exerciseIdList = [];
   }
 
-  download = async () => {
+  download = () => {
     const {
-      episodeTitle, episodeId, category, description, exercises, video,
+      episodeTitle, episodeId, category, description, video,
     } = this.props.navigation.state.params;
     const { dirs } = RNFetchBlob.fs;
     const formattedFileName = episodeTitle.replace(/ /g, '_');
@@ -91,6 +88,12 @@ export default class DownloadFiles extends React.Component {
               RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`)
                 .then((alreadyExist) => {
                   if (alreadyExist) {
+                    realm.write(() => {
+                      realm.create('SavedExercises', {
+                        id: exercise.id,
+                        title: exercise.title,
+                      });
+                    });
                     return;
                   }
                   RNFetchBlob
@@ -133,10 +136,8 @@ export default class DownloadFiles extends React.Component {
                     }).catch(error => console.log(error));
                 }).catch(error => console.log(error));
             }).catch(error => console.log(error));
-          }).catch((error) => {
-            this.setState({ loading: false });
-          });
-      }).catch(error => this.setState({ loading: false }));
+          }).catch(error => console.log(error));
+      }).catch(() => this.setState({ loading: false }));
   }
 
   render() {
