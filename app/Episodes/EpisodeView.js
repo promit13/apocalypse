@@ -1,13 +1,12 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, AsyncStorage,
+  ScrollView, View, Image,
 } from 'react-native';
 import {
   ListItem, Button, Text,
 } from 'react-native-elements';
 import realm from '../config/Database';
 import LoadScreen from '../LoadScreen';
-import firebase from '../config/firebase';
 
 const styles = {
   mainContainer: {
@@ -242,7 +241,7 @@ export default class EpisodeView extends React.Component {
             {description}
           </Text>
         </View>
-        <View style={[styles.buttonsViewContainer, { backgroundColor: '#001331' }]}>
+        <View style={styles.buttonsViewContainer}>
           <View style={[styles.buttonView, { backgroundColor: this.state.introButtonColor }]}>
             <Button
               buttonStyle={{ backgroundColor: 'transparent' }}
@@ -259,7 +258,7 @@ export default class EpisodeView extends React.Component {
               buttonStyle={{ backgroundColor: 'transparent' }}
               color="#001331"
               fontSize={18}
-              title="Advanced"
+              title="Advance"
               onPress={() => {
                 this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
               }}

@@ -1,7 +1,12 @@
 import React from 'react';
 import { View, Slider } from 'react-native';
 
-export default Seekbar = ({ totalLength, onDragSeekBar, seekValue }) => (
+export default Seekbar = ({
+  totalLength,
+  onDragSeekBar,
+  seekValue,
+  sliderReleased,
+}) => (
   <View>
     <Slider
       step={1}
@@ -12,6 +17,7 @@ export default Seekbar = ({ totalLength, onDragSeekBar, seekValue }) => (
       minimumTrackTintColor="#FFC300"
       maximumTrackTintColor="#ffffff"
       onValueChange={changedValue => onDragSeekBar(changedValue)}
+      onSlidingComplete={changedValue => sliderReleased(changedValue)}
       style={{ width: '100%', marginTop: 10 }}
     />
   </View>

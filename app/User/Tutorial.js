@@ -42,10 +42,17 @@ export default class Tutorial extends React.Component {
   state = {
     tutorials: '',
     loading: true,
+    showButton: false,
   }
 
   componentDidMount() {
-    firebase.database().ref('tutorials').on('value', snapshot => this.setState({ tutorials: snapshot.val(), loading: false }));
+    const { showButton } = this.props.navigation.state.params;
+    firebase.database().ref('tutorials').on('value', (snapshot) => {
+      // this.setState({ tutorials: snapshot.val(), loading: false, showButton });
+      const tutorials = Object.values(snapshot.val());
+      const sortedTutorialArray = tutorials.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+      this.setState({ tutorials: sortedTutorialArray, loading: false, showButton });
+    });
   }
 
   render() {
@@ -75,13 +82,17 @@ export default class Tutorial extends React.Component {
         >
           {tutorials}
         </Swiper>
-        <Button
-          buttonStyle={styles.buttonStyle}
-          title="Take me in"
-          onPress={() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
-            tutorial: true,
-          })}
-        />
+        {
+          this.state.showButton
+          && (<Button
+            buttonStyle={styles.buttonStyle}
+            title="Take me in"
+            onPress={() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
+              tutorial: true,
+            })}
+          />
+          )
+        }
       </View>
     );
   }

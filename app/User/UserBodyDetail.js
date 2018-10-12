@@ -61,7 +61,9 @@ export default class UserBodyDetail extends React.Component {
     })
       .then(() => {
         this.setState({ showLoading: false });
-        this.props.navigation.navigate('Tutorial');
+        this.props.navigation.navigate('Tutorial', {
+          showButton: true,
+        });
       });
   }
 
@@ -118,7 +120,7 @@ export default class UserBodyDetail extends React.Component {
             buttonStyle={{ backgroundColor: 'transparent', borderRadius: 10, marginTop: 10 }}
             color="white"
             title="Skip Personalisation info"
-            onPress={() => this.props.navigation.navigate('Tutorial')}
+            onPress={() => this.props.navigation.navigate('Tutorial', { showButton: true })}
           />
         </ScrollView>
       </View>

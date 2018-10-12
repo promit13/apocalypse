@@ -58,23 +58,19 @@ export default class TalonScreen extends React.Component {
     title: 'Talon',
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
+    state = {
       talonLogs: '',
       index: 0,
       loading: true,
       lastIntel: '',
       showTalon: false,
+      isConnected: true,
     };
-  }
-
-  componentWillMount() {
-    this.setState({ isConnected: this.props.screenProps.netInfo });
-  }
 
   componentDidMount = async () => {
-    if (!this.state.isConnected) {
+    const { netInfo } = this.props.screenProps;
+    this.setState({ isConnected: netInfo });
+    if (!netInfo) {
       const talonLogs = await AsyncStorage.getItem('talonLogs');
       return this.setState({ loading: false, talonLogs: JSON.parse(talonLogs) });
     }
@@ -118,13 +114,13 @@ export default class TalonScreen extends React.Component {
               if (ind === 0) {
                 console.log(value);
               } else {
-                const { dateNow, timeInterval, distance } = value;
+                const { dateNow, timeInterval, distance, steps } = value;
                 const progressPercentage = ((distance / 2) * 100) > 100 ? 100 : (distance / 2) * 100;
                 const date = new Date(dateNow);
                 const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
                 return (
                   <ListItem
-                    title={`${formatDate} - ${distance} k.m. in ${timeInterval} mins`}
+                    title={`${formatDate} - ${distance} k.m. (${steps} steps) in ${timeInterval} mins`}
                     titleStyle={styles.textStyle}
                     subtitle={
                       (

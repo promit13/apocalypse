@@ -63,17 +63,16 @@ export default class TalonIntelPlayer extends Component {
     videoUrl: '',
   };
 
-  componentWillMount() {
-    this.setState({ playingExercise: { value: { image: albumImage, title: '' } } });
-  }
-
   componentDidMount() {
     const { episodeId } = this.props.navigation.state.params;
-    // const exerciseArray = Object.values(this.props.navigation.state.params.exercises);
-    // this.setState({ playingExercise: { value: exerciseArray[0] } });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       const { title, intel } = snapshot.val();
-      this.setState({ episodeTitle: title, videoUrl: intel, loading: false });
+      this.setState({
+        episodeTitle: title,
+        videoUrl: intel,
+        playingExercise: { value: { image: albumImage, title: '' } },
+        loading: false,
+      });
     });
   }
 
@@ -133,8 +132,7 @@ export default class TalonIntelPlayer extends Component {
   }
 
   onDragSeekBar = (currentTime) => {
-    this.setState({ currentTime });
-    this.player.seek(currentTime, 10);
+    this.setState({ paused: true });
   }
 
   onPressPlay = () => {
@@ -142,6 +140,11 @@ export default class TalonIntelPlayer extends Component {
   }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
+
+  sliderReleased = (currentTime) => {
+    this.setState({ paused: false, currentTime });
+    this.player.seek(currentTime, 10);
+  }
 
   detectOrientation = (track) => {
     if (this.state.windowsHeight > this.state.windowsWidth) {
@@ -222,6 +225,7 @@ export default class TalonIntelPlayer extends Component {
               <Seekbar
                 totalLength={this.state.totalLength}
                 onDragSeekBar={this.onDragSeekBar}
+                sliderReleased={this.sliderReleased}
                 seekValue={this.state.currentTime && this.state.currentTime}
               />
               <FormatTime
@@ -248,7 +252,8 @@ export default class TalonIntelPlayer extends Component {
   }
 
   render() {
-    const { videoUrl } = this.state;
+    const { videoUrl, loading } = this.state;
+    if (loading) return <Loading />;
     const video = (
       <Video
         source={{ uri: videoUrl }} // Can be a URL or a local file.

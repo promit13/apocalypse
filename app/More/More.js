@@ -28,9 +28,6 @@ const menu = {
   downloads: {
     title: 'Manage Downloads', navigateTo: 'Downloads', iconName: 'ios-cloud-download', iconType: 'ionicon',
   },
-  // purchases: {
-  //   title: 'Restore Purchases', navigateTo: 'Purchases', iconName: 'replay', iconType: 'material-community',
-  // },
   agreement: {
     title: 'User Agreement', navigateTo: 'Agreement', iconName: 'check', iconType: 'entypo',
   },
@@ -44,7 +41,7 @@ export default class More extends React.Component {
     title: 'More',
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.setState({ isConnected: this.props.screenProps.netInfo });
   }
 
@@ -52,7 +49,7 @@ export default class More extends React.Component {
     if (!this.state.isConnected && navigateScreen !== 'Downloads') {
       return Alert.alert('No internet connection');
     }
-    this.props.navigation.navigate(navigateScreen);
+    this.props.navigation.navigate(navigateScreen, { showButton: false }); // showButton for tutorial
   }
 
   render() {

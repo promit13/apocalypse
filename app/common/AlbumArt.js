@@ -54,8 +54,8 @@ export default function AlbumArt({
               style={styles.image}
               source={{
                 uri: advance
-                  ? `${dirs.DocumentDir}/AST/advanceImages/${formattedUrl}.png`
-                  : `${dirs.DocumentDir}/AST/introImages/${formattedUrl}.png`,
+                  ? `file://${dirs.DocumentDir}/AST/advanceImages/${formattedUrl}.png`
+                  : `file://${dirs.DocumentDir}/AST/introImages/${formattedUrl}.png`,
               }}
             />
           )

@@ -45,7 +45,7 @@ export default class ExerciseCategory extends React.Component {
     title: 'Exercises',
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.setState({ isConnected: this.props.screenProps.netInfo });
   }
 

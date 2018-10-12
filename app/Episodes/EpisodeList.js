@@ -77,15 +77,14 @@ export default class EpisodeList extends React.Component {
     loading: true,
     purchasedSeries: [],
     lastPlayedEpisode: '',
-  }
-
-  componentWillMount() {
-    this.setState({ isConnected: this.props.screenProps.netInfo });
+    isConnected: true,
   }
 
   componentDidMount= async () => {
+    const { netInfo } = this.props.screenProps;
+    this.setState({ isConnected: netInfo });
     try {
-      if (!this.state.isConnected) {
+      if (!netInfo) {
         const offlineData = await AsyncStorage.getItem('series');
         // const series = await AsyncStorage.getItem('series);
         // const purchasedSeries = await AsyncStorage.getItem('purchasedSeries');
