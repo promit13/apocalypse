@@ -22,7 +22,7 @@ export default class Feedback extends React.Component {
   }
 
   sendEmail = () => {
-    Linking.openURL('mailto:support@example.com?subject=SendMail&body=Description');
+    Linking.openURL('mailto:feedback@apocalypsesurvivaltraining.com?subject=Feedback&body=Description');
   }
 
   render() {

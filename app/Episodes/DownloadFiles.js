@@ -112,13 +112,13 @@ export default class DownloadFiles extends React.Component {
                             .config({
                               path: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`,
                             })
-                            .fetch('GET', `${exercise.advanced.video}`, {
+                            .fetch('GET', exercise.advanced === undefined ? exercise.video : exercise.advanced.video, {
                             }).then(() => {
                               RNFetchBlob
                                 .config({
                                   path: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`,
                                 })
-                                .fetch('GET', `${exercise.advanced.image}`, {
+                                .fetch('GET', exercise.advanced === undefined ? exercise.image : exercise.advanced.image, {
                                 }).then(() => {
                                   realm.write(() => {
                                     realm.create('SavedExercises', {

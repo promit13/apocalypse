@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView, Modal, Platform, AsyncStorage,
+  AppState, View, ScrollView, Modal, Platform, AsyncStorage, BackHandler,
 } from 'react-native';
 import { Text, Button, Icon } from 'react-native-elements';
 import Video from 'react-native-video';
@@ -11,9 +11,8 @@ import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
+import LoadScreen from '../LoadScreen';
 import FormatTime from '../common/FormatTime';
-import AndroidTrack from '../More/AndroidTrack';
-import IosTrack from '../More/IosTrack';
 
 const styles = {
   container: {
@@ -82,7 +81,9 @@ export default class EpisodeSingle extends Component {
 
   state = {
     loading: true,
+    loadScreen: true,
     paused: true,
+    index: '',
     totalLength: 1,
     currentTime: 0.0,
     playingExercise: '',
@@ -102,7 +103,7 @@ export default class EpisodeSingle extends Component {
     category: '',
     advance: false,
     distance: 0.0,
-    steps: 0,
+    steps: '0',
     mode: '',
     platform: '',
   };
@@ -117,6 +118,7 @@ export default class EpisodeSingle extends Component {
       episodeId,
       category,
       advance,
+      index,
       platform,
       video,
       mode,
@@ -142,6 +144,7 @@ export default class EpisodeSingle extends Component {
         console.log('AUTH FAILED');
       });
     }
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     this.getTimeFirebase();
   }
 
@@ -153,6 +156,7 @@ export default class EpisodeSingle extends Component {
 
   componentWillUnmount() {
     GoogleFit.unsubscribeListeners();
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   onBack = () => {
@@ -169,10 +173,10 @@ export default class EpisodeSingle extends Component {
 
   onPressPause = () => {
     this.setState({ paused: true });
-    if (!this.state.listen) {
-      this.setTimeFirebase();
-    }
-    this.changeExercises();
+    // if (!this.state.listen) {
+    //   this.setTimeFirebase();
+    // }
+    // this.changeExercises();
   }
 
   onExercisePress = () => {
@@ -261,11 +265,11 @@ export default class EpisodeSingle extends Component {
     }
   }
 
-  getCurrentTimeInMs = time => parseInt(time, 10);
+  getCurrentTimeInMs = time => parseFloat(time, 10);
 
   setTimeFirebase = async () => {
     const {
-      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps,
+      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps, index,
     } = this.state;
     const currentDate = this.getDate();
     const startDate = await AsyncStorage.getItem(episodeId);
@@ -278,6 +282,7 @@ export default class EpisodeSingle extends Component {
         distance,
         timeInterval,
         steps,
+        index,
       }).then(() => this.setState({ lastLoggedDate: currentDate }));
     } else {
       firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
@@ -287,6 +292,7 @@ export default class EpisodeSingle extends Component {
         distance,
         timeInterval,
         steps,
+        index,
       }).then(() => this.setState({ lastLoggedDate: currentDate }));
     }
   }
@@ -299,11 +305,11 @@ export default class EpisodeSingle extends Component {
   getLastLogId = (snapshot) => {
     const array = Object.keys(snapshot);
     const id = array[array.length - 1];
-    this.setState({ logId: id });
+    this.setState({ logId: id, loadScreen: false });
   }
 
   getTimeFirebase = () => {
-    const { uid, episodeId, episodeTitle, category } = this.state;
+    const { uid, episodeId, episodeTitle, category, index } = this.state;
     firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
       {
         episodeTitle,
@@ -320,6 +326,8 @@ export default class EpisodeSingle extends Component {
               episodeTitle,
               distance: 0.0,
               timeInterval: 0,
+              steps: 0,
+              index,
             }).then(() => {
               firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
                 'value', (snap) => {
@@ -348,7 +356,7 @@ export default class EpisodeSingle extends Component {
       };
       GoogleFit.getDailyStepCountSamples(options, (err, res) => {
         if (err) {
-          throw err;
+          return console.log(err);
         }
         const stepsResponse = res[0];
         const stepArray = stepsResponse.steps;
@@ -358,7 +366,7 @@ export default class EpisodeSingle extends Component {
         const steps = stepArray[0].value;
         GoogleFit.getDailyDistanceSamples(options, (error, response) => {
           if (error) {
-            console.log(error);
+            return console.log(error);
           }
           const distance = ((response[0].distance) / 1000).toFixed(2);
           this.setState({ distance, steps });
@@ -406,7 +414,7 @@ export default class EpisodeSingle extends Component {
   storeDistance = async (timeInterval) => {
     console.log(timeInterval);
     const {
-      uid, episodeId, episodeTitle, distance, currentTime, steps,
+      uid, episodeId, episodeTitle, distance, currentTime, steps, index,
     } = this.state;
     try {
       await AsyncStorage.setItem('distance', JSON.stringify({
@@ -418,6 +426,7 @@ export default class EpisodeSingle extends Component {
         distance,
         timeInterval,
         steps,
+        index,
       }));
     } catch (err) {
       console.log(err);
@@ -427,6 +436,7 @@ export default class EpisodeSingle extends Component {
   navigateToEpisodeView = async () => {
     try {
       const distance = await AsyncStorage.getItem('distance');
+      console.log(distance);
       if (distance !== null) {
         this.setTimeFirebase();
         AsyncStorage.removeItem('distance');
@@ -509,6 +519,14 @@ export default class EpisodeSingle extends Component {
         this.state.previousStartTime.push(length);
       }
     });
+  }
+
+  handleBackButton = () => {
+    // if (!this.state.listen) {
+    //   this.navigateToEpisodeView();
+    // }
+    // this.props.navigation.navigate('EpisodeView');
+    return true;
   }
 
   renderLandscapeView = () => {
@@ -740,7 +758,8 @@ export default class EpisodeSingle extends Component {
   }
 
   render() {
-    const { video } = this.state;
+    const { video, loadScreen } = this.state;
+    if (loadScreen) return <LoadScreen />;
     const videoPlayer = (
       <Video
         source={{ uri: video }} // 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5'

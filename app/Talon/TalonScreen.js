@@ -103,7 +103,7 @@ export default class TalonScreen extends React.Component {
             }}
             >
               <Text style={styles.textStyle}>
-                {/* {`${Object.values(logs)[0].episodeTitle} Intel`} */}
+                {/* {`${Object.values(logs)[0].index} Intel`} */}
                 {`Ep. ${i} Intel`}
               </Text>
               <Icon name="chevron-right" type="feather" color="white" />

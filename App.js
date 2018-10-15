@@ -57,7 +57,7 @@ export default class App extends React.Component {
       if (toLogDataObject !== null) {
         const toLogData = JSON.parse(toLogDataObject);
         const {
-          uid, episodeId, timeStamp, dateNow, episodeTitle, distance, timeInterval, steps,
+          uid, episodeId, timeStamp, dateNow, episodeTitle, distance, timeInterval, steps, index,
         } = toLogData;
         const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
         firebase.database().ref(`logs/${uid}/${episodeId}`).push({
@@ -66,6 +66,7 @@ export default class App extends React.Component {
           episodeTitle,
           distance,
           steps,
+          index,
           timeInterval: formattedTimeInterval,
         }).then(() => AsyncStorage.removeItem('distance'));
       }

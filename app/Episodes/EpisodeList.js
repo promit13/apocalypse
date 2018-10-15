@@ -103,11 +103,13 @@ export default class EpisodeList extends React.Component {
         }
         const { purchases, lastPlayedEpisode } = snap.val();
         firebase.database().ref('series').on('value', (snapshot) => {
+          const series = Object.values(snapshot.val());
+          const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
           const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
             return value.seriesId;
           });
           this.setState({
-            series: snapshot.val(), lastPlayedEpisode, purchasedSeries, loading: false,
+            series: sortedSeries, lastPlayedEpisode, purchasedSeries, loading: false,
           });
           // AsyncStorage.setItem('series', JSON.stringify(snapshot.val())).then(() => {
           //   AsyncStorage.setItem('purchasedSeries', JSON.stringify(purchasedSeries));
@@ -150,16 +152,6 @@ export default class EpisodeList extends React.Component {
           exercises,
           video,
         });
-        // return (
-        //   <DownloadFiles
-        //     episodeTitle={title}
-        //     episodeId={episodeId}
-        //     category={category}
-        //     description={description}
-        //     exercises={exercises}
-        //     video={video}
-        //   />
-        // );
       }
       this.props.navigation.navigate('EpisodeView', {
         episodeId,
@@ -202,6 +194,7 @@ export default class EpisodeList extends React.Component {
   }
 
   buyItem = async (item, itemId, itemPrice) => {
+    console.log(item, itemId, itemPrice);
     try {
       await RNIap.prepare();
       const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
@@ -231,6 +224,9 @@ export default class EpisodeList extends React.Component {
     const seriesList = Object.entries(this.state.series).map(([key, value], i) => {
       const buy = this.state.purchasedSeries.includes(key);
       minIndex = maxIndex + 1;
+      if (value.episodes === undefined) {
+        return console.log('no episodes added');
+      }
       maxIndex += Object.keys(value.episodes).length; // value.episodes.length ;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
@@ -240,10 +236,10 @@ export default class EpisodeList extends React.Component {
               key={episodeKey}
               title={`${episodeIndex + minIndex}. ${title}`}
               subtitle={category}
-              titleStyle={{ color: buy ? 'white' : 'gray', fontSize: 18 }}
-              subtitleStyle={{ color: buy ? 'white' : 'gray' }}
-              rightIcon={{ name: 'download', type: 'feather', color: buy ? 'white' : 'gray' }}
-              containerStyle={{ backgroundColor: buy ? '#33425a' : '#2a3545' }}
+              titleStyle={{ color: !buy && episodeIndex > 2 ? 'gray' : 'white', fontSize: 18 }}
+              subtitleStyle={{ color: !buy && episodeIndex > 2 ? 'gray' : 'white' }}
+              rightIcon={{ name: 'download', type: 'feather', color: !buy && episodeIndex > 2 ? 'gray' : 'white' }}
+              containerStyle={{ backgroundColor: !buy && episodeIndex > 2 ? '#2a3545' : '#33425a' }}
               underlayColor="#2a3545"
               onPressRightIcon={() => {
                 if (!this.state.isConnected) {
@@ -263,7 +259,7 @@ export default class EpisodeList extends React.Component {
                 if (!this.state.isConnected) {
                   return Alert.alert('No internet connection');
                 }
-                if (!buy) {
+                if (!buy && episodeIndex > 2) {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
@@ -298,20 +294,11 @@ export default class EpisodeList extends React.Component {
                       title={`£${value.price} (Buy)`}
                       buttonStyle={styles.priceButtonStyle}
                       onPress={() => {
+                        if (!this.state.isConnected) {
+                          return Alert.alert('No internet connection');
+                        }
                         const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
-                        firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
-                          inAppPurchaseId: purchaseId,
-                          seriesId: key,
-                          price: value.price,
-                          date: new Date(),
-                          transactionReceipt: 'asdfasdf',
-                          purchaseToken: 'asdfasdf',
-                        });
-                        // if (!this.state.isConnected) {
-                        //   return Alert.alert('No internet connection');
-                        // }
-                        // const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
-                        // this.buyItem(key, purchaseId, value.price);
+                        this.buyItem(key, purchaseId, value.price);
                       }
                     }
                     />

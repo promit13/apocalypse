@@ -8,6 +8,7 @@ import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
+import LoadScreen from '../LoadScreen';
 import FormatTime from '../common/FormatTime';
 
 const styles = {
@@ -53,6 +54,7 @@ export default class DownloadPlayer extends Component {
 
   state = {
     loading: true,
+    loadScreen: true,
     paused: true,
     totalLength: 1,
     currentTime: 0.0,
@@ -79,7 +81,7 @@ export default class DownloadPlayer extends Component {
       episodeTitle: title,
       advance,
       playingExercise: { value: { image: albumImage, title: '' } },
-      loading: false,
+      loadScreen: false,
     });
   }
 
@@ -294,8 +296,8 @@ export default class DownloadPlayer extends Component {
   }
 
   render() {
-    const { videoUrl, loading } = this.state;
-    if (loading) return <Loading />;
+    const { videoUrl, loadScreen } = this.state;
+    if (loadScreen) return <LoadScreen />;
     const video = (
       <Video
         source={{ uri: videoUrl }} // Can be a URL or a local file.

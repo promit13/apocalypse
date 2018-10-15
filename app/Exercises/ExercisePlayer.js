@@ -74,7 +74,8 @@ export default class ExercisePlayer extends Component {
     } else {
       firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
         const { video, title, advanced } = snapshot.val();
-        if (advance && advanced !== null) {
+        console.log(advanced);
+        if (advance && advanced !== undefined) {
           return this.setState({ video: advanced.video, title, loading: false });
         }
         this.setState({ video, title, loading: false });

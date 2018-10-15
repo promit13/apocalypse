@@ -9,6 +9,7 @@ import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
 import FormatTime from '../common/FormatTime';
+import LoadScreen from '../LoadScreen';
 
 const styles = {
   container: {
@@ -53,6 +54,7 @@ export default class TalonIntelPlayer extends Component {
 
   state = {
     loading: true,
+    loadScreen: true,
     paused: true,
     totalLength: 1,
     currentTime: 0.0,
@@ -71,7 +73,7 @@ export default class TalonIntelPlayer extends Component {
         episodeTitle: title,
         videoUrl: intel,
         playingExercise: { value: { image: albumImage, title: '' } },
-        loading: false,
+        loadScreen: false,
       });
     });
   }
@@ -252,8 +254,8 @@ export default class TalonIntelPlayer extends Component {
   }
 
   render() {
-    const { videoUrl, loading } = this.state;
-    if (loading) return <Loading />;
+    const { videoUrl, loadScreen } = this.state;
+    if (loadScreen) return <LoadScreen />;
     const video = (
       <Video
         source={{ uri: videoUrl }} // Can be a URL or a local file.
@@ -282,15 +284,8 @@ export default class TalonIntelPlayer extends Component {
           });
         }}
       >
-        { this.state.loading
-          ? <Loading />
-          : (
-            <View>
-              {this.detectOrientation()}
-              {video}
-            </View>
-          )
-        }
+        {this.detectOrientation()}
+        {video}
       </ScrollView>
     );
   }
