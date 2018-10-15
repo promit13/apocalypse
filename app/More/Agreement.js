@@ -1,6 +1,5 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Text } from 'react-native-elements';
 import HTML from 'react-native-render-html';
 import firebase from '../config/firebase';
 

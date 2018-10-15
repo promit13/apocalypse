@@ -28,6 +28,7 @@ import Trailers from '../More/Trailers';
 import ChangeEmailPassword from '../User/ChangeEmailPassword';
 import DownloadFiles from '../Episodes/DownloadFiles';
 import DownloadPlayer from '../More/DownloadPlayer';
+import TrailerPlayer from '../More/TrailerPlayer';
 
 const talonIcon = require('../../img/talondark.png');
 const episodeIcon = require('../../img/episodes.png');
@@ -178,6 +179,7 @@ const MoreStack = createStackNavigator({
   DownloadPlayer: { screen: DownloadPlayer },
   EpisodeView: { screen: EpisodeView },
   ExercisePlayer: { screen: ExercisePlayer },
+  TrailerPlayer: { screen: TrailerPlayer },
 },
 {
   navigationOptions: () => ({
