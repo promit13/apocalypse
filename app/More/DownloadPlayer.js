@@ -66,11 +66,11 @@ export default class DownloadPlayer extends Component {
     advance: false,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     // const { file } = this.props.navigation.state.params;
     const { dirs } = RNFetchBlob.fs;
     const {
-      check, title, exerciseLengthList, exercises, advance,
+      check, title, advance,
     } = this.props.navigation.state.params;
     const formattedFileName = title.replace(/ /g, '_');
     this.setState({
@@ -79,17 +79,9 @@ export default class DownloadPlayer extends Component {
       episodeTitle: title,
       advance,
       playingExercise: { value: { image: albumImage, title: '' } },
+      loading: false,
     });
   }
-
-  // componentDidMount() {
-  //   const { dirs } = RNFetchBlob.fs;
-  //   const { episodeTitle } = this.state;
-  //   this.setState({ videoUrl: `${dirs.DocumentDir}/AST/episodes/${episodeTitle}.mp4` });
-  //   console.log(episodeTitle);
-
-  //   const episodeDetail = Array.from(realm.objects('SavedEpisodes'));
-  // }
 
   onExercisePress = () => {
     const { title } = this.state.playingExercise.value;
@@ -139,8 +131,7 @@ export default class DownloadPlayer extends Component {
   }
 
   onDragSeekBar = (currentTime) => {
-    this.setState({ currentTime });
-    this.player.seek(currentTime, 10);
+    this.setState({ paused: true });
   }
 
   onPressPlay = () => {
@@ -157,7 +148,7 @@ export default class DownloadPlayer extends Component {
   };
 
   changeExercises = () => {
-    const { exerciseLengthList, exerciseIdlist, exercises } = this.props.navigation.state.params;
+    const { exerciseLengthList, exercises } = this.props.navigation.state.params;
     exerciseLengthList.map((value, i) => {
       // const exercise = value[0];
       // const { length } = value;
@@ -171,6 +162,11 @@ export default class DownloadPlayer extends Component {
         this.state.previousStartTime.push(value);
       }
     });
+  }
+
+  sliderReleased = (currentTime) => {
+    this.setState({ paused: false, currentTime });
+    this.player.seek(currentTime, 10);
   }
 
   navigateToPreviousExercise = () => {
@@ -267,6 +263,7 @@ export default class DownloadPlayer extends Component {
                   <Seekbar
                     totalLength={this.state.totalLength}
                     onDragSeekBar={this.onDragSeekBar}
+                    sliderReleased={this.sliderReleased}
                     seekValue={this.state.currentTime && this.state.currentTime}
                   />
                 )
@@ -297,7 +294,8 @@ export default class DownloadPlayer extends Component {
   }
 
   render() {
-    const { videoUrl } = this.state;
+    const { videoUrl, loading } = this.state;
+    if (loading) return <Loading />;
     const video = (
       <Video
         source={{ uri: videoUrl }} // Can be a URL or a local file.

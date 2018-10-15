@@ -22,15 +22,16 @@ export default class App extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.state.isConnected) {
-      this.authSubscription();
-      NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
-    }
+    // if (this.state.isConnected) {
+    this.authSubscription();
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+    // }
   }
 
   handleConnectivityChange = (isConnected) => {
     if (isConnected) {
       this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+        console.log(user);
         if (user) {
           this.setState({
             user,
@@ -38,10 +39,11 @@ export default class App extends React.Component {
           });
           this.handleUserStatus();
         } else {
-          this.setState({ loading: false, isConnected });
+          this.setState({ loading: false, isConnected, user: null });
         }
       });
     } else {
+      console.log(this.state.user);
       this.setState({ isConnected, loading: false });
     }
   };
@@ -54,9 +56,8 @@ export default class App extends React.Component {
       const toLogDataObject = await AsyncStorage.getItem('distance');
       if (toLogDataObject !== null) {
         const toLogData = JSON.parse(toLogDataObject);
-        console.log(toLogData);
         const {
-          uid, episodeId, logId, timeStamp, dateNow, episodeTitle, distance, timeInterval,
+          uid, episodeId, timeStamp, dateNow, episodeTitle, distance, timeInterval, steps,
         } = toLogData;
         const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
         firebase.database().ref(`logs/${uid}/${episodeId}`).push({
@@ -64,6 +65,7 @@ export default class App extends React.Component {
           dateNow,
           episodeTitle,
           distance,
+          steps,
           timeInterval: formattedTimeInterval,
         }).then(() => AsyncStorage.removeItem('distance'));
       }
@@ -83,8 +85,8 @@ export default class App extends React.Component {
 
   renderComponent = () => {
     if (this.state.loading) return <LoadScreen />;
+    if (!this.state.isConnected) return <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
     if (this.state.user) {
-      if (!this.state.isConnected) return <SignedIn />;
       if (this.state.data === null) return <LoadScreen />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {

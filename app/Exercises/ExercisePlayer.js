@@ -59,8 +59,10 @@ export default class ExercisePlayer extends Component {
     loading: true,
   }
 
-  componentWillMount() {
-    const { offline, exerciseTitle, advance } = this.props.navigation.state.params;
+  componentDidMount() {
+    const {
+      offline, exerciseId, advance, exerciseTitle,
+    } = this.props.navigation.state.params;
     if (offline) {
       const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
       const { dirs } = RNFetchBlob.fs;
@@ -69,21 +71,15 @@ export default class ExercisePlayer extends Component {
       } else {
         this.setState({ video: `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loading: false });
       }
+    } else {
+      firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
+        const { video, title, advanced } = snapshot.val();
+        if (advance && advanced !== null) {
+          return this.setState({ video: advanced.video, title, loading: false });
+        }
+        this.setState({ video, title, loading: false });
+      });
     }
-  }
-
-  componentDidMount() {
-    const { offline, exerciseId, advance } = this.props.navigation.state.params;
-    if (offline) {
-      return;
-    }
-    firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
-      const { video, title, advanced } = snapshot.val();
-      if (advance && advanced !== null) {
-        return this.setState({ video: advanced.video, title, loading: false });
-      }
-      this.setState({ video, title, loading: false });
-    });
   }
 
   onLoad = () => this.setState({ loading: false });
@@ -93,11 +89,11 @@ export default class ExercisePlayer extends Component {
   }
 
   render() {
-    const { video, title } = this.state;
+    const { video, title, loading } = this.state;
     return (
       <ScrollView style={styles.container}>
         <View style={styles.containerInner}>
-          { this.state.loading
+          { loading
             ? <Loading />
             : (
               <View>

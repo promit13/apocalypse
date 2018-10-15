@@ -26,7 +26,6 @@ export default class Downloads extends React.Component {
   state = {
     showLoading: false,
     showDeleteButton: false,
-    exercises: '',
     index: 0,
     filesList: [],
   }
@@ -37,10 +36,6 @@ export default class Downloads extends React.Component {
     this.readDirectory();
   }
 
-  // componentWillUnmount() {
-  //   NetInfo.isConnected.removeEventListener('connectionChange');
-  // }
-
   deleteEpisode = (fileName) => {
     this.setState({ showLoading: true });
     const { dirs } = RNFetchBlob.fs;
@@ -50,8 +45,8 @@ export default class Downloads extends React.Component {
     const formattedFileName = fileName.replace(/ /g, '_');
 
     RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
-      .then(() => {
-        exerciseIdList.map((value) => {
+      .then(async () => {
+        await exerciseIdList.map((value) => {
           let count = 0;
           allEpisodes.map((episodeValue) => {
             const eachExerciseIdList = Array.from(episodeValue.exerciseIdList);
@@ -61,15 +56,17 @@ export default class Downloads extends React.Component {
           });
           if (count < 2) {
             const exerciseDetail = realm.objects('SavedExercises').filtered(`id="${value}"`);
-            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
+            const exerciseTitle = Array.from(exerciseDetail)[0].title;
+            const formattedExerciseTitle = exerciseTitle.replace(/\s+/g, '');
+            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedExerciseTitle}.mp4`)
               .then(() => {
-                RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceExercises/${formattedFileName}.mp4`)
+                RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseTitle}.mp4`)
                   .then(() => {
-                    RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introExercises/${formattedFileName}.png`)
+                    RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseTitle}.mp4`)
                       .then(() => {
-                        RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introImages/${formattedFileName}.mp4`)
+                        RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introImages/${formattedExerciseTitle}.png`)
                           .then(() => {
-                            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceImages/${formattedFileName}.png`)
+                            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseTitle}.png`)
                               .then(() => {
                                 realm.write(() => {
                                   realm.delete(exerciseDetail);
@@ -95,7 +92,6 @@ export default class Downloads extends React.Component {
   readDirectory = () => {
     const { dirs, ls } = RNFetchBlob.fs;
     ls(`${dirs.DocumentDir}/AST/episodes`)
-    // files will an array contains filenames
       .then((files) => {
         if (files.length === 0) {
           Alert.alert('You have no any downloads');

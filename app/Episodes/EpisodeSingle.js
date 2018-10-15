@@ -97,13 +97,12 @@ export default class EpisodeSingle extends Component {
     lastLoggedDate: 0,
     previousStartTime: [],
     playDate: 0,
-    pausedDate: 0,
     startDate: 0,
-    timeInterval: 0,
     video: '',
     category: '',
     advance: false,
     distance: 0.0,
+    steps: 0,
     mode: '',
     platform: '',
   };
@@ -113,7 +112,6 @@ export default class EpisodeSingle extends Component {
     const {
       check, episodeId, index, video, title, mode, category, advance,
     } = this.props.navigation.state.params;
-    // const currentDate = this.getDate();
     this.setState({
       listen: check,
       episodeId,
@@ -125,11 +123,10 @@ export default class EpisodeSingle extends Component {
       episodeTitle: title,
       uid: this.props.screenProps.user.uid,
       playingExercise: { value: { image: albumImage, title: '' } },
-      // currentDate,
     });
   }
 
-  componentDidMount = async () => {
+  componentDidMount() {
     if (this.state.platform === 'android') {
       GoogleFit.authorize((error, result) => {
         if (error) {
@@ -145,23 +142,6 @@ export default class EpisodeSingle extends Component {
         console.log('AUTH FAILED');
       });
     }
-
-    // try {
-    //   const currentDate = this.getDate();
-    //   const startDate = await AsyncStorage.getItem(this.state.episodeId);
-    //   const formattedDate = new Date(startDate).getTime();
-    //   if (startDate !== null) {
-    //     if ((currentDate - formattedDate) < 900000) {
-    //       console.log('CDM CD', currentDate);
-    //       this.setState({ startDate: currentDate });
-    //     } else {
-    //       console.log('CDM FD', currentDate);
-    //       this.setState({ startDate: formattedDate });
-    //     }
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
     this.getTimeFirebase();
   }
 
@@ -188,12 +168,11 @@ export default class EpisodeSingle extends Component {
   }
 
   onPressPause = () => {
-    const currentDate = this.getDate();
-    this.setState({ paused: true, pausedDate: currentDate });
-    // if (!this.state.listen) {
-    //   this.setTimeFirebase();
-    // }
-    // this.changeExercises();
+    this.setState({ paused: true });
+    if (!this.state.listen) {
+      this.setTimeFirebase();
+    }
+    this.changeExercises();
   }
 
   onExercisePress = () => {
@@ -215,8 +194,6 @@ export default class EpisodeSingle extends Component {
       if (!this.state.paused) { // onProgress gets called when component starts in IOS
         const currentDate = this.getDate();
         if ((currentDate - this.state.playDate) > 60000) {
-          // this.setTimeFirebase();
-          // this.getDistance();
           this.getStepCountAndDistance();
           this.setState({ playDate: currentDate });
         }
@@ -238,9 +215,6 @@ export default class EpisodeSingle extends Component {
       firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
         const { dateNow, timeStamp } = snapshot.val();
         const currentDate = this.getDate();
-        // if (snapValue === null) {
-        //   return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: currentDate, startDate: 0 });
-        // }
         if ((currentDate - dateNow) > 900000) {
           return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: dateNow, startDate: 0, playDate: currentDate });
         }
@@ -266,19 +240,17 @@ export default class EpisodeSingle extends Component {
     this.setState({ paused: true, currentTime: 0.0 });
     if (!this.state.listen) {
       this.setTimeFirebase();
-      // AsyncStorage.removeItem(this.state.episodeId);
       this.setState({ showDialog: true });
     }
   }
 
   onDragSeekBar = (currentTime) => {
-    this.setState({ currentTime });
-    this.player.seek(currentTime, 100);
+    this.setState({ paused: true });
   }
 
   onPressPlay = () => {
     this.setState({ paused: false });
-    const { startDate, pausedDate } = this.state;
+    const { startDate } = this.state;
     if (!this.state.listen) {
       const currentDate = this.getDate();
       if ((currentDate - startDate) > 900000) {
@@ -293,12 +265,11 @@ export default class EpisodeSingle extends Component {
 
   setTimeFirebase = async () => {
     const {
-      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId,
+      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps,
     } = this.state;
     const currentDate = this.getDate();
     const startDate = await AsyncStorage.getItem(episodeId);
     const timeInterval = ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
-    // const distance = this.child.getState();
     if ((currentDate - lastLoggedDate) > 900000) {
       firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
         timeStamp: currentTime,
@@ -306,7 +277,8 @@ export default class EpisodeSingle extends Component {
         episodeTitle,
         distance,
         timeInterval,
-      }).then(() => this.setState({ lastLoggedDate: currentDate, timeInterval }));
+        steps,
+      }).then(() => this.setState({ lastLoggedDate: currentDate }));
     } else {
       firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
         timeStamp: currentTime,
@@ -314,7 +286,8 @@ export default class EpisodeSingle extends Component {
         episodeTitle,
         distance,
         timeInterval,
-      }).then(() => this.setState({ lastLoggedDate: currentDate, timeInterval }));
+        steps,
+      }).then(() => this.setState({ lastLoggedDate: currentDate }));
     }
   }
 
@@ -329,32 +302,40 @@ export default class EpisodeSingle extends Component {
     this.setState({ logId: id });
   }
 
-  getTimeFirebase = async () => {
-    const { uid, episodeId, episodeTitle } = this.state;
-    const currentDate = this.getDate();
-    firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-      'value', (snapshot) => {
-        if (snapshot.val() === null) {
-          firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-            timeStamp: 0.0,
-            dateNow: 0,
-            episodeTitle,
-            distance: 0.0,
-            timeInterval: 0,
-          }).then(() => {
-            firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-              'value', (snap) => {
-                this.getLastLogId(snap.val());
-              },
-            );
-          });
-        } else {
-          this.getLastLogId(snapshot.val());
-        }
-      }, (error) => {
-        console.log(error);
+  getTimeFirebase = () => {
+    const { uid, episodeId, episodeTitle, category } = this.state;
+    firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+      {
+        episodeTitle,
+        episodeId,
+        category,
       },
-    );
+    ).then(() => {
+      firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+        'value', (snapshot) => {
+          if (snapshot.val() === null) {
+            firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+              timeStamp: 0.0,
+              dateNow: 0.0,
+              episodeTitle,
+              distance: 0.0,
+              timeInterval: 0,
+            }).then(() => {
+              firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+                'value', (snap) => {
+                  this.getLastLogId(snap.val());
+                },
+              );
+            });
+          } else {
+            this.getLastLogId(snapshot.val());
+          }
+        }, (error) => {
+          console.log(error);
+        },
+      );
+    })
+      .catch(error => console.log(error));
   }
 
   getStepCountAndDistance = async () => {
@@ -365,14 +346,24 @@ export default class EpisodeSingle extends Component {
         startDate,
         endDate, // required ISO8601Timestamp
       };
-      GoogleFit.getDailyDistanceSamples(options, (error, response) => {
-        if (error) {
-          return console.log(error);
-          // throw error;
+      GoogleFit.getDailyStepCountSamples(options, (err, res) => {
+        if (err) {
+          throw err;
         }
-        const distance = ((response[0].distance) / 1000).toFixed(2);
-        this.setState({ distance });
-        this.storeDistance(new Date(endDate - startDate).getTime());
+        const stepsResponse = res[0];
+        const stepArray = stepsResponse.steps;
+        if (stepArray.length === 0) {
+          return;
+        }
+        const steps = stepArray[0].value;
+        GoogleFit.getDailyDistanceSamples(options, (error, response) => {
+          if (error) {
+            console.log(error);
+          }
+          const distance = ((response[0].distance) / 1000).toFixed(2);
+          this.setState({ distance, steps });
+          this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
+        });
       });
     } else {
       const endDate = new Date().getTime();
@@ -382,8 +373,8 @@ export default class EpisodeSingle extends Component {
           if (error) {
             console.log(error);
           }
-          const { distance } = pedometerData;
-          this.setState({ distance: (distance / 1000).toFixed(2) });
+          const { distance, numberOfSteps } = pedometerData;
+          this.setState({ steps: numberOfSteps, distance: (distance / 1000).toFixed(2) });
           this.storeDistance(endDate - formattedDate);
         },
       );
@@ -407,10 +398,15 @@ export default class EpisodeSingle extends Component {
     });
   }
 
+  sliderReleased = (currentTime) => {
+    this.setState({ paused: false, currentTime });
+    this.player.seek(currentTime);
+  }
+
   storeDistance = async (timeInterval) => {
     console.log(timeInterval);
     const {
-      uid, episodeId, episodeTitle, distance, currentTime,
+      uid, episodeId, episodeTitle, distance, currentTime, steps,
     } = this.state;
     try {
       await AsyncStorage.setItem('distance', JSON.stringify({
@@ -421,6 +417,7 @@ export default class EpisodeSingle extends Component {
         episodeTitle,
         distance,
         timeInterval,
+        steps,
       }));
     } catch (err) {
       console.log(err);
@@ -562,11 +559,6 @@ export default class EpisodeSingle extends Component {
           )
         }
         <View style={{ flex: 1, flexDirection: 'row' }}>
-          {/* {
-            Platform.OS === 'android'
-              ? <AndroidTrack ref={c => this.child = c} />
-              : <IosTrack ref={c => this.child = c} />
-          } */}
           <View style={{
             flex: 0.5, backgroundColor: '#33425a', padding: 20,
           }}
@@ -605,6 +597,7 @@ export default class EpisodeSingle extends Component {
                       <Seekbar
                         totalLength={this.state.totalLength}
                         onDragSeekBar={this.onDragSeekBar}
+                        sliderReleased={this.sliderReleased}
                         seekValue={this.state.currentTime && this.state.currentTime}
                       />
                     )
@@ -638,11 +631,6 @@ export default class EpisodeSingle extends Component {
     const { image, title } = this.state.playingExercise.value;
     return (
       <View>
-        {/* {
-          Platform.OS === 'android'
-            ? <AndroidTrack ref={c => this.child = c} />
-            : <IosTrack ref={c => this.child = c} />
-        } */}
         { this.state.platform === 'android'
           ? (
             <View style={styles.headerView}>
@@ -710,6 +698,7 @@ export default class EpisodeSingle extends Component {
                   <Seekbar
                     totalLength={this.state.totalLength}
                     onDragSeekBar={this.onDragSeekBar}
+                    sliderReleased={this.sliderReleased}
                     seekValue={this.state.currentTime && this.state.currentTime}
                   />
                 )
@@ -751,9 +740,10 @@ export default class EpisodeSingle extends Component {
   }
 
   render() {
-    const video = (
+    const { video } = this.state;
+    const videoPlayer = (
       <Video
-        source={{ uri: this.state.video }} // 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5'
+        source={{ uri: video }} // 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/temp%2Fcrowd-cheering.mp3?alt=media&token=def168b4-c566-4555-ab22-a614106298a5'
         ref={(ref) => {
           this.player = ref;
         }}
@@ -781,7 +771,7 @@ export default class EpisodeSingle extends Component {
         }}
       >
         {this.detectOrientation()}
-        {video}
+        {videoPlayer}
       </ScrollView>
     );
   }
