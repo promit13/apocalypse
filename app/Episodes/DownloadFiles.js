@@ -56,7 +56,14 @@ export default class DownloadFiles extends React.Component {
 
   download = () => {
     const {
-      episodeTitle, episodeId, category, description, video,
+      episodeTitle,
+      episodeId,
+      category,
+      description,
+      video,
+      totalTime,
+      workoutTime,
+      videoSize,
     } = this.props.navigation.state.params;
     const { dirs } = RNFetchBlob.fs;
     const formattedFileName = episodeTitle.replace(/ /g, '_');
@@ -81,6 +88,9 @@ export default class DownloadFiles extends React.Component {
                 description,
                 exerciseLengthList,
                 exerciseIdList,
+                totalTime,
+                workoutTime,
+                videoSize,
               });
             });
             exercisesList.map((exercise, i) => {
@@ -92,8 +102,37 @@ export default class DownloadFiles extends React.Component {
                       realm.create('SavedExercises', {
                         id: exercise.id,
                         title: exercise.title,
+                        video: 'yes',
                       });
                     });
+                    return;
+                  }
+                  if (exercise.video === '') {
+                    RNFetchBlob
+                      .config({
+                        path: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`,
+                      })
+                      .fetch('GET', `${exercise.image}`, {
+                      }).then(() => {
+                        RNFetchBlob
+                          .config({
+                            path: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`,
+                          })
+                          .fetch('GET', exercise.advanced === undefined ? exercise.image : exercise.advanced.image, {
+                          }).then(() => {
+                            realm.write(() => {
+                              realm.create('SavedExercises', {
+                                id: exercise.id,
+                                title: exercise.title,
+                                video: 'no',
+                              });
+                            });
+                            if (i === (exercisesList.length - 1)) {
+                              this.setState({ loading: false });
+                              return Alert.alert('Download Complete');
+                            }
+                          }).catch(error => console.log(error));
+                      }).catch(error => console.log(error));
                     return;
                   }
                   RNFetchBlob
@@ -124,6 +163,7 @@ export default class DownloadFiles extends React.Component {
                                     realm.create('SavedExercises', {
                                       id: exercise.id,
                                       title: exercise.title,
+                                      video: 'yes',
                                     });
                                   });
                                   if (i === (exercisesList.length - 1)) {

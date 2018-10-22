@@ -44,17 +44,26 @@ export default class ExerciseList extends React.Component {
     const { category } = this.props.navigation.state.params;
     const exerciseList = Object.entries(this.state.exercises).map(([key, value], i) => {
       if (value.category === category) {
+        const {
+          title, advanced, video, image,
+        } = value;
         return (
           <ListItem
             key={key}
-            title={value.title}
+            title={title}
             titleStyle={{ color: 'white', fontSize: 18 }}
             containerStyle={{ backgroundColor: '#33425a' }}
             underlayColor="#2a3545"
-            onPress={() => this.props.navigation.navigate('ExercisePlayer', {
-              exerciseId: key,
-              advance: this.state.advance,
-            })}
+            onPress={() => {
+              const videoUrl = this.state.advance && advanced !== undefined ? advanced.video : video;
+              const imageUrl = this.state.advance && advanced !== undefined ? advanced.image : image;
+              this.props.navigation.navigate('TalonIntelPlayer', {
+                video: videoUrl,
+                exerciseTitle: title,
+                image: imageUrl,
+                exercise: true,
+              });
+            }}
           />
         );
       }
@@ -70,10 +79,6 @@ export default class ExerciseList extends React.Component {
               title="Intro"
               onPress={() => {
                 this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
-                // if (offline) {
-                //   return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadPlayer');
-                // }
-                // this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
               }}
             />
           </View>
@@ -85,10 +90,6 @@ export default class ExerciseList extends React.Component {
               title="Advanced"
               onPress={() => {
                 this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
-                // if (offline) {
-                //   return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadPlayer');
-                // }
-                // this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
               }}
             />
           </View>

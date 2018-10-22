@@ -178,7 +178,6 @@ export default class Downloads extends React.Component {
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
         { !this.state.isConnected ? <OfflineMsg /> : null }
-        <View style={{ height: 1, backgroundColor: 'gray' }} />
         <ScrollView>
           {filesList}
         </ScrollView>

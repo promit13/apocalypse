@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
     width,
   },
   offlineText: {
@@ -25,6 +24,7 @@ export default OfflineMsg = () => {
       <Text style={styles.offlineText}>
         No Internet Connection
       </Text>
+      <View style={{ height: 1, backgroundColor: 'gray' }} />
     </View>
   );
 };

@@ -11,7 +11,7 @@ import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
-import LoadScreen from '../LoadScreen';
+import LoadScreen from '../common/LoadScreen';
 import FormatTime from '../common/FormatTime';
 
 const styles = {
@@ -103,9 +103,10 @@ export default class EpisodeSingle extends Component {
     category: '',
     advance: false,
     distance: 0.0,
-    steps: '0',
+    steps: 0,
     mode: '',
     platform: '',
+    showInfo: false,
   };
 
   componentWillMount() {
@@ -173,17 +174,14 @@ export default class EpisodeSingle extends Component {
 
   onPressPause = () => {
     this.setState({ paused: true });
-    // if (!this.state.listen) {
-    //   this.setTimeFirebase();
-    // }
-    // this.changeExercises();
   }
 
   onExercisePress = () => {
-    const { exerciseId } = this.state.playingExercise.value;
-    this.props.navigation.navigate('ExercisePlayer', { exerciseId, advance: this.state.advance });
+    const { video, image, title } = this.state.playingExercise.value;
+    this.props.navigation.navigate('TalonIntelPlayer', {
+      exercise: true, video, exerciseTitle: title, image,
+    });
     this.setState({ paused: true });
-    // this.getDistance();
   }
 
   onAppStateChange = (nextAppState) => {
@@ -240,10 +238,10 @@ export default class EpisodeSingle extends Component {
   };
 
   onEnd = () => {
-    this.player.seek(0, 10);
+    this.player.seek(0, 0);
     this.setState({ paused: true, currentTime: 0.0 });
     if (!this.state.listen) {
-      this.setTimeFirebase();
+      this.navigateToEpisodeView();
       this.setState({ showDialog: true });
     }
   }
@@ -390,20 +388,31 @@ export default class EpisodeSingle extends Component {
   };
 
   setCurrentExercise = (snapshot, uid) => {
-    const { image, title, advanced } = snapshot;
-    if (this.state.advance && advanced !== null) {
+    const { image, title, advanced, video } = snapshot;
+    if (video === '') {
       this.setState({
+        showInfo: false,
         playingExercise: {
-          value: { image: advanced.image, title, exerciseId: uid },
+          value: { image, title, exerciseId: uid, video },
         },
       });
-      return;
+    } else {
+      if (this.state.advance && advanced !== undefined) {
+        this.setState({
+          showInfo: true,
+          playingExercise: {
+            value: { image: advanced.image, title, exerciseId: uid, video: advanced.video },
+          },
+        });
+        return;
+      }
+      this.setState({
+        showInfo: true,
+        playingExercise: {
+          value: { image, title, exerciseId: uid, video },
+        },
+      });
     }
-    this.setState({
-      playingExercise: {
-        value: { image, title, exerciseId: uid },
-      },
-    });
   }
 
   sliderReleased = (currentTime) => {
@@ -438,9 +447,9 @@ export default class EpisodeSingle extends Component {
       const distance = await AsyncStorage.getItem('distance');
       console.log(distance);
       if (distance !== null) {
-        this.setTimeFirebase();
         AsyncStorage.removeItem('distance');
       }
+      this.setTimeFirebase();
     } catch (error) {
       console.log(error);
     }
@@ -509,23 +518,17 @@ export default class EpisodeSingle extends Component {
   };
 
   changeExercises = () => {
-    const { exercises } = this.props.navigation.state.params;
+    const { exercises, completeExercises } = this.props.navigation.state.params;
     exercises.map((value, i) => {
       const { length, uid } = value;
-      if (this.state.currentTime > length) {
-        firebase.database().ref(`exercises/${uid}`).on('value', (snapshot) => {
-          this.setCurrentExercise(snapshot.val(), uid);
-        });
+      if (this.state.currentTime > (length / 1000)) {
+        this.setCurrentExercise(completeExercises[uid], uid);
         this.state.previousStartTime.push(length);
       }
     });
   }
 
   handleBackButton = () => {
-    // if (!this.state.listen) {
-    //   this.navigateToEpisodeView();
-    // }
-    // this.props.navigation.navigate('EpisodeView');
     return true;
   }
 
@@ -589,7 +592,7 @@ export default class EpisodeSingle extends Component {
               }
               currentExercise={title}
               onPress={this.onExercisePress}
-              showInfo
+              showInfo={this.state.showInfo}
             />
           </View>
           <View style={{ flex: 0.5, justifyContent: 'space-between' }}>
@@ -703,7 +706,7 @@ export default class EpisodeSingle extends Component {
             }
             currentExercise={title}
             onPress={this.onExercisePress}
-            showInfo
+            showInfo={this.state.showInfo}
           />
         </View>
         <View style={styles.line} />

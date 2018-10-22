@@ -6,6 +6,7 @@ import Video from 'react-native-video';
 import Controls from '../common/Controls';
 import TrackDetails from '../common/TrackDetails';
 import Loading from '../common/Loading';
+import LoadScreen from '../common/LoadScreen';
 
 const styles = {
   backgroundVideo: {
@@ -55,11 +56,12 @@ export default class ExercisePlayer extends Component {
     URL: '',
     paused: false,
     loading: true,
+    loadScreen: true,
   }
 
   componentDidMount() {
     const { title, URL } = this.props.navigation.state.params;
-    this.setState({ title, URL, loading: false });
+    this.setState({ title, URL, loadScreen: false });
   }
 
   onLoad = () => this.setState({ loading: false });
@@ -69,12 +71,12 @@ export default class ExercisePlayer extends Component {
   }
 
   render() {
-    const { URL, title } = this.state;
+    const { URL, title, loading, loadScreen } = this.state;
     return (
       <ScrollView style={styles.container}>
         <View style={styles.containerInner}>
-          { this.state.loading
-            ? <Loading />
+          { loadScreen
+            ? <LoadScreen />
             : (
               <View>
                 <Video
@@ -92,12 +94,18 @@ export default class ExercisePlayer extends Component {
                 <TrackDetails
                   title={title}
                 />
-                <Controls
-                  onPressPlay={() => this.setState({ paused: false })}
-                  onPressPause={() => this.setState({ paused: true })}
-                  paused={this.state.paused}
-                  exercisePlayer
-                />
+                {
+                  loading
+                    ? <Loading />
+                    : (
+                      <Controls
+                        onPressPlay={() => this.setState({ paused: false })}
+                        onPressPause={() => this.setState({ paused: true })}
+                        paused={this.state.paused}
+                        exercisePlayer
+                      />
+                    )
+                }
               </View>
             )
           }

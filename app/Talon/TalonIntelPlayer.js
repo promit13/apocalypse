@@ -3,13 +3,14 @@ import {
   AppState, View, ScrollView, Text,
 } from 'react-native';
 import Video from 'react-native-video';
+import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
 import FormatTime from '../common/FormatTime';
-import LoadScreen from '../LoadScreen';
+import LoadScreen from '../common/LoadScreen';
 
 const styles = {
   container: {
@@ -56,6 +57,7 @@ export default class TalonIntelPlayer extends Component {
     loading: true,
     loadScreen: true,
     paused: true,
+    exercise: false,
     totalLength: 1,
     currentTime: 0.0,
     playingExercise: '',
@@ -66,16 +68,48 @@ export default class TalonIntelPlayer extends Component {
   };
 
   componentDidMount() {
-    const { episodeId } = this.props.navigation.state.params;
-    firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
-      const { title, intel } = snapshot.val();
-      this.setState({
-        episodeTitle: title,
-        videoUrl: intel,
-        playingExercise: { value: { image: albumImage, title: '' } },
-        loadScreen: false,
+    const {
+      episodeId, talon, exerciseTitle, video, image, offline, advance, exercise,
+    } = this.props.navigation.state.params;
+    if (talon) {
+      firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
+        const { title, intel } = snapshot.val();
+        this.setState({
+          episodeTitle: title,
+          videoUrl: intel,
+          playingExercise: { value: { image: albumImage, title: '' } },
+          loadScreen: false,
+        });
       });
-    });
+    } else if (offline) {
+      const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
+      const { dirs } = RNFetchBlob.fs;
+      if (advance) {
+        this.setState({
+          videoUrl: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`,
+          episodeTitle: exerciseTitle,
+          playingExercise: { value: { image: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`, title: '' } },
+          loadScreen: false,
+          exercise,
+        });
+      } else {
+        this.setState({
+          videoUrl: `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`,
+          episodeTitle: exerciseTitle,
+          playingExercise: { value: { image: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`, title: '' } },
+          loadScreen: false,
+          exercise,
+        });
+      }
+    } else {
+      this.setState({
+        episodeTitle: exerciseTitle,
+        videoUrl: video,
+        playingExercise: { value: { image, title: '' } },
+        loadScreen: false,
+        exercise,
+      });
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -174,6 +208,28 @@ export default class TalonIntelPlayer extends Component {
           <Text style={styles.textTitle}>
             {this.state.episodeTitle}
           </Text>
+          {
+            this.state.exercise
+              ? (
+                <Controls
+                  onPressPlay={this.onPressPlay}
+                  onPressPause={this.onPressPause}
+                  paused={this.state.paused}
+                  exercisePlayer
+                />
+              )
+              : (
+                <Controls
+                  onPressPlay={this.onPressPlay}
+                  onPressPause={this.onPressPause}
+                  onBack={this.onBack}
+                  onForward={this.onForward}
+                  onDownload={this.onDownload}
+                  paused={this.state.paused}
+                  renderForwardButton
+                />
+              )
+          }
           <Controls
             onPressPlay={this.onPressPlay}
             onPressPause={this.onPressPause}
@@ -237,15 +293,28 @@ export default class TalonIntelPlayer extends Component {
               <Text style={styles.textTitle}>
                 {this.state.episodeTitle}
               </Text>
-              <Controls
-                onPressPlay={this.onPressPlay}
-                onPressPause={this.onPressPause}
-                onBack={this.onBack}
-                onForward={this.onForward}
-                onDownload={this.onDownload}
-                paused={this.state.paused}
-                renderForwardButton
-              />
+              {
+            this.state.exercise
+              ? (
+                <Controls
+                  onPressPlay={this.onPressPlay}
+                  onPressPause={this.onPressPause}
+                  paused={this.state.paused}
+                  exercisePlayer
+                />
+              )
+              : (
+                <Controls
+                  onPressPlay={this.onPressPlay}
+                  onPressPause={this.onPressPause}
+                  onBack={this.onBack}
+                  onForward={this.onForward}
+                  onDownload={this.onDownload}
+                  paused={this.state.paused}
+                  renderForwardButton
+                />
+              )
+          }
             </View>
           )
         }

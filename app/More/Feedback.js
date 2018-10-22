@@ -1,14 +1,13 @@
 import React from 'react';
 import {
-  View, Platform, Linking,
+  View, Linking,
 } from 'react-native';
-import AndroidTrack from './AndroidTrack';
-import IosTrack from './IosTrack';
 
 const styles = {
   container: {
     flex: 1,
     padding: 10,
+    backgroundColor: '#001331',
   },
 };
 
@@ -22,14 +21,12 @@ export default class Feedback extends React.Component {
   }
 
   sendEmail = () => {
-    Linking.openURL('mailto:feedback@apocalypsesurvivaltraining.com?subject=Feedback&body=Description');
+    Linking.openURL('mailto:appfeedback@imaginactive-fitness.com?subject=AST Feedback&body=Description');
   }
 
   render() {
     return (
-      <View style={styles.container}>
-        {/* { Platform.OS === 'android' ? <AndroidTrack /> : <IosTrack /> } */}
-      </View>
+      <View style={styles.container} />
     );
   }
 }

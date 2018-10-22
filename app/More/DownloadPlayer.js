@@ -8,7 +8,7 @@ import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
 import Loading from '../common/Loading';
-import LoadScreen from '../LoadScreen';
+import LoadScreen from '../common/LoadScreen';
 import FormatTime from '../common/FormatTime';
 
 const styles = {
@@ -66,6 +66,7 @@ export default class DownloadPlayer extends Component {
     videoUrl: '',
     previousStartTime: [],
     advance: false,
+    showInfo: false,
   };
 
   componentDidMount() {
@@ -87,7 +88,9 @@ export default class DownloadPlayer extends Component {
 
   onExercisePress = () => {
     const { title } = this.state.playingExercise.value;
-    this.props.navigation.navigate('ExercisePlayer', { offline: true, exerciseTitle: title, advance: this.state.advance });
+    this.props.navigation.navigate('TalonIntelPlayer', {
+      offline: true, exerciseTitle: title, advance: this.state.advance, exercise: true,
+    });
     this.setState({ paused: true });
   }
 
@@ -154,9 +157,12 @@ export default class DownloadPlayer extends Component {
     exerciseLengthList.map((value, i) => {
       // const exercise = value[0];
       // const { length } = value;
-      if (this.state.currentTime > value) {
+      if (this.state.currentTime > (value / 1000)) {
         const exercise = exercises[i];
+        const { title, video } = exercise[0];
+        const showInfo = video === 'yes' ? true : false;
         this.setState({
+          showInfo,
           playingExercise: {
             value: { image: exercise[0].title, title: exercise[0].title },
           },
@@ -192,7 +198,7 @@ export default class DownloadPlayer extends Component {
             }
             currentExercise={title}
             onPress={this.onExercisePress}
-            showInfo
+            showInfo={this.state.showInfo}
             offline
             advance={this.state.advance}
           />
@@ -250,7 +256,7 @@ export default class DownloadPlayer extends Component {
             }
             currentExercise={title}
             onPress={this.onExercisePress}
-            showInfo
+            showInfo={this.state.showInfo}
             offline
             advance={this.state.advance}
           />

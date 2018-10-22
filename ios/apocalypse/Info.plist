@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.0.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -51,10 +51,18 @@
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Play downloaded episodes</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>To connect app to bluetooth devices</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>To fill event</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string>Track user location</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Motion is used to track distance you cover</string>
+	<string>Motion is used to track distance user cover</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Render downloaded image</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>To execute voice command</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Entypo.ttf</string>

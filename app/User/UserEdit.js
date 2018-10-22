@@ -1,11 +1,16 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput, TouchableOpacity,
+  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+
+const { width } = Dimensions.get('window');
+const imageSize = width - 80;
+
+const talonImage = require('../../img/talon.png');
 
 const listItems = ['Sign Out', 'Change Password', 'Delete Account'];
 const styles = {
@@ -17,6 +22,7 @@ const styles = {
   text: {
     fontSize: 18,
     color: 'white',
+    textAlign: 'center',
   },
   button: {
     margin: 10,
@@ -40,6 +46,12 @@ const styles = {
     height: 40,
     color: '#001331',
     margin: 10,
+  },
+  imageStyle: {
+    height: imageSize,
+    width: imageSize,
+    alignSelf: 'center',
+    marginTop: 20,
   },
 };
 export default class MyAccount extends React.Component {
@@ -143,20 +155,24 @@ export default class MyAccount extends React.Component {
   }
 
   render() {
+    const { user, userData } = this.props.screenProps;
     return (
       <View style={styles.container}>
-        <View style={{ alignSelf: 'center', marginBottom: 10 }}>
-          <Text style={styles.text}>
-          Hi survivor
-          </Text>
-          <Text style={styles.text}>
-            {this.props.screenProps.user.email}
-          </Text>
-        </View>
-        {this.showModal()}
-        <View style={{ padding: 10, backgroundColor: '#33425a' }}>
-          {this.renderListItem()}
-        </View>
+        <ScrollView>
+          <Image style={styles.imageStyle} source={talonImage} />
+          <View style={{ alignSelf: 'center', marginBottom: 10 }}>
+            <Text style={[styles.text, { marginTop: 10 }]}>
+              {`Welcome, Agent ${userData.fullNameLowercase}`}
+            </Text>
+            <Text style={styles.text}>
+              {user.email}
+            </Text>
+          </View>
+          {this.showModal()}
+          <View style={{ padding: 10, backgroundColor: '#33425a' }}>
+            {this.renderListItem()}
+          </View>
+        </ScrollView>
       </View>
     );
   }

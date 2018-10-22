@@ -1,7 +1,8 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import HTML from 'react-native-render-html';
 import firebase from '../config/firebase';
+import Loading from '../common/Loading';
 
 const styles = {
   mainViewContainer: {
@@ -15,10 +16,11 @@ const styles = {
 export default class Agreement extends React.Component {
   static navigationOptions = {
     title: 'Agreement',
+    loading: true,
   };
 
   state = {
-    content: 'content',
+    content: '',
   }
 
   componentDidMount() {
@@ -27,16 +29,24 @@ export default class Agreement extends React.Component {
       .equalTo('Agreement')
       .once('value', (snapshot) => {
         snapshot.forEach((childSnapshot) => {
-          console.log(childSnapshot.val().description);
-          this.setState({ content: `<div style="color:white;">${childSnapshot.val().description}</div>` })
+          this.setState({ content: `<div style="color:white;">${childSnapshot.val().description}</div>`, loading: false });
         });
       });
   }
 
   render() {
+    const { loading, content } = this.state;
     return (
       <View style={styles.mainViewContainer}>
-          <HTML html={this.state.content} />
+        {
+          loading
+            ? <Loading />
+            : (
+              <ScrollView>
+                <HTML html={content} />
+              </ScrollView>
+            )
+        }
       </View>
     );
   }

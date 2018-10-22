@@ -9,9 +9,13 @@ const styles = {
   containerStyle: {
     flex: 1,
     backgroundColor: '#001331',
-    paddingTop: 20,
     paddingBottom: 10,
+    paddingTop: 30,
     justifyContent: 'center',
+  },
+  swiperContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
   textStyle: {
     marginTop: 20,
@@ -23,6 +27,7 @@ const styles = {
     width: 200,
   },
   slideStyle: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -46,7 +51,7 @@ export default class Tutorial extends React.Component {
   }
 
   componentDidMount() {
-    const { showButton } = this.props.navigation.state.params;
+    const showButton = this.props.navigation.state.params === undefined ? true : false;
     firebase.database().ref('tutorials').on('value', (snapshot) => {
       // this.setState({ tutorials: snapshot.val(), loading: false, showButton });
       const tutorials = Object.values(snapshot.val());
@@ -56,13 +61,11 @@ export default class Tutorial extends React.Component {
   }
 
   render() {
+    const { loading, showButton } = this.state;
     const tutorials = Object.entries(this.state.tutorials).map(([key, value], i) => {
       return (
         <ScrollView>
           <View style={styles.slideStyle}>
-            {/* <Text style={styles.textStyle}>
-              {value.title}
-            </Text> */}
             <Image resizeMode="contain" style={styles.imageStyle} source={{ uri: value.file }} />
             <Text style={styles.textStyle}>
               {value.description}
@@ -71,7 +74,6 @@ export default class Tutorial extends React.Component {
         </ScrollView>
       );
     });
-    if (this.state.loading) return <Loading />;
     return (
       <View style={styles.containerStyle}>
         <Swiper
@@ -83,16 +85,39 @@ export default class Tutorial extends React.Component {
           {tutorials}
         </Swiper>
         {
-          this.state.showButton
-          && (<Button
-            buttonStyle={styles.buttonStyle}
-            title="Take me in"
-            onPress={() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
-              tutorial: true,
-            })}
-          />
-          )
-        }
+              showButton
+              && (<Button
+                buttonStyle={styles.buttonStyle}
+                title="Take me in"
+                onPress={() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
+                  tutorial: true,
+                })}
+              />
+              )
+            }
+        {/* <View style={{ flex: 1 }}>
+          <View style={styles.swiperContainer}>
+            <Swiper
+              loop={false}
+              // showsButtons // shows side arrows
+              dotColor="#696238"
+              activeDotColor="#f5cb23"
+            >
+              {tutorials}
+            </Swiper>
+          </View>
+          {
+        showButton
+        && (<Button
+          buttonStyle={styles.buttonStyle}
+          title="Take me in"
+          onPress={() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
+            tutorial: true,
+          })}
+        />
+        )
+      }
+        </View> */}
       </View>
     );
   }

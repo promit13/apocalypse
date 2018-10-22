@@ -7,9 +7,8 @@ import {
 } from 'react-native-elements';
 import * as RNIap from 'react-native-iap';
 import Permissions from 'react-native-permissions';
-import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
-import LoadScreen from '../LoadScreen';
+import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 
 const homeCover = require('../../img/homecover.jpg');
@@ -74,6 +73,7 @@ export default class EpisodeList extends React.Component {
 
   state = {
     series: '',
+    completeEpisodes: '',
     loading: true,
     purchasedSeries: [],
     lastPlayedEpisode: '',
@@ -86,13 +86,12 @@ export default class EpisodeList extends React.Component {
     try {
       if (!netInfo) {
         const offlineData = await AsyncStorage.getItem('series');
-        // const series = await AsyncStorage.getItem('series);
-        // const purchasedSeries = await AsyncStorage.getItem('purchasedSeries');
-        // return this.setState({ loading: false, series: JSON.parse(series), purchasedSeries: JSON.parse(purchasedSeries) });
         const jsonObjectData = JSON.parse(offlineData);
-        const { series, purchasedSeries, lastPlayedEpisode } = jsonObjectData;
+        const {
+          series, purchasedSeries, lastPlayedEpisode, completeEpisodes,
+        } = jsonObjectData;
         return this.setState({
-          loading: false, series, purchasedSeries, lastPlayedEpisode,
+          loading: false, series, purchasedSeries, lastPlayedEpisode, completeEpisodes,
         });
       }
       // await RNIap.initConnection();
@@ -103,23 +102,23 @@ export default class EpisodeList extends React.Component {
         }
         const { purchases, lastPlayedEpisode } = snap.val();
         firebase.database().ref('series').on('value', (snapshot) => {
-          const series = Object.values(snapshot.val());
-          const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
-          const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
-            return value.seriesId;
-          });
-          this.setState({
-            series: sortedSeries, lastPlayedEpisode, purchasedSeries, loading: false,
-          });
-          // AsyncStorage.setItem('series', JSON.stringify(snapshot.val())).then(() => {
-          //   AsyncStorage.setItem('purchasedSeries', JSON.stringify(purchasedSeries));
-          // });
-          AsyncStorage.setItem('series', JSON.stringify({
-            series: snapshot.val(),
-            purchasedSeries,
-            lastPlayedEpisode,
-          })).then(() => {
-
+          firebase.database().ref('episodes').on('value', (snapEpisode) => {
+            const completeEpisodes = snapEpisode.val();
+            const series = Object.values(snapshot.val());
+            const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+            const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
+              return value.seriesId;
+            });
+            this.setState({
+              series: sortedSeries, lastPlayedEpisode, purchasedSeries, loading: false, completeEpisodes,
+            });
+            AsyncStorage.setItem('series', JSON.stringify({
+              series: sortedSeries,
+              purchasedSeries,
+              lastPlayedEpisode,
+              completeEpisodes,
+            })).then(() => {
+            });
           });
         });
       });
@@ -132,7 +131,7 @@ export default class EpisodeList extends React.Component {
     RNIap.endConnection();
   }
 
-  onEpisodeClick = (episodeId, index, download) => {
+  onEpisodeClick = (episodeId, totalTime, workoutTime, videoSize, index, download) => {
     if (!this.state.isConnected ) {
       return Alert.alert('No internet connection');
     }
@@ -151,6 +150,9 @@ export default class EpisodeList extends React.Component {
           description,
           exercises,
           video,
+          totalTime,
+          workoutTime,
+          videoSize,
         });
       }
       this.props.navigation.navigate('EpisodeView', {
@@ -160,6 +162,9 @@ export default class EpisodeList extends React.Component {
         description,
         exercises,
         video,
+        totalTime,
+        workoutTime,
+        videoSize,
         index,
       });
     });
@@ -194,7 +199,6 @@ export default class EpisodeList extends React.Component {
   }
 
   buyItem = async (item, itemId, itemPrice) => {
-    console.log(item, itemId, itemPrice);
     try {
       await RNIap.prepare();
       const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
@@ -204,7 +208,7 @@ export default class EpisodeList extends React.Component {
         inAppPurchaseId: itemId,
         seriesId: item,
         price: itemPrice,
-        date: new Date(),
+        date: new Date().getTime(),
         transactionReceipt,
         purchaseToken,
       })
@@ -221,8 +225,8 @@ export default class EpisodeList extends React.Component {
   renderList = () => {
     let minIndex = 0;
     let maxIndex = 0;
-    const seriesList = Object.entries(this.state.series).map(([key, value], i) => {
-      const buy = this.state.purchasedSeries.includes(key);
+    const seriesList = Object.entries(this.state.series).map(([seriesKey, value], i) => {
+      const buy = this.state.purchasedSeries.includes(seriesKey);
       minIndex = maxIndex + 1;
       if (value.episodes === undefined) {
         return console.log('no episodes added');
@@ -230,7 +234,11 @@ export default class EpisodeList extends React.Component {
       maxIndex += Object.keys(value.episodes).length; // value.episodes.length ;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
-          const { uid, title, category } = episodeValue;
+          const { uid } = episodeValue;
+          const {
+            title, category, totalTime, workoutTime, videoSize,
+          } = this.state.completeEpisodes[uid];
+          console.log(uid, title, category);
           return (
             <ListItem
               key={episodeKey}
@@ -245,11 +253,14 @@ export default class EpisodeList extends React.Component {
                 if (!this.state.isConnected) {
                   return Alert.alert('No internet connection');
                 }
-                if (!buy) {
+                if (!buy && episodeIndex > 2) {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
                   uid,
+                  totalTime,
+                  workoutTime,
+                  videoSize,
                   (episodeIndex + minIndex),
                   true,
                 );
@@ -264,6 +275,9 @@ export default class EpisodeList extends React.Component {
                 }
                 this.onEpisodeClick(
                   uid,
+                  totalTime,
+                  workoutTime,
+                  videoSize,
                   (episodeIndex + minIndex),
                 );
               }}
@@ -298,7 +312,7 @@ export default class EpisodeList extends React.Component {
                           return Alert.alert('No internet connection');
                         }
                         const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
-                        this.buyItem(key, purchaseId, value.price);
+                        this.buyItem(seriesKey, purchaseId, value.price);
                       }
                     }
                     />
@@ -319,13 +333,14 @@ export default class EpisodeList extends React.Component {
   }
 
   render() {
-    const { isConnected, lastPlayedEpisode } = this.state;
+    const { isConnected, lastPlayedEpisode, completeEpisodes } = this.state;
     if (this.state.loading) return <LoadScreen />;
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
         <StatusBar
           backgroundColor="#00000b"
         />
+        { !this.state.isConnected ? <OfflineMsg /> : null }
         <ScrollView>
           <View>
             <Image
@@ -340,7 +355,16 @@ export default class EpisodeList extends React.Component {
               if (lastPlayedEpisode === '') {
                 return Alert.alert('No episode played yet.');
               }
-              this.onEpisodeClick(lastPlayedEpisode.episodeId);
+              const id = lastPlayedEpisode.episodeId;
+              const {
+                totalTime, workoutTime, videoSize,
+              } = completeEpisodes[id];
+              this.onEpisodeClick(
+                id,
+                totalTime,
+                workoutTime,
+                videoSize,
+              );
             }}
             >
               <View style={styles.playingEpisodeView}>

@@ -48,7 +48,6 @@ export default function Controls({
   onPressPause,
   onBack,
   onForward,
-  onDownload,
   renderForwardButton,
   navigateToPreviousExercise,
   exercisePlayer,

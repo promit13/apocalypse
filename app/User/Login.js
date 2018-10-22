@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Text,
+  View, TextInput, StyleSheet,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
-import firebase from './config/firebase';
-import Loading from './common/Loading';
-import ErrorMessage from './common/Error';
+import firebase from '../config/firebase';
+import Loading from '../common/Loading';
+import ErrorMessage from '../common/Error';
 
 
 const styles = StyleSheet.create({

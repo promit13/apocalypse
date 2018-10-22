@@ -3,6 +3,7 @@ import {
   ScrollView, View, StatusBar, Alert, Image,
 } from 'react-native';
 import { ListItem } from 'react-native-elements';
+import OfflineMsg from '../common/OfflineMsg';
 
 const episodesIcon = require('../../img/episodes.png');
 
@@ -40,6 +41,10 @@ export default class More extends React.Component {
   static navigationOptions = {
     title: 'More',
   };
+
+  state = {
+    isConnected: true,
+  }
 
   componentDidMount() {
     this.setState({ isConnected: this.props.screenProps.netInfo });
@@ -85,7 +90,7 @@ export default class More extends React.Component {
         <StatusBar
           backgroundColor="#00000b"
         />
-        <View style={{ height: 1, backgroundColor: 'gray' }} />
+        { !this.state.isConnected ? <OfflineMsg /> : null }
         <ScrollView>
           { menuList }
         </ScrollView>

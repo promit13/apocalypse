@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Image } from 'react-native';
+import { Image } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
-import { Icon, Badge } from 'react-native-elements';
-import Login from '../Login';
+import { Icon } from 'react-native-elements';
+import Login from '../User/Login';
 import UserNew from '../User/UserNew';
 import UserBodyDetail from '../User/UserBodyDetail';
 import Tutorial from '../User/Tutorial';
-import Play from '../Play';
 import MyAccount from '../User/UserEdit';
 import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
@@ -114,6 +113,7 @@ const ExerciseStack = createStackNavigator({
   ExerciseCategory: { screen: ExerciseCategory },
   ExerciseList: { screen: ExerciseList },
   ExercisePlayer: { screen: ExercisePlayer },
+  TalonIntelPlayer: { screen: TalonIntelPlayer },
 },
 {
   navigationOptions: () => ({
@@ -179,7 +179,7 @@ const MoreStack = createStackNavigator({
   DownloadPlayer: { screen: DownloadPlayer },
   EpisodeView: { screen: EpisodeView },
   ExercisePlayer: { screen: ExercisePlayer },
-  TrailerPlayer: { screen: TrailerPlayer },
+  TalonIntelPlayer: { screen: TalonIntelPlayer },
 },
 {
   navigationOptions: () => ({
@@ -195,7 +195,7 @@ const MoreStack = createStackNavigator({
 
 MoreStack.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
-  if (navigation.state.index > 2) {
+  if (navigation.state.index >= 2) {
     tabBarVisible = false;
   }
   return {
@@ -248,25 +248,5 @@ export const SignedIn = createBottomTabNavigator({
     activeBackgroundColor: '#001331',
     inactiveBackgroundColor: '#001331',
     style: { height: 65 },
-  },
-});
-
-export const PlayerFlow = createStackNavigator({
-  Home: {
-    screen: Play,
-    title: 'Play',
-    navigationOptions: () => ({
-      title: 'Player',
-      headerTransparent: true,
-      headerTitleStyle: {
-        color: 'white',
-      },
-    }),
-  },
-  ExercisePlayer: {
-    screen: ExercisePlayer,
-    navigationOptions: () => ({
-      title: 'Exercise',
-    }),
   },
 });

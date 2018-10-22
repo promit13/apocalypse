@@ -45,6 +45,10 @@ export default class ExerciseCategory extends React.Component {
     title: 'Exercises',
   };
 
+  state = {
+    isConnected: true,
+  }
+
   componentDidMount() {
     this.setState({ isConnected: this.props.screenProps.netInfo });
   }
@@ -89,12 +93,15 @@ export default class ExerciseCategory extends React.Component {
 
     render() {
       return (
-        <ScrollView style={styles.maincontainer}>
+        <View style={styles.maincontainer}>
           <StatusBar backgroundColor="#00000b" />
+          { !this.state.isConnected ? <OfflineMsg /> : null }
+          <ScrollView>
           {this.renderView('Speed', 'Running Training', speedImage)}
           {this.renderView('Strength', 'Bodyweight Circuits', strengthImage)}
           {this.renderView('Control', 'Stretch and Core', controlImage)}
         </ScrollView>
+        </View>
       );
     }
 }

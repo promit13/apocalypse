@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
   container: {
     paddingLeft: 24,
     paddingRight: 24,
+    paddingTop: 24,
   },
   image: {
     alignSelf: 'center',

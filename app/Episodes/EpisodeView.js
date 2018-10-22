@@ -6,7 +6,8 @@ import {
   ListItem, Button, Text,
 } from 'react-native-elements';
 import realm from '../config/Database';
-import LoadScreen from '../LoadScreen';
+import LoadScreen from '../common/LoadScreen';
+import firebase from '../config/firebase';
 
 const styles = {
   mainContainer: {
@@ -62,8 +63,12 @@ export default class EpisodeView extends React.Component {
     title: '',
     description: '',
     category: '',
+    workoutTime: '',
+    totalTime: '',
+    videoSize: '',
     index: '',
     video: '',
+    completeExercises: '',
     exercises: [],
     exerciseIdlist: [],
     exerciseLengthList: [],
@@ -86,9 +91,26 @@ export default class EpisodeView extends React.Component {
         exercises,
         description,
         video,
+        workoutTime,
+        videoSize,
+        totalTime,
       } = this.props.navigation.state.params;
-      this.setState({
-        episodeId, title, category, description, index, exercises, video, loading: false,
+      firebase.database().ref('exercises').on('value', (snapshot) => {
+        console.log(snapshot.val());
+        this.setState({
+          episodeId,
+          title,
+          category,
+          description,
+          index,
+          exercises,
+          video,
+          workoutTime,
+          videoSize,
+          totalTime,
+          completeExercises: snapshot.val(),
+          loading: false,
+        });
       });
       this.setImage(category);
     }
@@ -97,7 +119,15 @@ export default class EpisodeView extends React.Component {
   getOfflineDatas = (episodeTitle) => {
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
     const {
-      category, description, exerciseIdList, id, title, exerciseLengthList,
+      category,
+      description,
+      exerciseIdList,
+      id,
+      title,
+      exerciseLengthList,
+      totalTime,
+      workoutTime,
+      videoSize,
     } = episodeDetail[0];
     const exercises = exerciseIdList.map((value, i) => {
       return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
@@ -108,8 +138,11 @@ export default class EpisodeView extends React.Component {
       episodeId: id,
       title,
       exercises,
-      loading: false,
+      totalTime,
+      workoutTime,
+      videoSize,
       exerciseLengthList: Array.from(exerciseLengthList),
+      loading: false,
     });
     this.setImage(category);
   }
@@ -137,6 +170,7 @@ export default class EpisodeView extends React.Component {
       exerciseLengthList,
       category,
       advance,
+      completeExercises,
     } = this.state;
     this.props.navigation.navigate(navigateTo, {
       check,
@@ -150,13 +184,20 @@ export default class EpisodeView extends React.Component {
       exerciseIdlist,
       exerciseLengthList,
       advance,
+      completeExercises,
     });
   }
 
   renderOfflineExerciseList = () => {
     const { exercises, advance } = this.state;
-    const exercisesList = exercises.map((value, i) => {
+    console.log(exercises);
+    const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t[0].id === thing[0].id) === index);
+    console.log(reducedExercise);
+    const exercisesList = reducedExercise.map((value, i) => {
       const exercise = value[0];
+      if (exercise.video === 'no') {
+        return console.log('');
+      }
       return (
         <ListItem
           title={exercise.title}
@@ -164,11 +205,11 @@ export default class EpisodeView extends React.Component {
           containerStyle={{ backgroundColor: '#33425a' }}
           underlayColor="#2a3545"
           onPress={() => {
-            this.props.navigation.navigate('ExercisePlayer', {
-              exerciseId: exercise.title,
+            this.props.navigation.navigate('TalonIntelPlayer', {
               offline: true,
               exerciseTitle: exercise.title,
               advance,
+              exercise: true,
             });
           }}
         />
@@ -178,29 +219,42 @@ export default class EpisodeView extends React.Component {
   }
 
   renderExerciseList = () => {
-    const { exercises, advance } = this.state;
-    const exercisesList = Object.entries(exercises).map(([key, value], i) => (
-      <ListItem
-        key={key}
-        title={value.title}
-        titleStyle={{ color: 'white' }}
-        containerStyle={{ backgroundColor: '#33425a' }}
-        underlayColor="#2a3545"
-        onPress={() => {
-          this.props.navigation.navigate('ExercisePlayer', {
-            exerciseId: value.uid,
-            advance,
-          });
-        }}
-      />
-    ));
+    const { exercises, advance, completeExercises } = this.state;
+    const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t.uid === thing.uid) === index);
+    const exercisesList = Object.entries(reducedExercise).map(([key, value], i) => {
+      const { uid } = value;
+      const {
+        title, advanced, video, image,
+      } = completeExercises[uid];
+      if (video === '') {
+        return console.log('');
+      }
+      return (
+        <ListItem
+          key={key}
+          title={title}
+          titleStyle={{ color: 'white' }}
+          containerStyle={{ backgroundColor: '#33425a' }}
+          underlayColor="#2a3545"
+          onPress={() => {
+            const videoUrl = advance && advanced !== undefined ? advanced.video : video;
+            this.props.navigation.navigate('TalonIntelPlayer', {
+              video: videoUrl,
+              exerciseTitle: title,
+              image,
+              exercise: true,
+            });
+          }}
+        />
+      );
+    });
     return exercisesList;
   }
 
   render() {
     if (this.state.loading) return <LoadScreen />;
     const {
-      title, description, category, offline, imageSource,
+      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime,
     } = this.state;
     return (
       <ScrollView style={styles.mainContainer}>
@@ -220,16 +274,13 @@ export default class EpisodeView extends React.Component {
               {category}
             </Text>
             <Text style={styles.text}>
-              Running Training
+              {`Workout time: ${workoutTime}`}
             </Text>
             <Text style={styles.text}>
-              Workout time: 38:00
+              {`Total audio time: ${totalTime}`}
             </Text>
             <Text style={styles.text}>
-              Total audio time: 40:00
-            </Text>
-            <Text style={styles.text}>
-              Size: 40 MB
+              {`Size: ${videoSize} MB`}
             </Text>
           </View>
         </View>

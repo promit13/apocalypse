@@ -7,7 +7,7 @@ import Video from 'react-native-video';
 import Controls from '../common/Controls';
 import TrackDetails from '../common/TrackDetails';
 import Loading from '../common/Loading';
-import firebase from '../config/firebase';
+import LoadScreen from '../common/LoadScreen';
 
 const styles = {
   backgroundVideo: {
@@ -57,29 +57,23 @@ export default class ExercisePlayer extends Component {
     video: '',
     paused: false,
     loading: true,
+    loadScreen: true,
   }
 
   componentDidMount() {
     const {
-      offline, exerciseId, advance, exerciseTitle,
+      offline, advance, exerciseTitle, video,
     } = this.props.navigation.state.params;
     if (offline) {
       const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
       const { dirs } = RNFetchBlob.fs;
       if (advance) {
-        this.setState({ video: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loading: false });
+        this.setState({ video: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loadScreen: false });
       } else {
-        this.setState({ video: `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loading: false });
+        this.setState({ video: `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`, title: exerciseTitle, loadScreen: false });
       }
     } else {
-      firebase.database().ref(`exercises/${exerciseId}`).on('value', (snapshot) => {
-        const { video, title, advanced } = snapshot.val();
-        console.log(advanced);
-        if (advance && advanced !== undefined) {
-          return this.setState({ video: advanced.video, title, loading: false });
-        }
-        this.setState({ video, title, loading: false });
-      });
+      this.setState({ video, title: exerciseTitle, loadScreen: false });
     }
   }
 
@@ -90,12 +84,14 @@ export default class ExercisePlayer extends Component {
   }
 
   render() {
-    const { video, title, loading } = this.state;
+    const {
+      video, title, loading, loadScreen,
+    } = this.state;
     return (
       <ScrollView style={styles.container}>
         <View style={styles.containerInner}>
-          { loading
-            ? <Loading />
+          { loadScreen
+            ? <LoadScreen />
             : (
               <View>
                 <Video
@@ -113,12 +109,18 @@ export default class ExercisePlayer extends Component {
                 <TrackDetails
                   title={title}
                 />
-                <Controls
-                  onPressPlay={() => this.setState({ paused: false })}
-                  onPressPause={() => this.setState({ paused: true })}
-                  paused={this.state.paused}
-                  exercisePlayer
-                />
+                {
+                  loading
+                    ? <Loading />
+                    : (
+                      <Controls
+                        onPressPlay={() => this.setState({ paused: false })}
+                        onPressPause={() => this.setState({ paused: true })}
+                        paused={this.state.paused}
+                        exercisePlayer
+                      />
+                    )
+                }
               </View>
             )
           }

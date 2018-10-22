@@ -1,6 +1,6 @@
 import React from 'react';
 import { NetInfo, View, AsyncStorage } from 'react-native';
-import LoadScreen from './app/LoadScreen';
+import LoadScreen from './app/common/LoadScreen';
 import firebase from './app/config/firebase';
 import {
   SignedIn,
@@ -22,7 +22,7 @@ export default class App extends React.Component {
   }
 
   componentWillUnmount() {
-    // if (this.state.isConnected) {
+    // (this.state.isConnected) {
     this.authSubscription();
     NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
     // }
@@ -31,7 +31,6 @@ export default class App extends React.Component {
   handleConnectivityChange = (isConnected) => {
     if (isConnected) {
       this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
-        console.log(user);
         if (user) {
           this.setState({
             user,
@@ -43,7 +42,6 @@ export default class App extends React.Component {
         }
       });
     } else {
-      console.log(this.state.user);
       this.setState({ isConnected, loading: false });
     }
   };
@@ -80,19 +78,17 @@ export default class App extends React.Component {
     }
   }
 
-  // if (!this.state.isConnected) {
-  //   return <SignedIn screenProps={{ netInfo: this.state.isConnected, user: this.state.user }} />;
-  // }
-
   renderComponent = () => {
     if (this.state.loading) return <LoadScreen />;
-    if (!this.state.isConnected) return <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
+    if (!this.state.isConnected) {
+      return <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
+    }
     if (this.state.user) {
       if (this.state.data === null) return <LoadScreen />;
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {
           return (
-            <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />
+            <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected, userData: this.state.data }} />
           );
         }
         return (
@@ -105,7 +101,7 @@ export default class App extends React.Component {
         if (this.state.data.tutorial) {
           return (
             <SignedIn
-              screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
+              screenProps={{ user: this.state.user, netInfo: this.state.isConnected, userData: this.state.data }}
             />
           );
         }

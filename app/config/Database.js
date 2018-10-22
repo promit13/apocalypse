@@ -1,16 +1,5 @@
 import Realm from 'realm';
 
-
-// class ExerciseLengthAndKey extends Realm.Object {}
-// ExerciseLengthAndKey.schema = {
-//   name: 'ExerciseLengthAndKey',
-//   primaryKey: 'id',
-//   properties: {
-//     length: 'int',
-//     id: 'string',
-//   },
-// };
-
 class SavedEpisodes extends Realm.Object {}
 SavedEpisodes.schema = {
   name: 'SavedEpisodes',
@@ -20,6 +9,9 @@ SavedEpisodes.schema = {
     title: 'string',
     category: 'string',
     description: 'string',
+    videoSize: 'string',
+    totalTime: 'string',
+    workoutTime: 'string',
     exerciseLengthList: 'int?[]',
     exerciseIdList: 'string?[]',
     exerciseDetail: { type: 'list', objectType: 'SavedExercises' },
@@ -29,12 +21,10 @@ SavedEpisodes.schema = {
 class SavedExercises extends Realm.Object {}
 SavedExercises.schema = {
   name: 'SavedExercises',
-  primaryKey: 'id',
   properties: {
     id: 'string',
     title: 'string',
-    // image: 'string',
-    // path: 'string',
+    video: 'string',
   },
 };
 

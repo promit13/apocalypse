@@ -95,7 +95,9 @@ export default class Signup extends React.Component {
       .then((currentUser) => {
         this.setUserData(currentUser);
       })
-      .catch(error => this.setState({ showError: true, errorMessage: error.message, showLoading: false }));
+      .catch((error) => {
+        this.setState({ showError: true, errorMessage: error.message, showLoading: false });
+      });
   }
 
   doFacebookSignUp = () => {

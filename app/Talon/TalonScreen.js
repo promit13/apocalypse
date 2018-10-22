@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, StatusBar,
-  AsyncStorage, Alert, Dimensions, Animated, Easing,
+  AsyncStorage, Alert, Dimensions,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
@@ -65,22 +65,37 @@ export default class TalonScreen extends React.Component {
       lastIntel: '',
       showTalon: false,
       isConnected: true,
+      lastPlayedEpisode: '',
     };
 
   componentDidMount = async () => {
     const { netInfo } = this.props.screenProps;
     this.setState({ isConnected: netInfo });
     if (!netInfo) {
-      const talonLogs = await AsyncStorage.getItem('talonLogs');
-      return this.setState({ loading: false, talonLogs: JSON.parse(talonLogs) });
+      const offlineData = await AsyncStorage.getItem('talonLogs');
+      const jsonObjectData = JSON.parse(offlineData);
+      const {
+        talonLogs, lastPlayedEpisode,
+      } = jsonObjectData;
+      return this.setState({ loading: false, talonLogs, lastPlayedEpisode });
     }
     firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).on('value', (snapshot) => {
-      this.setState({
-        talonLogs: snapshot.val(),
-        loading: false,
+      firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
+        if (snap.val() === null) {
+          return;
+        }
+        const { lastPlayedEpisode } = snap.val();
+        this.setState({
+          talonLogs: snapshot.val(),
+          lastPlayedEpisode,
+          loading: false,
+        });
+        AsyncStorage.setItem('talonLogs', JSON.stringify({
+          talonLogs: snapshot.val(),
+          lastPlayedEpisode,
+        }));
+        console.log(this.state.lastIntel);
       });
-      AsyncStorage.setItem('talonLogs', JSON.stringify(snapshot.val()));
-      console.log(this.state.lastIntel);
     });
   }
 
@@ -94,7 +109,7 @@ export default class TalonScreen extends React.Component {
               return Alert.alert('No internet connection');
             }
             this.props.navigation.navigate('TalonIntelPlayer', {
-              episodeId,
+              episodeId, talon: true,
             });
           }}
           >
@@ -120,7 +135,7 @@ export default class TalonScreen extends React.Component {
                 const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
                 return (
                   <ListItem
-                    title={`${formatDate} - ${distance} k.m. (${steps} steps) in ${timeInterval} mins`}
+                    title={`${formatDate} - ${distance} km (${steps} steps) in ${timeInterval} mins`}
                     titleStyle={styles.textStyle}
                     subtitle={
                       (
@@ -168,6 +183,7 @@ export default class TalonScreen extends React.Component {
         </View>
       );
     }
+    const { episodeId, episodeTitle } = this.state.lastPlayedEpisode;
     const episodes = Object.entries(this.state.talonLogs).map(([key, value], i) => {
       return (
         <View>
@@ -194,6 +210,7 @@ export default class TalonScreen extends React.Component {
         <StatusBar
           backgroundColor="#00000b"
         />
+        { !this.state.isConnected ? <OfflineMsg /> : null }
         <ScrollView>
           <Image
             style={styles.imageStyle}
@@ -204,9 +221,9 @@ export default class TalonScreen extends React.Component {
             if (!this.state.isConnected) {
               return Alert.alert('No internet connection');
             }
-            const episodeId = (Object.keys(this.state.talonLogs))[0];
+            // const episodeId = (Object.keys(this.state.talonLogs))[0];
             this.props.navigation.navigate('TalonIntelPlayer', {
-              episodeId,
+              episodeId, talon: true,
             });
           }}
           >
@@ -233,7 +250,8 @@ export default class TalonScreen extends React.Component {
                     fontWeight: 'bold',
                   }}
                   >
-                    {`${Object.values(Object.values(this.state.talonLogs)[0])[0].episodeTitle}`}
+                    {/* {`${Object.values(Object.values(this.state.talonLogs)[0])[0].episodeTitle}`} */}
+                    {episodeTitle}
                   </Text>
                 </View>
               </View>

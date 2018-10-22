@@ -21,4 +21,12 @@ public class MainActivity extends ReactActivity {
         MainApplication.getCallbackManager().onActivityResult(requestCode, resultCode, data);
     }
 
+    // this fun is used to keep app in background (as in ios), when hardware back arrow is pressed
+    // combined with android:launchMode="singleTop"> in manifest
+
+    @Override
+    public void invokeDefaultOnBackPressed() {
+        moveTaskToBack(true);
+    }
+
 }

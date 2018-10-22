@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import firebase from '../config/firebase';
+import Loading from '../common/Loading';
 
 const styles = {
   mainViewContainer: {
@@ -18,29 +19,32 @@ export default class Trailers extends React.Component {
 
   state = {
     trailers: '',
+    loading: true,
   }
 
   componentDidMount() {
     firebase.database().ref('trailers').on('value', (snapshot) => {
       const trailers = Object.values(snapshot.val());
-     const sortedTrailerArray = trailers.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
-    this.setState({ trailers: sortedTrailerArray});
+      const sortedTrailerArray = trailers.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+      this.setState({ trailers: sortedTrailerArray, loading: false });
     });
   }
 
   render() {
     const trailerList = Object.entries(this.state.trailers).map(([key, value], i) => {
       return (
-        <ListItem 
+        <ListItem
           key={key}
           title={value.title}
           titleStyle={{ color: 'white', fontSize: 18 }}
           containerStyle={{ backgroundColor: '#33425a' }}
           undderlayColor="#2a3545"
           onPress={() => {
-            this.props.navigation.navigate('TrailerPlayer', {
-              URL: value.video,
-              title: value.title,
+            const { video, title, image } = value;
+            this.props.navigation.navigate('TalonIntelPlayer', {
+              video,
+              exerciseTitle: title,
+              image,
             });
           }}
         />
@@ -48,9 +52,15 @@ export default class Trailers extends React.Component {
     });
     return (
       <View style={styles.mainViewContainer}>
-        <ScrollView>
-          {trailerList}
-        </ScrollView>
+        {
+          this.state.loading
+            ? <Loading />
+            : (
+              <ScrollView>
+                {trailerList}
+              </ScrollView>
+            )
+        }
       </View>
     );
   }
