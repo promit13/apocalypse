@@ -1,9 +1,12 @@
 import React from 'react';
-import { Image, View, ScrollView } from 'react-native';
+import { Image, View, ScrollView, Dimensions } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import Swiper from 'react-native-swiper';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
+
+const { width } = Dimensions.get('window');
+const imageSize = width - 90;
 
 const styles = {
   containerStyle: {
@@ -23,8 +26,8 @@ const styles = {
     textAlign: 'center',
   },
   imageStyle: {
-    height: 200,
-    width: 200,
+    height: imageSize,
+    width: imageSize,
   },
   slideStyle: {
     flex: 1,

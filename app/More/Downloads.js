@@ -8,6 +8,7 @@ import { Text, Icon } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
 import realm from '../config/Database';
 import Loading from '../common/Loading';
+import Download from '../common/Download';
 
 const styles = {
   mainContainer: {
@@ -25,8 +26,6 @@ export default class Downloads extends React.Component {
 
   state = {
     showLoading: false,
-    showDeleteButton: false,
-    index: 0,
     filesList: [],
   }
 
@@ -82,7 +81,7 @@ export default class Downloads extends React.Component {
           realm.delete(episodeDetail);
         });
         this.readDirectory();
-        this.setState({ showLoading: false, showDeleteButton: false });
+        this.setState({ showLoading: false });
       })
       .catch((err) => {
         this.setState({ showLoading: false });
@@ -114,29 +113,34 @@ export default class Downloads extends React.Component {
     });
   }
 
+  delete = (fileName) => {
+    this.child.deleteEpisodes(fileName);
+    this.readDirectory();
+  }
+
   renderDeleteButton = (i, fileName) => {
-    if (i === this.state.index && this.state.showDeleteButton) {
-      return (
-        <TouchableOpacity onPress={() => this.deleteEpisode(fileName)}>
-          <View style={{
-            backgroundColor: 'red',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'flex-end',
-            padding: 5,
-          }}
-          >
-            <Icon
-              name="delete"
-              color="white"
-            />
-            <Text style={{ color: 'white' }}>
-            Delete
-            </Text>
-          </View>
-        </TouchableOpacity>
-      );
-    }
+    // if (i === this.state.index && this.state.showDeleteButton) {
+    return (
+      <TouchableOpacity onPress={() => this.delete(fileName)}>
+        <View style={{
+          backgroundColor: 'red',
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignSelf: 'flex-end',
+          padding: 5,
+        }}
+        >
+          <Icon
+            name="delete"
+            color="white"
+          />
+          <Text style={{ color: 'white' }}>
+          Delete
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+    // }
   }
 
   render() {
@@ -146,15 +150,14 @@ export default class Downloads extends React.Component {
       return (
         <TouchableWithoutFeedback
           onPress={() => {
-            this.setState({ showDeleteButton: false });
             this.props.navigation.navigate('EpisodeView', {
               offline: true,
               title: formattedFile,
             });
           }}
-          onLongPress={() => {
-            this.setState({ showDeleteButton: true, index: i + 1 });
-          }}
+          // onLongPress={() => {
+          //   this.setState({ showDeleteButton: true, index: i + 1 });
+          // }}
         >
           <View>
             <View style={styles.mainContainer}>
@@ -178,6 +181,7 @@ export default class Downloads extends React.Component {
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
         { !this.state.isConnected ? <OfflineMsg /> : null }
+        <Download ref={ref => (this.child = ref)} />
         <ScrollView>
           {filesList}
         </ScrollView>

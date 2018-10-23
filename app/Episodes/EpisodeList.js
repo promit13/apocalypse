@@ -7,9 +7,12 @@ import {
 } from 'react-native-elements';
 import * as RNIap from 'react-native-iap';
 import Permissions from 'react-native-permissions';
+import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
+import Download from '../common/Download';
+import PortraitScreen from '../common/ScreenMode';
 
 const homeCover = require('../../img/homecover.jpg');
 const speedImage = require('../../img/speed.png');
@@ -17,7 +20,12 @@ const strengthImage = require('../../img/strength.png');
 const controlImage = require('../../img/control.png');
 
 const styles = {
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#001331',
+  },
   imageStyle: {
+    marginTop: 20,
     width: '100%',
     height: 200,
   },
@@ -66,9 +74,9 @@ const styles = {
   },
 };
 
-export default class EpisodeList extends React.Component {
+export default class EpisodeList extends PortraitScreen {
   static navigationOptions = {
-    title: 'Home',
+    header: null,
   };
 
   state = {
@@ -76,6 +84,7 @@ export default class EpisodeList extends React.Component {
     completeEpisodes: '',
     loading: true,
     purchasedSeries: [],
+    filesList: [],
     lastPlayedEpisode: '',
     isConnected: true,
   }
@@ -83,6 +92,7 @@ export default class EpisodeList extends React.Component {
   componentDidMount= async () => {
     const { netInfo } = this.props.screenProps;
     this.setState({ isConnected: netInfo });
+    this.readDirectory();
     try {
       if (!netInfo) {
         const offlineData = await AsyncStorage.getItem('series');
@@ -131,7 +141,7 @@ export default class EpisodeList extends React.Component {
     RNIap.endConnection();
   }
 
-  onEpisodeClick = (episodeId, totalTime, workoutTime, videoSize, index, download) => {
+  onEpisodeClick = (episodeId, totalTime, workoutTime, videoSize, index, alreadyDownloaded, download) => {
     if (!this.state.isConnected ) {
       return Alert.alert('No internet connection');
     }
@@ -142,6 +152,9 @@ export default class EpisodeList extends React.Component {
       } = snapshot.val();
       this.setState({ loading: false });
       if (download) {
+        if (alreadyDownloaded) {
+          this.deleteEpisode(title);
+        }
         // return this.donwloadFile(title, video);
         return this.props.navigation.navigate('DownloadFiles', {
           episodeId,
@@ -166,6 +179,7 @@ export default class EpisodeList extends React.Component {
         workoutTime,
         videoSize,
         index,
+        offline: alreadyDownloaded,
       });
     });
   }
@@ -222,11 +236,33 @@ export default class EpisodeList extends React.Component {
     }
   }
 
+  readDirectory = () => {
+    const { dirs, ls } = RNFetchBlob.fs;
+    ls(`${dirs.DocumentDir}/AST/episodes`)
+      .then((files) => {
+        if (files.length === 0) {
+          Alert.alert('You have no any downloads');
+        }
+        this.setState({ filesList: files });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  deleteEpisode = (fileName) => {
+    this.child.deleteEpisodes(fileName);
+  }
+
   renderList = () => {
+    const {
+      series, purchasedSeries, completeEpisodes, isConnected, filesList,
+    } = this.state;
+    console.log(filesList);
     let minIndex = 0;
     let maxIndex = 0;
-    const seriesList = Object.entries(this.state.series).map(([seriesKey, value], i) => {
-      const buy = this.state.purchasedSeries.includes(seriesKey);
+    const seriesList = Object.entries(series).map(([seriesKey, value], i) => {
+      const buy = purchasedSeries.includes(seriesKey);
       minIndex = maxIndex + 1;
       if (value.episodes === undefined) {
         return console.log('no episodes added');
@@ -237,23 +273,29 @@ export default class EpisodeList extends React.Component {
           const { uid } = episodeValue;
           const {
             title, category, totalTime, workoutTime, videoSize,
-          } = this.state.completeEpisodes[uid];
-          console.log(uid, title, category);
+          } = completeEpisodes[uid];
+          const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
+          const downloaded = filesList.includes(formattedFileName);
+          console.log(formattedFileName);
           return (
             <ListItem
               key={episodeKey}
               title={`${episodeIndex + minIndex}. ${title}`}
               subtitle={category}
-              titleStyle={{ color: !buy && episodeIndex > 2 ? 'gray' : 'white', fontSize: 18 }}
-              subtitleStyle={{ color: !buy && episodeIndex > 2 ? 'gray' : 'white' }}
-              rightIcon={{ name: 'download', type: 'feather', color: !buy && episodeIndex > 2 ? 'gray' : 'white' }}
-              containerStyle={{ backgroundColor: !buy && episodeIndex > 2 ? '#2a3545' : '#33425a' }}
+              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && i > 0) ? 'gray' : 'white', fontSize: 18 }}
+              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && i > 0) ? 'gray' : 'white' }}
+              rightIcon={
+                downloaded
+                  ? { name: 'delete', type: 'material-community', color: 'red' }
+                  : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && i > 0) ? 'gray' : 'white' }
+                }
+              containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
               onPressRightIcon={() => {
-                if (!this.state.isConnected) {
+                if (!isConnected) {
                   return Alert.alert('No internet connection');
                 }
-                if (!buy && episodeIndex > 2) {
+                if ((!buy && episodeIndex > 2) || (!buy && i > 0)) {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
@@ -262,15 +304,16 @@ export default class EpisodeList extends React.Component {
                   workoutTime,
                   videoSize,
                   (episodeIndex + minIndex),
+                  downloaded,
                   true,
                 );
               }
               }
               onPress={() => {
-                if (!this.state.isConnected) {
+                if (!isConnected) {
                   return Alert.alert('No internet connection');
                 }
-                if (!buy && episodeIndex > 2) {
+                if ((!buy && episodeIndex > 2) || (!buy && i > 0)) {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
@@ -279,6 +322,7 @@ export default class EpisodeList extends React.Component {
                   workoutTime,
                   videoSize,
                   (episodeIndex + minIndex),
+                  downloaded,
                 );
               }}
             />
@@ -333,18 +377,22 @@ export default class EpisodeList extends React.Component {
   }
 
   render() {
-    const { isConnected, lastPlayedEpisode, completeEpisodes } = this.state;
-    if (this.state.loading) return <LoadScreen />;
+    const {
+      isConnected, lastPlayedEpisode, completeEpisodes, series, loading,
+    } = this.state;
+    if (loading) return <LoadScreen />;
     return (
-      <View style={{ flex: 1, backgroundColor: '#001331' }}>
+      <View style={styles.mainContainer}>
         <StatusBar
           backgroundColor="#00000b"
         />
-        { !this.state.isConnected ? <OfflineMsg /> : null }
+        <Download ref={ref => (this.child = ref)} />
+        { !isConnected ? <OfflineMsg /> : null }
         <ScrollView>
           <View>
             <Image
               style={styles.imageStyle}
+              resizeMode="cover"
               resizeMethod="resize"
               source={homeCover}
             />
@@ -352,10 +400,9 @@ export default class EpisodeList extends React.Component {
               if (!isConnected) {
                 return Alert.alert('No internet connection');
               }
-              if (lastPlayedEpisode === '') {
-                return Alert.alert('No episode played yet.');
-              }
-              const id = lastPlayedEpisode.episodeId;
+              const id = lastPlayedEpisode === ''
+                ? ((Object.values(((Object.values(series))[0]).episodes))[0]).uid
+                : lastPlayedEpisode.episodeId;
               const {
                 totalTime, workoutTime, videoSize,
               } = completeEpisodes[id];
@@ -400,7 +447,11 @@ export default class EpisodeList extends React.Component {
                       marginRight: 10,
                     }}
                     >
-                      Last Played Episode
+                      {
+                        lastPlayedEpisode === ''
+                          ? 'Play First Episode'
+                          : 'Last Played Episode'
+                      }
                     </Text>
                     <Text style={{
                       color: '#001331',
@@ -412,7 +463,7 @@ export default class EpisodeList extends React.Component {
                     >
                       {
                         lastPlayedEpisode === ''
-                          ? 'No episode played'
+                          ? ((Object.values(((Object.values(series))[0]).episodes))[0]).title
                           : lastPlayedEpisode.episodeTitle
                       }
                     </Text>

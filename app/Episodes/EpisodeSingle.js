@@ -23,8 +23,6 @@ const styles = {
     marginTop: 30,
   },
   textTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
   },
@@ -596,7 +594,7 @@ export default class EpisodeSingle extends Component {
             />
           </View>
           <View style={{ flex: 0.5, justifyContent: 'space-between' }}>
-            <Text style={styles.textTitle}>
+            <Text h4 style={styles.textTitle}>
               {this.state.episodeTitle}
             </Text>
             <Controls
@@ -740,7 +738,7 @@ export default class EpisodeSingle extends Component {
                 currentTime={this.state.currentTime}
                 remainingTime={this.state.totalLength - this.state.currentTime}
               />
-              <Text style={styles.textTitle}>
+              <Text h4 style={styles.textTitle}>
                 {this.state.episodeTitle}
               </Text>
               <Controls

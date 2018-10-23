@@ -96,7 +96,6 @@ export default class EpisodeView extends React.Component {
         totalTime,
       } = this.props.navigation.state.params;
       firebase.database().ref('exercises').on('value', (snapshot) => {
-        console.log(snapshot.val());
         this.setState({
           episodeId,
           title,
@@ -190,9 +189,7 @@ export default class EpisodeView extends React.Component {
 
   renderOfflineExerciseList = () => {
     const { exercises, advance } = this.state;
-    console.log(exercises);
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t[0].id === thing[0].id) === index);
-    console.log(reducedExercise);
     const exercisesList = reducedExercise.map((value, i) => {
       const exercise = value[0];
       if (exercise.video === 'no') {
@@ -293,30 +290,6 @@ export default class EpisodeView extends React.Component {
           </Text>
         </View>
         <View style={styles.buttonsViewContainer}>
-          <View style={[styles.buttonView, { backgroundColor: this.state.introButtonColor }]}>
-            <Button
-              buttonStyle={{ backgroundColor: 'transparent' }}
-              color="#001331"
-              fontSize={18}
-              title="Intro"
-              onPress={() => {
-                this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
-              }}
-            />
-          </View>
-          <View style={[styles.buttonView, { backgroundColor: this.state.advancedButtonColor }]}>
-            <Button
-              buttonStyle={{ backgroundColor: 'transparent' }}
-              color="#001331"
-              fontSize={18}
-              title="Advance"
-              onPress={() => {
-                this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
-              }}
-            />
-          </View>
-        </View>
-        <View style={styles.buttonsViewContainer}>
           <View style={styles.buttonView}>
             <Button
               buttonStyle={styles.button}
@@ -354,9 +327,40 @@ export default class EpisodeView extends React.Component {
             />
           </View>
         </View>
-        <Text style={{ color: 'white', margin: 15 }}>
-          EXERCISES IN EPISODE
-        </Text>
+        {
+          category === 'Speed'
+            ? (
+              <Text style={[styles.text, { marginTop: 15, marginBottom: 10 }]}>
+                EXERCISES IN EPISODE
+              </Text>
+            )
+            : (
+              <View style={styles.buttonsViewContainer}>
+                <View style={[styles.buttonView, { backgroundColor: this.state.introButtonColor }]}>
+                  <Button
+                    buttonStyle={{ backgroundColor: 'transparent' }}
+                    color="#001331"
+                    fontSize={18}
+                    title="Intro"
+                    onPress={() => {
+                      this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
+                    }}
+                  />
+                </View>
+                <View style={[styles.buttonView, { backgroundColor: this.state.advancedButtonColor }]}>
+                  <Button
+                    buttonStyle={{ backgroundColor: 'transparent' }}
+                    color="#001331"
+                    fontSize={18}
+                    title="Advance"
+                    onPress={() => {
+                      this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
+                    }}
+                  />
+                </View>
+              </View>
+            )
+        }
         <View style={styles.line} />
         <View />
         { offline ? this.renderOfflineExerciseList() : this.renderExerciseList()}

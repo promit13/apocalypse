@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   container: {
     paddingLeft: 24,
     paddingRight: 24,
-    paddingTop: 24,
+    paddingTop: 10,
   },
   image: {
     alignSelf: 'center',
@@ -67,13 +67,15 @@ export default function AlbumArt({
             />
           )
       }
-      { showInfo && (
-        <TouchableOpacity onPress={onPress}>
-          <View style={styles.infoView}>
-            <Icon type="ionicon" name="ios-information" color="#f5cb23" />
-          </View>
-        </TouchableOpacity>
-      )
+      { showInfo
+        ? (
+          <TouchableOpacity onPress={onPress}>
+            <View style={styles.infoView}>
+              <Icon type="ionicon" name="ios-information" color="#f5cb23" />
+            </View>
+          </TouchableOpacity>
+        )
+        : <View style={{ height: 27 }} />
       }
       <Text h4 style={styles.text}>
         {currentExercise}

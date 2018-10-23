@@ -8,7 +8,14 @@ export default class FormatTime extends React.Component {
     if (seconds > 60) {
       minutes = Math.floor(seconds / 60);
     }
-    const time = `${minutes} : ${seconds % 60}`;
+    let remainder = seconds % 60;
+    if (minutes < 10) {
+      minutes = `0${minutes}`;
+    }
+    if (remainder < 10) {
+      remainder = `0${remainder}`;
+    }
+    const time = `${minutes} : ${remainder}`;
     return time;
   };
 
