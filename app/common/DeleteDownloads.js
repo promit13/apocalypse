@@ -4,7 +4,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import realm from '../config/Database';
 
 
-export default class Download extends React.Component {
+export default class DeleteDownloads extends React.Component {
   deleteEpisodes = (fileName) => {
     console.log(fileName);
     const { dirs } = RNFetchBlob.fs;

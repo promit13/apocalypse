@@ -81,7 +81,8 @@ export default class EpisodeSingle extends Component {
     loading: true,
     loadScreen: true,
     paused: true,
-    index: '',
+    episodeIndex: '',
+    seriesIndex: '',
     totalLength: 1,
     currentTime: 0.0,
     playingExercise: '',
@@ -105,19 +106,23 @@ export default class EpisodeSingle extends Component {
     mode: '',
     platform: '',
     showInfo: false,
+    episodeCompleted: false,
+    formattedWorkOutTime: 0,
+    trackingStarted: false,
   };
 
   componentWillMount() {
     const platform = Platform.OS;
     const {
-      check, episodeId, index, video, title, mode, category, advance,
+      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance,
     } = this.props.navigation.state.params;
     this.setState({
       listen: check,
       episodeId,
       category,
       advance,
-      index,
+      episodeIndex,
+      seriesIndex,
       platform,
       video,
       mode,
@@ -143,6 +148,7 @@ export default class EpisodeSingle extends Component {
         console.log('AUTH FAILED');
       });
     }
+    this.formatWorkOutTime();
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     this.getTimeFirebase();
   }
@@ -207,7 +213,10 @@ export default class EpisodeSingle extends Component {
   };
 
   onLoad = (data) => {
-    const { uid, episodeId, logId } = this.state;
+    const {
+      uid, episodeId, logId,
+    } = this.state;
+    console.log(data);
     this.setState({ totalLength: data.duration });
     if (this.state.listen) {
       this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
@@ -216,7 +225,9 @@ export default class EpisodeSingle extends Component {
         const { dateNow, timeStamp } = snapshot.val();
         const currentDate = this.getDate();
         if ((currentDate - dateNow) > 900000) {
-          return this.setState({ currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: dateNow, startDate: 0, playDate: currentDate });
+          return this.setState({
+            currentTime: this.getCurrentTimeInMs(0.0), lastLoggedDate: dateNow, startDate: 0, playDate: currentDate,
+          });
         }
         this.setState({
           currentTime: this.getCurrentTimeInMs(timeStamp),
@@ -236,8 +247,8 @@ export default class EpisodeSingle extends Component {
   };
 
   onEnd = () => {
-    this.player.seek(0, 0);
-    this.setState({ paused: true, currentTime: 0.0 });
+    // this.player.seek(0, 0);
+    this.setState({ paused: true, currentTime: 0.0, episodeCompleted: true });
     if (!this.state.listen) {
       this.navigateToEpisodeView();
       this.setState({ showDialog: true });
@@ -253,9 +264,9 @@ export default class EpisodeSingle extends Component {
     const { startDate } = this.state;
     if (!this.state.listen) {
       const currentDate = this.getDate();
-      if ((currentDate - startDate) > 900000) {
-        this.setState({ startDate: currentDate });
-        this.startTrackingSteps();
+      if ((currentDate - startDate) < 900000) {
+        this.setState({ startDate: currentDate, trackingStarted: true });
+        // this.startTrackingSteps();
         // }
       }
     }
@@ -265,32 +276,46 @@ export default class EpisodeSingle extends Component {
 
   setTimeFirebase = async () => {
     const {
-      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps, index,
+      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps, episodeIndex, seriesIndex, episodeCompleted, category,
     } = this.state;
     const currentDate = this.getDate();
     const startDate = await AsyncStorage.getItem(episodeId);
+    console.log(startDate);
     const timeInterval = ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
-    if ((currentDate - lastLoggedDate) > 900000) {
-      firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-        timeStamp: currentTime,
-        dateNow: currentDate,
+    firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+      {
         episodeTitle,
-        distance,
-        timeInterval,
-        steps,
-        index,
-      }).then(() => this.setState({ lastLoggedDate: currentDate }));
-    } else {
-      firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
-        timeStamp: currentTime,
-        dateNow: currentDate,
-        episodeTitle,
-        distance,
-        timeInterval,
-        steps,
-        index,
-      }).then(() => this.setState({ lastLoggedDate: currentDate }));
-    }
+        episodeId,
+        episodeIndex,
+        seriesIndex,
+        episodeCompleted,
+      },
+    ).then(() => {
+      if ((currentDate - lastLoggedDate) > 900000) {
+        firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+          timeStamp: currentTime,
+          dateNow: currentDate,
+          episodeTitle,
+          distance,
+          timeInterval,
+          steps,
+          episodeIndex,
+          seriesIndex,
+        }).then(() => this.setState({ lastLoggedDate: currentDate }));
+      } else {
+        firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
+          timeStamp: currentTime,
+          dateNow: currentDate,
+          episodeTitle,
+          distance,
+          timeInterval,
+          steps,
+          episodeIndex,
+          seriesIndex,
+        }).then(() => this.setState({ lastLoggedDate: currentDate }));
+      }
+    })
+      .catch(error => console.log(error));
   }
 
   getDate = () => {
@@ -305,41 +330,42 @@ export default class EpisodeSingle extends Component {
   }
 
   getTimeFirebase = () => {
-    const { uid, episodeId, episodeTitle, category, index } = this.state;
-    firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
-      {
-        episodeTitle,
-        episodeId,
-        category,
-      },
-    ).then(() => {
-      firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-        'value', (snapshot) => {
-          if (snapshot.val() === null) {
-            firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-              timeStamp: 0.0,
-              dateNow: 0.0,
-              episodeTitle,
-              distance: 0.0,
-              timeInterval: 0,
-              steps: 0,
-              index,
-            }).then(() => {
-              firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-                'value', (snap) => {
-                  this.getLastLogId(snap.val());
-                },
-              );
-            });
-          } else {
-            this.getLastLogId(snapshot.val());
-          }
-        }, (error) => {
-          console.log(error);
-        },
-      );
-    })
-      .catch(error => console.log(error));
+    const {
+      uid, episodeId, episodeTitle, episodeIndex, seriesIndex,
+    } = this.state;
+    // firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+    //   {
+    //     episodeTitle,
+    //     episodeId,
+    //     category,
+    //   },
+    // ).then(() => {
+    firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+      'value', (snapshot) => {
+        if (snapshot.val() === null) {
+          firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+            timeStamp: 0.0,
+            dateNow: 0.0,
+            episodeTitle,
+            distance: 0.0,
+            timeInterval: 0,
+            steps: 0,
+            episodeIndex,
+            seriesIndex,
+          }).then(() => {
+            firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
+              'value', (snap) => {
+                this.getLastLogId(snap.val());
+              },
+            );
+          })
+            .catch(error => console.log(error));
+        } else {
+          this.getLastLogId(snapshot.val());
+        }
+      }
+    );
+    // })
   }
 
   getStepCountAndDistance = async () => {
@@ -421,7 +447,7 @@ export default class EpisodeSingle extends Component {
   storeDistance = async (timeInterval) => {
     console.log(timeInterval);
     const {
-      uid, episodeId, episodeTitle, distance, currentTime, steps, index,
+      uid, episodeId, episodeTitle, distance, currentTime, steps, episodeIndex, seriesIndex,
     } = this.state;
     try {
       await AsyncStorage.setItem('distance', JSON.stringify({
@@ -433,11 +459,19 @@ export default class EpisodeSingle extends Component {
         distance,
         timeInterval,
         steps,
-        index,
+        episodeIndex,
+        seriesIndex,
       }));
     } catch (err) {
       console.log(err);
     }
+  }
+
+  formatWorkOutTime = () => {
+    const { startWT } = this.props.navigation.state.params;
+    const workOutTimeArray = startWT.split(':');
+    const formattedWorkOutTime = (parseInt(workOutTimeArray[0], 16) * 3600) + (parseInt(workOutTimeArray[1], 16) * 60) + (parseInt(workOutTimeArray[0], 16));
+    this.setState({ formattedWorkOutTime });
   }
 
   navigateToEpisodeView = async () => {
@@ -498,7 +532,7 @@ export default class EpisodeSingle extends Component {
                 color="#fff"
                 onPress={() => {
                   this.setState({ showDialog: false });
-                  this.props.navigation.navigate('TalonIntelPlayer', { episodeId });
+                  this.props.navigation.navigate('TalonIntelPlayer', { episodeId, talon: true });
                 }}
               />
             </View>
@@ -517,9 +551,14 @@ export default class EpisodeSingle extends Component {
 
   changeExercises = () => {
     const { exercises, completeExercises } = this.props.navigation.state.params;
+    const { formattedWorkOutTime, currentTime, listen, trackingStarted } = this.state;
+    if (!listen && (currentTime > formattedWorkOutTime) && !trackingStarted) {
+      this.startTrackingSteps();
+      this.setState({ trackingStarted: true });
+    }
     exercises.map((value, i) => {
       const { length, uid } = value;
-      if (this.state.currentTime > (length / 1000)) {
+      if (currentTime > (length / 1000)) {
         this.setCurrentExercise(completeExercises[uid], uid);
         this.state.previousStartTime.push(length);
       }
@@ -531,10 +570,13 @@ export default class EpisodeSingle extends Component {
   }
 
   renderLandscapeView = () => {
-    const { image, title } = this.state.playingExercise.value;
+    const {
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused,
+    } = this.state;
+    const { image, title } = playingExercise.value;
     return (
       <View style={{ flex: 1 }}>
-        { this.state.platform === 'android'
+        { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -544,14 +586,14 @@ export default class EpisodeSingle extends Component {
                 size={25}
                 color="white"
                 onPress={() => {
-                  if (!this.state.listen) {
+                  if (!listen) {
                     this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
                 }}
               />
               <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 20 }]}>
-                {this.state.mode}
+                {mode}
               </Text>
             </View>
           )
@@ -563,7 +605,7 @@ export default class EpisodeSingle extends Component {
                 size={38}
                 color="white"
                 onPress={() => {
-                  if (!this.state.listen) {
+                  if (!listen) {
                     this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
@@ -571,7 +613,7 @@ export default class EpisodeSingle extends Component {
               />
               <View style={{ flex: 1, marginLeft: -10 }}>
                 <Text style={[styles.textTitle, { fontSize: 18 }]}>
-                  {this.state.mode}
+                  {mode}
                 </Text>
               </View>
             </View>
@@ -584,18 +626,18 @@ export default class EpisodeSingle extends Component {
           >
             <AlbumArt
               url={
-              this.state.playingExercise
+              playingExercise
                 ? image
                 : null
               }
               currentExercise={title}
               onPress={this.onExercisePress}
-              showInfo={this.state.showInfo}
+              showInfo={showInfo}
             />
           </View>
           <View style={{ flex: 0.5, justifyContent: 'space-between' }}>
             <Text h4 style={styles.textTitle}>
-              {this.state.episodeTitle}
+              {episodeTitle}
             </Text>
             <Controls
               onPressPlay={this.onPressPlay}
@@ -603,26 +645,26 @@ export default class EpisodeSingle extends Component {
               onBack={this.onBack}
               onForward={this.onForward}
               onDownload={this.onDownload}
-              paused={this.state.paused}
+              paused={paused}
               navigateToPreviousExercise={this.navigateToPreviousExercise}
-              renderForwardButton={this.state.listen}
+              renderForwardButton={listen}
             />
-            { this.state.loading
+            { loading
               ? <Loading />
               : (
                 <View>
-                  { this.state.listen
+                  { listen
                     ? (
                       <Seekbar
                         totalLength={this.state.totalLength}
                         onDragSeekBar={this.onDragSeekBar}
                         sliderReleased={this.sliderReleased}
-                        seekValue={this.state.currentTime && this.state.currentTime}
+                        seekValue={currentTime && currentTime}
                       />
                     )
                     : (
                       <View>
-                        { this.state.showDialog
+                        { showDialog
                           ? (
                             <View>
                               {this.showModal()}
@@ -634,8 +676,8 @@ export default class EpisodeSingle extends Component {
                     )
                   }
                   <FormatTime
-                    currentTime={this.state.currentTime}
-                    remainingTime={this.state.totalLength - this.state.currentTime}
+                    currentTime={currentTime}
+                    remainingTime={totalLength - currentTime}
                   />
                 </View>
               )
@@ -647,10 +689,13 @@ export default class EpisodeSingle extends Component {
   }
 
   renderPortraitView = () => {
-    const { image, title } = this.state.playingExercise.value;
+    const {
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused,
+    } = this.state;
+    const { image, title } = playingExercise.value;
     return (
       <View>
-        { this.state.platform === 'android'
+        { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -661,14 +706,14 @@ export default class EpisodeSingle extends Component {
                 color="white"
                 underlayColor="#001331"
                 onPress={() => {
-                  if (!this.state.listen) {
+                  if (!listen) {
                     this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
                 }}
               />
               <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 20 }]}>
-                {this.state.mode}
+                {mode}
               </Text>
             </View>
           )
@@ -681,7 +726,7 @@ export default class EpisodeSingle extends Component {
                 color="white"
                 underlayColor="#001331"
                 onPress={() => {
-                  if (!this.state.listen) {
+                  if (!listen) {
                     this.navigateToEpisodeView();
                   }
                   this.props.navigation.navigate('EpisodeView');
@@ -689,7 +734,7 @@ export default class EpisodeSingle extends Component {
               />
               <View style={{ flex: 1, marginLeft: -10 }}>
                 <Text style={[styles.textTitle, { fontSize: 18 }]}>
-                  {this.state.mode}
+                  {mode}
                 </Text>
               </View>
             </View>
@@ -698,32 +743,32 @@ export default class EpisodeSingle extends Component {
         <View style={styles.albumView}>
           <AlbumArt
             url={
-             this.state.playingExercise
+             playingExercise
                ? image
                : null
             }
             currentExercise={title}
             onPress={this.onExercisePress}
-            showInfo={this.state.showInfo}
+            showInfo={showInfo}
           />
         </View>
         <View style={styles.line} />
-        { this.state.loading
+        { loading
           ? <Loading />
           : (
             <View>
-              { this.state.listen
+              { listen
                 ? (
                   <Seekbar
-                    totalLength={this.state.totalLength}
+                    totalLength={totalLength}
                     onDragSeekBar={this.onDragSeekBar}
                     sliderReleased={this.sliderReleased}
-                    seekValue={this.state.currentTime && this.state.currentTime}
+                    seekValue={currentTime && currentTime}
                   />
                 )
                 : (
                   <View>
-                    { this.state.showDialog
+                    { showDialog
                       ? (
                         <View>
                           {this.showModal()}
@@ -735,11 +780,11 @@ export default class EpisodeSingle extends Component {
                 )
               }
               <FormatTime
-                currentTime={this.state.currentTime}
-                remainingTime={this.state.totalLength - this.state.currentTime}
+                currentTime={currentTime}
+                remainingTime={totalLength - currentTime}
               />
               <Text h4 style={styles.textTitle}>
-                {this.state.episodeTitle}
+                {episodeTitle}
               </Text>
               <Controls
                 onPressPlay={this.onPressPlay}
@@ -747,9 +792,9 @@ export default class EpisodeSingle extends Component {
                 onBack={this.onBack}
                 onForward={this.onForward}
                 onDownload={this.onDownload}
-                paused={this.state.paused}
+                paused={paused}
                 navigateToPreviousExercise={this.navigateToPreviousExercise}
-                renderForwardButton={this.state.listen}
+                renderForwardButton={listen}
               />
             </View>
           )
@@ -772,6 +817,7 @@ export default class EpisodeSingle extends Component {
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground
         ignoreSilentSwitch="ignore"
+        repeat={false}
         playWhenInactive
         onLoad={this.onLoad}
         onEnd={this.onEnd}

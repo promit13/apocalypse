@@ -8,7 +8,7 @@ import { Text, Icon } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
 import realm from '../config/Database';
 import Loading from '../common/Loading';
-import Download from '../common/Download';
+import DeleteDownloads from '../common/DeleteDownloads';
 
 const styles = {
   mainContainer: {
@@ -17,6 +17,10 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  text: {
+    color: 'white',
+    fontSize: 14,
   },
 };
 export default class Downloads extends React.Component {
@@ -131,10 +135,11 @@ export default class Downloads extends React.Component {
         }}
         >
           <Icon
-            name="delete"
+            name="trash"
             color="white"
+            type="evilicon"
           />
-          <Text style={{ color: 'white' }}>
+          <Text style={styles.text}>
           Delete
           </Text>
         </View>
@@ -181,7 +186,7 @@ export default class Downloads extends React.Component {
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
         { !this.state.isConnected ? <OfflineMsg /> : null }
-        <Download ref={ref => (this.child = ref)} />
+        <DeleteDownloads ref={ref => (this.child = ref)} />
         <ScrollView>
           {filesList}
         </ScrollView>

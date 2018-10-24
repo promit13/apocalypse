@@ -55,18 +55,31 @@ export default class App extends React.Component {
       if (toLogDataObject !== null) {
         const toLogData = JSON.parse(toLogDataObject);
         const {
-          uid, episodeId, timeStamp, dateNow, episodeTitle, distance, timeInterval, steps, index,
+          uid, episodeId, timeStamp, dateNow, episodeTitle, distance, timeInterval, steps, episodeIndex, seriesIndex,
         } = toLogData;
         const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
-        firebase.database().ref(`logs/${uid}/${episodeId}`).push({
-          timeStamp,
-          dateNow,
-          episodeTitle,
-          distance,
-          steps,
-          index,
-          timeInterval: formattedTimeInterval,
-        }).then(() => AsyncStorage.removeItem('distance'));
+        firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+          {
+            episodeTitle,
+            episodeId,
+            episodeIndex,
+            seriesIndex,
+            episodeCompleted: false,
+          },
+        ).then(() => {
+          firebase.database().ref(`logs/${uid}/${episodeId}`).push({
+            timeStamp,
+            dateNow,
+            episodeTitle,
+            distance,
+            steps,
+            episodeIndex,
+            seriesIndex,
+            timeInterval: formattedTimeInterval,
+          }).then(() => AsyncStorage.removeItem('distance'))
+            .catch(error => console.log(error));
+        })
+          .catch(error => console.log(error));
       }
       firebase.database().ref(`users/${this.state.user.uid}`)
         .on('value', (snapshot) => {

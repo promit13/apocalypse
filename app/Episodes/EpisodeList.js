@@ -11,7 +11,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
-import Download from '../common/Download';
+import DeleteDownloads from '../common/DeleteDownloads';
 import PortraitScreen from '../common/ScreenMode';
 
 const homeCover = require('../../img/homecover.jpg');
@@ -141,32 +141,35 @@ export default class EpisodeList extends PortraitScreen {
     RNIap.endConnection();
   }
 
-  onEpisodeClick = (episodeId, totalTime, workoutTime, videoSize, index, alreadyDownloaded, download) => {
+  onEpisodeClick = (episodeId, totalTime, workoutTime, videoSize, alreadyDownloaded, episodeIndex, seriesIndex, download) => {
     if (!this.state.isConnected ) {
       return Alert.alert('No internet connection');
     }
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       const {
-        title, category, description, exercises, video,
+        title, category, description, exercises, video, startWT,
       } = snapshot.val();
       this.setState({ loading: false });
       if (download) {
         if (alreadyDownloaded) {
           this.deleteEpisode(title);
+          this.readDirectory();
+          this.renderList();
+        } else {
+          this.props.navigation.navigate('DownloadFiles', {
+            episodeId,
+            episodeTitle: title,
+            category,
+            description,
+            exercises,
+            video,
+            totalTime,
+            workoutTime,
+            videoSize,
+          });
         }
-        // return this.donwloadFile(title, video);
-        return this.props.navigation.navigate('DownloadFiles', {
-          episodeId,
-          episodeTitle: title,
-          category,
-          description,
-          exercises,
-          video,
-          totalTime,
-          workoutTime,
-          videoSize,
-        });
+        return;
       }
       this.props.navigation.navigate('EpisodeView', {
         episodeId,
@@ -178,7 +181,9 @@ export default class EpisodeList extends PortraitScreen {
         totalTime,
         workoutTime,
         videoSize,
-        index,
+        episodeIndex,
+        seriesIndex,
+        startWT,
         offline: alreadyDownloaded,
       });
     });
@@ -214,17 +219,17 @@ export default class EpisodeList extends PortraitScreen {
 
   buyItem = async (item, itemId, itemPrice) => {
     try {
-      await RNIap.prepare();
-      const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
-      // to something in your server
-      const { transactionReceipt, purchaseToken } = purchase;
+      // await RNIap.prepare();
+      // const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
+      // // to something in your server
+      // const { transactionReceipt, purchaseToken } = purchase;
       firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
         inAppPurchaseId: itemId,
         seriesId: item,
         price: itemPrice,
         date: new Date().getTime(),
-        transactionReceipt,
-        purchaseToken,
+        transactionReceipt: 'fasdfasdf',
+        purchaseToken: 'fasdfasdfsdf',
       })
         .then(() => {
           Alert.alert('Item purchased');
@@ -240,9 +245,6 @@ export default class EpisodeList extends PortraitScreen {
     const { dirs, ls } = RNFetchBlob.fs;
     ls(`${dirs.DocumentDir}/AST/episodes`)
       .then((files) => {
-        if (files.length === 0) {
-          Alert.alert('You have no any downloads');
-        }
         this.setState({ filesList: files });
       })
       .catch((error) => {
@@ -261,7 +263,7 @@ export default class EpisodeList extends PortraitScreen {
     console.log(filesList);
     let minIndex = 0;
     let maxIndex = 0;
-    const seriesList = Object.entries(series).map(([seriesKey, value], i) => {
+    const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
       const buy = purchasedSeries.includes(seriesKey);
       minIndex = maxIndex + 1;
       if (value.episodes === undefined) {
@@ -282,12 +284,12 @@ export default class EpisodeList extends PortraitScreen {
               key={episodeKey}
               title={`${episodeIndex + minIndex}. ${title}`}
               subtitle={category}
-              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && i > 0) ? 'gray' : 'white', fontSize: 18 }}
-              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && i > 0) ? 'gray' : 'white' }}
+              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white', fontSize: 18 }}
+              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white' }}
               rightIcon={
                 downloaded
-                  ? { name: 'delete', type: 'material-community', color: 'red' }
-                  : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && i > 0) ? 'gray' : 'white' }
+                  ? { name: 'trash-2', type: 'feather', color: 'white' }
+                  : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white' }
                 }
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
@@ -295,7 +297,7 @@ export default class EpisodeList extends PortraitScreen {
                 if (!isConnected) {
                   return Alert.alert('No internet connection');
                 }
-                if ((!buy && episodeIndex > 2) || (!buy && i > 0)) {
+                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0)) {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
@@ -303,8 +305,9 @@ export default class EpisodeList extends PortraitScreen {
                   totalTime,
                   workoutTime,
                   videoSize,
-                  (episodeIndex + minIndex),
                   downloaded,
+                  episodeIndex,
+                  seriesIndex,
                   true,
                 );
               }
@@ -313,7 +316,7 @@ export default class EpisodeList extends PortraitScreen {
                 if (!isConnected) {
                   return Alert.alert('No internet connection');
                 }
-                if ((!buy && episodeIndex > 2) || (!buy && i > 0)) {
+                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0)) {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
@@ -321,8 +324,9 @@ export default class EpisodeList extends PortraitScreen {
                   totalTime,
                   workoutTime,
                   videoSize,
-                  (episodeIndex + minIndex),
                   downloaded,
+                  episodeIndex,
+                  seriesIndex,
                 );
               }}
             />
@@ -332,7 +336,7 @@ export default class EpisodeList extends PortraitScreen {
         <View>
           <View style={styles.episodeHeaderView}>
             <Text style={styles.textStyle}>
-              {`Part ${i + 1} (Episodes ${minIndex}-${maxIndex})`}
+              {`Part ${seriesIndex + 1} (Episodes ${minIndex}-${maxIndex})`}
             </Text>
             <View>
               {
@@ -376,17 +380,52 @@ export default class EpisodeList extends PortraitScreen {
     );
   }
 
+  getTitleAndId = (seriesIndex, episodeIndex, getImage) => {
+    if (this.state.series === '') {
+      return console.log('no series');
+    }
+    const { uid, title, category } = ((Object.values(((Object.values(this.state.series))[seriesIndex]).episodes))[episodeIndex]);
+    if (getImage) {
+      if (category === 'Speed') {
+        return speedImage;
+      }
+      if (category === 'Strength') {
+        return strengthImage;
+      }
+      if (category === 'Control') {
+        return controlImage;
+      }
+    }
+    return { uid, title };
+  }
+
+  getEpisodesListSize = (seriesIndex) => {
+    if (this.state.series === '') {
+      return console.log('no series');
+    }
+    const { length } = Object.keys(((Object.values(this.state.series))[seriesIndex]).episodes);
+    console.log(length);
+    return length;
+  }
+
   render() {
     const {
-      isConnected, lastPlayedEpisode, completeEpisodes, series, loading,
+      isConnected, lastPlayedEpisode, completeEpisodes, loading,
     } = this.state;
     if (loading) return <LoadScreen />;
+    const {
+      episodeTitle,
+      episodeId,
+      episodeIndex,
+      seriesIndex,
+      episodeCompleted,
+    } = lastPlayedEpisode;
     return (
       <View style={styles.mainContainer}>
         <StatusBar
           backgroundColor="#00000b"
         />
-        <Download ref={ref => (this.child = ref)} />
+        <DeleteDownloads ref={ref => (this.child = ref)} />
         { !isConnected ? <OfflineMsg /> : null }
         <ScrollView>
           <View>
@@ -401,8 +440,16 @@ export default class EpisodeList extends PortraitScreen {
                 return Alert.alert('No internet connection');
               }
               const id = lastPlayedEpisode === ''
-                ? ((Object.values(((Object.values(series))[0]).episodes))[0]).uid
-                : lastPlayedEpisode.episodeId;
+                ? this.getTitleAndId(0, 0).uid
+                : (
+                    episodeCompleted
+                      ? (
+                          (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                            ? this.getTitleAndId(seriesIndex, 0).uid
+                            : this.getTitleAndId(seriesIndex, episodeIndex + 1).uid
+                        )
+                      : episodeId
+                  )
               const {
                 totalTime, workoutTime, videoSize,
               } = completeEpisodes[id];
@@ -411,6 +458,9 @@ export default class EpisodeList extends PortraitScreen {
                 totalTime,
                 workoutTime,
                 videoSize,
+                false,
+                episodeIndex,
+                seriesIndex,
               );
             }}
             >
@@ -425,15 +475,15 @@ export default class EpisodeList extends PortraitScreen {
                       }}
                       source={
                         lastPlayedEpisode === ''
-                          ? homeCover
+                          ? this.getTitleAndId(0, 0, true)
                           : (
-                            lastPlayedEpisode.category === 'Speed'
-                              ? speedImage 
-                              : (
-                                lastPlayedEpisode.category === 'Strength'
-                                  ? strengthImage
-                                  : controlImage
-                                )
+                            episodeCompleted
+                                ? (
+                                    (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                                      ? this.getTitleAndId(seriesIndex, 0, true)
+                                      : this.getTitleAndId(seriesIndex, episodeIndex + 1, true)
+                                  )
+                                : this.getTitleAndId(seriesIndex, episodeIndex, true)
                             )
                         }
                     />
@@ -450,7 +500,15 @@ export default class EpisodeList extends PortraitScreen {
                       {
                         lastPlayedEpisode === ''
                           ? 'Play First Episode'
-                          : 'Last Played Episode'
+                          : (
+                              episodeCompleted
+                                ? (
+                                    (episodeIndex + 1)=== this.getEpisodesListSize(seriesIndex)
+                                      ? 'Play First Episode'
+                                      : 'Play Next Episode'
+                                  )
+                                : 'Play Current Episode'
+                            )
                       }
                     </Text>
                     <Text style={{
@@ -463,8 +521,16 @@ export default class EpisodeList extends PortraitScreen {
                     >
                       {
                         lastPlayedEpisode === ''
-                          ? ((Object.values(((Object.values(series))[0]).episodes))[0]).title
-                          : lastPlayedEpisode.episodeTitle
+                          ? this.getTitleAndId(0, 0).title
+                          : (
+                              episodeCompleted
+                                ? (
+                                    (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                                      ? this.getTitleAndId(seriesIndex, 0).title
+                                      : this.getTitleAndId(seriesIndex, episodeIndex + 1).title
+                                  )
+                                : episodeTitle
+                            )
                       }
                     </Text>
                   </View>
