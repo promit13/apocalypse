@@ -1,11 +1,16 @@
 import React from 'react';
 import {
-  View, StyleSheet, TextInput, ScrollView,
+  View, StyleSheet, TextInput, ScrollView, Image, Dimensions,
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+
+const { width } = Dimensions.get('window');
+const imageSize = width - 120;
+
+const talonImage = require('../../img/talon.png');
 
 const styles = StyleSheet.create({
   container: {
@@ -17,6 +22,14 @@ const styles = StyleSheet.create({
   button: {
     width: 50,
   },
+  fieldContainer: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    borderColor: 'white',
+    borderWidth: 2,
+    padding: 10,
+    marginTop: 5,
+  },
   inputStyle: {
     borderColor: 'white',
     borderRadius: 5,
@@ -26,11 +39,18 @@ const styles = StyleSheet.create({
     color: 'white',
     margin: 5,
   },
+  imageStyle: {
+    height: imageSize,
+    width: imageSize,
+    alignSelf: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+  },
 });
 
 export default class UserBodyDetail extends React.Component {
   static navigationOptions = {
-    title: 'Details',
+    header: null,
   };
 
   state = {
@@ -66,17 +86,21 @@ export default class UserBodyDetail extends React.Component {
   }
 
   render() {
+    const {
+      age, height, weight, gender, showError, showLoading,
+    } = this.state;
     return (
       <View style={styles.container}>
         <ScrollView>
+          <Image style={styles.imageStyle} source={talonImage} />
           <TextInput
             keyboardType="numeric"
             underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Age"
             placeholderTextColor="gray"
-            onChangeText={age => this.setState({ age })}
-            value={this.state.age}
+            onChangeText={value => this.setState({ age: value })}
+            value={age}
           />
           <TextInput
             keyboardType="numeric"
@@ -84,8 +108,8 @@ export default class UserBodyDetail extends React.Component {
             style={styles.inputStyle}
             placeholder="Height (cm/inches)"
             placeholderTextColor="gray"
-            onChangeText={height => this.setState({ height })}
-            value={this.state.height}
+            onChangeText={value => this.setState({ height: value })}
+            value={height}
           />
           <TextInput
             keyboardType="numeric"
@@ -93,19 +117,19 @@ export default class UserBodyDetail extends React.Component {
             style={styles.inputStyle}
             placeholder="Weight (kg/lbs)"
             placeholderTextColor="gray"
-            onChangeText={weight => this.setState({ weight })}
-            value={this.state.weight}
+            onChangeText={value => this.setState({ weight: value })}
+            value={weight}
           />
           <TextInput
             underlineColorAndroid="transparent"
             style={styles.inputStyle}
             placeholder="Gender (M/F/Other)"
             placeholderTextColor="gray"
-            onChangeText={gender => this.setState({ gender })}
-            value={this.state.gender}
+            onChangeText={value => this.setState({ gender: value })}
+            value={gender}
           />
-          {this.state.showError ? <ErrorMessage errorMessage="Please fill all section" /> : null}
-          {this.state.showLoading ? <Loading /> : null}
+          {showError ? <ErrorMessage errorMessage="Please fill all section" /> : null}
+          {showLoading ? <Loading /> : null}
           <Button
             buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
             title="Done"
@@ -115,7 +139,7 @@ export default class UserBodyDetail extends React.Component {
             }}
           />
           <Button
-            buttonStyle={{ backgroundColor: 'transparent', borderRadius: 10, marginTop: 10 }}
+            buttonStyle={{ backgroundColor: 'transparent', borderRadius: 5, marginTop: 10 }}
             color="white"
             title="Skip Personalisation info"
             onPress={() => this.props.navigation.navigate('Tutorial')}

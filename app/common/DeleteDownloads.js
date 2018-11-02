@@ -25,7 +25,7 @@ export default class DeleteDownloads extends React.Component {
           });
           if (count < 2) {
             const exerciseDetail = realm.objects('SavedExercises').filtered(`id="${value}"`);
-            const exerciseTitle = Array.from(exerciseDetail)[0].title;
+            const exerciseTitle = Array.from(exerciseDetail)[0].cmsTitle;
             const formattedExerciseTitle = exerciseTitle.replace(/\s+/g, '');
             RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedExerciseTitle}.mp4`)
               .then(() => {

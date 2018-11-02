@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
+import Orientation from 'react-native-orientation';
 import Controls from '../common/Controls';
 import TrackDetails from '../common/TrackDetails';
 import Loading from '../common/Loading';
@@ -61,6 +62,7 @@ export default class ExercisePlayer extends Component {
   }
 
   componentDidMount() {
+    Orientation.unlockAllOrientations();
     const {
       offline, advance, exerciseTitle, video,
     } = this.props.navigation.state.params;

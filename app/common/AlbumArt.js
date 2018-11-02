@@ -1,9 +1,11 @@
 import React from 'react';
 import RNFetchBlob from 'react-native-fetch-blob';
 import {
-  View, StyleSheet, Image, TouchableOpacity, Dimensions,
+  View, StyleSheet, Image, TouchableOpacity, Dimensions, ImageBackground,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
+
+const backgroundImage = require('../../img/background.png');
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 80;
@@ -32,6 +34,7 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     alignSelf: 'center',
+    paddingBottom: 10,
   },
 });
 
@@ -42,12 +45,13 @@ export default function AlbumArt({
   showInfo,
   offline,
   advance,
+  talonPlayer,
 }) {
   const { dirs } = RNFetchBlob.fs;
-  const formattedUrl = offline ? currentExercise.replace(/\s+/g, '') : '';
+  const formattedUrl = offline ? url.replace(/\s+/g, '') : '';
   console.log(formattedUrl);
   return (
-    <View style={styles.container}>
+    <ImageBackground style={styles.container} source={backgroundImage}>
       {
         offline
           ? (
@@ -67,19 +71,30 @@ export default function AlbumArt({
             />
           )
       }
-      { showInfo
-        ? (
-          <TouchableOpacity onPress={onPress}>
-            <View style={styles.infoView}>
-              <Icon type="ionicon" name="ios-information" color="#f5cb23" />
-            </View>
-          </TouchableOpacity>
-        )
-        : <View style={{ height: 27 }} />
+      { talonPlayer
+          ? null
+          : (
+              showInfo
+                ? (
+                    <TouchableOpacity onPress={onPress}>
+                      <View style={styles.infoView}>
+                        <Icon type="ionicon" name="ios-information" color="#f5cb23" />
+                      </View>
+                    </TouchableOpacity>
+                  )
+                : <View style={{ height: 27 }} />
+            )
+        // : <View style={{ height: 27 }} />
       }
-      <Text h4 style={styles.text}>
-        {currentExercise}
-      </Text>
-    </View>
+      {
+        talonPlayer
+          ? null
+          : (
+            <Text h4 style={styles.text}>
+              {currentExercise}
+            </Text>
+          )
+      }
+    </ImageBackground>
   );
 }

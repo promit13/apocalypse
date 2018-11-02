@@ -6,12 +6,14 @@ export default Seekbar = ({
   onDragSeekBar,
   seekValue,
   sliderReleased,
+  listen,
 }) => (
   <View>
     <Slider
       step={1}
       minimumValue={0}
       maximumValue={totalLength}
+      disabled={listen}
       value={seekValue}
       thumbTintColor="#FFC300"
       minimumTrackTintColor="#FFC300"

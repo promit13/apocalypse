@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import * as Animatable from 'react-native-animatable';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import OfflineMsg from '../common/OfflineMsg';
@@ -51,11 +52,13 @@ const styles = {
 };
 const talonImage = require('../../img/talondark.png');
 const speedImage = require('../../img/speed.png');
+const strengthImage = require('../../img/strength.png');
+const controlImage = require('../../img/control.png');
 const talonCover = require('../../img/taloncover.jpg');
 
 export default class TalonScreen extends React.Component {
   static navigationOptions = {
-    title: 'Talon',
+    title: 'TALON',
   };
 
     state = {
@@ -66,6 +69,7 @@ export default class TalonScreen extends React.Component {
       showTalon: false,
       isConnected: true,
       lastPlayedEpisode: '',
+      series: '',
     };
 
   componentDidMount = async () => {
@@ -75,26 +79,35 @@ export default class TalonScreen extends React.Component {
       const offlineData = await AsyncStorage.getItem('talonLogs');
       const jsonObjectData = JSON.parse(offlineData);
       const {
-        talonLogs, lastPlayedEpisode,
+        talonLogs, lastPlayedEpisode, series,
       } = jsonObjectData;
-      return this.setState({ loading: false, talonLogs, lastPlayedEpisode });
+      return this.setState({
+        loading: false, talonLogs, lastPlayedEpisode, series,
+      });
     }
-    firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).on('value', (snapshot) => {
-      firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
-        if (snap.val() === null) {
-          return;
-        }
-        const { lastPlayedEpisode } = snap.val();
-        this.setState({
-          talonLogs: snapshot.val(),
-          lastPlayedEpisode,
-          loading: false,
+    firebase.database().ref('series').on('value', (snapSeries) => {
+      firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).on('value', (snapshot) => {
+        firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
+          // if (snap.val() === null) {
+          //   return;
+          // }
+          const series = Object.values(snapSeries.val());
+          const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+
+          const { lastPlayedEpisode } = snap.val();
+          this.setState({
+            talonLogs: snapshot.val(),
+            lastPlayedEpisode,
+            loading: false,
+            series: sortedSeries,
+          });
+          AsyncStorage.setItem('talonLogs', JSON.stringify({
+            talonLogs: snapshot.val(),
+            lastPlayedEpisode,
+            series: sortedSeries,
+          }));
+          console.log(this.state.lastIntel);
         });
-        AsyncStorage.setItem('talonLogs', JSON.stringify({
-          talonLogs: snapshot.val(),
-          lastPlayedEpisode,
-        }));
-        console.log(this.state.lastIntel);
       });
     });
   }
@@ -109,7 +122,9 @@ export default class TalonScreen extends React.Component {
               return Alert.alert('No internet connection');
             }
             this.props.navigation.navigate('TalonIntelPlayer', {
-              episodeId, talon: true,
+              episodeId,
+              talon: true,
+              mode: 'TALON Intel Player',
             });
           }}
           >
@@ -119,14 +134,14 @@ export default class TalonScreen extends React.Component {
             >
               <Text style={styles.textStyle}>
                 {/* {`${Object.values(logs)[0].index} Intel`} */}
-                {`Ep. ${i} Intel`}
+                {`Episode ${i} Intel`}
               </Text>
               <Icon name="chevron-right" type="feather" color="white" />
             </View>
           </TouchableOpacity>
           {
             Object.entries(logs).map(([key, value], ind) => {
-              if (ind === 0) {
+              if (ind === 0 || !value.workOutCompleted) {
                 console.log(value);
               } else {
                 const { dateNow, timeInterval, distance, steps } = value;
@@ -140,13 +155,14 @@ export default class TalonScreen extends React.Component {
                     subtitle={
                       (
                         <View>
-                          <Image
+                          <Animatable.Image
                             style={{
                               height: 40,
                               width: 40,
                               marginBottom: 5,
                               marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth),
                             }}
+                            animation="fadeInLeft"
                             source={gifImageSource}
                           />
                           <ProgressBarAnimated
@@ -174,35 +190,59 @@ export default class TalonScreen extends React.Component {
   }
 
   render() {
-    if (this.state.talonLogs === null) {
-      return (
-        <View style={[styles.mainContainer, { justifyContent: 'center', alignItems: 'center' }]}>
-          <Text style={[styles.textStyle, { fontSize: 16 }]}>
-            Sorry you have no any logged talon.
-          </Text>
-        </View>
-      );
-    }
-    const { episodeId, episodeTitle } = this.state.lastPlayedEpisode;
-    const episodes = Object.entries(this.state.talonLogs).map(([key, value], i) => {
-      return (
-        <View>
-          <ListItem
-            key={key}
-            roundAvatar
-            avatar={speedImage}
-            title={`${Object.values(value)[0].episodeTitle}`}
-            titleStyle={{ color: 'white' }}
-            rightIcon={{ name: 'chevron-down', type: 'feather', color: '#f5cb23' }}
-            containerStyle={{ backgroundColor: '#33425a' }}
-            underlayColor="#2a3545"
-            onPress={() => {
-              this.setState({ index: i + 1, showTalon: !this.state.showTalon });
-            }}
-          />
-          { this.renderContent((i + 1), key, value) }
-        </View>
-      );
+    // if (this.state.talonLogs === null) {
+    //   return (
+    //     <View style={[styles.mainContainer, { justifyContent: 'center', alignItems: 'center' }]}>
+    //       <Text style={[styles.textStyle, { fontSize: 16 }]}>
+    //         Sorry you have no any logged talon.
+    //       </Text>
+    //     </View>
+    //   );
+    // }
+    const {
+      series, lastPlayedEpisode, talonLogs,
+    } = this.state;
+    const talonKeyArray = Object.keys(talonLogs);
+    const { episodeId, episodeTitle } = lastPlayedEpisode;
+    const episodes = Object.entries(series).map(([seriesKey, value], index) => {
+      if (value.episodes === undefined) {
+        return console.log('no episodes added');
+      }
+      const episodesList = Object.entries(value.episodes)
+        .map(([episodeKey, episodeValue], i) => {
+          const { uid, category } = episodeValue;
+          const talonDone = talonKeyArray.includes(uid);
+          return (
+            <View>
+              <ListItem
+                key={episodeKey}
+                roundAvatar
+                avatar={
+                  category === 'Speed'
+                  ? speedImage
+                    : (
+                      category === 'Strength'
+                        ? strengthImage
+                        : controlImage
+                  )
+                }
+                title={`Episode ${i + 1} Intel File`}
+                titleStyle={{ color: talonDone ? 'white' : 'gray', fontWeight: 'bold' }}
+                rightIcon={{ name: 'chevron-down', type: 'feather', color: talonDone ? '#f5cb23' : 'gray' }}
+                containerStyle={{ backgroundColor: '#33425a' }}
+                underlayColor="#2a3545"
+                onPress={() => {
+                  if (!talonDone) {
+                    return;
+                  }
+                  this.setState({ index: i + 1, showTalon: !this.state.showTalon });
+                }}
+              />
+              { this.renderContent((i + 1), uid, episodeValue) }
+            </View>
+          );
+        });
+      return episodesList;
     });
     if (this.state.loading) return <Loading />;
     return (
@@ -223,7 +263,9 @@ export default class TalonScreen extends React.Component {
             }
             // const episodeId = (Object.keys(this.state.talonLogs))[0];
             this.props.navigation.navigate('TalonIntelPlayer', {
-              episodeId, talon: true,
+              episodeId,
+              talon: true,
+              mode: 'TALON Intel Player',
             });
           }}
           >
@@ -240,7 +282,10 @@ export default class TalonScreen extends React.Component {
                       marginRight: 10,
                     }}
                   >
-                    Play Latest Intel
+                    { lastPlayedEpisode === ''
+                      ? 'No Essential Intel Available'
+                      : 'Play Latest Essential Intel'
+                    }
                   </Text>
                   <Text style={{
                     fontSize: 16,
@@ -251,7 +296,10 @@ export default class TalonScreen extends React.Component {
                   }}
                   >
                     {/* {`${Object.values(Object.values(this.state.talonLogs)[0])[0].episodeTitle}`} */}
-                    {episodeTitle}
+                    { lastPlayedEpisode === ''
+                      ? 'Play Ep 1 to unlock your intel'
+                      : `${episodeTitle}`
+                    }
                   </Text>
                 </View>
               </View>

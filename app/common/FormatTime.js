@@ -20,13 +20,20 @@ export default class FormatTime extends React.Component {
   };
 
   render() {
+    const { workOutTime, currentTime, remainingTime, landscape } = this.props;
     return (
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
-        <Text style={{ color: 'white' }}>
-          {this.formatTime(this.props.currentTime)}
+      <View style={{ flexDirection: workOutTime && landscape ? 'column' : 'row', justifyContent: workOutTime ? 'center' : 'space-between', padding: 10 }}>
+        <Text style={{ color: 'white', alignSelf: workOutTime && landscape ? 'center' : 'flex-start' }}>
+          { workOutTime
+            ? `Workout Time: ${this.formatTime(currentTime)}`
+            : this.formatTime(currentTime)
+          }
         </Text>
-        <Text style={{ color: 'white', alignSelf: 'flex-end' }}>
-          {`- ${this.formatTime(this.props.remainingTime)}`}
+        <Text style={{ color: 'white', alignSelf: workOutTime && landscape ? 'center' : 'flex-end' }}>
+          { workOutTime
+            ? `  Workout Left: ${this.formatTime(remainingTime)}`
+            : this.formatTime(remainingTime)
+          }
         </Text>
       </View>
     );

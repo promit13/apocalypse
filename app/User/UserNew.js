@@ -2,7 +2,7 @@ import React from 'react';
 import {
   StyleSheet, View, TextInput, ScrollView,
 } from 'react-native';
-import { Button, SocialIcon, Icon } from 'react-native-elements';
+import { Button, SocialIcon, Icon, CheckBox } from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import axios from 'axios';
 import firebase from '../config/firebase';
@@ -69,6 +69,7 @@ export default class Signup extends React.Component {
       fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
       purchases: '',
       lastPlayedEpisode: '',
+      checked: false,
     })
       .then(() => {
         this.setState({ showError: false, errorMessage: '', showLoading: false });
@@ -83,6 +84,7 @@ export default class Signup extends React.Component {
       email,
       password,
       confirmPassword,
+      checked,
     } = this.state;
     if (email === '' || firstName === ''
       || lastName === '' || password === '' || confirmPassword === '') {
@@ -90,6 +92,9 @@ export default class Signup extends React.Component {
     }
     if (password !== confirmPassword) {
       return this.setState({ showError: true, errorMessage: 'Password did not match', showLoading: false });
+    }
+    if (!checked) {
+      return this.setState({ showError: true, errorMessage: 'Accept the agreements', showLoading: false });
     }
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((currentUser) => {
@@ -127,6 +132,9 @@ export default class Signup extends React.Component {
   }
 
   render() {
+    const {
+      email, firstName, lastName, password, confirmPassword, checked, showError, showLoading, errorMessage,
+    } = this.state;
     return (
       <View style={styles.container}>
         <ScrollView>
@@ -138,8 +146,8 @@ export default class Signup extends React.Component {
               style={styles.inputStyle}
               placeholder="Email"
               placeholderTextColor="gray"
-              onChangeText={email => this.setState({ email })}
-              value={this.state.email}
+              onChangeText={value => this.setState({ email: value })}
+              value={email}
             />
           </View>
           <View style={styles.fieldContainer}>
@@ -149,8 +157,8 @@ export default class Signup extends React.Component {
               style={styles.inputStyle}
               placeholder="First Name"
               placeholderTextColor="gray"
-              onChangeText={firstName => this.setState({ firstName })}
-              value={this.state.firstName}
+              onChangeText={value => this.setState({ firstName: value })}
+              value={firstName}
             />
           </View>
           <View style={styles.fieldContainer}>
@@ -160,8 +168,8 @@ export default class Signup extends React.Component {
               style={styles.inputStyle}
               placeholder="Last Name"
               placeholderTextColor="gray"
-              onChangeText={lastName => this.setState({ lastName })}
-              value={this.state.lastName}
+              onChangeText={value => this.setState({ lastName: value })}
+              value={lastName}
             />
           </View>
           <View style={styles.fieldContainer}>
@@ -172,8 +180,8 @@ export default class Signup extends React.Component {
               style={styles.inputStyle}
               placeholder="Password"
               placeholderTextColor="gray"
-              onChangeText={password => this.setState({ password })}
-              value={this.state.password}
+              onChangeText={value => this.setState({ password: value })}
+              value={password}
             />
           </View>
           <View style={styles.fieldContainer}>
@@ -184,12 +192,22 @@ export default class Signup extends React.Component {
               style={styles.inputStyle}
               placeholder="Confirm Password"
               placeholderTextColor="gray"
-              onChangeText={confirmPassword => this.setState({ confirmPassword })}
-              value={this.state.confirmPassword}
+              onChangeText={value => this.setState({ confirmPassword: value })}
+              value={confirmPassword}
             />
           </View>
-          {this.state.showError ? <ErrorMessage errorMessage={this.state.errorMessage} /> : null}
-          {this.state.showLoading ? <Loading /> : null}
+          <CheckBox
+            title="I agree to the terms and conditions"
+            checked={checked}
+            checkedColor="#f5cb23"
+            containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent' }}
+            textStyle={{ color: 'white' }}
+            onIconPress={() => this.setState({ checked: !checked })}
+            onPress={() => this.props.navigation.navigate('Agreement')}
+
+          />
+          {showError ? <ErrorMessage errorMessage={errorMessage} /> : null}
+          {showLoading ? <Loading /> : null}
           <Button
             buttonStyle={styles.button}
             title="Sign up"

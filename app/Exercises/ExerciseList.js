@@ -45,55 +45,67 @@ export default class ExerciseList extends React.Component {
     const exerciseList = Object.entries(this.state.exercises).map(([key, value], i) => {
       if (value.category === category) {
         const {
-          title, advanced, video, image,
+          title, advanced, video, image, visibleOnList,
         } = value;
-        return (
-          <ListItem
-            key={key}
-            title={title}
-            titleStyle={{ color: 'white', fontSize: 18 }}
-            containerStyle={{ backgroundColor: '#33425a' }}
-            underlayColor="#2a3545"
-            onPress={() => {
-              const videoUrl = this.state.advance && advanced !== undefined ? advanced.video : video;
-              const imageUrl = this.state.advance && advanced !== undefined ? advanced.image : image;
-              this.props.navigation.navigate('TalonIntelPlayer', {
-                video: videoUrl,
-                exerciseTitle: title,
-                image: imageUrl,
-                exercise: true,
-              });
-            }}
-          />
-        );
+        if (visibleOnList) {
+          return (
+            <ListItem
+              key={key}
+              title={title}
+              titleStyle={{ color: this.state.advance && advanced === undefined ? 'gray' : 'white', fontSize: 18 }}
+              containerStyle={{ backgroundColor: '#33425a' }}
+              underlayColor="#2a3545"
+              onPress={() => {
+                if (this.state.advance && advanced === undefined) {
+                  return;
+                }
+                const videoUrl = this.state.advance ? advanced.video : video;
+                const imageUrl = this.state.advance ? advanced.image : image;
+                this.props.navigation.navigate('TalonIntelPlayer', {
+                  video: videoUrl,
+                  exerciseTitle: title,
+                  image: imageUrl,
+                  exercise: true,
+                  mode: 'Exercise Player',
+                });
+              }}
+            />
+          );
+        }
       }
     });
     return (
       <View style={styles.mainViewContainer}>
-        <View style={styles.buttonsViewContainer}>
-          <View style={[styles.buttonView, { backgroundColor: this.state.introButtonColor }]}>
-            <Button
-              buttonStyle={{ backgroundColor: 'transparent' }}
-              color="#001331"
-              fontSize={18}
-              title="Intro"
-              onPress={() => {
-                this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
-              }}
-            />
-          </View>
-          <View style={[styles.buttonView, { backgroundColor: this.state.advancedButtonColor }]}>
-            <Button
-              buttonStyle={{ backgroundColor: 'transparent' }}
-              color="#001331"
-              fontSize={18}
-              title="Advanced"
-              onPress={() => {
-                this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
-              }}
-            />
-          </View>
-        </View>
+        {
+          category === 'Speed'
+            ? null
+            : (
+              <View style={styles.buttonsViewContainer}>
+                <View style={[styles.buttonView, { backgroundColor: this.state.introButtonColor }]}>
+                  <Button
+                    buttonStyle={{ backgroundColor: 'transparent' }}
+                    color="#001331"
+                    fontSize={18}
+                    title="Intro"
+                    onPress={() => {
+                      this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
+                    }}
+                  />
+                </View>
+                <View style={[styles.buttonView, { backgroundColor: this.state.advancedButtonColor }]}>
+                  <Button
+                    buttonStyle={{ backgroundColor: 'transparent' }}
+                    color="#001331"
+                    fontSize={18}
+                    title="Advanced"
+                    onPress={() => {
+                      this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
+                    }}
+                  />
+                </View>
+              </View>
+            )
+        }
         <ScrollView>
           { exerciseList }
         </ScrollView>

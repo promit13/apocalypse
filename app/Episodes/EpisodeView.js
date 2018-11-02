@@ -5,6 +5,7 @@ import {
 import {
   ListItem, Button, Text,
 } from 'react-native-elements';
+import Orientation from 'react-native-orientation';
 import realm from '../config/Database';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
@@ -52,8 +53,11 @@ const strengthImage = require('../../img/strength.png');
 const controlImage = require('../../img/control.png');
 
 export default class EpisodeView extends React.Component {
-  static navigationOptions = {
-    title: 'Episode',
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: `Episode ${navigation.state.params.episodeIndex + 1}`,
+      // header: null,
+    };
   };
 
   state = {
@@ -70,6 +74,7 @@ export default class EpisodeView extends React.Component {
     seriesIndex: '',
     video: '',
     startWT: '',
+    endWT: '',
     completeExercises: '',
     exercises: [],
     exerciseIdlist: [],
@@ -98,6 +103,7 @@ export default class EpisodeView extends React.Component {
         videoSize,
         totalTime,
         startWT,
+        endWT,
       } = this.props.navigation.state.params;
       firebase.database().ref('exercises').on('value', (snapshot) => {
         this.setState({
@@ -113,6 +119,7 @@ export default class EpisodeView extends React.Component {
           videoSize,
           totalTime,
           startWT,
+          endWT,
           completeExercises: snapshot.val(),
           loading: false,
         });
@@ -176,8 +183,10 @@ export default class EpisodeView extends React.Component {
       exerciseLengthList,
       category,
       startWT,
+      endWT,
       advance,
       completeExercises,
+      workoutTime,
     } = this.state;
     this.props.navigation.navigate(navigateTo, {
       check,
@@ -188,11 +197,13 @@ export default class EpisodeView extends React.Component {
       seriesIndex,
       exercises,
       startWT,
+      endWT,
       category,
       video,
       exerciseIdlist,
       exerciseLengthList,
       advance,
+      workoutTime,
       completeExercises,
     });
   }
@@ -202,21 +213,23 @@ export default class EpisodeView extends React.Component {
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t[0].id === thing[0].id) === index);
     const exercisesList = reducedExercise.map((value, i) => {
       const exercise = value[0];
-      if (exercise.video === 'no') {
+      const { title, visible } = exercise;
+      if (!visible) {
         return console.log('');
       }
       return (
         <ListItem
-          title={exercise.title}
+          title={title}
           titleStyle={{ color: 'white' }}
           containerStyle={{ backgroundColor: '#33425a' }}
           underlayColor="#2a3545"
           onPress={() => {
             this.props.navigation.navigate('TalonIntelPlayer', {
               offline: true,
-              exerciseTitle: exercise.title,
+              exerciseTitle: title,
               advance,
               exercise: true,
+              mode: 'Exercise Player',
             });
           }}
         />
@@ -227,15 +240,18 @@ export default class EpisodeView extends React.Component {
 
   renderExerciseList = () => {
     const { exercises, advance, completeExercises } = this.state;
+    if (completeExercises === '') {
+      return;
+    }
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t.uid === thing.uid) === index);
     const exercisesList = Object.entries(reducedExercise).map(([key, value], i) => {
-      const { uid } = value;
+      const { uid, visible } = value;
+      if (!visible) {
+        return console.log(visible);
+      }
       const {
         title, advanced, video, image,
       } = completeExercises[uid];
-      if (video === '') {
-        return console.log('');
-      }
       return (
         <ListItem
           key={key}
@@ -250,6 +266,7 @@ export default class EpisodeView extends React.Component {
               exerciseTitle: title,
               image,
               exercise: true,
+              mode: 'Exercise Player',
             });
           }}
         />
@@ -261,7 +278,7 @@ export default class EpisodeView extends React.Component {
   render() {
     if (this.state.loading) return <LoadScreen />;
     const {
-      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime,
+      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex,
     } = this.state;
     return (
       <ScrollView style={styles.mainContainer}>
@@ -277,8 +294,18 @@ export default class EpisodeView extends React.Component {
             />
           </View>
           <View style={{ marginLeft: 10 }}>
-            <Text h4 style={styles.text}>
+            <Text h4 style={[styles.text, { fontWeight: 'bold' }]}>
               {category}
+            </Text>
+            <Text style={styles.text}>
+              {category === 'Speed'
+              ? 'Running Training'
+              : (
+                category === 'Strength'
+                ? 'Bodyweight Circuits'
+                : 'Stretch & Core'
+              )
+              }
             </Text>
             <Text style={styles.text}>
               {`Workout time: ${workoutTime}`}
@@ -292,8 +319,8 @@ export default class EpisodeView extends React.Component {
           </View>
         </View>
         <View>
-          <Text h4 style={styles.text}>
-            {`${title}`}
+          <Text h4 style={[styles.text, { fontWeight: 'bold' }]}>
+            {`${episodeIndex + 1}. ${title}`}
           </Text>
           <Text style={styles.text}>
             {description}
@@ -306,7 +333,7 @@ export default class EpisodeView extends React.Component {
               icon={{ name: 'play-arrow', color: '#001331', size: 30 }}
               color="#001331"
               fontSize={18}
-              title="Workout"
+              title="Workout Mode"
               onPress={() => {
                 if (offline) {
                   return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadPlayer');
@@ -327,7 +354,7 @@ export default class EpisodeView extends React.Component {
               icon={{ name: 'play-arrow', color: '#001331', size: 30 }}
               color="#001331"
               fontSize={18}
-              title="Listen"
+              title="Listen Mode"
               onPress={() => {
                 if (offline) {
                   return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadPlayer');

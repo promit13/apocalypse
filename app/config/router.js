@@ -27,14 +27,20 @@ import Trailers from '../More/Trailers';
 import ChangeEmailPassword from '../User/ChangeEmailPassword';
 import DownloadFiles from '../Episodes/DownloadFiles';
 import DownloadPlayer from '../More/DownloadPlayer';
+import ForgotPassword from '../User/ForgotPassword';
+import LoginSignup from '../User/LoginSignup';
 
 const talonIcon = require('../../img/talondark.png');
 const episodeIcon = require('../../img/episodes.png');
 const exerciseIcon = require('../../img/exercises.png');
 
 export const SignedOut = createStackNavigator({
+  LoginSignup: { screen: LoginSignup },
   Login: { screen: Login },
   Signup: { screen: UserNew },
+  Agreement: { screen: Agreement },
+  ForgotPassword: { screen: ForgotPassword },
+  UserBodyDetail: { screen: UserBodyDetail },
 },
 {
   navigationOptions: {
@@ -86,6 +92,7 @@ const EpisodeStack = createStackNavigator({
   ExercisePlayer: { screen: ExercisePlayer },
   EpisodeSingle: { screen: EpisodeSingle },
   DownloadFiles: { screen: DownloadFiles },
+  DownloadPlayer: { screen: DownloadPlayer },
 }, {
   navigationOptions: () => ({
     headerStyle: {
@@ -203,7 +210,7 @@ MoreStack.navigationOptions = ({ navigation }) => {
 };
 
 export const SignedIn = createBottomTabNavigator({
-  Episode: EpisodeStack,
+  Episodes: EpisodeStack,
   Exercises: ExerciseStack,
   TALON: TalonStack,
   More: MoreStack,
@@ -234,9 +241,9 @@ export const SignedIn = createBottomTabNavigator({
         // return <Icon name="man" type="entypo" size={30} color={tintColor} />;
         return <Image source={exerciseIcon} style={{ height: 36, width: 20, tintColor }} />;
       }
-      if (routeName === 'Episode') {
+      if (routeName === 'Episodes') {
         // return <Icon name="soundcloud" type="entypo" size={30} color={tintColor} />;
-        return <Image source={episodeIcon} style={{ height: 30, width: 30, tintColor }} />;
+        return <Image source={episodeIcon} style={{ height: 30, width: 35, tintColor }} />;
       }
     },
   }),

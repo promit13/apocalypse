@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
 });
 
 
-export default class Login extends React.Component {
+export default class ChangeEmailPassword extends React.Component {
   static navigationOptions = {
     title: 'Change Password',
   };

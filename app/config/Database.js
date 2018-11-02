@@ -24,7 +24,8 @@ SavedExercises.schema = {
   properties: {
     id: 'string',
     title: 'string',
-    video: 'string',
+    cmsTitle: 'string',
+    visible: 'bool',
   },
 };
 

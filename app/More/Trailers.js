@@ -45,6 +45,7 @@ export default class Trailers extends React.Component {
               video,
               exerciseTitle: title,
               image,
+              mode: 'Trailer Player',
             });
           }}
         />

@@ -20,8 +20,8 @@ const styles = {
   text: {
     color: 'white',
     fontSize: 18,
+    textAlign: 'center',
     margin: 20,
-    alignSelf: 'center',
   },
   button: {
     backgroundColor: '#33425a',
@@ -39,10 +39,11 @@ export default class DownloadFiles extends React.Component {
       exercises,
     } = this.props.navigation.state.params;
     exercises.map((value, i) => {
-      firebase.database().ref(`exercises/${value.uid}`).on('value', (snapShot) => {
-        const exercise = { ...snapShot.val(), id: value.uid };
-        exerciseLengthList.push(value.length);
-        exerciseIdList.push(value.uid);
+      const { length, uid, visible } = value;
+      firebase.database().ref(`exercises/${uid}`).on('value', (snapShot) => {
+        const exercise = { ...snapShot.val(), id: uid, visible };
+        exerciseLengthList.push(length);
+        exerciseIdList.push(uid);
         exercisesList.push(exercise);
       });
     });
@@ -94,15 +95,17 @@ export default class DownloadFiles extends React.Component {
               });
             });
             exercisesList.map((exercise, i) => {
-              const formattedExerciseName = exercise.title.replace(/\s+/g, '');
+              const { cmsTitle, title, id, image, advanced, visible } = exercise;
+              const formattedExerciseName = cmsTitle.replace(/\s+/g, '');
               RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`)
                 .then((alreadyExist) => {
                   if (alreadyExist) {
                     realm.write(() => {
                       realm.create('SavedExercises', {
-                        id: exercise.id,
-                        title: exercise.title,
-                        video: 'yes',
+                        id,
+                        title,
+                        cmsTitle,
+                        visible,
                       });
                     });
                     return;
@@ -112,24 +115,26 @@ export default class DownloadFiles extends React.Component {
                       .config({
                         path: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`,
                       })
-                      .fetch('GET', `${exercise.image}`, {
+                      .fetch('GET', `${image}`, {
                       }).then(() => {
                         RNFetchBlob
                           .config({
                             path: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`,
                           })
-                          .fetch('GET', exercise.advanced === undefined ? exercise.image : exercise.advanced.image, {
+                          .fetch('GET', advanced === undefined ? image : advanced.image, {
                           }).then(() => {
                             realm.write(() => {
                               realm.create('SavedExercises', {
-                                id: exercise.id,
-                                title: exercise.title,
-                                video: 'no',
+                                id,
+                                title,
+                                cmsTitle,
+                                visible,
                               });
                             });
                             if (i === (exercisesList.length - 1)) {
                               this.setState({ loading: false });
-                              return Alert.alert('Download Complete');
+                              Alert.alert('Download Complete');
+                              return this.props.navigation.navigate('EpisodeList', { downloaded: true });
                             }
                           }).catch(error => console.log(error));
                       }).catch(error => console.log(error));
@@ -145,30 +150,32 @@ export default class DownloadFiles extends React.Component {
                         .config({
                           path: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`,
                         })
-                        .fetch('GET', `${exercise.image}`, {
+                        .fetch('GET', `${image}`, {
                         }).then(() => {
                           RNFetchBlob
                             .config({
                               path: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`,
                             })
-                            .fetch('GET', exercise.advanced === undefined ? exercise.video : exercise.advanced.video, {
+                            .fetch('GET', advanced === undefined ? exercise.video : advanced.video, {
                             }).then(() => {
                               RNFetchBlob
                                 .config({
                                   path: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`,
                                 })
-                                .fetch('GET', exercise.advanced === undefined ? exercise.image : exercise.advanced.image, {
+                                .fetch('GET', advanced === undefined ? image : advanced.image, {
                                 }).then(() => {
                                   realm.write(() => {
                                     realm.create('SavedExercises', {
-                                      id: exercise.id,
-                                      title: exercise.title,
-                                      video: 'yes',
+                                      id,
+                                      title,
+                                      cmsTitle,
+                                      visible,
                                     });
                                   });
                                   if (i === (exercisesList.length - 1)) {
                                     this.setState({ loading: false });
-                                    return Alert.alert('Download Complete');
+                                    Alert.alert('Download Complete');
+                                    return this.props.navigation.navigate('EpisodeList', { downloaded: true });
                                   }
                                 }).catch(error => console.log(error));
                             }).catch(error => console.log(error));
@@ -184,7 +191,7 @@ export default class DownloadFiles extends React.Component {
     return (
       <View style={styles.mainContaier}>
         <Text style={styles.text}>
-          {`Download ${this.props.navigation.state.params.episodeTitle} ?` }
+          {`Download ${this.props.navigation.state.params.episodeTitle}?` }
         </Text>
         <Button
           title="Download"

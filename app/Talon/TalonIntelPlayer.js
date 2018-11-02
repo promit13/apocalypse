@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView, Text,
+  AppState, View, ScrollView,
 } from 'react-native';
+import { Text } from 'react-native-elements';
 import Video from 'react-native-video';
 import RNFetchBlob from 'react-native-fetch-blob';
+import Orientation from 'react-native-orientation';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
@@ -21,7 +23,6 @@ const styles = {
     marginTop: 30,
   },
   textTitle: {
-    fontSize: 16,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
@@ -48,9 +49,11 @@ const styles = {
 const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2Ftalondark.png?alt=media&token=fdaf448b-dc43-4a72-a9e3-470aa68d9390';
 
 export default class TalonIntelPlayer extends Component {
-  static navigationOptions = {
-    title: 'Talon Intel Player',
-    // header: null,
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: navigation.state.params.mode,
+      // header: null,
+    };
   };
 
   state = {
@@ -82,7 +85,7 @@ export default class TalonIntelPlayer extends Component {
         });
       });
     } else if (offline) {
-      const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
+      const formattedExerciseName = image.replace(/\s+/g, '');
       const { dirs } = RNFetchBlob.fs;
       if (advance) {
         this.setState({
@@ -108,6 +111,7 @@ export default class TalonIntelPlayer extends Component {
         playingExercise: { value: { image, title: '' } },
         loadScreen: false,
         exercise,
+        loading: video === '' ? false : true,
       });
     }
   }
@@ -200,12 +204,12 @@ export default class TalonIntelPlayer extends Component {
                ? image
                : null
             }
-            currentExercise={title}
+            talonPlayer
             onPress={() => {}}
           />
         </View>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <Text style={styles.textTitle}>
+          <Text h4 style={styles.textTitle}>
             {this.state.episodeTitle}
           </Text>
           {
@@ -264,6 +268,7 @@ export default class TalonIntelPlayer extends Component {
     const { image, title } = this.state.playingExercise.value;
     return (
       <View>
+        <View style={styles.line} />
         <View style={styles.albumView}>
           <AlbumArt
             url={
@@ -271,7 +276,7 @@ export default class TalonIntelPlayer extends Component {
                ? image
                : null
             }
-            currentExercise={title}
+            talonPlayer
             onPress={() => {}}
           />
         </View>
@@ -290,7 +295,7 @@ export default class TalonIntelPlayer extends Component {
                 currentTime={this.state.currentTime}
                 remainingTime={this.state.totalLength - this.state.currentTime}
               />
-              <Text style={styles.textTitle}>
+              <Text h4 style={styles.textTitle}>
                 {this.state.episodeTitle}
               </Text>
               {
@@ -325,24 +330,25 @@ export default class TalonIntelPlayer extends Component {
   render() {
     const { videoUrl, loadScreen } = this.state;
     if (loadScreen) return <LoadScreen />;
-    const video = (
-      <Video
-        source={{ uri: videoUrl }} // Can be a URL or a local file.
-        ref={(ref) => {
-          this.player = ref;
-        }}
-        progressUpdateInterval={100.0}
-        paused={this.state.paused} // Pauses playback entirely.
-        resizeMode="cover" // Fill the whole screen at aspect ratio.
-        playInBackground // ={true}
-        ignoreSilentSwitch="ignore"
-        onLoad={this.onLoad}
-        onProgress={this.onProgress}
-        onEnd={this.onEnd}
-        style={styles.audioElement}
-      />
-    );
-
+    const video = videoUrl === ''
+      ? null
+      : (
+        <Video
+          source={{ uri: videoUrl }} // Can be a URL or a local file.
+          ref={(ref) => {
+            this.player = ref;
+          }}
+          progressUpdateInterval={100.0}
+          paused={this.state.paused} // Pauses playback entirely.
+          resizeMode="cover" // Fill the whole screen at aspect ratio.
+          playInBackground // ={true}
+          ignoreSilentSwitch="ignore"
+          onLoad={this.onLoad}
+          onProgress={this.onProgress}
+          onEnd={this.onEnd}
+          style={styles.audioElement}
+        />
+      );
     return (
       <ScrollView
         style={styles.container}

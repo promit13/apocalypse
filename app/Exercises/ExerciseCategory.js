@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon, Text } from 'react-native-elements';
 import {
-  View, ScrollView, Image, TouchableOpacity, StatusBar, Alert,
+  View, Image, TouchableOpacity, StatusBar, Alert,
 } from 'react-native';
 import OfflineMsg from '../common/OfflineMsg';
 
@@ -11,21 +11,20 @@ const controlImage = require('../../img/control.png');
 
 const styles = {
   maincontainer: {
-    flex: 3,
+    flex: 1,
     backgroundColor: '#001331',
   },
   categoryView: {
-    flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#001331',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderColor: '#33425a',
-    borderWidth: 1,
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop: 30,
-    paddingBottom: 30,
+  },
+  line: {
+    width: '100%',
+    height: 0.5,
+    backgroundColor: 'white',
   },
   circularImageView: {
     height: 120,
@@ -36,7 +35,7 @@ const styles = {
   },
   textStyle: {
     color: 'white',
-    marginLeft: 10,
+    marginLeft: 20,
     marginRight: 10,
   },
 };
@@ -59,7 +58,8 @@ export default class ExerciseCategory extends React.Component {
           if (!this.state.isConnected) {
             return Alert.alert('No internet connection');
           }
-          this.props.navigation.navigate('ExerciseList', { category: title })} 
+          this.props.navigation.navigate('ExerciseList', { category: title });
+        }
         }
         >
           <View style={styles.categoryView}>
@@ -77,7 +77,7 @@ export default class ExerciseCategory extends React.Component {
                 />
               </View>
               <View>
-                <Text h3 style={styles.textStyle}>
+                <Text h4 style={[styles.textStyle, { fontWeight: 'bold' }]}>
                   {title}
                 </Text>
                 <Text style={styles.textStyle}>
@@ -96,11 +96,17 @@ export default class ExerciseCategory extends React.Component {
         <View style={styles.maincontainer}>
           <StatusBar backgroundColor="#00000b" />
           { !this.state.isConnected ? <OfflineMsg /> : null }
-          <ScrollView>
-          {this.renderView('Speed', 'Running Training', speedImage)}
-          {this.renderView('Strength', 'Bodyweight Circuits', strengthImage)}
-          {this.renderView('Control', 'Stretch and Core', controlImage)}
-        </ScrollView>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            {this.renderView('Speed', 'Running Training', speedImage)}
+          </View>
+          <View style={styles.line} />
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            {this.renderView('Strength', 'Bodyweight Circuits', strengthImage)}
+          </View>
+          <View style={styles.line} />
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            {this.renderView('Control', 'Stretch and Core', controlImage)}
+          </View>
         </View>
       );
     }

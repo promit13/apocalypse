@@ -44,7 +44,7 @@ const styles = {
 
 export default class Tutorial extends React.Component {
   static navigationOptions = {
-    title: 'Tutorials',
+    title: 'Tutorial',
   };
 
   state = {

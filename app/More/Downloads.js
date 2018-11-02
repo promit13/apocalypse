@@ -97,7 +97,7 @@ export default class Downloads extends React.Component {
     ls(`${dirs.DocumentDir}/AST/episodes`)
       .then((files) => {
         if (files.length === 0) {
-          Alert.alert('You have no any downloads');
+          Alert.alert('You do not have any downloads');
         }
         this.setState({ filesList: files });
       })

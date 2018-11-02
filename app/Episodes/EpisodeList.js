@@ -8,11 +8,11 @@ import {
 import * as RNIap from 'react-native-iap';
 import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
+import Orientation from 'react-native-orientation';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 import DeleteDownloads from '../common/DeleteDownloads';
-import PortraitScreen from '../common/ScreenMode';
 
 const homeCover = require('../../img/homecover.jpg');
 const speedImage = require('../../img/speed.png');
@@ -25,9 +25,8 @@ const styles = {
     backgroundColor: '#001331',
   },
   imageStyle: {
-    marginTop: 20,
     width: '100%',
-    height: 200,
+    height: 250,
   },
   textStyle: {
     color: 'white',
@@ -36,15 +35,6 @@ const styles = {
   purchaseButtonStyle: {
     alignItems: 'flex-end',
     backgroundColor: '#001331',
-    borderWidth: 1,
-    borderColor: 'white',
-    borderRadius: 5,
-  },
-  priceButtonStyle: {
-    alignItems: 'flex-end',
-    backgroundColor: 'green',
-    borderWidth: 1,
-    borderColor: 'white',
     borderRadius: 5,
   },
   episodeHeaderView: {
@@ -74,7 +64,7 @@ const styles = {
   },
 };
 
-export default class EpisodeList extends PortraitScreen {
+export default class EpisodeList extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -82,16 +72,29 @@ export default class EpisodeList extends PortraitScreen {
   state = {
     series: '',
     completeEpisodes: '',
+    completedEpisodesArray: [],
     loading: true,
     purchasedSeries: [],
     filesList: [],
     lastPlayedEpisode: '',
     isConnected: true,
+    downloaded: false,
   }
 
   componentDidMount= async () => {
+    Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
-    this.setState({ isConnected: netInfo });
+    try {
+      const completedEpisodesArray = await AsyncStorage.getItem('episodeCompletedArray');
+      console.log(completedEpisodesArray);
+      if (completedEpisodesArray === null) {
+        this.setState({ isConnected: netInfo });
+      } else {
+        this.setState({ isConnected: netInfo, completedEpisodesArray: JSON.parse(completedEpisodesArray) });
+      }
+    } catch (err) {
+      console.log(err.code, err.message);
+    }
     this.readDirectory();
     try {
       if (!netInfo) {
@@ -137,6 +140,16 @@ export default class EpisodeList extends PortraitScreen {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.navigation.state.params === undefined) {
+      return;
+    }
+    if (this.props.navigation.state.params.downloaded !== prevState.downloaded) {
+      this.readDirectory();
+      this.renderList();
+    }
+  }
+
   componentWillUnmount() {
     RNIap.endConnection();
   }
@@ -148,7 +161,7 @@ export default class EpisodeList extends PortraitScreen {
     this.setState({ loading: true });
     firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
       const {
-        title, category, description, exercises, video, startWT,
+        title, category, description, exercises, video, startWT, endWT,
       } = snapshot.val();
       this.setState({ loading: false });
       if (download) {
@@ -184,9 +197,48 @@ export default class EpisodeList extends PortraitScreen {
         episodeIndex,
         seriesIndex,
         startWT,
-        offline: alreadyDownloaded,
+        endWT,
       });
     });
+  }
+
+  getTitleAndId = (seriesIndex, episodeIndex, getImage) => {
+    if (this.state.series === '') {
+      return console.log('no series');
+    }
+    const { uid, title, category } = ((Object.values(((Object.values(this.state.series))[seriesIndex]).episodes))[episodeIndex]);
+    if (getImage) {
+      if (category === 'Speed') {
+        return speedImage;
+      }
+      if (category === 'Strength') {
+        return strengthImage;
+      }
+      if (category === 'Control') {
+        return controlImage;
+      }
+    }
+    return { uid, title };
+  }
+
+  getEpisodesListSize = (seriesIndex) => {
+    if (this.state.series === '') {
+      return console.log('no series');
+    }
+    const { length } = Object.keys(((Object.values(this.state.series))[seriesIndex]).episodes);
+    console.log(length);
+    return length;
+  }
+
+  readDirectory = () => {
+    const { dirs, ls } = RNFetchBlob.fs;
+    ls(`${dirs.DocumentDir}/AST/episodes`)
+      .then((files) => {
+        this.setState({ filesList: files });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   requestPermissions = async () => {
@@ -219,17 +271,17 @@ export default class EpisodeList extends PortraitScreen {
 
   buyItem = async (item, itemId, itemPrice) => {
     try {
-      // await RNIap.prepare();
-      // const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
-      // // to something in your server
-      // const { transactionReceipt, purchaseToken } = purchase;
+      await RNIap.prepare();
+      const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
+      // to something in your server
+      const { transactionReceipt, purchaseToken } = purchase;
       firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
         inAppPurchaseId: itemId,
         seriesId: item,
         price: itemPrice,
         date: new Date().getTime(),
-        transactionReceipt: 'fasdfasdf',
-        purchaseToken: 'fasdfasdfsdf',
+        transactionReceipt,
+        purchaseToken,
       })
         .then(() => {
           Alert.alert('Item purchased');
@@ -241,31 +293,20 @@ export default class EpisodeList extends PortraitScreen {
     }
   }
 
-  readDirectory = () => {
-    const { dirs, ls } = RNFetchBlob.fs;
-    ls(`${dirs.DocumentDir}/AST/episodes`)
-      .then((files) => {
-        this.setState({ filesList: files });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
   deleteEpisode = (fileName) => {
     this.child.deleteEpisodes(fileName);
   }
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, isConnected, filesList,
+      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode,
     } = this.state;
-    console.log(filesList);
     let minIndex = 0;
     let maxIndex = 0;
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
       const buy = purchasedSeries.includes(seriesKey);
       minIndex = maxIndex + 1;
+      console.log(value);
       if (value.episodes === undefined) {
         return console.log('no episodes added');
       }
@@ -278,12 +319,24 @@ export default class EpisodeList extends PortraitScreen {
           } = completeEpisodes[uid];
           const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
           const downloaded = filesList.includes(formattedFileName);
-          console.log(formattedFileName);
+          const completed = completedEpisodesArray.includes(uid);
+          console.log(completed);
+          const currentEpisode = lastPlayedEpisode.episodeId;
+          console.log(currentEpisode);
           return (
             <ListItem
               key={episodeKey}
+              leftIcon={
+                currentEpisode === uid
+                  ? { name: 'pause-circle', type: 'font-awesome', color: '#f5cb23', size: 15 }
+                  : (
+                      completed
+                        ? { name: 'circle-thin', type: 'font-awesome', color: '#f5cb23', size: 15 }
+                        : { name: 'circle', type: 'font-awesome', color: '#7a6306', size: 15 }
+                  )
+              }
               title={`${episodeIndex + minIndex}. ${title}`}
-              subtitle={category}
+              subtitle={`${category} - ${videoSize} mb`}
               titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white', fontSize: 18 }}
               subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white' }}
               rightIcon={
@@ -353,8 +406,8 @@ export default class EpisodeList extends PortraitScreen {
                     />)
                   : (
                     <Button
-                      title={`£${value.price} (Buy)`}
-                      buttonStyle={styles.priceButtonStyle}
+                      title={`   £${value.price}   `}
+                      buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
                         if (!this.state.isConnected) {
                           return Alert.alert('No internet connection');
@@ -380,34 +433,6 @@ export default class EpisodeList extends PortraitScreen {
     );
   }
 
-  getTitleAndId = (seriesIndex, episodeIndex, getImage) => {
-    if (this.state.series === '') {
-      return console.log('no series');
-    }
-    const { uid, title, category } = ((Object.values(((Object.values(this.state.series))[seriesIndex]).episodes))[episodeIndex]);
-    if (getImage) {
-      if (category === 'Speed') {
-        return speedImage;
-      }
-      if (category === 'Strength') {
-        return strengthImage;
-      }
-      if (category === 'Control') {
-        return controlImage;
-      }
-    }
-    return { uid, title };
-  }
-
-  getEpisodesListSize = (seriesIndex) => {
-    if (this.state.series === '') {
-      return console.log('no series');
-    }
-    const { length } = Object.keys(((Object.values(this.state.series))[seriesIndex]).episodes);
-    console.log(length);
-    return length;
-  }
-
   render() {
     const {
       isConnected, lastPlayedEpisode, completeEpisodes, loading,
@@ -422,17 +447,14 @@ export default class EpisodeList extends PortraitScreen {
     } = lastPlayedEpisode;
     return (
       <View style={styles.mainContainer}>
-        <StatusBar
-          backgroundColor="#00000b"
-        />
+        <StatusBar hidden />
         <DeleteDownloads ref={ref => (this.child = ref)} />
         { !isConnected ? <OfflineMsg /> : null }
         <ScrollView>
           <View>
             <Image
               style={styles.imageStyle}
-              resizeMode="cover"
-              resizeMethod="resize"
+              resizeMode="stretch"
               source={homeCover}
             />
             <TouchableOpacity onPress={() => {

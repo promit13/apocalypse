@@ -87,9 +87,14 @@ export default class DownloadPlayer extends Component {
   }
 
   onExercisePress = () => {
-    const { title } = this.state.playingExercise.value;
+    const { title, image } = this.state.playingExercise.value;
     this.props.navigation.navigate('TalonIntelPlayer', {
-      offline: true, exerciseTitle: title, advance: this.state.advance, exercise: true,
+      offline: true,
+      exerciseTitle: title,
+      image,
+      advance: this.state.advance,
+      exercise: true,
+      mode: 'Exercise Player',
     });
     this.setState({ paused: true });
   }
@@ -159,12 +164,13 @@ export default class DownloadPlayer extends Component {
       // const { length } = value;
       if (this.state.currentTime > (value / 1000)) {
         const exercise = exercises[i];
-        const { title, video } = exercise[0];
+        const { cmsTitle, video, title } = exercise[0];
         const showInfo = video === 'yes' ? true : false;
         this.setState({
           showInfo,
           playingExercise: {
-            value: { image: exercise[0].title, title: exercise[0].title },
+            // value: { image: exercise[0].title, title: exercise[0].title },
+            value: { image: cmsTitle, title },
           },
         });
         this.state.previousStartTime.push(value);
