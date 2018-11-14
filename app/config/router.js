@@ -29,6 +29,7 @@ import DownloadFiles from '../Episodes/DownloadFiles';
 import DownloadPlayer from '../More/DownloadPlayer';
 import ForgotPassword from '../User/ForgotPassword';
 import LoginSignup from '../User/LoginSignup';
+import DownloadTestPlayer from '../More/DownloadTestPlayer';
 
 const talonIcon = require('../../img/talondark.png');
 const episodeIcon = require('../../img/episodes.png');
@@ -93,6 +94,7 @@ const EpisodeStack = createStackNavigator({
   EpisodeSingle: { screen: EpisodeSingle },
   DownloadFiles: { screen: DownloadFiles },
   DownloadPlayer: { screen: DownloadPlayer },
+  DownloadTestPlayer: { screen: DownloadTestPlayer },
 }, {
   navigationOptions: () => ({
     headerStyle: {
@@ -186,6 +188,7 @@ const MoreStack = createStackNavigator({
   EpisodeView: { screen: EpisodeView },
   ExercisePlayer: { screen: ExercisePlayer },
   TalonIntelPlayer: { screen: TalonIntelPlayer },
+  UserBodyDetail: { screen: UserBodyDetail },
 },
 {
   navigationOptions: () => ({

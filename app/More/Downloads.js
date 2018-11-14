@@ -6,7 +6,6 @@ import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { Text, Icon } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
-import realm from '../config/Database';
 import Loading from '../common/Loading';
 import DeleteDownloads from '../common/DeleteDownloads';
 
@@ -39,65 +38,65 @@ export default class Downloads extends React.Component {
     this.readDirectory();
   }
 
-  deleteEpisode = (fileName) => {
-    this.setState({ showLoading: true });
-    const { dirs } = RNFetchBlob.fs;
-    const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${fileName}"`));
-    const exerciseIdList = Array.from(episodeDetail[0].exerciseIdList);
-    const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
-    const formattedFileName = fileName.replace(/ /g, '_');
+  // deleteEpisode = (fileName) => {
+  //   this.setState({ showLoading: true });
+  //   const { dirs } = RNFetchBlob.fs;
+  //   const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${fileName}"`));
+  //   const exerciseIdList = Array.from(episodeDetail[0].exerciseIdList);
+  //   const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
+  //   const formattedFileName = fileName.replace(/ /g, '_');
 
-    RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
-      .then(async () => {
-        await exerciseIdList.map((value) => {
-          let count = 0;
-          allEpisodes.map((episodeValue) => {
-            const eachExerciseIdList = Array.from(episodeValue.exerciseIdList);
-            if (eachExerciseIdList.includes(value)) {
-              count += 1;
-            }
-          });
-          if (count < 2) {
-            const exerciseDetail = realm.objects('SavedExercises').filtered(`id="${value}"`);
-            const exerciseTitle = Array.from(exerciseDetail)[0].title;
-            const formattedExerciseTitle = exerciseTitle.replace(/\s+/g, '');
-            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedExerciseTitle}.mp4`)
-              .then(() => {
-                RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseTitle}.mp4`)
-                  .then(() => {
-                    RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseTitle}.mp4`)
-                      .then(() => {
-                        RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introImages/${formattedExerciseTitle}.png`)
-                          .then(() => {
-                            RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseTitle}.png`)
-                              .then(() => {
-                                realm.write(() => {
-                                  realm.delete(exerciseDetail);
-                                });
-                              }).catch(error => console.log(error));
-                          }).catch(error => console.log(error));
-                      }).catch(error => console.log(error));
-                  }).catch(error => console.log(error));
-              }).catch(error => console.log(error));
-          }
-        });
-        realm.write(() => {
-          realm.delete(episodeDetail);
-        });
-        this.readDirectory();
-        this.setState({ showLoading: false });
-      })
-      .catch((err) => {
-        this.setState({ showLoading: false });
-      });
-  }
+  //   RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
+  //     .then(async () => {
+  //       await exerciseIdList.map((value) => {
+  //         let count = 0;
+  //         allEpisodes.map((episodeValue) => {
+  //           const eachExerciseIdList = Array.from(episodeValue.exerciseIdList);
+  //           if (eachExerciseIdList.includes(value)) {
+  //             count += 1;
+  //           }
+  //         });
+  //         if (count < 2) {
+  //           const exerciseDetail = realm.objects('SavedExercises').filtered(`id="${value}"`);
+  //           const exerciseTitle = Array.from(exerciseDetail)[0].title;
+  //           const formattedExerciseTitle = exerciseTitle.replace(/\s+/g, '');
+  //           RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedExerciseTitle}.mp4`)
+  //             .then(() => {
+  //               RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseTitle}.mp4`)
+  //                 .then(() => {
+  //                   RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseTitle}.mp4`)
+  //                     .then(() => {
+  //                       RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introImages/${formattedExerciseTitle}.png`)
+  //                         .then(() => {
+  //                           RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseTitle}.png`)
+  //                             .then(() => {
+  //                               realm.write(() => {
+  //                                 realm.delete(exerciseDetail);
+  //                               });
+  //                             }).catch(error => console.log(error));
+  //                         }).catch(error => console.log(error));
+  //                     }).catch(error => console.log(error));
+  //                 }).catch(error => console.log(error));
+  //             }).catch(error => console.log(error));
+  //         }
+  //       });
+  //       realm.write(() => {
+  //         realm.delete(episodeDetail);
+  //       });
+  //       this.readDirectory();
+  //       this.setState({ showLoading: false });
+  //     })
+  //     .catch((err) => {
+  //       this.setState({ showLoading: false });
+  //     });
+  // }
 
   readDirectory = () => {
     const { dirs, ls } = RNFetchBlob.fs;
     ls(`${dirs.DocumentDir}/AST/episodes`)
       .then((files) => {
         if (files.length === 0) {
-          Alert.alert('You do not have any downloads');
+          Alert.alert('You do not have any downloads.');
         }
         this.setState({ filesList: files });
       })
@@ -158,6 +157,7 @@ export default class Downloads extends React.Component {
             this.props.navigation.navigate('EpisodeView', {
               offline: true,
               title: formattedFile,
+              episodeIndex: i,
             });
           }}
           // onLongPress={() => {

@@ -9,6 +9,7 @@ SavedEpisodes.schema = {
     title: 'string',
     category: 'string',
     description: 'string',
+    episodeIndex: 'int',
     videoSize: 'string',
     totalTime: 'string',
     workoutTime: 'string',
@@ -25,7 +26,9 @@ SavedExercises.schema = {
     id: 'string',
     title: 'string',
     cmsTitle: 'string',
+    episodeExerciseTitle: 'string',
     visible: 'bool',
+    advanced: 'bool',
   },
 };
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Alert,
+  View, TextInput, StyleSheet, Alert, ScrollView,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -73,54 +74,54 @@ export default class ChangeEmailPassword extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.fieldContainer}>
-          <Icon name="lock" type="entypo" color="white" />
-          <TextInput
-            underlineColorAndroid="transparent"
-            style={styles.inputStyle}
-            secureTextEntry
-            placeholder="Current Password"
-            placeholderTextColor="gray"
-            onChangeText={password => this.setState({ password })}
-            value={this.state.password}
+      <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+          <View style={styles.fieldContainer}>
+            <Icon name="lock" type="entypo" color="white" />
+            <TextInput
+              underlineColorAndroid="transparent"
+              style={styles.inputStyle}
+              secureTextEntry
+              placeholder="Current Password"
+              placeholderTextColor="gray"
+              onChangeText={password => this.setState({ password })}
+              value={this.state.password}
+            />
+          </View>
+          {this.state.showError ? <ErrorMessage errorMessage={this.state.error} /> : null}
+          <View style={styles.fieldContainer}>
+            <Icon name="lock" type="entypo" color="white" />
+            <TextInput
+              underlineColorAndroid="transparent"
+              secureTextEntry
+              style={styles.inputStyle}
+              placeholder="New Password"
+              placeholderTextColor="gray"
+              onChangeText={newPassword => this.setState({ newPassword })}
+              value={this.state.newPassword}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Icon name="lock" type="entypo" color="white" />
+            <TextInput
+              underlineColorAndroid="transparent"
+              secureTextEntry
+              style={styles.inputStyle}
+              placeholder="Confirm Password"
+              placeholderTextColor="gray"
+              onChangeText={confirmPassword => this.setState({ confirmPassword })}
+              value={this.state.confirmPassword}
+            />
+          </View>
+          {this.state.showLoading ? <Loading /> : null}
+          <Button
+            buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
+            title="Submit"
+            onPress={() => {
+              this.setState({ showLoading: true });
+              this.handleSubmit();
+            }}
           />
-        </View>
-        {this.state.showError ? <ErrorMessage errorMessage={this.state.error} /> : null}
-        <View style={styles.fieldContainer}>
-          <Icon name="lock" type="entypo" color="white" />
-          <TextInput
-            underlineColorAndroid="transparent"
-            secureTextEntry
-            style={styles.inputStyle}
-            placeholder="New Password"
-            placeholderTextColor="gray"
-            onChangeText={newPassword => this.setState({ newPassword })}
-            value={this.state.newPassword}
-          />
-        </View>
-        <View style={styles.fieldContainer}>
-          <Icon name="lock" type="entypo" color="white" />
-          <TextInput
-            underlineColorAndroid="transparent"
-            secureTextEntry
-            style={styles.inputStyle}
-            placeholder="Confirm Password"
-            placeholderTextColor="gray"
-            onChangeText={confirmPassword => this.setState({ confirmPassword })}
-            value={this.state.confirmPassword}
-          />
-        </View>
-        {this.state.showLoading ? <Loading /> : null}
-        <Button
-          buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
-          title="Submit"
-          onPress={() => {
-            this.setState({ showLoading: true });
-            this.handleSubmit();
-          }}
-        />
-      </View>
+      </KeyboardAwareScrollView>
     );
   }
 }

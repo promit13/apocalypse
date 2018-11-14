@@ -1,10 +1,18 @@
 import React from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Dimensions } from 'react-native';
 import { Button, Text } from 'react-native-elements';
 import RNFetchBlob from 'react-native-fetch-blob';
+import ProgressBarAnimated from 'react-native-progress-bar-animated';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import realm from '../config/Database';
+
+const barWidth = Dimensions.get('screen').width - 30;
+const progressCustomStyles = {
+  backgroundColor: 'green',
+  borderRadius: 5,
+  backgroundColorOnComplete: 'red',
+};
 
 let exercisesList = [];
 let exerciseLengthList = [];
@@ -32,6 +40,8 @@ const styles = {
 export default class DownloadFiles extends React.Component {
   state = {
     loading: false,
+    progressPercentage: 0,
+    downloaded: 0,
   }
 
   componentDidMount() {
@@ -39,9 +49,9 @@ export default class DownloadFiles extends React.Component {
       exercises,
     } = this.props.navigation.state.params;
     exercises.map((value, i) => {
-      const { length, uid, visible } = value;
+      const { length, uid, visible, episodeExerciseTitle } = value;
       firebase.database().ref(`exercises/${uid}`).on('value', (snapShot) => {
-        const exercise = { ...snapShot.val(), id: uid, visible };
+        const exercise = { ...snapShot.val(), id: uid, visible, episodeExerciseTitle };
         exerciseLengthList.push(length);
         exerciseIdList.push(uid);
         exercisesList.push(exercise);
@@ -65,9 +75,13 @@ export default class DownloadFiles extends React.Component {
       totalTime,
       workoutTime,
       videoSize,
+      episodeIndex,
     } = this.props.navigation.state.params;
     const { dirs } = RNFetchBlob.fs;
+    console.log(episodeTitle);
+    console.log(video);
     const formattedFileName = episodeTitle.replace(/ /g, '_');
+    console.log(formattedFileName);
     RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
       .then((exist) => {
         if (exist) {
@@ -79,6 +93,9 @@ export default class DownloadFiles extends React.Component {
             path: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`, // file saved in this path
           })
           .fetch('GET', `${video}`, {
+          }).progress({ count: 10 }, (received, total) => {
+            // const downloaded = `${received / 1024}/${total / 1024}`;
+            this.setState({ progressPercentage: ((received / total) * 100) });
           })
           .then((res) => {
             realm.write(() => {
@@ -92,22 +109,26 @@ export default class DownloadFiles extends React.Component {
                 totalTime,
                 workoutTime,
                 videoSize,
+                episodeIndex,
               });
             });
             exercisesList.map((exercise, i) => {
-              const { cmsTitle, title, id, image, advanced, visible } = exercise;
+              const { cmsTitle, title, image, advanced, id, visible, episodeExerciseTitle } = exercise;
+              console.log(cmsTitle);
               const formattedExerciseName = cmsTitle.replace(/\s+/g, '');
               RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`)
                 .then((alreadyExist) => {
-                  if (alreadyExist) {
-                    realm.write(() => {
-                      realm.create('SavedExercises', {
-                        id,
-                        title,
-                        cmsTitle,
-                        visible,
-                      });
+                  realm.write(() => {
+                    realm.create('SavedExercises', {
+                      id,
+                      title,
+                      cmsTitle,
+                      visible,
+                      episodeExerciseTitle,
+                      advanced: advanced === undefined ? false : true,
                     });
+                  });
+                  if (alreadyExist) {
                     return;
                   }
                   if (exercise.video === '') {
@@ -123,14 +144,6 @@ export default class DownloadFiles extends React.Component {
                           })
                           .fetch('GET', advanced === undefined ? image : advanced.image, {
                           }).then(() => {
-                            realm.write(() => {
-                              realm.create('SavedExercises', {
-                                id,
-                                title,
-                                cmsTitle,
-                                visible,
-                              });
-                            });
                             if (i === (exercisesList.length - 1)) {
                               this.setState({ loading: false });
                               Alert.alert('Download Complete');
@@ -164,14 +177,6 @@ export default class DownloadFiles extends React.Component {
                                 })
                                 .fetch('GET', advanced === undefined ? image : advanced.image, {
                                 }).then(() => {
-                                  realm.write(() => {
-                                    realm.create('SavedExercises', {
-                                      id,
-                                      title,
-                                      cmsTitle,
-                                      visible,
-                                    });
-                                  });
                                   if (i === (exercisesList.length - 1)) {
                                     this.setState({ loading: false });
                                     Alert.alert('Download Complete');
@@ -188,6 +193,7 @@ export default class DownloadFiles extends React.Component {
   }
 
   render() {
+    const { progressPercentage, downloaded } = this.state;
     return (
       <View style={styles.mainContaier}>
         <Text style={styles.text}>
@@ -201,7 +207,18 @@ export default class DownloadFiles extends React.Component {
             this.download();
           }}
         />
-        { this.state.loading ? <Loading /> : null }
+        { this.state.loading ? (
+          <View style={{ marginTop: 10 }}>
+            <ProgressBarAnimated
+              width={barWidth}
+              {...progressCustomStyles}
+              value={progressPercentage}
+              barAnimationDuration={500}
+            />
+            <Loading />
+          </View>
+        ) : null
+        }
       </View>
     );
   }

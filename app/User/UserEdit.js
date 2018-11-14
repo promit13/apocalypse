@@ -8,11 +8,11 @@ import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
 
 const { width } = Dimensions.get('window');
-const imageSize = width - 80;
+const imageSize = width - 120;
 
 const talonImage = require('../../img/talon.png');
 
-const listItems = ['Sign Out', 'Change Password', 'Delete Account'];
+const listItems = ['Sign Out', 'Change Password', 'Edit Profile', 'Delete Account'];
 const styles = {
   container: {
     flex: 1,
@@ -25,7 +25,7 @@ const styles = {
     textAlign: 'center',
   },
   button: {
-    margin: 10,
+    borderRadius: 5,
     backgroundColor: '#001331',
   },
   modalView: {
@@ -103,7 +103,7 @@ export default class MyAccount extends React.Component {
               />
               {this.state.showError ? <ErrorMessage errorMessage="Incorrect password" /> : null}
               {this.state.showLoading ? <Loading /> : null}
-              <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              {/* <View style={{ flexDirection: 'row', justifyContent: 'center' }}> */}
                 <Button
                   color="#fff"
                   buttonStyle={styles.button}
@@ -114,14 +114,14 @@ export default class MyAccount extends React.Component {
                 />
                 <Button
                   color="#fff"
-                  buttonStyle={styles.button}
+                  buttonStyle={[styles.button, { marginTop: 5 }]}
                   title="Confirm"
                   onPress={() => {
                     this.setState({ showLoading: true });
                     this.deleteAccount();
                   }}
                 />
-              </View>
+              {/* </View> */}
             </View>
           </TouchableOpacity>
         </View>
@@ -145,6 +145,9 @@ export default class MyAccount extends React.Component {
               return this.props.navigation.navigate('ChangeEmailPassword');
             }
             if (index === 2) {
+              return this.props.navigation.navigate('UserBodyDetail', { showButton: false });
+            }
+            if (index === 3) {
               return this.setState({ showModal: true });
             }
           }}
@@ -161,13 +164,16 @@ export default class MyAccount extends React.Component {
         <ScrollView>
           <Image style={styles.imageStyle} source={talonImage} />
           <View style={{ alignSelf: 'center', marginBottom: 10 }}>
-            <Text style={[styles.text, { marginTop: 10 }]}>
-              {`Welcome, Agent ${userData.fullNameLowercase}`}
+            <Text style={[styles.text, { marginTop: 10, fontWeight: 'bold' }]}>
+              Welcome, Agent Whiskey Gambit
             </Text>
             <Text style={styles.text}>
               {user.email}
             </Text>
           </View>
+          <Text style={[styles.text, { fontSize: 16, textAlign: 'left', paddingLeft: 25, paddingBottom: 10 }]}>
+            ACCOUNT ACTIONS
+          </Text>
           {this.showModal()}
           <View style={{ padding: 10, backgroundColor: '#33425a' }}>
             {this.renderListItem()}

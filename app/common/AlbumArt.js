@@ -11,14 +11,14 @@ const { width } = Dimensions.get('window');
 const imageSize = width - 80;
 const styles = StyleSheet.create({
   container: {
-    paddingLeft: 24,
-    paddingRight: 24,
-    paddingTop: 10,
+    height: '100%',
+    paddingRight: 20,
+    paddingLeft: 20,
   },
   image: {
     alignSelf: 'center',
-    width: imageSize,
-    height: imageSize,
+    width: '75%',
+    height: '80%',
   },
   infoView: {
     height: 18,
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-end',
-    marginTop: 10,
   },
   text: {
     color: 'white',
@@ -46,12 +45,13 @@ export default function AlbumArt({
   offline,
   advance,
   talonPlayer,
+  paddingTop,
 }) {
   const { dirs } = RNFetchBlob.fs;
   const formattedUrl = offline ? url.replace(/\s+/g, '') : '';
   console.log(formattedUrl);
   return (
-    <ImageBackground style={styles.container} source={backgroundImage}>
+    <ImageBackground style={[styles.container, { paddingTop }]} source={backgroundImage}>
       {
         offline
           ? (
@@ -86,7 +86,10 @@ export default function AlbumArt({
             )
         // : <View style={{ height: 27 }} />
       }
-      {
+      <Text h4 style={styles.text}>
+        {currentExercise}
+      </Text>
+      {/* {
         talonPlayer
           ? null
           : (
@@ -94,7 +97,7 @@ export default function AlbumArt({
               {currentExercise}
             </Text>
           )
-      }
+      } */}
     </ImageBackground>
   );
 }

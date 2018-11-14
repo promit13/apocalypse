@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, Alert, PermissionsAndroid, AsyncStorage,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, Alert, PermissionsAndroid, AsyncStorage, Dimensions,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button,
@@ -14,6 +14,9 @@ import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 import DeleteDownloads from '../common/DeleteDownloads';
 
+const { width } = Dimensions.get('window');
+const imageSize = width - 110;
+
 const homeCover = require('../../img/homecover.jpg');
 const speedImage = require('../../img/speed.png');
 const strengthImage = require('../../img/strength.png');
@@ -26,7 +29,7 @@ const styles = {
   },
   imageStyle: {
     width: '100%',
-    height: 250,
+    height: imageSize,
   },
   textStyle: {
     color: 'white',
@@ -154,52 +157,69 @@ export default class EpisodeList extends React.Component {
     RNIap.endConnection();
   }
 
-  onEpisodeClick = (episodeId, totalTime, workoutTime, videoSize, alreadyDownloaded, episodeIndex, seriesIndex, download) => {
-    if (!this.state.isConnected ) {
-      return Alert.alert('No internet connection');
-    }
-    this.setState({ loading: true });
-    firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
-      const {
-        title, category, description, exercises, video, startWT, endWT,
-      } = snapshot.val();
-      this.setState({ loading: false });
-      if (download) {
-        if (alreadyDownloaded) {
-          this.deleteEpisode(title);
-          this.readDirectory();
-          this.renderList();
-        } else {
-          this.props.navigation.navigate('DownloadFiles', {
-            episodeId,
-            episodeTitle: title,
-            category,
-            description,
-            exercises,
-            video,
-            totalTime,
-            workoutTime,
-            videoSize,
-          });
-        }
-        return;
+  onEpisodeClick = (
+    title,
+    episodeId,
+    category,
+    description,
+    exercises,
+    video,
+    startWT,
+    endWT,
+    totalTime,
+    workoutTime,
+    videoSize,
+    episodeIndex,
+    seriesIndex,
+    alreadyDownloaded,
+    completed,
+    download,
+  ) => {
+    // if (!this.state.isConnected && !alreadyDownloaded) {
+    //   return Alert.alert('No internet connection');
+    // }
+    // firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
+    //   const {
+    //     title, category, description, exercises, video, startWT, endWT,
+    //   } = snapshot.val();
+    if (download) {
+      if (alreadyDownloaded) {
+        this.deleteEpisode(title);
+      } else {
+        this.props.navigation.navigate('DownloadFiles', {
+          episodeId,
+          episodeTitle: title,
+          category,
+          description,
+          exercises,
+          video,
+          totalTime,
+          workoutTime,
+          videoSize,
+          episodeIndex,
+        });
       }
-      this.props.navigation.navigate('EpisodeView', {
-        episodeId,
-        title,
-        category,
-        description,
-        exercises,
-        video,
-        totalTime,
-        workoutTime,
-        videoSize,
-        episodeIndex,
-        seriesIndex,
-        startWT,
-        endWT,
-      });
+      return;
+    }
+    this.props.navigation.navigate('EpisodeView', {
+      episodeId,
+      title,
+      category,
+      description,
+      exercises,
+      video,
+      totalTime,
+      workoutTime,
+      videoSize,
+      episodeIndex,
+      seriesIndex,
+      startWT,
+      endWT,
+      completed,
+      offline: alreadyDownloaded,
+      episodeList: true,
     });
+    // });
   }
 
   getTitleAndId = (seriesIndex, episodeIndex, getImage) => {
@@ -294,7 +314,16 @@ export default class EpisodeList extends React.Component {
   }
 
   deleteEpisode = (fileName) => {
-    this.child.deleteEpisodes(fileName);
+    const { dirs } = RNFetchBlob.fs;
+    const formattedFileName = fileName.replace(/ /g, '_');
+    RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
+      .then((exists) => {
+        if (exists) {
+          this.child.deleteEpisodes(fileName);
+        }
+        this.readDirectory();
+        this.renderList();
+      });
   }
 
   renderList = () => {
@@ -315,24 +344,25 @@ export default class EpisodeList extends React.Component {
         .map(([episodeKey, episodeValue], episodeIndex) => {
           const { uid } = episodeValue;
           const {
-            title, category, totalTime, workoutTime, videoSize,
+            title, category, totalTime, workoutTime, videoSize, description, exercises, video, startWT, endWT,
           } = completeEpisodes[uid];
           const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
           const downloaded = filesList.includes(formattedFileName);
-          const completed = completedEpisodesArray.includes(uid);
-          console.log(completed);
+          let completed = completedEpisodesArray.includes(uid);
           const currentEpisode = lastPlayedEpisode.episodeId;
-          console.log(currentEpisode);
+          if (currentEpisode === uid) {
+            completed = undefined;
+          }
           return (
             <ListItem
               key={episodeKey}
               leftIcon={
                 currentEpisode === uid
-                  ? { name: 'pause-circle', type: 'font-awesome', color: '#f5cb23', size: 15 }
+                  ? { name: 'unmute', type: 'octicon', color: '#f5cb23', size: 20 }
                   : (
                       completed
-                        ? { name: 'circle-thin', type: 'font-awesome', color: '#f5cb23', size: 15 }
-                        : { name: 'circle', type: 'font-awesome', color: '#7a6306', size: 15 }
+                        ? { name: 'circle-thin', type: 'font-awesome', color: '#7a6306', size: 15 }
+                        : { name: 'circle', type: 'font-awesome', color: '#f5cb23', size: 15 }
                   )
               }
               title={`${episodeIndex + minIndex}. ${title}`}
@@ -354,32 +384,48 @@ export default class EpisodeList extends React.Component {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
+                  title,
                   uid,
+                  category,
+                  description,
+                  exercises,
+                  video,
+                  startWT,
+                  endWT,
                   totalTime,
                   workoutTime,
                   videoSize,
-                  downloaded,
                   episodeIndex,
                   seriesIndex,
+                  downloaded,
+                  completed,
                   true,
                 );
               }
               }
               onPress={() => {
-                if (!isConnected) {
+                if (!isConnected && !downloaded) {
                   return Alert.alert('No internet connection');
                 }
                 if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0)) {
                   return Alert.alert('Item not purchased');
                 }
                 this.onEpisodeClick(
+                  title,
                   uid,
+                  category,
+                  description,
+                  exercises,
+                  video,
+                  startWT,
+                  endWT,
                   totalTime,
                   workoutTime,
                   videoSize,
-                  downloaded,
                   episodeIndex,
                   seriesIndex,
+                  downloaded,
+                  completed,
                 );
               }}
             />
@@ -397,7 +443,7 @@ export default class EpisodeList extends React.Component {
                   ? (
                     <Button
                       title="Purchased"
-                      buttonStyle={styles.purchaseButtonStyle}
+                      buttonStyle={[styles.purchaseButtonStyle, { borderColor: 'white', borderWidth: 1 }]}
                       onPress={() => {
                         if (!this.state.isConnected) {
                           return Alert.alert('No internet connection');
@@ -406,7 +452,7 @@ export default class EpisodeList extends React.Component {
                     />)
                   : (
                     <Button
-                      title={`   £${value.price}   `}
+                      title={`    £${value.price}    `}
                       buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
                         if (!this.state.isConnected) {
@@ -447,7 +493,8 @@ export default class EpisodeList extends React.Component {
     } = lastPlayedEpisode;
     return (
       <View style={styles.mainContainer}>
-        <StatusBar hidden />
+        {/* <StatusBar hidden /> */}
+        <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         <DeleteDownloads ref={ref => (this.child = ref)} />
         { !isConnected ? <OfflineMsg /> : null }
         <ScrollView>
@@ -473,16 +520,24 @@ export default class EpisodeList extends React.Component {
                       : episodeId
                   )
               const {
-                totalTime, workoutTime, videoSize,
+                totalTime, workoutTime, videoSize, title, category, description, exercises, video, startWT, endWT,
               } = completeEpisodes[id];
+              const epIndex = lastPlayedEpisode === '' ? 0 : episodeIndex;
+              const serIndex = lastPlayedEpisode === '' ? 0 : seriesIndex;
               this.onEpisodeClick(
+                title,
                 id,
+                category,
+                description,
+                exercises,
+                video,
+                startWT,
+                endWT,
                 totalTime,
                 workoutTime,
                 videoSize,
-                false,
-                episodeIndex,
-                seriesIndex,
+                epIndex,
+                serIndex,
               );
             }}
             >

@@ -1,13 +1,21 @@
 import React from 'react';
 import {
-  StyleSheet, View, TextInput, ScrollView,
+  StyleSheet, View, TextInput, ScrollView, TouchableOpacity, Image, Dimensions, StatusBar,
 } from 'react-native';
-import { Button, SocialIcon, Icon, CheckBox } from 'react-native-elements';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {
+  Button, Text, Icon, CheckBox,
+} from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import axios from 'axios';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+
+const { width } = Dimensions.get('window');
+const imageSize = width - 120;
+
+const talonImage = require('../../img/talon.png');
 
 const styles = StyleSheet.create({
   container: {
@@ -24,11 +32,25 @@ const styles = StyleSheet.create({
     marginTop: 5,
     padding: 10,
   },
+  imageStyle: {
+    height: imageSize,
+    width: imageSize,
+    alignSelf: 'center',
+    marginTop: 50,
+    marginBottom: 20,
+  },
+  line: {
+    width: '100%',
+    height: 1,
+    backgroundColor: 'white',
+  },
   inputStyle: {
     flex: 1,
     height: 40,
     color: 'white',
     marginLeft: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   button: {
     width: '100%',
@@ -62,6 +84,8 @@ export default class Signup extends React.Component {
       email,
       age: 0,
       weight: 0,
+      weightCategory: '',
+      heightCategory: '',
       height: 0,
       gender: '',
       extended: false,
@@ -94,52 +118,58 @@ export default class Signup extends React.Component {
       return this.setState({ showError: true, errorMessage: 'Password did not match', showLoading: false });
     }
     if (!checked) {
-      return this.setState({ showError: true, errorMessage: 'Accept the agreements', showLoading: false });
+      return this.setState({ showError: true, errorMessage: 'Please accept the User Agreements', showLoading: false });
     }
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((currentUser) => {
-        this.setUserData(currentUser);
+        firebase.auth().currentUser.sendEmailVerification()
+          .then(() => {
+            this.setUserData(currentUser);
+          })
+          .catch(err => console.log(err));
       })
       .catch((error) => {
         this.setState({ showError: true, errorMessage: error.message, showLoading: false });
       });
   }
 
-  doFacebookSignUp = () => {
-    LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
-      (result) => {
-        if (result.isCancelled) {
-          this.setState({ showLoading: false });
-        } else {
-          AccessToken.getCurrentAccessToken()
-            .then((data) => {
-              axios.get(
-                `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
-              ).then((response) => {
-                const { email, first_name, last_name } = response.data;
-                this.setState({ email, firstName: first_name, lastName: last_name });
-                const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-                firebase.auth().signInAndRetrieveDataWithCredential(credential)
-                  .then((currentUser) => {
-                    this.setUserData(currentUser);
-                  })
-                  .catch(error => console.log(error));
-              });
-            });
-        }
-      },
-    ).catch(error => console.log(`Login failed with error: ${error}`));
-  }
+  // doFacebookSignUp = () => {
+  //   LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
+  //     (result) => {
+  //       if (result.isCancelled) {
+  //         this.setState({ showLoading: false });
+  //       } else {
+  //         AccessToken.getCurrentAccessToken()
+  //           .then((data) => {
+  //             axios.get(
+  //               `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
+  //             ).then((response) => {
+  //               const { email, first_name, last_name } = response.data;
+  //               this.setState({ email, firstName: first_name, lastName: last_name });
+  //               const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+  //               firebase.auth().signInAndRetrieveDataWithCredential(credential)
+  //                 .then((currentUser) => {
+  //                   this.setUserData(currentUser);
+  //                 })
+  //                 .catch(error => console.log(error));
+  //             });
+  //           });
+  //       }
+  //     },
+  //   ).catch(error => console.log(`Login failed with error: ${error}`));
+  // }
 
   render() {
     const {
       email, firstName, lastName, password, confirmPassword, checked, showError, showLoading, errorMessage,
     } = this.state;
     return (
-      <View style={styles.container}>
+      <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+        <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         <ScrollView>
-          <View style={styles.fieldContainer}>
-            <Icon name="email" color="white" />
+          <Image style={styles.imageStyle} source={talonImage} />
+          <View style={styles.fieldContainer} behavior="padding">
+            <Icon name="email" color="white" size={16} />
             <TextInput
               keyboardType="email-address"
               underlineColorAndroid="transparent"
@@ -151,7 +181,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="user" type="entypo" color="white" />
+            <Icon name="user" type="entypo" color="white" size={16} />
             <TextInput
               underlineColorAndroid="transparent"
               style={styles.inputStyle}
@@ -162,7 +192,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="user" type="entypo" color="white" />
+            <Icon name="user" type="entypo" color="white" size={16} />
             <TextInput
               underlineColorAndroid="transparent"
               style={styles.inputStyle}
@@ -173,7 +203,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" />
+            <Icon name="lock" type="entypo" color="white" size={16} />
             <TextInput
               secureTextEntry
               underlineColorAndroid="transparent"
@@ -185,7 +215,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" />
+            <Icon name="lock" type="entypo" color="white" size={16} />
             <TextInput
               secureTextEntry
               underlineColorAndroid="transparent"
@@ -196,16 +226,22 @@ export default class Signup extends React.Component {
               value={confirmPassword}
             />
           </View>
-          <CheckBox
-            title="I agree to the terms and conditions"
-            checked={checked}
-            checkedColor="#f5cb23"
-            containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent' }}
-            textStyle={{ color: 'white' }}
-            onIconPress={() => this.setState({ checked: !checked })}
-            onPress={() => this.props.navigation.navigate('Agreement')}
-
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <CheckBox
+              checked={checked}
+              checkedColor="#f5cb23"
+              containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -25 }}
+              onIconPress={() => this.setState({ checked: !checked })}
+            />
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('Agreement')}>
+              <View>
+                <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold' }}>
+                  I agree to the User Agreement
+                </Text>
+                <View style={[styles.line, { backgroundColor: checked ? '#f5cb23' : 'white' }]} />
+              </View>
+            </TouchableOpacity>
+          </View>
           {showError ? <ErrorMessage errorMessage={errorMessage} /> : null}
           {showLoading ? <Loading /> : null}
           <Button
@@ -217,7 +253,7 @@ export default class Signup extends React.Component {
             }
           }
           />
-          <SocialIcon
+          {/* <SocialIcon
             title="Sign up With Facebook"
             button
             style={{ marginTop: 15 }}
@@ -226,9 +262,9 @@ export default class Signup extends React.Component {
               this.setState({ showLoading: true });
               this.doFacebookSignUp();
             }}
-          />
+          /> */}
         </ScrollView>
-      </View>
+      </KeyboardAwareScrollView>
     );
   }
 }

@@ -55,7 +55,7 @@ export default class App extends React.Component {
       if (toLogDataObject !== null) {
         const toLogData = JSON.parse(toLogDataObject);
         const {
-          uid, episodeId, timeStamp, dateNow, episodeTitle, distance, timeInterval, steps, episodeIndex, seriesIndex, workOutTime, episodeCompleted, workOutCompleted,
+          uid, episodeId, timeStamp, dateNow, episodeTitle, distance, timeInterval, steps, episodeIndex, seriesIndex, workOutTime, episodeCompleted, workOutCompleted, trackingStarted, category,
         } = toLogData;
         const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
         firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
@@ -78,6 +78,8 @@ export default class App extends React.Component {
             workOutTime,
             workOutCompleted,
             timeInterval: formattedTimeInterval,
+            trackingStarted,
+            category,
           }).then(() => AsyncStorage.removeItem('distance'))
             .catch(error => console.log(error));
         })
@@ -103,7 +105,7 @@ export default class App extends React.Component {
       if (this.state.data.extended) {
         if (this.state.data.tutorial) {
           return (
-            <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected, userData: this.state.data }} />
+            <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />
           );
         }
         return (
@@ -116,7 +118,7 @@ export default class App extends React.Component {
         if (this.state.data.tutorial) {
           return (
             <SignedIn
-              screenProps={{ user: this.state.user, netInfo: this.state.isConnected, userData: this.state.data }}
+              screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
             />
           );
         }

@@ -15,7 +15,7 @@ const styles = {
 
 export default class Kickstarter extends React.Component {
   static navigationOptions = {
-    title: 'Kick Starters',
+    title: 'Kickstarters',
   };
 
   state = {

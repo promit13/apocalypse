@@ -54,7 +54,7 @@ export default class ExerciseList extends React.Component {
               title={title}
               titleStyle={{ color: this.state.advance && advanced === undefined ? 'gray' : 'white', fontSize: 18 }}
               containerStyle={{ backgroundColor: '#33425a' }}
-              underlayColor="#2a3545"
+              underlayColor={this.state.advance && advanced === undefined ? '#33425a' : '#2a3545'}
               onPress={() => {
                 if (this.state.advance && advanced === undefined) {
                   return;

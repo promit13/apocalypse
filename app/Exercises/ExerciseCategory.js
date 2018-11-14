@@ -27,9 +27,9 @@ const styles = {
     backgroundColor: 'white',
   },
   circularImageView: {
-    height: 120,
-    width: 120,
-    borderRadius: 120 / 2,
+    height: 100,
+    width: 100,
+    borderRadius: 100 / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -67,9 +67,9 @@ export default class ExerciseCategory extends React.Component {
               <View style={styles.circularImageView}>
                 <Image
                   style={{
-                    height: 120,
-                    width: 120,
-                    borderRadius: 120 / 2,
+                    height: 100,
+                    width: 100,
+                    borderRadius: 100 / 2,
                     borderColor: 'white',
                   }}
                   source={imageSource}
@@ -77,7 +77,7 @@ export default class ExerciseCategory extends React.Component {
                 />
               </View>
               <View>
-                <Text h4 style={[styles.textStyle, { fontWeight: 'bold' }]}>
+                <Text style={[styles.textStyle, { fontSize: 20, fontWeight: 'bold' }]}>
                   {title}
                 </Text>
                 <Text style={styles.textStyle}>
@@ -94,7 +94,6 @@ export default class ExerciseCategory extends React.Component {
     render() {
       return (
         <View style={styles.maincontainer}>
-          <StatusBar backgroundColor="#00000b" />
           { !this.state.isConnected ? <OfflineMsg /> : null }
           <View style={{ flex: 1, justifyContent: 'center' }}>
             {this.renderView('Speed', 'Running Training', speedImage)}

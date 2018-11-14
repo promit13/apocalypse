@@ -148,6 +148,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-music-control')
     compile project(':react-native-orientation')
     compile project(':realm')
     compile project(':react-native-fetch-blob')

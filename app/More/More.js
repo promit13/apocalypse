@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, StatusBar, Alert, Image,
+  ScrollView, View, StatusBar, Alert, Image, Linking,
 } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
@@ -50,9 +50,16 @@ export default class More extends React.Component {
     this.setState({ isConnected: this.props.screenProps.netInfo });
   }
 
+  sendEmail = () => {
+    Linking.openURL('mailto:appfeedback@imaginactive-fitness.com?subject=AST Feedback&body=Description');
+  }
+
   navigateTo = (navigateScreen) => {
     if (!this.state.isConnected && navigateScreen !== 'Downloads') {
       return Alert.alert('No internet connection');
+    }
+    if (navigateScreen === 'Feedback') {
+      return this.sendEmail();
     }
     this.props.navigation.navigate(navigateScreen, { showButton: false }); // showButton for tutorial
   }

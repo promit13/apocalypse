@@ -1,13 +1,12 @@
 import React from 'react';
 import {
-  View, TextInput, ImageBackground, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity,
+  View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, StatusBar,
 } from 'react-native';
-import { Button, Icon, Text, SocialIcon } from 'react-native-elements';
+import { Icon, Text } from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import axios from 'axios';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
-import ErrorMessage from '../common/Error';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
@@ -114,38 +113,37 @@ export default class Login extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.container}>
-          <ImageBackground style={styles.imageStyle} source={talonImage}>
-            <Text style={[styles.text, { textAlign: 'center' }]}>
-             Log in to optimise user experience and personalise workout data
+        <StatusBar backgroundColor="#00000b" barStyle="light-content" />
+        <ImageBackground style={styles.imageStyle} source={talonImage}>
+          <Text style={[styles.text, { textAlign: 'center' }]}>
+            Log in to optimise user experience and personalise workout data
+          </Text>
+        </ImageBackground>
+        <TouchableOpacity onPress={() => this.doFacebookSignUp()}>
+          <View style={styles.fieldContainer}>
+            <Icon name="facebook" type="entypo" color="white" />
+            <Text style={styles.text}>
+              Log in with Facebook
             </Text>
-          </ImageBackground>
-          <TouchableOpacity onPress={() => this.doFacebookSignUp()}>
-            <View style={styles.fieldContainer}>
-              <Icon name="facebook" type="entypo" color="white" />
-              <Text style={styles.text}>
-                Log in with Facebook
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
-            <View style={[styles.fieldContainer, { backgroundColor: '#33425a' }]}>
-              <Icon name="email-outline" type="material-community" color="white" />
-              <Text style={styles.text}>
-                Log in with Email
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')}>
-            <View style={[styles.fieldContainer, { backgroundColor: '#D44A37' }]}>
-              <Icon name="account" type="material-community" color="white" />
-              <Text style={styles.text}>
-                Create Account
-              </Text>
-            </View>
-          </TouchableOpacity>
-          {this.state.showLoading ? <Loading /> : null}
-        </View>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
+          <View style={[styles.fieldContainer, { backgroundColor: '#33425a' }]}>
+            <Icon name="email-outline" type="material-community" color="white" />
+            <Text style={styles.text}>
+              Log in with Email
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')}>
+          <View style={[styles.fieldContainer, { backgroundColor: '#D44A37' }]}>
+            <Icon name="account" type="material-community" color="white" />
+            <Text style={styles.text}>
+              Create Account
+            </Text>
+          </View>
+        </TouchableOpacity>
+        {this.state.showLoading ? <Loading /> : null}
       </View>
     );
   }

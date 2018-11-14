@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView,
+  AppState, View, ScrollView, AsyncStorage,
 } from 'react-native';
 import { Text } from 'react-native-elements';
 import Video from 'react-native-video';
@@ -18,6 +18,7 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#001331',
+    height: '100%',
   },
   containerInner: {
     marginTop: 30,
@@ -26,6 +27,7 @@ const styles = {
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
+    marginTop: 10,
   },
   loading: {
     marginTop: 30,
@@ -35,10 +37,7 @@ const styles = {
     width: 0,
   },
   albumView: {
-    backgroundColor: '#33425a',
-    paddingRight: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
+    height: '60%',
   },
   line: {
     width: '100%',
@@ -46,7 +45,7 @@ const styles = {
     backgroundColor: 'white',
   },
 };
-const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2Ftalondark.png?alt=media&token=fdaf448b-dc43-4a72-a9e3-470aa68d9390';
+const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2FTALON.png?alt=media&token=4c4566fc-ff31-4a89-b674-7e73e52eaa98';
 
 export default class TalonIntelPlayer extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -71,12 +70,22 @@ export default class TalonIntelPlayer extends Component {
   };
 
   componentDidMount() {
+    Orientation.unlockAllOrientations();
     const {
-      episodeId, talon, exerciseTitle, video, image, offline, advance, exercise,
+      episodeId, talon, exerciseTitle, video, image, offline, advance, exercise, episodeExerciseTitle,
     } = this.props.navigation.state.params;
     if (talon) {
-      firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
+      firebase.database().ref(`episodes/${episodeId}`).on('value', async (snapshot) => {
         const { title, intel } = snapshot.val();
+        let playedIntelArray = [];
+        const playedIntel = await AsyncStorage.getItem('playedIntelArray');
+        if (playedIntel !== null) {
+          playedIntelArray = JSON.parse(playedIntel);
+        }
+        if (!playedIntelArray.includes(episodeId)) {
+          playedIntelArray.push(episodeId);
+        }
+        await AsyncStorage.setItem('playedIntelArray', JSON.stringify(playedIntelArray));
         this.setState({
           episodeTitle: title,
           videoUrl: intel,
@@ -85,25 +94,31 @@ export default class TalonIntelPlayer extends Component {
         });
       });
     } else if (offline) {
-      const formattedExerciseName = image.replace(/\s+/g, '');
       const { dirs } = RNFetchBlob.fs;
-      if (advance) {
-        this.setState({
-          videoUrl: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`,
-          episodeTitle: exerciseTitle,
-          playingExercise: { value: { image: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`, title: '' } },
-          loadScreen: false,
-          exercise,
+      const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
+      RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`)
+        .then((exists) => {
+          console.log(exists);
+          if (advance) {
+            this.setState({
+              videoUrl: exists ? `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4` : '',
+              episodeTitle: episodeExerciseTitle,
+              playingExercise: { value: { image: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`, title: '' } },
+              loadScreen: false,
+              exercise,
+              loading: exists ? true : false,
+            });
+          } else {
+            this.setState({
+              videoUrl: exists ? `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4` : '',
+              episodeTitle: episodeExerciseTitle,
+              playingExercise: { value: { image: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`, title: '' } },
+              loadScreen: false,
+              exercise,
+              loading: exists ? true : false,
+            });
+          }
         });
-      } else {
-        this.setState({
-          videoUrl: `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`,
-          episodeTitle: exerciseTitle,
-          playingExercise: { value: { image: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`, title: '' } },
-          loadScreen: false,
-          exercise,
-        });
-      }
     } else {
       this.setState({
         episodeTitle: exerciseTitle,
@@ -167,8 +182,7 @@ export default class TalonIntelPlayer extends Component {
   };
 
   onEnd = () => {
-    this.setState({ paused: true, currentTime: 0.0 });
-    this.player.seek(0, 10);
+    this.setState({ paused: true });
   }
 
   onDragSeekBar = (currentTime) => {
@@ -194,33 +208,40 @@ export default class TalonIntelPlayer extends Component {
   };
 
   renderLandscapeView = () => {
-    const { image, title } = this.state.playingExercise.value;
+    const {
+      playingExercise, episodeTitle, exercise, paused, loading, totalLength, currentTime, videoUrl,
+    } = this.state;
     return (
       <View style={{ flex: 2, flexDirection: 'row' }}>
-        <View style={{ flex: 1, backgroundColor: '#33425a', padding: 20 }}>
+        <View style={{ flex: 1, padding: 10 }}>
           <AlbumArt
             url={
-             this.state.playingExercise
-               ? image
+             playingExercise
+               ? playingExercise.value.image
                : null
             }
             talonPlayer
             onPress={() => {}}
+            paddingTop="15%"
           />
         </View>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        <View style={{ flex: 1, justifyContent: videoUrl === '' ? 'center' : 'space-between' }}>
           <Text h4 style={styles.textTitle}>
-            {this.state.episodeTitle}
+            {episodeTitle}
           </Text>
           {
-            this.state.exercise
+            exercise
               ? (
-                <Controls
-                  onPressPlay={this.onPressPlay}
-                  onPressPause={this.onPressPause}
-                  paused={this.state.paused}
-                  exercisePlayer
-                />
+                videoUrl === ''
+                ? null
+                : (
+                  <Controls
+                    onPressPlay={this.onPressPlay}
+                    onPressPause={this.onPressPause}
+                    paused={paused}
+                    exercisePlayer
+                  />
+                )
               )
               : (
                 <Controls
@@ -229,34 +250,29 @@ export default class TalonIntelPlayer extends Component {
                   onBack={this.onBack}
                   onForward={this.onForward}
                   onDownload={this.onDownload}
-                  paused={this.state.paused}
+                  paused={paused}
                   renderForwardButton
                 />
               )
           }
-          <Controls
-            onPressPlay={this.onPressPlay}
-            onPressPause={this.onPressPause}
-            onBack={this.onBack}
-            onForward={this.onForward}
-            onDownload={this.onDownload}
-            paused={this.state.paused}
-            renderForwardButton
-          />
-          { this.state.loading
+          { loading
             ? <Loading />
             : (
-              <View>
-                <Seekbar
-                  totalLength={this.state.totalLength}
-                  onDragSeekBar={this.onDragSeekBar}
-                  seekValue={this.state.currentTime && this.state.currentTime}
-                />
-                <FormatTime
-                  currentTime={this.state.currentTime}
-                  remainingTime={this.state.totalLength - this.state.currentTime}
-                />
-              </View>
+              videoUrl === ''
+              ? null
+              : (
+                <View>
+                  <Seekbar
+                    totalLength={totalLength}
+                    onDragSeekBar={this.onDragSeekBar}
+                    seekValue={currentTime && currentTime}
+                  />
+                  <FormatTime
+                    currentTime={currentTime}
+                    remainingTime={totalLength - currentTime}
+                  />
+                </View> 
+              )
             )
           }
         </View>
@@ -265,48 +281,63 @@ export default class TalonIntelPlayer extends Component {
   }
 
   renderPortraitView = () => {
-    const { image, title } = this.state.playingExercise.value;
+    const {
+      playingExercise, loading, totalLength, currentTime, episodeTitle, paused, videoUrl, exercise,
+    } = this.state;
     return (
       <View>
         <View style={styles.line} />
         <View style={styles.albumView}>
           <AlbumArt
             url={
-             this.state.playingExercise
-               ? image
-               : null
+              playingExercise
+                ? playingExercise.value.image
+                : null
             }
             talonPlayer
             onPress={() => {}}
+            paddingTop="15%"
           />
         </View>
         <View style={styles.line} />
-        { this.state.loading
+        { loading
           ? <Loading />
           : (
             <View>
-              <Seekbar
-                totalLength={this.state.totalLength}
-                onDragSeekBar={this.onDragSeekBar}
-                sliderReleased={this.sliderReleased}
-                seekValue={this.state.currentTime && this.state.currentTime}
-              />
-              <FormatTime
-                currentTime={this.state.currentTime}
-                remainingTime={this.state.totalLength - this.state.currentTime}
-              />
+              {
+                videoUrl === ''
+                  ? null
+                  : (
+                    <View>
+                      <Seekbar
+                        totalLength={totalLength}
+                        onDragSeekBar={this.onDragSeekBar}
+                        sliderReleased={this.sliderReleased}
+                        seekValue={currentTime && currentTime}
+                      />
+                      <FormatTime
+                        currentTime={currentTime}
+                        remainingTime={totalLength - currentTime}
+                      />
+                    </View>
+                  )
+              }
               <Text h4 style={styles.textTitle}>
-                {this.state.episodeTitle}
+                {episodeTitle}
               </Text>
               {
-            this.state.exercise
+            exercise
               ? (
-                <Controls
-                  onPressPlay={this.onPressPlay}
-                  onPressPause={this.onPressPause}
-                  paused={this.state.paused}
-                  exercisePlayer
-                />
+                videoUrl === ''
+                ? null
+                : (
+                    <Controls
+                      onPressPlay={this.onPressPlay}
+                      onPressPause={this.onPressPause}
+                      paused={paused}
+                      exercisePlayer
+                    />
+                  )
               )
               : (
                 <Controls
@@ -315,7 +346,7 @@ export default class TalonIntelPlayer extends Component {
                   onBack={this.onBack}
                   onForward={this.onForward}
                   onDownload={this.onDownload}
-                  paused={this.state.paused}
+                  paused={paused}
                   renderForwardButton
                 />
               )
@@ -329,6 +360,7 @@ export default class TalonIntelPlayer extends Component {
 
   render() {
     const { videoUrl, loadScreen } = this.state;
+    console.log(videoUrl);
     if (loadScreen) return <LoadScreen />;
     const video = videoUrl === ''
       ? null
@@ -346,11 +378,12 @@ export default class TalonIntelPlayer extends Component {
           onLoad={this.onLoad}
           onProgress={this.onProgress}
           onEnd={this.onEnd}
+          repeat
           style={styles.audioElement}
         />
       );
     return (
-      <ScrollView
+      <View
         style={styles.container}
         onLayout={(event) => {
           this.setState({
@@ -361,7 +394,7 @@ export default class TalonIntelPlayer extends Component {
       >
         {this.detectOrientation()}
         {video}
-      </ScrollView>
+      </View>
     );
   }
 }

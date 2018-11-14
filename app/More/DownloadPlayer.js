@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView, Text,
+  AppState, View, ScrollView,
 } from 'react-native';
+import { Text } from 'react-native-elements';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
 import AlbumArt from '../common/AlbumArt';
@@ -15,12 +16,12 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#001331',
+    height: '100%',
   },
   containerInner: {
     marginTop: 30,
   },
   textTitle: {
-    fontSize: 16,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
@@ -33,9 +34,7 @@ const styles = {
     width: 0,
   },
   albumView: {
-    backgroundColor: '#33425a',
-    paddingTop: 10,
-    paddingBottom: 10,
+    height: '50%',
   },
   line: {
     width: '100%',
@@ -90,7 +89,8 @@ export default class DownloadPlayer extends Component {
     const { title, image } = this.state.playingExercise.value;
     this.props.navigation.navigate('TalonIntelPlayer', {
       offline: true,
-      exerciseTitle: title,
+      exerciseTitle: image,
+      episodeExerciseTitle: title,
       image,
       advance: this.state.advance,
       exercise: true,
@@ -164,13 +164,13 @@ export default class DownloadPlayer extends Component {
       // const { length } = value;
       if (this.state.currentTime > (value / 1000)) {
         const exercise = exercises[i];
-        const { cmsTitle, video, title } = exercise[0];
-        const showInfo = video === 'yes' ? true : false;
+        const { cmsTitle, visible, title, episodeExerciseTitle } = exercise[0];
+        const showInfo = visible;
         this.setState({
           showInfo,
           playingExercise: {
             // value: { image: exercise[0].title, title: exercise[0].title },
-            value: { image: cmsTitle, title },
+            value: { image: cmsTitle, title, episodeExerciseTitle },
           },
         });
         this.state.previousStartTime.push(value);
@@ -192,26 +192,29 @@ export default class DownloadPlayer extends Component {
   }
 
   renderLandscapeView = () => {
-    const { image, title } = this.state.playingExercise.value;
+    const {
+      listen, loading, totalLength, currentTime, playingExercise, advance, showInfo, episodeTitle, paused,
+    } = this.state;
+    const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ flex: 2, flexDirection: 'row' }}>
-        <View style={{ flex: 1, backgroundColor: '#33425a', padding: 20 }}>
+        <View style={{ flex: 1, padding: 20 }}>
           <AlbumArt
             url={
-             this.state.playingExercise
+             playingExercise
                ? image
                : null
             }
-            currentExercise={title}
+            currentExercise={episodeExerciseTitle}
             onPress={this.onExercisePress}
-            showInfo={this.state.showInfo}
+            showInfo={showInfo}
             offline
-            advance={this.state.advance}
+            advance={advance}
           />
         </View>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <Text style={styles.textTitle}>
-            {this.state.episodeTitle}
+          <Text h4 style={styles.textTitle}>
+            {episodeTitle}
           </Text>
           <Controls
             onPressPlay={this.onPressPlay}
@@ -219,27 +222,22 @@ export default class DownloadPlayer extends Component {
             onBack={this.onBack}
             onForward={this.onForward}
             onDownload={this.onDownload}
-            paused={this.state.paused}
+            paused={paused}
             navigateToPreviousExercise={this.navigateToPreviousExercise}
-            renderForwardButton={this.state.listen}
+            renderForwardButton={listen}
           />
-          { this.state.loading
+          { loading
             ? <Loading />
             : (
               <View>
-                { this.state.listen
-                  ? (
-                    <Seekbar
-                      totalLength={this.state.totalLength}
-                      onDragSeekBar={this.onDragSeekBar}
-                      seekValue={this.state.currentTime && this.state.currentTime}
-                    />
-                  )
-                  : null
-               }
+                <Seekbar
+                  totalLength={totalLength}
+                  onDragSeekBar={this.onDragSeekBar}
+                  seekValue={currentTime && currentTime}
+                />
                 <FormatTime
-                  currentTime={this.state.currentTime}
-                  remainingTime={this.state.totalLength - this.state.currentTime}
+                  currentTime={currentTime}
+                  remainingTime={totalLength - currentTime}
                 />
               </View>
             )
@@ -250,45 +248,44 @@ export default class DownloadPlayer extends Component {
   }
 
   renderPortraitView = () => {
-    const { image, title } = this.state.playingExercise.value;
+    const {
+      listen, loading, totalLength, currentTime, playingExercise, advance, showInfo, episodeTitle, paused,
+    } = this.state;
+    const { image, episodeExerciseTitle } = playingExercise.value;
     return (
-      <View>
+      <View style={{ height: '100%' }}>
         <View style={styles.albumView}>
           <AlbumArt
             url={
-             this.state.playingExercise
+             playingExercise
                ? image
                : null
             }
-            currentExercise={title}
+            currentExercise={episodeExerciseTitle}
             onPress={this.onExercisePress}
-            showInfo={this.state.showInfo}
+            showInfo={showInfo}
             offline
-            advance={this.state.advance}
+            advance={advance}
           />
         </View>
         <View style={styles.line} />
-        { this.state.loading
+        { loading
           ? <Loading />
           : (
             <View>
-              { this.state.listen
-                ? (
-                  <Seekbar
-                    totalLength={this.state.totalLength}
-                    onDragSeekBar={this.onDragSeekBar}
-                    sliderReleased={this.sliderReleased}
-                    seekValue={this.state.currentTime && this.state.currentTime}
-                  />
-                )
-                : null
-              }
-              <FormatTime
-                currentTime={this.state.currentTime}
-                remainingTime={this.state.totalLength - this.state.currentTime}
+              <Seekbar
+                totalLength={totalLength}
+                onDragSeekBar={this.onDragSeekBar}
+                sliderReleased={this.sliderReleased}
+                seekValue={currentTime && currentTime}
+                listen={!listen}
               />
-              <Text style={styles.textTitle}>
-                {this.state.episodeTitle}
+              <FormatTime
+                currentTime={currentTime}
+                remainingTime={totalLength - currentTime}
+              />
+              <Text h4 style={styles.textTitle}>
+                {episodeTitle}
               </Text>
               <Controls
                 onPressPlay={this.onPressPlay}
@@ -297,8 +294,8 @@ export default class DownloadPlayer extends Component {
                 onForward={this.onForward}
                 onDownload={this.onDownload}
                 navigateToPreviousExercise={this.navigateToPreviousExercise}
-                paused={this.state.paused}
-                renderForwardButton={this.state.listen}
+                paused={paused}
+                renderForwardButton={listen}
               />
             </View>
           )
@@ -330,7 +327,7 @@ export default class DownloadPlayer extends Component {
     );
 
     return (
-      <ScrollView
+      <View
         style={styles.container}
         onLayout={(event) => {
           this.setState({
@@ -341,7 +338,7 @@ export default class DownloadPlayer extends Component {
       >
         {this.detectOrientation()}
         {video}
-      </ScrollView>
+      </View>
     );
   }
 }

@@ -3,7 +3,7 @@ import {
   ScrollView, View, Image,
 } from 'react-native';
 import {
-  ListItem, Button, Text,
+  ListItem, Button, Text, Icon,
 } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 import realm from '../config/Database';
@@ -75,37 +75,49 @@ export default class EpisodeView extends React.Component {
     video: '',
     startWT: '',
     endWT: '',
+    completed: false,
     completeExercises: '',
     exercises: [],
     exerciseIdlist: [],
     exerciseLengthList: [],
     offline: false,
+    episodeList: false,
     introButtonColor: '#f5cb23',
     advancedButtonColor: '#fff',
     advance: false,
+    trackingStarted: true,
   }
 
   componentDidMount= async () => {
-    const { offline, title } = this.props.navigation.state.params;
+    const { netInfo } = this.props.screenProps;
+    const {
+      offline,
+      episodeList,
+      title,
+      episodeId,
+      category,
+      episodeIndex,
+      seriesIndex,
+      exercises,
+      description,
+      video,
+      workoutTime,
+      videoSize,
+      totalTime,
+      startWT,
+      endWT,
+      completed,
+    } = this.props.navigation.state.params;
     this.setState({ offline });
-    if (offline) {
+    if (offline && episodeList && !netInfo) {
+      this.getOfflineDatas(title);
+    } else if (offline && !episodeList && netInfo) {
+      this.getOfflineDatas(title);
+    } else if (offline && !episodeList && !netInfo) {
       this.getOfflineDatas(title);
     } else {
-      const {
-        episodeId,
-        category,
-        episodeIndex,
-        seriesIndex,
-        exercises,
-        description,
-        video,
-        workoutTime,
-        videoSize,
-        totalTime,
-        startWT,
-        endWT,
-      } = this.props.navigation.state.params;
       firebase.database().ref('exercises').on('value', (snapshot) => {
+        console.log(snapshot.val());
         this.setState({
           episodeId,
           title,
@@ -120,13 +132,25 @@ export default class EpisodeView extends React.Component {
           totalTime,
           startWT,
           endWT,
+          completed,
           completeExercises: snapshot.val(),
           loading: false,
+          episodeList: true,
         });
       });
       this.setImage(category);
     }
   }
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.props.navigation.state.params === undefined) {
+  //     return;
+  //   }
+  //   console.log(this.props.navigation.state.params.trackingStarted);
+  //   if (this.props.navigation.state.params.trackingStarted !== prevState.trackingStarted) {
+  //     this.deleteEmptyTalonLog();
+  //   }
+  // }
 
   getOfflineDatas = (episodeTitle) => {
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
@@ -140,6 +164,7 @@ export default class EpisodeView extends React.Component {
       totalTime,
       workoutTime,
       videoSize,
+      episodeIndex,
     } = episodeDetail[0];
     const exercises = exerciseIdList.map((value, i) => {
       return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
@@ -152,6 +177,7 @@ export default class EpisodeView extends React.Component {
       exercises,
       totalTime,
       workoutTime,
+      episodeIndex,
       videoSize,
       exerciseLengthList: Array.from(exerciseLengthList),
       loading: false,
@@ -169,6 +195,12 @@ export default class EpisodeView extends React.Component {
      if (category === 'Control') {
        return this.setState({ imageSource: controlImage });
      }
+   }
+
+   deleteEmptyTalonLog = () => {
+     console.log('DELETE');
+     const { logId, uid, episodeId } = this.props.navigation.state.params;
+     firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).remove();
    }
 
   navigateToEpisodeSingle = (check, mode, navigateTo) => {
@@ -210,23 +242,30 @@ export default class EpisodeView extends React.Component {
 
   renderOfflineExerciseList = () => {
     const { exercises, advance } = this.state;
+    if (exercises.length === 0) {
+      return;
+    }
+    console.log(exercises);
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t[0].id === thing[0].id) === index);
     const exercisesList = reducedExercise.map((value, i) => {
       const exercise = value[0];
-      const { title, visible } = exercise;
+      const { title, visible, cmsTitle, advanced, episodeExerciseTitle } = exercise;
       if (!visible) {
         return console.log('');
       }
       return (
         <ListItem
           title={title}
-          titleStyle={{ color: 'white' }}
+          titleStyle={{ color: advance && !advanced ? 'gray' : 'white' }}
           containerStyle={{ backgroundColor: '#33425a' }}
           underlayColor="#2a3545"
           onPress={() => {
+            if (advance && !advanced) {
+              return;
+            }
             this.props.navigation.navigate('TalonIntelPlayer', {
               offline: true,
-              exerciseTitle: title,
+              exerciseTitle: cmsTitle,
               advance,
               exercise: true,
               mode: 'Exercise Player',
@@ -245,7 +284,7 @@ export default class EpisodeView extends React.Component {
     }
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t.uid === thing.uid) === index);
     const exercisesList = Object.entries(reducedExercise).map(([key, value], i) => {
-      const { uid, visible } = value;
+      const { uid, visible, episodeExerciseTitle } = value;
       if (!visible) {
         return console.log(visible);
       }
@@ -256,15 +295,19 @@ export default class EpisodeView extends React.Component {
         <ListItem
           key={key}
           title={title}
-          titleStyle={{ color: 'white' }}
-          containerStyle={{ backgroundColor: '#33425a' }}
+          titleStyle={{ color: advance && advanced === undefined ? 'gray' : 'white' }}
+          containerStyle={{ backgroundColor: advance && advanced === undefined ? '#2a3545' : '#33425a' }}
           underlayColor="#2a3545"
           onPress={() => {
+            if (advance && advanced === undefined) {
+              return;
+            }
             const videoUrl = advance && advanced !== undefined ? advanced.video : video;
+            const imageUrl = advance && advanced !== undefined ? advanced.image : image;
             this.props.navigation.navigate('TalonIntelPlayer', {
               video: videoUrl,
               exerciseTitle: title,
-              image,
+              image: imageUrl,
               exercise: true,
               mode: 'Exercise Player',
             });
@@ -275,10 +318,12 @@ export default class EpisodeView extends React.Component {
     return exercisesList;
   }
 
+  
+
   render() {
     if (this.state.loading) return <LoadScreen />;
     const {
-      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex,
+      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex, completed, episodeList,
     } = this.state;
     return (
       <ScrollView style={styles.mainContainer}>
@@ -294,7 +339,7 @@ export default class EpisodeView extends React.Component {
             />
           </View>
           <View style={{ marginLeft: 10 }}>
-            <Text h4 style={[styles.text, { fontWeight: 'bold' }]}>
+            <Text style={[styles.text, { fontSize: 20, fontWeight: 'bold' }]}>
               {category}
             </Text>
             <Text style={styles.text}>
@@ -319,9 +364,13 @@ export default class EpisodeView extends React.Component {
           </View>
         </View>
         <View>
-          <Text h4 style={[styles.text, { fontWeight: 'bold' }]}>
-            {`${episodeIndex + 1}. ${title}`}
-          </Text>
+          <View style={{ flexDirection: 'row', paddingLeft: 15 }}>
+            <Icon name={completed ? 'circle-thin' : (completed === undefined ? 'unmute' : 'circle')} type={completed === undefined ? 'octicon' : 'font-awesome'} color={completed ? '#7a6306' : '#f5cb23'} size={20} />
+            <Text style={[styles.text, { fontSize: 20, fontWeight: 'bold' }]}>
+              {`${episodeIndex + 1}. ${title}`}
+            </Text>
+          </View>
+          
           <Text style={styles.text}>
             {description}
           </Text>
@@ -335,10 +384,10 @@ export default class EpisodeView extends React.Component {
               fontSize={18}
               title="Workout Mode"
               onPress={() => {
-                if (offline) {
+                if (offline && !episodeList) {
                   return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadPlayer');
                 }
-                this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
+                this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
               }}
             />
           </View>
@@ -356,10 +405,10 @@ export default class EpisodeView extends React.Component {
               fontSize={18}
               title="Listen Mode"
               onPress={() => {
-                if (offline) {
+                if (offline && !episodeList) {
                   return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadPlayer');
                 }
-                this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
+                this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
               }}
             />
           </View>
@@ -389,7 +438,7 @@ export default class EpisodeView extends React.Component {
                     buttonStyle={{ backgroundColor: 'transparent' }}
                     color="#001331"
                     fontSize={18}
-                    title="Advance"
+                    title="Advanced"
                     onPress={() => {
                       this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });
                     }}
@@ -400,7 +449,7 @@ export default class EpisodeView extends React.Component {
         }
         <View style={styles.line} />
         <View />
-        { offline ? this.renderOfflineExerciseList() : this.renderExerciseList()}
+        { offline && !episodeList ? this.renderOfflineExerciseList() : this.renderExerciseList()}
       </ScrollView>
     );
   }
