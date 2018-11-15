@@ -76,6 +76,9 @@ export default class DownloadFiles extends React.Component {
       workoutTime,
       videoSize,
       episodeIndex,
+      seriesIndex,
+      startWT,
+      endWT,
     } = this.props.navigation.state.params;
     const { dirs } = RNFetchBlob.fs;
     console.log(episodeTitle);
@@ -110,6 +113,9 @@ export default class DownloadFiles extends React.Component {
                 workoutTime,
                 videoSize,
                 episodeIndex,
+                seriesIndex,
+                startWT,
+                endWT,
               });
             });
             exercisesList.map((exercise, i) => {

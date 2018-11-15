@@ -129,6 +129,7 @@ export default class EpisodeList extends React.Component {
               series: sortedSeries, lastPlayedEpisode, purchasedSeries, loading: false, completeEpisodes,
             });
             AsyncStorage.setItem('series', JSON.stringify({
+              uid: this.props.screenProps.user.uid,
               series: sortedSeries,
               purchasedSeries,
               lastPlayedEpisode,
@@ -196,7 +197,10 @@ export default class EpisodeList extends React.Component {
           totalTime,
           workoutTime,
           videoSize,
+          startWT,
+          endWT,
           episodeIndex,
+          seriesIndex,
         });
       }
       return;
@@ -335,7 +339,6 @@ export default class EpisodeList extends React.Component {
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
       const buy = purchasedSeries.includes(seriesKey);
       minIndex = maxIndex + 1;
-      console.log(value);
       if (value.episodes === undefined) {
         return console.log('no episodes added');
       }

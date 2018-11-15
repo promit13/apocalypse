@@ -3,6 +3,7 @@ import {
   AppState, View, ScrollView, Modal, Platform, AsyncStorage, BackHandler,
 } from 'react-native';
 import { Text, Button, Icon } from 'react-native-elements';
+import MusicControl from 'react-native-music-control';
 import Video from 'react-native-video';
 import Pedometer from 'react-native-pedometer';
 import GoogleFit from 'react-native-google-fit';
@@ -124,7 +125,7 @@ export default class EpisodeSingle extends Component {
   componentWillMount() {
     const platform = Platform.OS;
     const {
-      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance,
+      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance, uid,
     } = this.props.navigation.state.params;
     this.setState({
       listen: check,
@@ -137,8 +138,8 @@ export default class EpisodeSingle extends Component {
       video,
       mode,
       episodeTitle: title,
-      uid: this.props.screenProps.user.uid,
-      playingExercise: { value: { image: albumImage, episodeExerciseTitle: 'Exercise' } },
+      uid,
+      playingExercise: { value: { image: albumImage, title: '' } },
     });
   }
 
@@ -166,6 +167,7 @@ export default class EpisodeSingle extends Component {
       this.setState({ showIntroAdvanceDialog: true });
     }
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    this.registerEvents();
     if (listen) {
       return this.setState({ loadScreen: false });
       // if (category === 'Speed') {
@@ -203,6 +205,11 @@ export default class EpisodeSingle extends Component {
     const { currentTime } = this.state;
     this.setState({ currentTime: currentTime + 10 });
     this.player.seek(currentTime + 10, 10);
+  }
+
+  onSeek = () => {
+    const { currentTime } = this.state;
+    this.player.seek(currentTime);
   }
 
   onPressPause = () => {
@@ -332,12 +339,10 @@ export default class EpisodeSingle extends Component {
     } = this.state;
     const currentDate = this.getDate();
     const startDate = await AsyncStorage.getItem(episodeId);
-    console.log(startDate);
-    console.log(trackingStarted);
     const timeInterval = !trackingStarted
       ? 0
       : ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
-    // const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
+    const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
     firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
       {
         episodeTitle,
@@ -359,7 +364,7 @@ export default class EpisodeSingle extends Component {
           seriesIndex,
           trackingStarted,
           category,
-          workOutTime,
+          workOutTime: workOutCompletedTime,
           workOutCompleted,
         }).then(() => this.setState({ lastLoggedDate: currentDate }));
       } else {
@@ -374,7 +379,7 @@ export default class EpisodeSingle extends Component {
           seriesIndex,
           category,
           trackingStarted,
-          workOutTime,
+          workOutTime: workOutCompletedTime,
           workOutCompleted,
         }).then(() => this.setState({ lastLoggedDate: currentDate }));
       }
@@ -486,7 +491,7 @@ export default class EpisodeSingle extends Component {
       this.setState({
         showInfo: false,
         playingExercise: {
-          value: { image, title, episodeExerciseTitle, exerciseId: uid, video },
+          value: { image, title: episodeExerciseTitle, exerciseId: uid, video },
         },
       });
     } else {
@@ -494,7 +499,7 @@ export default class EpisodeSingle extends Component {
         this.setState({
           showInfo: true,
           playingExercise: {
-            value: { image: advanced.image, title, episodeExerciseTitle, exerciseId: uid, video: advanced.video },
+            value: { image: advanced.image, title: episodeExerciseTitle, exerciseId: uid, video: advanced.video },
           },
         });
         return;
@@ -502,10 +507,56 @@ export default class EpisodeSingle extends Component {
       this.setState({
         showInfo: true,
         playingExercise: {
-          value: { image, title, episodeExerciseTitle, exerciseId: uid, video },
+          value: { image, title: episodeExerciseTitle, exerciseId: uid, video },
         },
       });
     }
+  }
+
+  registerEvents = () => {
+    const { listen, episodeTitle, currentTime, totalLength } = this.state;
+    MusicControl.enableBackgroundMode(true);
+
+    // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
+    MusicControl.handleAudioInterruptions(true);
+
+    MusicControl.on('play', () => {
+      // this.props.dispatch(this.onPressPlay());
+      this.onPressPlay();
+    });
+
+    // on iOS this event will also be triggered by audio router change events
+    // happening when headphones are unplugged or a bluetooth audio peripheral disconnects from the device
+    MusicControl.on('pause', () => {
+      this.onPressPause();
+    });
+
+    MusicControl.on('nextTrack', () => {
+      this.onForward();
+    });
+    MusicControl.on('previousTrack', () => {
+      this.navigateToPreviousExercise();
+    });
+
+    MusicControl.on('skipForward', () => {
+      this.onForward();
+    });
+    MusicControl.on('skipBackward', () => {
+      this.onBack();
+    });
+
+    MusicControl.setNowPlaying({
+      title: episodeTitle,
+    });
+
+    MusicControl.enableControl('play', true);
+    MusicControl.enableControl('pause', true);
+    MusicControl.enableControl('nextTrack', listen);
+    MusicControl.enableControl('previousTrack', !listen);
+    MusicControl.enableControl('seek', false);
+    MusicControl.enableControl('skipForward', listen, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipBackward', listen, { interval: 10 }); // iOS only
+    MusicControl.enableControl('closeNotification', true, { when: 'never' });
   }
 
   sliderReleased = (currentTime) => {
@@ -553,7 +604,7 @@ export default class EpisodeSingle extends Component {
   }
 
   navigateToEpisodeView = async (onEnd) => {
-    const { listen, episodeCompletedArray, episodeId, episodeCompleted, trackingStarted, logId, uid } = this.state;
+    const { listen, episodeCompletedArray, episodeId, episodeCompleted, trackingStarted } = this.state;
     Orientation.lockToPortrait();
     try {
       if (!listen) {
@@ -566,9 +617,9 @@ export default class EpisodeSingle extends Component {
           this.setTimeFirebase();
         }
         if (onEnd) {
-          if (!episodeCompletedArray.includes(episodeId)) {
-            episodeCompletedArray.push(episodeId);
-          }
+          console.log(episodeCompletedArray);
+          episodeCompletedArray.push(episodeId);
+          console.log(episodeCompletedArray);
           try {
             await AsyncStorage.setItem('episodeCompletedArray', JSON.stringify(episodeCompletedArray));
           } catch (err) {
@@ -577,9 +628,7 @@ export default class EpisodeSingle extends Component {
           return this.setState({ showDialog: true });
         }
       }
-      this.props.navigation.navigate('EpisodeView', {
-        logId, episodeId, uid, trackingStarted,
-      });
+      this.props.navigation.navigate('EpisodeView');
     } catch (error) {
       console.log(error);
     }
@@ -681,7 +730,7 @@ export default class EpisodeSingle extends Component {
       platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime,
       showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
-    const { image, episodeExerciseTitle } = playingExercise.value;
+    const { image, title } = playingExercise.value;
     return (
       <View style={{ flex: 1 }}>
         { platform === 'android'
@@ -729,7 +778,7 @@ export default class EpisodeSingle extends Component {
                 ? image
                 : null
               }
-              currentExercise={episodeExerciseTitle}
+              currentExercise={title}
               onPress={this.onExercisePress}
               showInfo={showInfo}
             />
@@ -823,8 +872,7 @@ export default class EpisodeSingle extends Component {
       platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime,
       category, showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
-    console.log(workOutTime);
-    const { image, episodeExerciseTitle } = playingExercise.value;
+    const { image, title } = playingExercise.value;
     return (
       <View style={{ height: '100%' }}>
         { platform === 'android'
@@ -870,7 +918,7 @@ export default class EpisodeSingle extends Component {
                ? image
                : null
             }
-            currentExercise={episodeExerciseTitle}
+            currentExercise={title}
             onPress={this.onExercisePress}
             showInfo={showInfo}
             paddingTop={20}

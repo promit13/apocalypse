@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Text } from 'react-native-elements';
 import Video from 'react-native-video';
+import MusicControl from 'react-native-music-control';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Orientation from 'react-native-orientation';
 import firebase from '../config/firebase';
@@ -129,6 +130,7 @@ export default class TalonIntelPlayer extends Component {
         loading: video === '' ? false : true,
       });
     }
+    this.registerEvents();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -194,6 +196,45 @@ export default class TalonIntelPlayer extends Component {
   }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
+
+  registerEvents = () => {
+    const {
+      exercise, exerciseTitle,
+    } = this.props.navigation.state.params;
+    MusicControl.enableBackgroundMode(true);
+
+    // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
+    MusicControl.handleAudioInterruptions(true);
+
+    MusicControl.on('play', () => {
+      // this.props.dispatch(this.onPressPlay());
+      this.onPressPlay();
+    });
+
+    // on iOS this event will also be triggered by audio router change events
+    // happening when headphones are unplugged or a bluetooth audio peripheral disconnects from the device
+    MusicControl.on('pause', () => {
+      this.onPressPause();
+    });
+
+    MusicControl.on('skipForward', () => {
+      this.onForward();
+    });
+    MusicControl.on('skipBackward', () => {
+      this.onBack();
+    });
+
+    MusicControl.setNowPlaying({
+      title: exerciseTitle,
+    });
+
+    MusicControl.enableControl('play', true);
+    MusicControl.enableControl('pause', true);
+    MusicControl.enableControl('seek', false);
+    MusicControl.enableControl('skipForward', !exercise, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipBackward', !exercise, { interval: 10 }); // iOS only
+    MusicControl.enableControl('closeNotification', true, { when: 'never' });
+  }
 
   sliderReleased = (currentTime) => {
     this.setState({ paused: false, currentTime });

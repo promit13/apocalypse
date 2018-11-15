@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image,
+  ScrollView, View, Image, AsyncStorage,
 } from 'react-native';
 import {
   ListItem, Button, Text, Icon,
@@ -69,6 +69,7 @@ export default class EpisodeView extends React.Component {
     category: '',
     workoutTime: '',
     totalTime: '',
+    uid: '',
     videoSize: '',
     episodeIndex: '',
     seriesIndex: '',
@@ -133,6 +134,7 @@ export default class EpisodeView extends React.Component {
           startWT,
           endWT,
           completed,
+          uid: this.props.screenProps.user.uid,
           completeExercises: snapshot.val(),
           loading: false,
           episodeList: true,
@@ -152,7 +154,10 @@ export default class EpisodeView extends React.Component {
   //   }
   // }
 
-  getOfflineDatas = (episodeTitle) => {
+  getOfflineDatas = async (episodeTitle) => {
+    const offlineData = await AsyncStorage.getItem('series');
+    const jsonObjectData = JSON.parse(offlineData);
+    const { uid } = jsonObjectData;
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
     const {
       category,
@@ -165,6 +170,9 @@ export default class EpisodeView extends React.Component {
       workoutTime,
       videoSize,
       episodeIndex,
+      seriesIndex,
+      startWT,
+      endWT,
     } = episodeDetail[0];
     const exercises = exerciseIdList.map((value, i) => {
       return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
@@ -178,7 +186,11 @@ export default class EpisodeView extends React.Component {
       totalTime,
       workoutTime,
       episodeIndex,
+      seriesIndex,
+      startWT,
+      endWT,
       videoSize,
+      uid,
       exerciseLengthList: Array.from(exerciseLengthList),
       loading: false,
     });
@@ -219,6 +231,7 @@ export default class EpisodeView extends React.Component {
       advance,
       completeExercises,
       workoutTime,
+      uid,
     } = this.state;
     this.props.navigation.navigate(navigateTo, {
       check,
@@ -236,6 +249,7 @@ export default class EpisodeView extends React.Component {
       exerciseLengthList,
       advance,
       workoutTime,
+      uid,
       completeExercises,
     });
   }
@@ -318,8 +332,6 @@ export default class EpisodeView extends React.Component {
     return exercisesList;
   }
 
-  
-
   render() {
     if (this.state.loading) return <LoadScreen />;
     const {
@@ -385,9 +397,9 @@ export default class EpisodeView extends React.Component {
               title="Workout Mode"
               onPress={() => {
                 if (offline && !episodeList) {
-                  return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadPlayer');
+                  return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
                 }
-                this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
+                this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
               }}
             />
           </View>
@@ -406,9 +418,9 @@ export default class EpisodeView extends React.Component {
               title="Listen Mode"
               onPress={() => {
                 if (offline && !episodeList) {
-                  return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadPlayer');
+                  return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
                 }
-                this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
+                this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
               }}
             />
           </View>

@@ -5,6 +5,7 @@ import {
 import { Text, Button, Icon } from 'react-native-elements';
 import MusicControl from 'react-native-music-control';
 import Video from 'react-native-video';
+import RNFetchBlob from 'react-native-fetch-blob';
 import Pedometer from 'react-native-pedometer';
 import GoogleFit from 'react-native-google-fit';
 import Orientation from 'react-native-orientation';
@@ -16,6 +17,7 @@ import Loading from '../common/Loading';
 import ShowModal from '../common/ShowModal';
 import LoadScreen from '../common/LoadScreen';
 import FormatTime from '../common/FormatTime';
+import realm from '../config/Database';
 
 const styles = {
   container: {
@@ -122,30 +124,48 @@ export default class DownloadTestPlayer extends Component {
     showIntroAdvanceDialog: false,
   };
 
-  componentWillMount() {
+  // componentWillMount() {
+  //   const platform = Platform.OS;
+  //   const {
+  //     check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance,
+  //   } = this.props.navigation.state.params;
+  //   this.setState({
+  //     listen: check,
+  //     episodeId,
+  //     category,
+  //     advance,
+  //     episodeIndex,
+  //     seriesIndex,
+  //     platform,
+  //     mode,
+  //     episodeTitle: title,
+  //     uid: this.props.screenProps.user.uid,
+  //     playingExercise: { value: { image: albumImage, title: '' } },
+  //   });
+  // }
+
+  componentDidMount = async () => {
+    Orientation.unlockAllOrientations();
     const platform = Platform.OS;
+    const { dirs } = RNFetchBlob.fs;
     const {
-      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance,
+      check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid,
     } = this.props.navigation.state.params;
+    const formattedFileName = title.replace(/ /g, '_');
     this.setState({
       listen: check,
+      video: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`,
       episodeId,
       category,
       advance,
       episodeIndex,
       seriesIndex,
       platform,
-      video,
       mode,
       episodeTitle: title,
-      uid: this.props.screenProps.user.uid,
+      uid,
       playingExercise: { value: { image: albumImage, title: '' } },
     });
-  }
-
-  componentDidMount = async () => {
-    const { platform, listen, category } = this.state;
-    Orientation.unlockAllOrientations();
     if (platform === 'android') {
       GoogleFit.authorize((error, result) => {
         if (error) {
@@ -166,9 +186,10 @@ export default class DownloadTestPlayer extends Component {
     } else {
       this.setState({ showIntroAdvanceDialog: true });
     }
+   
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     this.registerEvents();
-    if (listen) {
+    if (check) {
       return this.setState({ loadScreen: false });
       // if (category === 'Speed') {
       //   return this.setState({ loadScreen: false, showWelcomeDialog: true });
@@ -217,12 +238,14 @@ export default class DownloadTestPlayer extends Component {
   }
 
   onExercisePress = () => {
-    const { video, image, title } = this.state.playingExercise.value;
+    const { title, image } = this.state.playingExercise.value;
     this.props.navigation.navigate('TalonIntelPlayer', {
-      exercise: true,
-      video,
-      exerciseTitle: title,
+      offline: true,
+      exerciseTitle: image,
+      episodeExerciseTitle: title,
       image,
+      advance: this.state.advance,
+      exercise: true,
       mode: 'Exercise Player',
     });
     this.setState({ paused: true });
@@ -263,40 +286,70 @@ export default class DownloadTestPlayer extends Component {
 
   onLoad = (data) => {
     const {
-      uid, episodeId, logId, category, showDialog,
+      uid, episodeId, logId,
     } = this.state;
     console.log(data);
+    console.log(logId);
     this.setState({ totalLength: data.duration });
     if (this.state.listen) {
-      this.setState({ currentTime: this.getCurrentTimeInMs(0.0) });
+      this.setState({ currentTime: this.getCurrentTimeInMs(0.0), loading: false });
     } else {
-      firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
-        const { dateNow, timeStamp, workOutTime, trackingStarted } = snapshot.val();
-        const currentDate = this.getDate();
-        if ((currentDate - dateNow) > 900000) {
-          return this.setState({
-            currentTime: this.getCurrentTimeInMs(0.0),
-            lastLoggedDate: dateNow,
-            startDate: 0,
-            playDate: currentDate,
-          });
-        }
-        this.setState({
-          currentTime: this.getCurrentTimeInMs(timeStamp),
+      const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
+      console.log(workOut);
+      const { workOutLogs } = workOut[0];
+      console.log(Array.from(workOutLogs));
+      console.log(Array.from(workOutLogs)[logId]);
+      const { dateNow, timeStamp, workOutTime, trackingStarted } = Array.from(workOutLogs)[logId];
+      const currentDate = this.getDate();
+      if ((currentDate - dateNow) > 900000) {
+        return this.setState({
+          currentTime: this.getCurrentTimeInMs(0.0),
           lastLoggedDate: dateNow,
-          startDate: dateNow,
+          startDate: 0,
           playDate: currentDate,
-          workOutTime,
-          trackingStarted,
-        },
-        () => {
-          this.player.seek(this.state.currentTime, 10);
+          loading: false,
         });
-      }, (error) => {
-        console.log(error);
+      }
+      this.setState({
+        currentTime: this.getCurrentTimeInMs(timeStamp),
+        lastLoggedDate: dateNow,
+        startDate: dateNow,
+        playDate: currentDate,
+        workOutTime,
+        trackingStarted,
+        loading: false,
+      },
+      () => {
+        this.player.seek(this.state.currentTime, 10);
       });
     }
-    this.setState({ loading: false });
+    //   firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
+    //     const { dateNow, timeStamp, workOutTime, trackingStarted } = snapshot.val();
+    //     const currentDate = this.getDate();
+    //     if ((currentDate - dateNow) > 900000) {
+    //       return this.setState({
+    //         currentTime: this.getCurrentTimeInMs(0.0),
+    //         lastLoggedDate: dateNow,
+    //         startDate: 0,
+    //         playDate: currentDate,
+    //       });
+    //     }
+    //     this.setState({
+    //       currentTime: this.getCurrentTimeInMs(timeStamp),
+    //       lastLoggedDate: dateNow,
+    //       startDate: dateNow,
+    //       playDate: currentDate,
+    //       workOutTime,
+    //       trackingStarted,
+    //     },
+    //     () => {
+    //       this.player.seek(this.state.currentTime, 10);
+    //     });
+    //   }, (error) => {
+    //     console.log(error);
+    //   });
+    // }
+    // this.setState({ loading: false });
   };
 
   onEnd = () => {
@@ -339,54 +392,100 @@ export default class DownloadTestPlayer extends Component {
     } = this.state;
     const currentDate = this.getDate();
     const startDate = await AsyncStorage.getItem(episodeId);
-    console.log(startDate);
-    console.log(trackingStarted);
     const timeInterval = !trackingStarted
       ? 0
       : ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
     const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
-    firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
-      {
-        episodeTitle,
-        episodeId,
-        episodeIndex,
-        seriesIndex,
-        episodeCompleted,
-      },
-    ).then(() => {
-      if ((currentDate - lastLoggedDate) > 900000) {
-        firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-          timeStamp: currentTime,
-          dateNow: currentDate,
-          episodeTitle,
-          distance,
-          timeInterval,
-          steps,
-          episodeIndex,
-          seriesIndex,
-          trackingStarted,
-          category,
-          workOutTime: workOutCompletedTime,
-          workOutCompleted,
-        }).then(() => this.setState({ lastLoggedDate: currentDate }));
-      } else {
-        firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
-          timeStamp: currentTime,
-          dateNow: currentDate,
-          episodeTitle,
-          distance,
-          timeInterval,
-          steps,
-          episodeIndex,
-          seriesIndex,
-          category,
-          trackingStarted,
-          workOutTime: workOutCompletedTime,
-          workOutCompleted,
-        }).then(() => this.setState({ lastLoggedDate: currentDate }));
-      }
-    })
-      .catch(error => console.log(error));
+    const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
+    const { workOutLogs } = workOut[0];
+    const workOutLogsArray = Array.from(workOutLogs);
+    if ((currentDate - lastLoggedDate) < 900000) {
+      workOutLogsArray.pop();
+    }
+    workOutLogsArray.push({
+      logId,
+      episodeTitle,
+      category,
+      episodeIndex,
+      seriesIndex,
+      workOutTime: workOutCompletedTime,
+      trackingStarted,
+      workOutCompleted,
+      dateNow: currentDate,
+      distance,
+      timeInterval,
+      timeStamp: currentTime,
+      steps,
+    });
+    realm.write(() => {
+      realm.create('SavedWorkOut', {
+        uid, episodeId, workOutLogs: workOutLogsArray,
+      }, true);
+    });
+    
+    // firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+    //   {
+    //     episodeTitle,
+    //     episodeId,
+    //     episodeIndex,
+    //     seriesIndex,
+    //     episodeCompleted,
+    //   },
+    // ).then(() => {
+    //   if ((currentDate - lastLoggedDate) > 900000) {
+    //     const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
+    //     realm.write(() => {
+    //       const createWorkOut = realm.create('SavedWorkOut', {
+    //         uid, episodeId, workOutLogs: [],
+    //       });
+    //       createWorkOut.workOutLogs.push({
+    //         logId,
+    //         episodeTitle,
+    //         category,
+    //         episodeIndex,
+    //         seriesIndex,
+    //         workOutTime,
+    //         trackingStarted,
+    //         workOutCompleted,
+    //         dateNow: currentDate,
+    //         distance,
+    //         timeInterval,
+    //         timeStamp: currentTime,
+    //         steps,
+    //       });
+    //     });
+    //     firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
+    //       timeStamp: currentTime,
+    //       dateNow: currentDate,
+    //       episodeTitle,
+    //       distance,
+    //       timeInterval,
+    //       steps,
+    //       episodeIndex,
+    //       seriesIndex,
+    //       trackingStarted,
+    //       category,
+    //       workOutTime: workOutCompletedTime,
+    //       workOutCompleted,
+    //     }).then(() => this.setState({ lastLoggedDate: currentDate }));
+    //   } else {
+    //     firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
+    //       timeStamp: currentTime,
+    //       dateNow: currentDate,
+    //       episodeTitle,
+    //       distance,
+    //       timeInterval,
+    //       steps,
+    //       episodeIndex,
+    //       seriesIndex,
+    //       category,
+    //       trackingStarted,
+    //       workOutTime: workOutCompletedTime,
+    //       workOutCompleted,
+    //     }).then(() => this.setState({ lastLoggedDate: currentDate }));
+    //   }
+    // })
+    //   .catch(error => console.log(error));
   }
 
   getDate = () => {
@@ -395,52 +494,41 @@ export default class DownloadTestPlayer extends Component {
   }
 
   getLastLogId = (snapshot) => {
-    const array = Object.keys(snapshot);
-    const id = array[array.length - 1];
-    this.setState({ logId: id, loadScreen: false });
+    const array = Array.from(snapshot);
+    this.setState({ logId: array.length - 1, loadScreen: false });
   }
 
   getTimeFirebase = () => {
     const {
-      uid, episodeId, episodeTitle, episodeIndex, seriesIndex, workOutCompleted, category,
-    } = this.state;
-    // firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
-    //   {
-    //     episodeTitle,
-    //     episodeId,
-    //     category,
-    //   },
-    // ).then(() => {
-    firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-      'value', (snapshot) => {
-        if (snapshot.val() === null) {
-          firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-            timeStamp: 0.0,
-            dateNow: 0.0,
-            episodeTitle,
-            distance: 0.0,
-            timeInterval: 0,
-            steps: 0,
-            episodeIndex,
-            seriesIndex,
-            trackingStarted: false,
-            workOutTime: 0,
-            category,
-            workOutCompleted,
-          }).then(() => {
-            firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
-              'value', (snap) => {
-                this.getLastLogId(snap.val());
-              },
-            );
-          })
-            .catch(error => console.log(error));
-        } else {
-          this.getLastLogId(snapshot.val());
-        }
-      }
-    );
-    // })
+      episodeId, episodeIndex, seriesIndex, title, category,
+    } = this.props.navigation.state.params;
+    const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
+    console.log(workOut);
+    if (workOut.length === 0) {
+      realm.write(() => {
+        const createWorkOut = realm.create('SavedWorkOut', {
+          uid, episodeId, workOutLogs: [],
+        });
+        createWorkOut.workOutLogs.push({
+          logId: 0,
+          episodeTitle: title,
+          category,
+          episodeIndex,
+          seriesIndex,
+          workOutTime: 0,
+          trackingStarted: false,
+          workOutCompleted: false,
+          dateNow: 0,
+          distance: 0,
+          timeInterval: '0',
+          timeStamp: 0,
+          steps: 0,
+        });
+      });
+    }
+    const logs = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
+    const { workOutLogs } = logs[0];
+    this.getLastLogId(workOutLogs);
   }
 
   getStepCountAndDistance = async () => {
@@ -596,6 +684,7 @@ export default class DownloadTestPlayer extends Component {
 
   formatWorkOutTime = () => {
     const { startWT, workoutTime, endWT } = this.props.navigation.state.params;
+    console.log(startWT, workoutTime, endWT);
     const startWorkOutTimeArray = startWT.split(':');
     const formattedWorkOutStartTime = (parseInt(startWorkOutTimeArray[0], 10) * 3600) + (parseInt(startWorkOutTimeArray[1], 10) * 60) + (parseInt(startWorkOutTimeArray[2], 10));
     const totalWorkOutTimeArray = workoutTime.split(':');
@@ -608,6 +697,8 @@ export default class DownloadTestPlayer extends Component {
   navigateToEpisodeView = async (onEnd) => {
     const { listen, episodeCompletedArray, episodeId, episodeCompleted, trackingStarted } = this.state;
     Orientation.lockToPortrait();
+    // this.setTimeFirebase();
+    // this.props.navigation.navigate('EpisodeView');
     try {
       if (!listen) {
         const distance = await AsyncStorage.getItem('distance');
@@ -615,7 +706,7 @@ export default class DownloadTestPlayer extends Component {
         if (distance !== null) {
           AsyncStorage.removeItem('distance');
         }
-        if (!episodeCompleted) {
+        if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
         }
         if (onEnd) {
@@ -706,7 +797,8 @@ export default class DownloadTestPlayer extends Component {
   };
 
   changeExercises = () => {
-    const { exercises, completeExercises } = this.props.navigation.state.params;
+
+    const { exercises, exerciseLengthList } = this.props.navigation.state.params;
     const {
       formattedWorkOutStartTime, currentTime, listen, trackingStarted,
     } = this.state;
@@ -714,11 +806,21 @@ export default class DownloadTestPlayer extends Component {
       this.startTrackingSteps();
       this.setState({ trackingStarted: true });
     }
-    exercises.map((value, i) => {
-      const { length, uid, episodeExerciseTitle } = value;
-      if (currentTime > (length / 1000)) {
-        this.setCurrentExercise(completeExercises[uid], uid, episodeExerciseTitle);
-        this.state.previousStartTime.push((length / 1000));
+    exerciseLengthList.map((value, i) => {
+      // const exercise = value[0];
+      // const { length } = value;
+      if (this.state.currentTime > (value / 1000)) {
+        const exercise = exercises[i];
+        const { cmsTitle, visible, title, episodeExerciseTitle } = exercise[0];
+        const showInfo = visible;
+        this.setState({
+          showInfo,
+          playingExercise: {
+            // value: { image: exercise[0].title, title: exercise[0].title },
+            value: { image: cmsTitle, title, episodeExerciseTitle },
+          },
+        });
+        this.state.previousStartTime.push(value);
       }
     });
   }
@@ -729,10 +831,10 @@ export default class DownloadTestPlayer extends Component {
 
   renderLandscapeView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime,
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime, advance,
       showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
-    const { image, title } = playingExercise.value;
+    const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ flex: 1 }}>
         { platform === 'android'
@@ -780,9 +882,11 @@ export default class DownloadTestPlayer extends Component {
                 ? image
                 : null
               }
-              currentExercise={title}
+              currentExercise={episodeExerciseTitle}
               onPress={this.onExercisePress}
               showInfo={showInfo}
+              offline
+              advance={advance}
             />
           </View>
           <View style={{ marginTop: 30, flex: 0.5, justifyContent: 'space-between' }}>
@@ -871,11 +975,10 @@ export default class DownloadTestPlayer extends Component {
 
   renderPortraitView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime,
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime, advance,
       category, showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
-    console.log(workOutTime);
-    const { image, title } = playingExercise.value;
+    const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ height: '100%' }}>
         { platform === 'android'
@@ -921,9 +1024,11 @@ export default class DownloadTestPlayer extends Component {
                ? image
                : null
             }
-            currentExercise={title}
+            currentExercise={episodeExerciseTitle}
             onPress={this.onExercisePress}
             showInfo={showInfo}
+            offline
+            advance={advance}
             paddingTop={20}
           />
           <View style={styles.line} />

@@ -189,6 +189,7 @@ const MoreStack = createStackNavigator({
   ExercisePlayer: { screen: ExercisePlayer },
   TalonIntelPlayer: { screen: TalonIntelPlayer },
   UserBodyDetail: { screen: UserBodyDetail },
+  DownloadTestPlayer: { screen: DownloadTestPlayer },
 },
 {
   navigationOptions: () => ({
