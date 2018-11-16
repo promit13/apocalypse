@@ -5,7 +5,6 @@ import {
 import {
   ListItem, Button, Text, Icon,
 } from 'react-native-elements';
-import Orientation from 'react-native-orientation';
 import realm from '../config/Database';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
@@ -86,7 +85,6 @@ export default class EpisodeView extends React.Component {
     introButtonColor: '#f5cb23',
     advancedButtonColor: '#fff',
     advance: false,
-    trackingStarted: true,
   }
 
   componentDidMount= async () => {
@@ -158,6 +156,7 @@ export default class EpisodeView extends React.Component {
     const offlineData = await AsyncStorage.getItem('series');
     const jsonObjectData = JSON.parse(offlineData);
     const { uid } = jsonObjectData;
+    console.log(uid);
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
     const {
       category,
@@ -173,6 +172,7 @@ export default class EpisodeView extends React.Component {
       seriesIndex,
       startWT,
       endWT,
+      video,
     } = episodeDetail[0];
     const exercises = exerciseIdList.map((value, i) => {
       return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
@@ -191,6 +191,7 @@ export default class EpisodeView extends React.Component {
       endWT,
       videoSize,
       uid,
+      video,
       exerciseLengthList: Array.from(exerciseLengthList),
       loading: false,
     });

@@ -37,12 +37,17 @@ export default class ExerciseList extends React.Component {
   }
 
   componentDidMount() {
-    firebase.database().ref('exercises').on('value', snapshot => this.setState({ exercises: snapshot.val() }));
+    firebase.database().ref('exercises').on('value', snapshot => this.setState({
+      exercises: snapshot.val(),
+    }));
   }
 
   render() {
     const { category } = this.props.navigation.state.params;
-    const exerciseList = Object.entries(this.state.exercises).map(([key, value], i) => {
+    const { exercises } = this.state;
+    const exercisesValueArray = Object.values(exercises);
+    const sortedExercises = exercisesValueArray.sort((a, b) => a.title.localeCompare(b.title));
+    const exerciseList = sortedExercises.map((value, i) => {
       if (value.category === category) {
         const {
           title, advanced, video, image, visibleOnList,
@@ -50,7 +55,7 @@ export default class ExerciseList extends React.Component {
         if (visibleOnList) {
           return (
             <ListItem
-              key={key}
+              key={title}
               title={title}
               titleStyle={{ color: this.state.advance && advanced === undefined ? 'gray' : 'white', fontSize: 18 }}
               containerStyle={{ backgroundColor: '#33425a' }}

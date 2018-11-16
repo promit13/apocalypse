@@ -110,6 +110,7 @@ export default class DownloadFiles extends React.Component {
                 exerciseLengthList,
                 exerciseIdList,
                 totalTime,
+                video,
                 workoutTime,
                 videoSize,
                 episodeIndex,

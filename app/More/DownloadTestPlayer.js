@@ -146,6 +146,7 @@ export default class DownloadTestPlayer extends Component {
 
   componentDidMount = async () => {
     Orientation.unlockAllOrientations();
+    console.log('OFFLINE');
     const platform = Platform.OS;
     const { dirs } = RNFetchBlob.fs;
     const {
@@ -399,7 +400,7 @@ export default class DownloadTestPlayer extends Component {
     const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
     const { workOutLogs } = workOut[0];
     const workOutLogsArray = Array.from(workOutLogs);
-    if ((currentDate - lastLoggedDate) < 900000) {
+    if ((currentDate - lastLoggedDate) < 900000 && workOutLogsArray.length !== 1) {
       workOutLogsArray.pop();
     }
     workOutLogsArray.push({
@@ -500,7 +501,7 @@ export default class DownloadTestPlayer extends Component {
 
   getTimeFirebase = () => {
     const {
-      episodeId, episodeIndex, seriesIndex, title, category,
+      episodeId, episodeIndex, seriesIndex, title, category, uid,
     } = this.props.navigation.state.params;
     const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
     console.log(workOut);
@@ -533,7 +534,8 @@ export default class DownloadTestPlayer extends Component {
 
   getStepCountAndDistance = async () => {
     console.log('GET STEP COUNT AND DISTANCE');
-    const startDate = await AsyncStorage.getItem(this.state.episodeId);
+    const { episodeId } = this.state;
+    const startDate = await AsyncStorage.getItem(episodeId);
     if (this.state.platform === 'android') {
       const endDate = new Date().toISOString();
       const options = {
@@ -556,7 +558,7 @@ export default class DownloadTestPlayer extends Component {
           }
           const distance = ((response[0].distance) / 1000).toFixed(2);
           this.setState({ distance, steps });
-          this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
+          // this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
         });
       });
     } else {
@@ -569,7 +571,7 @@ export default class DownloadTestPlayer extends Component {
           }
           const { distance, numberOfSteps } = pedometerData;
           this.setState({ steps: numberOfSteps, distance: (distance / 1000).toFixed(2) });
-          this.storeDistance(endDate - formattedDate);
+          // this.storeDistance(endDate - formattedDate);
         },
       );
     }
@@ -604,7 +606,9 @@ export default class DownloadTestPlayer extends Component {
   }
 
   registerEvents = () => {
-    const { listen, episodeTitle, currentTime, totalLength } = this.state;
+    const {
+      check, title,
+    } = this.props.navigation.state.params;
     MusicControl.enableBackgroundMode(true);
 
     // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
@@ -636,16 +640,16 @@ export default class DownloadTestPlayer extends Component {
     });
 
     MusicControl.setNowPlaying({
-      title: episodeTitle,
+      title,
     });
 
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('nextTrack', listen);
-    MusicControl.enableControl('previousTrack', !listen);
+    MusicControl.enableControl('nextTrack', check);
+    MusicControl.enableControl('previousTrack', !check);
     MusicControl.enableControl('seek', false);
-    MusicControl.enableControl('skipForward', listen, { interval: 10 }); // iOS only
-    MusicControl.enableControl('skipBackward', listen, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
     MusicControl.enableControl('closeNotification', true, { when: 'never' });
   }
 
@@ -654,33 +658,33 @@ export default class DownloadTestPlayer extends Component {
     this.player.seek(currentTime);
   }
 
-  storeDistance = async (timeInterval) => {
-    console.log(timeInterval);
-    const {
-      uid, episodeId, episodeTitle, distance, currentTime, steps, episodeIndex, seriesIndex, workOutTime, episodeCompleted, workOutCompleted, category, trackingStarted,
-    } = this.state;
-    try {
-      await AsyncStorage.setItem('distance', JSON.stringify({
-        uid,
-        episodeId,
-        timeStamp: currentTime,
-        dateNow: new Date().getTime(),
-        episodeTitle,
-        distance,
-        timeInterval,
-        steps,
-        episodeIndex,
-        seriesIndex,
-        workOutTime,
-        episodeCompleted,
-        workOutCompleted,
-        trackingStarted,
-        category,
-      }));
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // storeDistance = async (timeInterval) => {
+  //   console.log(timeInterval);
+  //   const {
+  //     uid, episodeId, episodeTitle, distance, currentTime, steps, episodeIndex, seriesIndex, workOutTime, episodeCompleted, workOutCompleted, category, trackingStarted,
+  //   } = this.state;
+  //   try {
+  //     await AsyncStorage.setItem('distance', JSON.stringify({
+  //       uid,
+  //       episodeId,
+  //       timeStamp: currentTime,
+  //       dateNow: new Date().getTime(),
+  //       episodeTitle,
+  //       distance,
+  //       timeInterval,
+  //       steps,
+  //       episodeIndex,
+  //       seriesIndex,
+  //       workOutTime,
+  //       episodeCompleted,
+  //       workOutCompleted,
+  //       trackingStarted,
+  //       category,
+  //     }));
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 
   formatWorkOutTime = () => {
     const { startWT, workoutTime, endWT } = this.props.navigation.state.params;
@@ -701,18 +705,18 @@ export default class DownloadTestPlayer extends Component {
     // this.props.navigation.navigate('EpisodeView');
     try {
       if (!listen) {
-        const distance = await AsyncStorage.getItem('distance');
-        console.log(distance);
-        if (distance !== null) {
-          AsyncStorage.removeItem('distance');
-        }
+        // const distance = await AsyncStorage.getItem('distance');
+        // console.log(distance);
+        // if (distance !== null) {
+        //   AsyncStorage.removeItem('distance');
+        // }
         if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
         }
         if (onEnd) {
-          console.log(episodeCompletedArray);
-          episodeCompletedArray.push(episodeId);
-          console.log(episodeCompletedArray);
+          if (!episodeCompletedArray.includes(episodeId)) {
+            episodeCompletedArray.push(episodeId);
+          }
           try {
             await AsyncStorage.setItem('episodeCompletedArray', JSON.stringify(episodeCompletedArray));
           } catch (err) {
@@ -728,7 +732,8 @@ export default class DownloadTestPlayer extends Component {
   }
 
   navigateToPreviousExercise = () => {
-    const { previousStartTime } = this.state;
+    const { previousStartTime, formattedWorkOutStartTime } = this.state;
+    console.log(formattedWorkOutStartTime);
     const startTime = previousStartTime[previousStartTime.length - 2];
     this.setState({ currentTime: startTime });
     this.player.seek(startTime, 10);
@@ -737,13 +742,14 @@ export default class DownloadTestPlayer extends Component {
 
   startTrackingSteps = async () => {
     console.log('START TRACKING');
+    const { episodeId } = this.state;
     const startDate = new Date();
     try {
       if (this.state.platform === 'android') {
-        await AsyncStorage.setItem(this.state.episodeId, startDate.toISOString()); // unique for different episodes
+        await AsyncStorage.setItem(episodeId, startDate.toISOString()); // unique for different episodes
         GoogleFit.startRecording((event) => {});
       } else {
-        await AsyncStorage.setItem(this.state.episodeId, startDate); // unique for different episodes
+        await AsyncStorage.setItem(episodeId, startDate); // unique for different episodes
         Pedometer.startPedometerUpdatesFromDate(startDate, (pedometerData) => {
           console.log('PEDOMETER STARTED');
         });
@@ -753,41 +759,41 @@ export default class DownloadTestPlayer extends Component {
     }
   }
 
-  showModal = (title, description, buttonText, end) => {
-    const { showDialog, episodeId } = this.state;
-    console.log(title, buttonText, end);
-    console.log(description);
-    if (showDialog) {
-      console.log(showDialog);
-      return (
-        <Modal transparent visible={this.state.showDialog}>
-          <View style={styles.modal}>
-            <View style={styles.modalInnerView}>
-              <View style={{ justifyContent: 'center' }}>
-                <Text style={{ color: '#001331', fontWeight: 'bold', fontSize: 14, textAlign: 'center' }}>
-                  {`${title}`}
-                </Text>
-                <Text style={{ color: '#001331', fontSize: 14 }}>
-                  {description}
-                </Text>
-              </View>
-              <Button
-                buttonStyle={styles.button}
-                title={buttonText}
-                color="#fff"
-                onPress={() => {
-                  this.setState({ showDialog: false });
-                  if (end) {
-                    this.props.navigation.navigate('TalonScreen', { episodeId, talon: true, mode: 'Talon Intel Player' });
-                  }
-                }}
-              />
-            </View>
-          </View>
-        </Modal>
-      );
-    }
-  }
+  // showModal = (title, description, buttonText, end) => {
+  //   const { showDialog, episodeId } = this.state;
+  //   console.log(title, buttonText, end);
+  //   console.log(description);
+  //   if (showDialog) {
+  //     console.log(showDialog);
+  //     return (
+  //       <Modal transparent visible={this.state.showDialog}>
+  //         <View style={styles.modal}>
+  //           <View style={styles.modalInnerView}>
+  //             <View style={{ justifyContent: 'center' }}>
+  //               <Text style={{ color: '#001331', fontWeight: 'bold', fontSize: 14, textAlign: 'center' }}>
+  //                 {`${title}`}
+  //               </Text>
+  //               <Text style={{ color: '#001331', fontSize: 14 }}>
+  //                 {description}
+  //               </Text>
+  //             </View>
+  //             <Button
+  //               buttonStyle={styles.button}
+  //               title={buttonText}
+  //               color="#fff"
+  //               onPress={() => {
+  //                 this.setState({ showDialog: false });
+  //                 if (end) {
+  //                   this.props.navigation.navigate('TalonScreen', { episodeId, talon: true, mode: 'Talon Intel Player' });
+  //                 }
+  //               }}
+  //             />
+  //           </View>
+  //         </View>
+  //       </Modal>
+  //     );
+  //   }
+  // }
 
   detectOrientation = () => {
     if (this.state.windowsHeight > this.state.windowsWidth) {
@@ -933,12 +939,12 @@ export default class DownloadTestPlayer extends Component {
                         <View>
                           <ShowModal
                             visible={showDialog}
-                            title="Well done! Workout complete, Agent Whisky Gambit"
+                            title={`Well done! Workout complete,\nAgent Whisky Gambit`}
                             description="Go to TALON to hear your essential intel and track your progress"
                             secondButtonText="OK"
                             onPress={() => {
                               this.setState({ showDialog: false });
-                              this.props.navigation.navigate('TalonScreen');
+                              // this.props.navigation.navigate('TalonScreen');
                             }}
                           />
                           <ShowModal
@@ -1059,7 +1065,7 @@ export default class DownloadTestPlayer extends Component {
                     <View>
                       <ShowModal
                         visible={showDialog}
-                        title="Well done! Workout complete, Agent Whisky Gambit"
+                        title={`Well done! Workout complete,\nAgent Whisky Gambit`}
                         description="Go to TALON to hear your essential intel and track your progress"
                         secondButtonText="OK"
                         onSecondButtonPress={() => {

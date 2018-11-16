@@ -29,7 +29,7 @@ const styles = {
   },
   imageStyle: {
     width: '100%',
-    height: imageSize,
+    height: '27%',
   },
   textStyle: {
     color: 'white',
@@ -89,7 +89,6 @@ export default class EpisodeList extends React.Component {
     const { netInfo } = this.props.screenProps;
     try {
       const completedEpisodesArray = await AsyncStorage.getItem('episodeCompletedArray');
-      console.log(completedEpisodesArray);
       if (completedEpisodesArray === null) {
         this.setState({ isConnected: netInfo });
       } else {

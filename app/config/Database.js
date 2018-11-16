@@ -16,6 +16,7 @@ SavedEpisodes.schema = {
     workoutTime: 'string',
     startWT: 'string',
     endWT: 'string',
+    video: 'string',
     exerciseLengthList: 'int?[]',
     exerciseIdList: 'string?[]',
     exerciseDetail: { type: 'list', objectType: 'SavedExercises' },

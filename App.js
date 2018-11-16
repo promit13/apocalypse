@@ -2,6 +2,7 @@ import React from 'react';
 import { NetInfo, View, AsyncStorage } from 'react-native';
 import LoadScreen from './app/common/LoadScreen';
 import firebase from './app/config/firebase';
+import realm from './app/config/Database';
 import {
   SignedIn,
   SignedOut,
@@ -36,6 +37,7 @@ export default class App extends React.Component {
             user,
             isConnected,
           });
+          this.sendDataToFirebase();
           this.handleUserStatus();
         } else {
           this.setState({ loading: false, isConnected, user: null });
@@ -93,6 +95,65 @@ export default class App extends React.Component {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  sendDataToFirebase = () => {
+    const allEpisodeWorkoutArray = Array.from(realm.objects('SavedWorkOut'));
+    console.log(allEpisodeWorkoutArray);
+    allEpisodeWorkoutArray.map((value, index) => {
+      const { episodeId, uid, workOutLogs } = value;
+      const workOutLogsArray = Array.from(workOutLogs);
+      const workOutArrayLength = workOutLogsArray.length;
+      console.log(workOutArrayLength);
+      console.log(workOutLogsArray);
+      workOutLogsArray.map((workOutValue, workOutIndex) => {
+        const {
+          timeStamp,
+          dateNow,
+          episodeTitle,
+          distance,
+          steps,
+          episodeIndex,
+          seriesIndex,
+          workOutTime,
+          workOutCompleted,
+          timeInterval,
+          trackingStarted,
+          category,
+        } = workOutValue;
+        if (workOutIndex === 0) {
+          return;
+        }
+        firebase.database().ref(`logs/${uid}/${episodeId}`).push({
+          timeStamp,
+          dateNow,
+          episodeTitle,
+          distance,
+          steps,
+          episodeIndex,
+          seriesIndex,
+          workOutTime,
+          workOutCompleted,
+          timeInterval,
+          trackingStarted,
+          category,
+        }).then(() => {
+          if (workOutIndex === workOutArrayLength - 1) {
+            this.updateDatabase(uid, episodeId, workOutLogsArray, workOutIndex);
+          }
+        })
+          .catch(error => console.log(error));
+      });
+    });
+  }
+
+  updateDatabase = (uid, episodeId, workOutLogsArray, workOutIndex) => {
+    const array = workOutLogsArray.slice(workOutIndex);
+    realm.write(() => {
+      realm.create('SavedWorkOut', {
+        uid, episodeId, workOutLogs: array,
+      }, true);
+    });
   }
 
   renderComponent = () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, StyleSheet, TextInput, ScrollView, Image, Dimensions, Picker,
+  View, StyleSheet, TextInput, ScrollView, Image, Dimensions, Picker, Alert,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import ModalDropdown from 'react-native-modal-dropdown';
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
 
 export default class UserBodyDetail extends React.Component {
   static navigationOptions = {
-    title: 'Body Info',
+    title: 'Extras',
   };
 
   state = {
@@ -101,6 +101,7 @@ export default class UserBodyDetail extends React.Component {
       weight,
       gender,
       weightCategory,
+      showButton,
       heightCategory,
     } = this.state;
     if (age === '' || height === '' || weight === '' || gender === '' || weightCategory === '' || heightCategory === '') {
@@ -117,6 +118,10 @@ export default class UserBodyDetail extends React.Component {
     })
       .then(() => {
         this.setState({ showLoading: false });
+        if (!showButton) {
+          Alert.alert('Info Updated');
+          this.props.navigation.navigate('Account');
+        }
         // this.props.navigation.navigate('Tutorial', { showButton: true });
       });
   }

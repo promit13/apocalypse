@@ -5,6 +5,7 @@ import {
 import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { Text, Icon } from 'react-native-elements';
+import realm from '../config/Database';
 import OfflineMsg from '../common/OfflineMsg';
 import Loading from '../common/Loading';
 import DeleteDownloads from '../common/DeleteDownloads';
@@ -154,10 +155,12 @@ export default class Downloads extends React.Component {
       return (
         <TouchableWithoutFeedback
           onPress={() => {
+            const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${formattedFile}"`));
+            const { episodeIndex } = episodeDetail[0];
             this.props.navigation.navigate('EpisodeView', {
               offline: true,
               title: formattedFile,
-              episodeIndex: i,
+              episodeIndex,
             });
           }}
           // onLongPress={() => {

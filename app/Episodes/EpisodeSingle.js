@@ -146,6 +146,7 @@ export default class EpisodeSingle extends Component {
   componentDidMount = async () => {
     const { platform, listen, category } = this.state;
     Orientation.unlockAllOrientations();
+    console.log('ONLINE');
     if (platform === 'android') {
       GoogleFit.authorize((error, result) => {
         if (error) {
@@ -491,7 +492,7 @@ export default class EpisodeSingle extends Component {
       this.setState({
         showInfo: false,
         playingExercise: {
-          value: { image, title: episodeExerciseTitle, exerciseId: uid, video },
+          value: { image, title, episodeExerciseTitle, exerciseId: uid, video },
         },
       });
     } else {
@@ -499,7 +500,7 @@ export default class EpisodeSingle extends Component {
         this.setState({
           showInfo: true,
           playingExercise: {
-            value: { image: advanced.image, title: episodeExerciseTitle, exerciseId: uid, video: advanced.video },
+            value: { image: advanced.image, title, episodeExerciseTitle, exerciseId: uid, video: advanced.video },
           },
         });
         return;
@@ -507,7 +508,7 @@ export default class EpisodeSingle extends Component {
       this.setState({
         showInfo: true,
         playingExercise: {
-          value: { image, title: episodeExerciseTitle, exerciseId: uid, video },
+          value: { image, title, episodeExerciseTitle, exerciseId: uid, video },
         },
       });
     }
@@ -617,9 +618,9 @@ export default class EpisodeSingle extends Component {
           this.setTimeFirebase();
         }
         if (onEnd) {
-          console.log(episodeCompletedArray);
-          episodeCompletedArray.push(episodeId);
-          console.log(episodeCompletedArray);
+          if (!episodeCompletedArray.includes(episodeId)) {
+            episodeCompletedArray.push(episodeId);
+          }
           try {
             await AsyncStorage.setItem('episodeCompletedArray', JSON.stringify(episodeCompletedArray));
           } catch (err) {
@@ -635,7 +636,7 @@ export default class EpisodeSingle extends Component {
   }
 
   navigateToPreviousExercise = () => {
-    const { previousStartTime } = this.state;
+    const { previousStartTime, formattedWorkOutStartTime } = this.state;
     const startTime = previousStartTime[previousStartTime.length - 2];
     this.setState({ currentTime: startTime });
     this.player.seek(startTime, 10);
@@ -660,41 +661,41 @@ export default class EpisodeSingle extends Component {
     }
   }
 
-  showModal = (title, description, buttonText, end) => {
-    const { showDialog, episodeId } = this.state;
-    console.log(title, buttonText, end);
-    console.log(description);
-    if (showDialog) {
-      console.log(showDialog);
-      return (
-        <Modal transparent visible={this.state.showDialog}>
-          <View style={styles.modal}>
-            <View style={styles.modalInnerView}>
-              <View style={{ justifyContent: 'center' }}>
-                <Text style={{ color: '#001331', fontWeight: 'bold', fontSize: 14, textAlign: 'center' }}>
-                  {`${title}`}
-                </Text>
-                <Text style={{ color: '#001331', fontSize: 14 }}>
-                  {description}
-                </Text>
-              </View>
-              <Button
-                buttonStyle={styles.button}
-                title={buttonText}
-                color="#fff"
-                onPress={() => {
-                  this.setState({ showDialog: false });
-                  if (end) {
-                    this.props.navigation.navigate('TalonScreen', { episodeId, talon: true, mode: 'Talon Intel Player' });
-                  }
-                }}
-              />
-            </View>
-          </View>
-        </Modal>
-      );
-    }
-  }
+  // showModal = (title, description, buttonText, end) => {
+  //   const { showDialog, episodeId } = this.state;
+  //   console.log(title, buttonText, end);
+  //   console.log(description);
+  //   if (showDialog) {
+  //     console.log(showDialog);
+  //     return (
+  //       <Modal transparent visible={this.state.showDialog}>
+  //         <View style={styles.modal}>
+  //           <View style={styles.modalInnerView}>
+  //             <View style={{ justifyContent: 'center' }}>
+  //               <Text style={{ color: '#001331', fontWeight: 'bold', fontSize: 14, textAlign: 'center' }}>
+  //                 {`${title}`}
+  //               </Text>
+  //               <Text style={{ color: '#001331', fontSize: 14 }}>
+  //                 {description}
+  //               </Text>
+  //             </View>
+  //             <Button
+  //               buttonStyle={styles.button}
+  //               title={buttonText}
+  //               color="#fff"
+  //               onPress={() => {
+  //                 this.setState({ showDialog: false });
+  //                 if (end) {
+  //                   this.props.navigation.navigate('TalonScreen', { episodeId, talon: true, mode: 'Talon Intel Player' });
+  //                 }
+  //               }}
+  //             />
+  //           </View>
+  //         </View>
+  //       </Modal>
+  //     );
+  //   }
+  // }
 
   detectOrientation = () => {
     if (this.state.windowsHeight > this.state.windowsWidth) {
@@ -730,7 +731,7 @@ export default class EpisodeSingle extends Component {
       platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime,
       showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
-    const { image, title } = playingExercise.value;
+    const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ flex: 1 }}>
         { platform === 'android'
@@ -778,7 +779,7 @@ export default class EpisodeSingle extends Component {
                 ? image
                 : null
               }
-              currentExercise={title}
+              currentExercise={episodeExerciseTitle}
               onPress={this.onExercisePress}
               showInfo={showInfo}
             />
@@ -827,7 +828,7 @@ export default class EpisodeSingle extends Component {
                         <View>
                           <ShowModal
                             visible={showDialog}
-                            title="Well done! Workout complete, Agent Whisky Gambit"
+                            title={`Well done! Workout complete,\nAgent Whisky Gambit`}
                             description="Go to TALON to hear your essential intel and track your progress"
                             secondButtonText="OK"
                             onPress={() => {
@@ -872,7 +873,7 @@ export default class EpisodeSingle extends Component {
       platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime,
       category, showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
-    const { image, title } = playingExercise.value;
+    const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ height: '100%' }}>
         { platform === 'android'
@@ -918,7 +919,7 @@ export default class EpisodeSingle extends Component {
                ? image
                : null
             }
-            currentExercise={title}
+            currentExercise={episodeExerciseTitle}
             onPress={this.onExercisePress}
             showInfo={showInfo}
             paddingTop={20}
@@ -951,7 +952,7 @@ export default class EpisodeSingle extends Component {
                     <View>
                       <ShowModal
                         visible={showDialog}
-                        title="Well done! Workout complete, Agent Whisky Gambit"
+                        title={`Well done! Workout complete,\nAgent Whisky Gambit`}
                         description="Go to TALON to hear your essential intel and track your progress"
                         secondButtonText="OK"
                         onSecondButtonPress={() => {

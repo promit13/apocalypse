@@ -26,7 +26,7 @@ const styles = {
   },
   imageStyle: {
     width: '100%',
-    height: 200,
+    height: '30%',
   },
   textStyle: {
     color: 'white',
@@ -178,10 +178,10 @@ export default class TalonScreen extends React.Component {
           </TouchableOpacity>
           {
             Object.entries(logsArray[i - 1]).map(([key, value], ind) => {
-              if (ind === 0) {
+              {/* if (ind === 0) {
                 console.log(value);
               } else {
-                console.log(value);
+                console.log(value); */}
                 const {
                   dateNow, timeInterval, distance, steps, trackingStarted, category, workOutCompleted,
                 } = value;
@@ -224,7 +224,7 @@ export default class TalonScreen extends React.Component {
                     hideChevron
                   />
                 );
-              }
+              // }
             })
           }
         </View>

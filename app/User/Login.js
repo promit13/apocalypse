@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Image, Dimensions, TouchableOpacity, StatusBar,
+  View, TextInput, StyleSheet, Image, Dimensions, TouchableOpacity, StatusBar, ScrollView,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Button, Icon, Text } from 'react-native-elements';
@@ -79,6 +79,7 @@ export default class Login extends React.Component {
   render() {
     return (
       <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+        <ScrollView>
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         <Image style={styles.imageStyle} source={talonImage} />
         <View style={[styles.fieldContainer, { paddingTop: 20, paddingBottom: 20 }]}>
@@ -132,6 +133,7 @@ export default class Login extends React.Component {
           title="Create Account"
           onPress={() => this.props.navigation.navigate('Signup')}
         /> */}
+        </ScrollView>
       </KeyboardAwareScrollView>
     );
   }
