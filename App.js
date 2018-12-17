@@ -1,5 +1,7 @@
 import React from 'react';
 import { NetInfo, View, AsyncStorage } from 'react-native';
+import { Provider } from 'react-redux';
+import store from './app/store';
 import LoadScreen from './app/common/LoadScreen';
 import firebase from './app/config/firebase';
 import realm from './app/config/Database';
@@ -293,9 +295,11 @@ export default class App extends React.Component {
   render() {
     console.disableYellowBox = true;
     return (
-      <View style={{ flex: 1 }}>
-        {this.renderComponent()}
-      </View>
+      <Provider store={store}>
+        <View style={{ flex: 1 }}>
+          {this.renderComponent()}
+        </View>
+      </Provider>
     );
   }
 }

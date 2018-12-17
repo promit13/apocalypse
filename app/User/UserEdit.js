@@ -2,7 +2,8 @@ import React from 'react';
 import {
   View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions,
 } from 'react-native';
-import { ListItem, Button } from 'react-native-elements';
+import { ListItem, Button, Alert } from 'react-native-elements';
+import { FacebookAuthProvider, AccessToken } from 'react-native-fbsdk';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -86,10 +87,11 @@ export default class MyAccount extends React.Component {
         user.email,
         this.state.password,
       );
+    } else {
+      credentials = FacebookAuthProvider.getCredential(AccessToken.getCurrentAccessToken());
     }
     user.reauthenticateAndRetrieveDataWithCredential(credentials)
       .then(() => {
-        console.log(credentials);
         // this.deleteAccount();
       }).catch(() => this.setState({ showError: true, showLoading: false }));
   }
@@ -190,6 +192,7 @@ export default class MyAccount extends React.Component {
       <View style={styles.container}>
         <ScrollView>
           <Image style={styles.imageStyle} source={talonImage} />
+          {this.showModal()}
           <View style={{ alignSelf: 'center', marginBottom: 10 }}>
             <Text style={[styles.text, { marginTop: 10, fontWeight: 'bold' }]}>
               Welcome, Agent Whiskey Gambit

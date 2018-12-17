@@ -148,6 +148,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-background-downloader')
     compile(project(':react-native-device-info')) {
     exclude group: 'com.google.android.gms'
     }

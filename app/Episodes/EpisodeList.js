@@ -1,11 +1,12 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, Alert, PermissionsAndroid, AsyncStorage, Dimensions,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button, List,
 } from 'react-native-elements';
 import * as RNIap from 'react-native-iap';
+import { connect } from 'react-redux';
 import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Orientation from 'react-native-orientation';
@@ -15,6 +16,8 @@ import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 import DeleteDownloads from '../common/DeleteDownloads';
+import store from '../store';
+import { downloadEpisode } from '../actions';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 110;
@@ -69,7 +72,7 @@ const styles = {
   },
 };
 
-export default class EpisodeList extends React.Component {
+class EpisodeList extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -454,27 +457,42 @@ export default class EpisodeList extends React.Component {
                 if (!buy) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
-                this.onEpisodeClick(
-                  title,
-                  uid,
+                this.props.downloadEpisode({
+                  exercises,
+                  episodeTitle: title,
+                  episodeId: uid,
                   category,
                   description,
-                  exercises,
                   video,
-                  startWT,
-                  endWT,
                   totalTime,
                   workoutTime,
                   videoSize,
                   episodeIndex,
                   seriesIndex,
-                  deviceId,
-                  counterArray[episodeIndex],
-                  buy,
-                  downloaded,
-                  completed,
-                  true,
-                );
+                  startWT,
+                  endWT,
+                });
+                // this.onEpisodeClick(
+                //   title,
+                //   uid,
+                //   category,
+                //   description,
+                //   exercises,
+                //   video,
+                //   startWT,
+                //   endWT,
+                //   totalTime,
+                //   workoutTime,
+                //   videoSize,
+                //   episodeIndex,
+                //   seriesIndex,
+                //   deviceId,
+                //   counterArray[episodeIndex],
+                //   buy,
+                //   downloaded,
+                //   completed,
+                //   true,
+                // );
               }
               }
               onPress={() => {
@@ -741,3 +759,11 @@ export default class EpisodeList extends React.Component {
     );
   }
 }
+
+// const mapStateToProps = (state) => { download: state.download; }
+
+const mapDispatchToProps = {
+  downloadEpisode,
+};
+
+export default connect(null, mapDispatchToProps)(EpisodeList);

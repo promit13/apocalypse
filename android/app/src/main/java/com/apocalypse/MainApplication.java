@@ -3,6 +3,7 @@ package com.apocalypse;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.eko.RNBackgroundDownloaderPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.tanguyantoine.react.MusicControl;
 import com.github.yamill.orientation.OrientationPackage;
@@ -45,6 +46,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNBackgroundDownloaderPackage(),
             new RNDeviceInfo(),
             new MusicControl(),
             new OrientationPackage(),

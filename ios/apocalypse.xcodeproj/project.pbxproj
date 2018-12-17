@@ -62,6 +62,7 @@
 		AF7759E617ED48DDA8C431CF /* libReactNativePermissions.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 207104C0D564437AAC1F2463 /* libReactNativePermissions.a */; };
 		B20F071474884339826CE613 /* libRNIap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A3E26D409E401DBC7B5323 /* libRNIap.a */; };
 		B6DBA974C1464B61BC52A565 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66A04179DBEE4E29BDAEACDF /* Zocial.ttf */; };
+		C12E087CF173423BB8FE81B3 /* libRNBackgroundDownloader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB358EFC64994D38B0B17881 /* libRNBackgroundDownloader.a */; };
 		CFE5BCCB61134A42B92D9473 /* libRNDeviceInfo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 335AA149BE774599BF3C63A4 /* libRNDeviceInfo-tvOS.a */; };
 		D35FABF85D1A4E49AC645F47 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 61613C2F2E00465580C7B110 /* Foundation.ttf */; };
 		D55500FEDDFB4ADA9D4D4A67 /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A8F16E44A5D6491F91B83B7E /* EvilIcons.ttf */; };
@@ -353,6 +354,13 @@
 			remoteGlobalIDString = E72EC1401F7ABB5A0001BC90;
 			remoteInfo = "RNDeviceInfo-tvOS";
 		};
+		8B2041A321C7B237009E4852 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A7682795B2645AF8977F6C0 /* RNBackgroundDownloader.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RNBackgroundDownloader;
+		};
 		8B2DDAFB219C44000091F130 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E246925B66EA4656ACDF72A5 /* MusicControl.xcodeproj */;
@@ -482,6 +490,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = apocalypse/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = apocalypse/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
+		1A7682795B2645AF8977F6C0 /* RNBackgroundDownloader.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNBackgroundDownloader.xcodeproj; path = "../node_modules/react-native-background-downloader/ios/RNBackgroundDownloader.xcodeproj"; sourceTree = "<group>"; };
 		1CDEB8AC5CCA40C78B9F95C4 /* RealmReact.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RealmReact.xcodeproj; path = "../node_modules/realm/react-native/ios/RealmReact.xcodeproj"; sourceTree = "<group>"; };
 		1F8A6EE2F2B8470591B4F814 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
 		207104C0D564437AAC1F2463 /* libReactNativePermissions.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativePermissions.a; sourceTree = "<group>"; };
@@ -513,6 +522,7 @@
 		A213850C08364F95AD3774EB /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		A7221714EA4C44E8AE400548 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
 		A8F16E44A5D6491F91B83B7E /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
+		AB358EFC64994D38B0B17881 /* libRNBackgroundDownloader.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNBackgroundDownloader.a; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		B1B6AF10DED6472D91ED1872 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		B85B2F08F4654DBA94CA412D /* libc++.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -577,6 +587,7 @@
 				041133A1C3DD49D5A877D197 /* libRCTOrientation.a in Frameworks */,
 				A601D296027C4FA6B61CA98E /* libMusicControl.a in Frameworks */,
 				FBDF640E14DD41588DE34A98 /* libRNDeviceInfo.a in Frameworks */,
+				C12E087CF173423BB8FE81B3 /* libRNBackgroundDownloader.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -784,6 +795,7 @@
 				CF4530D320534C598B5132AD /* RCTOrientation.xcodeproj */,
 				E246925B66EA4656ACDF72A5 /* MusicControl.xcodeproj */,
 				C35AA95D37894D33AC5A718B /* RNDeviceInfo.xcodeproj */,
+				1A7682795B2645AF8977F6C0 /* RNBackgroundDownloader.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -829,6 +841,14 @@
 			children = (
 				8B1CD59121C117FC00ABA7A2 /* libRNDeviceInfo.a */,
 				8B1CD59321C117FC00ABA7A2 /* libRNDeviceInfo-tvOS.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8B2041A021C7B237009E4852 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8B2041A421C7B237009E4852 /* libRNBackgroundDownloader.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -908,6 +928,7 @@
 				C0C0B0796789499BA15ED36F /* libMusicControl-tvOS.a */,
 				94C0894F7F11408399CF9B9C /* libRNDeviceInfo.a */,
 				335AA149BE774599BF3C63A4 /* libRNDeviceInfo-tvOS.a */,
+				AB358EFC64994D38B0B17881 /* libRNBackgroundDownloader.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -1167,6 +1188,10 @@
 				{
 					ProductGroup = 8B5E031D215B913800D9168B /* Products */;
 					ProjectRef = 1CDEB8AC5CCA40C78B9F95C4 /* RealmReact.xcodeproj */;
+				},
+				{
+					ProductGroup = 8B2041A021C7B237009E4852 /* Products */;
+					ProjectRef = 1A7682795B2645AF8977F6C0 /* RNBackgroundDownloader.xcodeproj */;
 				},
 				{
 					ProductGroup = 8B1CD58C21C117FC00ABA7A2 /* Products */;
@@ -1470,6 +1495,13 @@
 			remoteRef = 8B1CD59221C117FC00ABA7A2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		8B2041A421C7B237009E4852 /* libRNBackgroundDownloader.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNBackgroundDownloader.a;
+			remoteRef = 8B2041A321C7B237009E4852 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		8B2DDAFC219C44000091F130 /* libMusicControl.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1740,12 +1772,14 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = apocalypseTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1780,12 +1814,14 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = apocalypseTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1824,6 +1860,7 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = apocalypse/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1865,6 +1902,7 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = apocalypse/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1907,11 +1945,13 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1952,11 +1992,13 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1996,11 +2038,13 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -2040,11 +2084,13 @@
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-background-downloader/ios",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
