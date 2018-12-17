@@ -12,7 +12,7 @@ const imageSize = width - 120;
 
 const talonImage = require('../../img/talon.png');
 
-const listItems = ['Sign Out', 'Change Password', 'Edit Profile', 'Delete Account'];
+const listItems = ['Sign Out', 'Change Password', 'Delete Account'];
 const styles = {
   container: {
     flex: 1,
@@ -64,63 +64,89 @@ export default class MyAccount extends React.Component {
     showModal: false,
     showError: false,
     showLoading: false,
+    providerId: 'password',
   };
+
+  componentDidMount() {
+    const { providerData } = this.props.screenProps.user;
+    this.setState({ providerId: providerData[0].providerId });
+  }
 
   logOut = () => {
     firebase.auth().signOut();
   }
 
-  deleteAccount = async () => {
+  authenticateUser = async () => {
+    const { providerId } = this.state;
+    console.log(providerId);
     const user = firebase.auth().currentUser;
-    const credentials = await firebase.auth.EmailAuthProvider.credential(
-      user.email,
-      this.state.password,
-    );
-    firebase.auth().currentUser.reauthenticateAndRetrieveDataWithCredential(credentials)
+    let credentials;
+    if (providerId === 'password') {
+      credentials = await firebase.auth.EmailAuthProvider.credential(
+        user.email,
+        this.state.password,
+      );
+    }
+    user.reauthenticateAndRetrieveDataWithCredential(credentials)
       .then(() => {
-        firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove()
-          .then(() => firebase.auth().currentUser.delete()
-            .then(() => {
-              this.setState({ showError: false, showLoading: false });
-            }));
+        console.log(credentials);
+        // this.deleteAccount();
       }).catch(() => this.setState({ showError: true, showLoading: false }));
   }
 
+  deleteAccount = () => {
+    firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove()
+      .then(() => {
+        firebase.auth().currentUser.delete()
+          .then(() => {
+            this.setState({ showError: false, showLoading: false });
+          })
+          .catch(err => console.log(err));
+      })
+      .catch(err => console.log(err));
+  }
+
   showModal = () => {
+    const { providerId } = this.state;
     return (
       <Modal transparent visible={this.state.showModal}>
         <View style={styles.modalView}>
           <TouchableOpacity onPress={() => this.setState({ showModal: false, password: '' })}>
             <View style={styles.modalInnerView}>
-              <TextInput
-                underlineColorAndroid="transparent"
-                secureTextEntry
-                style={styles.inputStyle}
-                placeholder="Confirm your password"
-                placeholderTextColor="#001331"
-                onChangeText={password => this.setState({ password })}
-                value={this.state.password}
-              />
+              {
+                providerId === 'password'
+                  ? (
+                    <TextInput
+                      underlineColorAndroid="transparent"
+                      secureTextEntry
+                      style={styles.inputStyle}
+                      placeholder="Confirm your password"
+                      placeholderTextColor="#001331"
+                      onChangeText={password => this.setState({ password })}
+                      value={this.state.password}
+                    />
+                  )
+                  : null
+              }
               {this.state.showError ? <ErrorMessage errorMessage="Incorrect password" /> : null}
               {this.state.showLoading ? <Loading /> : null}
-              {/* <View style={{ flexDirection: 'row', justifyContent: 'center' }}> */}
-                <Button
-                  color="#fff"
-                  buttonStyle={styles.button}
-                  title="Cancel"
-                  onPress={() => {
-                    this.setState({ showModal: false });
-                  }}
-                />
-                <Button
-                  color="#fff"
-                  buttonStyle={[styles.button, { marginTop: 5 }]}
-                  title="Confirm"
-                  onPress={() => {
-                    this.setState({ showLoading: true });
-                    this.deleteAccount();
-                  }}
-                />
+              <Button
+                color="#fff"
+                buttonStyle={styles.button}
+                title="Cancel"
+                onPress={() => {
+                  this.setState({ showModal: false });
+                }}
+              />
+              <Button
+                color="#fff"
+                buttonStyle={[styles.button, { marginTop: 5 }]}
+                title="Confirm"
+                onPress={() => {
+                  this.setState({ showLoading: true });
+                  this.authenticateUser();
+                }}
+              />
               {/* </View> */}
             </View>
           </TouchableOpacity>
@@ -130,7 +156,11 @@ export default class MyAccount extends React.Component {
   }
 
   renderListItem = () => {
+    const { providerId } = this.state;
     const items = listItems.map((item, index) => {
+      if (index === 1 && providerId !== 'password') {
+        return console.log('facebook provider');
+      }
       return (
         <ListItem
           key={item}
@@ -145,9 +175,6 @@ export default class MyAccount extends React.Component {
               return this.props.navigation.navigate('ChangeEmailPassword');
             }
             if (index === 2) {
-              return this.props.navigation.navigate('UserBodyDetail', { showButton: false });
-            }
-            if (index === 3) {
               return this.setState({ showModal: true });
             }
           }}
@@ -174,7 +201,6 @@ export default class MyAccount extends React.Component {
           <Text style={[styles.text, { fontSize: 16, textAlign: 'left', paddingLeft: 25, paddingBottom: 10 }]}>
             ACCOUNT ACTIONS
           </Text>
-          {this.showModal()}
           <View style={{ padding: 10, backgroundColor: '#33425a' }}>
             {this.renderListItem()}
           </View>

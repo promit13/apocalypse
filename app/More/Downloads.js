@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  ScrollView, View, TouchableWithoutFeedback, TouchableOpacity, Alert,
+  ScrollView, View, TouchableWithoutFeedback, TouchableOpacity,
 } from 'react-native';
-import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import { Text, Icon } from 'react-native-elements';
 import realm from '../config/Database';
 import OfflineMsg from '../common/OfflineMsg';
+import ShowModal from '../common/ShowModal';
 import Loading from '../common/Loading';
 import DeleteDownloads from '../common/DeleteDownloads';
 
@@ -30,74 +30,24 @@ export default class Downloads extends React.Component {
 
   state = {
     showLoading: false,
+    showModal: false,
+    showDeleteDialog: false,
+    deleteFileTitle: '',
     filesList: [],
   }
 
   componentDidMount() {
     this.setState({ isConnected: this.props.screenProps.netInfo });
-    this.requestPermissions();
+    // this.requestPermissions();
     this.readDirectory();
   }
-
-  // deleteEpisode = (fileName) => {
-  //   this.setState({ showLoading: true });
-  //   const { dirs } = RNFetchBlob.fs;
-  //   const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${fileName}"`));
-  //   const exerciseIdList = Array.from(episodeDetail[0].exerciseIdList);
-  //   const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
-  //   const formattedFileName = fileName.replace(/ /g, '_');
-
-  //   RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
-  //     .then(async () => {
-  //       await exerciseIdList.map((value) => {
-  //         let count = 0;
-  //         allEpisodes.map((episodeValue) => {
-  //           const eachExerciseIdList = Array.from(episodeValue.exerciseIdList);
-  //           if (eachExerciseIdList.includes(value)) {
-  //             count += 1;
-  //           }
-  //         });
-  //         if (count < 2) {
-  //           const exerciseDetail = realm.objects('SavedExercises').filtered(`id="${value}"`);
-  //           const exerciseTitle = Array.from(exerciseDetail)[0].title;
-  //           const formattedExerciseTitle = exerciseTitle.replace(/\s+/g, '');
-  //           RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/episodes/${formattedExerciseTitle}.mp4`)
-  //             .then(() => {
-  //               RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseTitle}.mp4`)
-  //                 .then(() => {
-  //                   RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseTitle}.mp4`)
-  //                     .then(() => {
-  //                       RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/introImages/${formattedExerciseTitle}.png`)
-  //                         .then(() => {
-  //                           RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseTitle}.png`)
-  //                             .then(() => {
-  //                               realm.write(() => {
-  //                                 realm.delete(exerciseDetail);
-  //                               });
-  //                             }).catch(error => console.log(error));
-  //                         }).catch(error => console.log(error));
-  //                     }).catch(error => console.log(error));
-  //                 }).catch(error => console.log(error));
-  //             }).catch(error => console.log(error));
-  //         }
-  //       });
-  //       realm.write(() => {
-  //         realm.delete(episodeDetail);
-  //       });
-  //       this.readDirectory();
-  //       this.setState({ showLoading: false });
-  //     })
-  //     .catch((err) => {
-  //       this.setState({ showLoading: false });
-  //     });
-  // }
-
+  
   readDirectory = () => {
     const { dirs, ls } = RNFetchBlob.fs;
     ls(`${dirs.DocumentDir}/AST/episodes`)
       .then((files) => {
         if (files.length === 0) {
-          Alert.alert('You do not have any downloads.');
+          this.setState({ showModal: true });
         }
         this.setState({ filesList: files });
       })
@@ -106,16 +56,16 @@ export default class Downloads extends React.Component {
       });
   }
 
-  requestPermissions = async () => {
-    Permissions.check('mediaLibrary').then((response) => {
-      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-      if (response !== 'authorized') {
-        Permissions.request('mediaLibrary').then((res) => {
-          console.log(res);
-        });
-      }
-    });
-  }
+  // requestPermissions = async () => {
+  //   Permissions.check('mediaLibrary').then((response) => {
+  //     // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+  //     if (response !== 'authorized') {
+  //       Permissions.request('mediaLibrary').then((res) => {
+  //         console.log(res);
+  //       });
+  //     }
+  //   });
+  // }
 
   delete = (fileName) => {
     this.child.deleteEpisodes(fileName);
@@ -124,8 +74,9 @@ export default class Downloads extends React.Component {
 
   renderDeleteButton = (i, fileName) => {
     // if (i === this.state.index && this.state.showDeleteButton) {
+    // this.delete(fileName)
     return (
-      <TouchableOpacity onPress={() => this.delete(fileName)}>
+      <TouchableOpacity onPress={() => this.setState({ showDeleteDialog: true, deleteFileTitle: fileName })}>
         <View style={{
           backgroundColor: 'red',
           justifyContent: 'center',
@@ -149,6 +100,7 @@ export default class Downloads extends React.Component {
   }
 
   render() {
+    const { isConnected, showModal, showLoading, showDeleteDialog, deleteFileTitle } = this.state;
     const filesList = this.state.filesList.map((file, i) => {
       const fileName = file.split('.');
       const formattedFile = fileName[0].replace(/_/g, ' ');
@@ -160,6 +112,7 @@ export default class Downloads extends React.Component {
             this.props.navigation.navigate('EpisodeView', {
               offline: true,
               title: formattedFile,
+              purchased: true,
               episodeIndex,
             });
           }}
@@ -174,7 +127,7 @@ export default class Downloads extends React.Component {
               </Text>
               {this.renderDeleteButton((i + 1), formattedFile)}
             </View>
-            {this.state.showLoading ? <Loading /> : null}
+            {showLoading ? <Loading /> : null}
             <View style={{
               height: 1,
               width: '100%',
@@ -188,8 +141,28 @@ export default class Downloads extends React.Component {
     });
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
-        { !this.state.isConnected ? <OfflineMsg /> : null }
+        { !isConnected ? <OfflineMsg /> : null }
         <DeleteDownloads ref={ref => (this.child = ref)} />
+        <ShowModal
+          visible={showModal}
+          title="You do not have any downloads"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showModal: false });
+          }}
+        />
+        <ShowModal
+          visible={showDeleteDialog}
+          description="Do you really want to delete episode?"
+          buttonText="Cancel"
+          secondButtonText="Confirm"
+          askAdvance
+          onSecondButtonPress={() => {
+            this.setState({ showDeleteDialog: false });
+            this.delete(deleteFileTitle);
+          }}
+          onPress={() => this.setState({ showDeleteDialog: false })}
+        />
         <ScrollView>
           {filesList}
         </ScrollView>

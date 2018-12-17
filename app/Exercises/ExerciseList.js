@@ -72,6 +72,7 @@ export default class ExerciseList extends React.Component {
                   image: imageUrl,
                   exercise: true,
                   mode: 'Exercise Player',
+                  navigateBack: 'ExerciseList',
                 });
               }}
             />

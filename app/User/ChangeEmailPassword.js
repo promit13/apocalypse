@@ -75,52 +75,53 @@ export default class ChangeEmailPassword extends React.Component {
   render() {
     return (
       <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
-          <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" />
-            <TextInput
-              underlineColorAndroid="transparent"
-              style={styles.inputStyle}
-              secureTextEntry
-              placeholder="Current Password"
-              placeholderTextColor="gray"
-              onChangeText={password => this.setState({ password })}
-              value={this.state.password}
-            />
-          </View>
-          {this.state.showError ? <ErrorMessage errorMessage={this.state.error} /> : null}
-          <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" />
-            <TextInput
-              underlineColorAndroid="transparent"
-              secureTextEntry
-              style={styles.inputStyle}
-              placeholder="New Password"
-              placeholderTextColor="gray"
-              onChangeText={newPassword => this.setState({ newPassword })}
-              value={this.state.newPassword}
-            />
-          </View>
-          <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" />
-            <TextInput
-              underlineColorAndroid="transparent"
-              secureTextEntry
-              style={styles.inputStyle}
-              placeholder="Confirm Password"
-              placeholderTextColor="gray"
-              onChangeText={confirmPassword => this.setState({ confirmPassword })}
-              value={this.state.confirmPassword}
-            />
-          </View>
-          {this.state.showLoading ? <Loading /> : null}
-          <Button
-            buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
-            title="Submit"
-            onPress={() => {
-              this.setState({ showLoading: true });
-              this.handleSubmit();
-            }}
+        <View style={styles.fieldContainer}>
+          <Icon name="lock" type="entypo" color="white" />
+          <TextInput
+            underlineColorAndroid="transparent"
+            style={styles.inputStyle}
+            secureTextEntry
+            placeholder="Current Password"
+            placeholderTextColor="gray"
+            onChangeText={password => this.setState({ password })}
+            value={this.state.password}
           />
+        </View>
+        {this.state.showError ? <ErrorMessage errorMessage={this.state.error} /> : null}
+        <View style={styles.fieldContainer}>
+          <Icon name="lock" type="entypo" color="white" />
+          <TextInput
+            underlineColorAndroid="transparent"
+            secureTextEntry
+            style={styles.inputStyle}
+            placeholder="New Password"
+            placeholderTextColor="gray"
+            onChangeText={newPassword => this.setState({ newPassword })}
+            value={this.state.newPassword}
+          />
+        </View>
+        <View style={styles.fieldContainer}>
+          <Icon name="lock" type="entypo" color="white" />
+          <TextInput
+            underlineColorAndroid="transparent"
+            secureTextEntry
+            style={styles.inputStyle}
+            placeholder="Confirm Password"
+            placeholderTextColor="gray"
+            onChangeText={confirmPassword => this.setState({ confirmPassword })}
+            value={this.state.confirmPassword}
+          />
+        </View>
+        {this.state.showLoading ? <Loading /> : null}
+        <Button
+          buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
+          title="Submit"
+          onPress={() => {
+            console.log(this.props.screenProps.user);
+            this.setState({ showLoading: true });
+            // this.handleSubmit();
+          }}
+        />
       </KeyboardAwareScrollView>
     );
   }

@@ -62,11 +62,13 @@
 		AF7759E617ED48DDA8C431CF /* libReactNativePermissions.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 207104C0D564437AAC1F2463 /* libReactNativePermissions.a */; };
 		B20F071474884339826CE613 /* libRNIap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A3E26D409E401DBC7B5323 /* libRNIap.a */; };
 		B6DBA974C1464B61BC52A565 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66A04179DBEE4E29BDAEACDF /* Zocial.ttf */; };
+		CFE5BCCB61134A42B92D9473 /* libRNDeviceInfo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 335AA149BE774599BF3C63A4 /* libRNDeviceInfo-tvOS.a */; };
 		D35FABF85D1A4E49AC645F47 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 61613C2F2E00465580C7B110 /* Foundation.ttf */; };
 		D55500FEDDFB4ADA9D4D4A67 /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A8F16E44A5D6491F91B83B7E /* EvilIcons.ttf */; };
 		D8181C06A65C4524B433E796 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 07A7D24D2B0346C8B40F3C87 /* libz.tbd */; };
 		DA60E0017FBB4F54BE0824F9 /* libRNFetchBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E3FD8F3CAAF9477481FFED1E /* libRNFetchBlob.a */; };
 		F1EE47DFA02E4DFBB084E95D /* libMusicControl-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C0C0B0796789499BA15ED36F /* libMusicControl-tvOS.a */; };
+		FBDF640E14DD41588DE34A98 /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C0894F7F11408399CF9B9C /* libRNDeviceInfo.a */; };
 		FD36F43C094F4BB490B223EA /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B1B6AF10DED6472D91ED1872 /* Feather.ttf */; };
 /* End PBXBuildFile section */
 
@@ -337,6 +339,20 @@
 			remoteGlobalIDString = 58B5119B1A9E6C1200147676;
 			remoteInfo = RCTText;
 		};
+		8B1CD59021C117FC00ABA7A2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C35AA95D37894D33AC5A718B /* RNDeviceInfo.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DA5891D81BA9A9FC002B4DB2;
+			remoteInfo = RNDeviceInfo;
+		};
+		8B1CD59221C117FC00ABA7A2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C35AA95D37894D33AC5A718B /* RNDeviceInfo.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E72EC1401F7ABB5A0001BC90;
+			remoteInfo = "RNDeviceInfo-tvOS";
+		};
 		8B2DDAFB219C44000091F130 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E246925B66EA4656ACDF72A5 /* MusicControl.xcodeproj */;
@@ -458,7 +474,7 @@
 		07A7D24D2B0346C8B40F3C87 /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
 		139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "../node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* apocalypse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = apocalypse.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* AST.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AST.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = apocalypse/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = apocalypse/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -472,6 +488,7 @@
 		2D02E47B1E0B4A5D006451C7 /* apocalypse-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "apocalypse-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* apocalypse-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "apocalypse-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		335AA149BE774599BF3C63A4 /* libRNDeviceInfo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNDeviceInfo-tvOS.a"; sourceTree = "<group>"; };
 		3A3CFEB04C24485296D27D32 /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
 		42004257B1D942349ADA0A56 /* libRCTVideo.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTVideo.a; sourceTree = "<group>"; };
 		524775A940684B469394946B /* libRNVectorIcons.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNVectorIcons.a; sourceTree = "<group>"; };
@@ -491,6 +508,7 @@
 		8BD81801216CB07C0012E530 /* Bolts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Bolts.framework; path = ../../../FacebookSDK/Bolts.framework; sourceTree = "<group>"; };
 		8D38B845EE5C4867AD2A41D7 /* RCTVideo.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTVideo.xcodeproj; path = "../node_modules/react-native-video/ios/RCTVideo.xcodeproj"; sourceTree = "<group>"; };
 		91BA04762F544E5EB3489DA5 /* libRealmReact.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRealmReact.a; sourceTree = "<group>"; };
+		94C0894F7F11408399CF9B9C /* libRNDeviceInfo.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNDeviceInfo.a; sourceTree = "<group>"; };
 		9B3C12BA10ED4DB5ABFCAD34 /* RNIap.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNIap.xcodeproj; path = "../node_modules/react-native-iap/ios/RNIap.xcodeproj"; sourceTree = "<group>"; };
 		A213850C08364F95AD3774EB /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		A7221714EA4C44E8AE400548 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
@@ -500,6 +518,7 @@
 		B85B2F08F4654DBA94CA412D /* libc++.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		BEAD8975423F4BE2851FD93F /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		C0C0B0796789499BA15ED36F /* libMusicControl-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libMusicControl-tvOS.a"; sourceTree = "<group>"; };
+		C35AA95D37894D33AC5A718B /* RNDeviceInfo.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNDeviceInfo.xcodeproj; path = "../node_modules/react-native-device-info/ios/RNDeviceInfo.xcodeproj"; sourceTree = "<group>"; };
 		C9E5E6FAC3D24DC98A801E5F /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		CDAF931A4AE049A8BDCFAB5F /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		CF4530D320534C598B5132AD /* RCTOrientation.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTOrientation.xcodeproj; path = "../node_modules/react-native-orientation/iOS/RCTOrientation.xcodeproj"; sourceTree = "<group>"; };
@@ -557,6 +576,7 @@
 				AF7759E617ED48DDA8C431CF /* libReactNativePermissions.a in Frameworks */,
 				041133A1C3DD49D5A877D197 /* libRCTOrientation.a in Frameworks */,
 				A601D296027C4FA6B61CA98E /* libMusicControl.a in Frameworks */,
+				FBDF640E14DD41588DE34A98 /* libRNDeviceInfo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,6 +593,7 @@
 				2D02E4C71E0B4AEC006451C7 /* libRCTText-tvOS.a in Frameworks */,
 				2D02E4C81E0B4AEC006451C7 /* libRCTWebSocket-tvOS.a in Frameworks */,
 				F1EE47DFA02E4DFBB084E95D /* libMusicControl-tvOS.a in Frameworks */,
+				CFE5BCCB61134A42B92D9473 /* libRNDeviceInfo-tvOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -762,6 +783,7 @@
 				D1E8324CF957451E9DE71B50 /* ReactNativePermissions.xcodeproj */,
 				CF4530D320534C598B5132AD /* RCTOrientation.xcodeproj */,
 				E246925B66EA4656ACDF72A5 /* MusicControl.xcodeproj */,
+				C35AA95D37894D33AC5A718B /* RNDeviceInfo.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -794,10 +816,19 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* apocalypse.app */,
+				13B07F961A680F5B00A75B9A /* AST.app */,
 				00E356EE1AD99517003FC87E /* apocalypseTests.xctest */,
 				2D02E47B1E0B4A5D006451C7 /* apocalypse-tvOS.app */,
 				2D02E4901E0B4A5D006451C7 /* apocalypse-tvOSTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8B1CD58C21C117FC00ABA7A2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8B1CD59121C117FC00ABA7A2 /* libRNDeviceInfo.a */,
+				8B1CD59321C117FC00ABA7A2 /* libRNDeviceInfo-tvOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -875,6 +906,8 @@
 				E0D438CD8F5B46A2BED5B9A8 /* libRCTOrientation.a */,
 				E6D4F7A1709E4B459C906510 /* libMusicControl.a */,
 				C0C0B0796789499BA15ED36F /* libMusicControl-tvOS.a */,
+				94C0894F7F11408399CF9B9C /* libRNDeviceInfo.a */,
+				335AA149BE774599BF3C63A4 /* libRNDeviceInfo-tvOS.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -974,7 +1007,7 @@
 			);
 			name = apocalypse;
 			productName = "Hello World";
-			productReference = 13B07F961A680F5B00A75B9A /* apocalypse.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* AST.app */;
 			productType = "com.apple.product-type.application";
 		};
 		2D02E47A1E0B4A5D006451C7 /* apocalypse-tvOS */ = {
@@ -1024,6 +1057,8 @@
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = 5783T8MTVQ;
+						ProvisioningStyle = Manual;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
@@ -1132,6 +1167,10 @@
 				{
 					ProductGroup = 8B5E031D215B913800D9168B /* Products */;
 					ProjectRef = 1CDEB8AC5CCA40C78B9F95C4 /* RealmReact.xcodeproj */;
+				},
+				{
+					ProductGroup = 8B1CD58C21C117FC00ABA7A2 /* Products */;
+					ProjectRef = C35AA95D37894D33AC5A718B /* RNDeviceInfo.xcodeproj */;
 				},
 				{
 					ProductGroup = 8B3EFF9E2146706C005FBCEE /* Products */;
@@ -1417,6 +1456,20 @@
 			remoteRef = 832341B41AAA6A8300B99B32 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		8B1CD59121C117FC00ABA7A2 /* libRNDeviceInfo.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNDeviceInfo.a;
+			remoteRef = 8B1CD59021C117FC00ABA7A2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8B1CD59321C117FC00ABA7A2 /* libRNDeviceInfo-tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libRNDeviceInfo-tvOS.a";
+			remoteRef = 8B1CD59221C117FC00ABA7A2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		8B2DDAFC219C44000091F130 /* libMusicControl.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1667,6 +1720,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Promit Rai (7SBLZMRND2)";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 5783T8MTVQ;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1683,6 +1739,7 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = apocalypseTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1691,13 +1748,13 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/apocalypse.app/apocalypse";
 			};
 			name = Debug;
@@ -1706,7 +1763,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Promit Rai (7SBLZMRND2)";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = 5783T8MTVQ;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-vector-icons/RNVectorIconsManager",
@@ -1719,6 +1779,7 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = apocalypseTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1727,13 +1788,13 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/apocalypse.app/apocalypse";
 			};
 			name = Release;
@@ -1762,6 +1823,7 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = apocalypse/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1771,8 +1833,8 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.imaginactive.apocalypse;
-				PRODUCT_NAME = apocalypse;
-				PROVISIONING_PROFILE = "8f98f88e-eace-444d-81cf-07dd3361db86";
+				PRODUCT_NAME = AST;
+				PROVISIONING_PROFILE = "197c67c3-0350-479d-8482-bd4e4a617b9f";
 				PROVISIONING_PROFILE_SPECIFIER = TickleMediaDevelopmentProfile;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1784,10 +1846,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Imaginactive Ltd (5783T8MTVQ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Promit Rai (7SBLZMRND2)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 5783T8MTVQ;
 				FRAMEWORK_SEARCH_PATHS = "~/Documents/FacebookSDK";
 				GCC_NO_COMMON_BLOCKS = NO;
 				HEADER_SEARCH_PATHS = (
@@ -1802,6 +1864,7 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = apocalypse/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1811,8 +1874,9 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.imaginactive.apocalypse;
-				PRODUCT_NAME = apocalypse;
-				PROVISIONING_PROFILE_SPECIFIER = TickleMediaDistributionProfile;
+				PRODUCT_NAME = AST;
+				PROVISIONING_PROFILE = "197c67c3-0350-479d-8482-bd4e4a617b9f";
+				PROVISIONING_PROFILE_SPECIFIER = TickleMediaDevelopmentProfile;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -1842,12 +1906,12 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1887,12 +1951,12 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1931,12 +1995,12 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1975,12 +2039,12 @@
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation/**",
 					"$(SRCROOT)/../node_modules/react-native-music-control/ios",
+					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 				);
 				INFOPLIST_FILE = "apocalypse-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);

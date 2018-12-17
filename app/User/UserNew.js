@@ -6,8 +6,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {
   Button, Text, Icon, CheckBox,
 } from 'react-native-elements';
-import { LoginManager, AccessToken } from 'react-native-fbsdk';
-import axios from 'axios';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -78,27 +76,25 @@ export default class Signup extends React.Component {
 
   setUserData = (currentUser) => {
     const { firstName, lastName, email } = this.state;
-    firebase.database().ref(`users/${currentUser.user.uid}`).set({
+    console.log(currentUser);
+    firebase.database().ref(`users/${currentUser.uid}`).set({
       firstName,
       lastName,
       email,
-      age: 0,
-      weight: 0,
-      weightCategory: '',
-      heightCategory: '',
-      height: 0,
-      gender: '',
-      extended: false,
       tutorial: false,
       fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
       purchases: '',
       lastPlayedEpisode: '',
+      playedIntelArray: '',
+      episodeCompletedArray: '',
       checked: false,
     })
       .then(() => {
+        console.log('CHECK second');
         this.setState({ showError: false, errorMessage: '', showLoading: false });
         this.props.navigation.navigate('UserBodyDetail');
-      });
+      })
+      .catch(error => console.log(error));
   }
 
   handleSubmit = () => {
@@ -122,42 +118,17 @@ export default class Signup extends React.Component {
     }
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then((currentUser) => {
-        firebase.auth().currentUser.sendEmailVerification()
-          .then(() => {
-            this.setUserData(currentUser);
-          })
-          .catch(err => console.log(err));
+        // firebase.auth().currentUser.sendEmailVerification()
+        //   .then(() => {
+        //     this.setUserData(currentUser);
+        //   })
+        //   .catch(err => console.log(err));
+        this.setUserData(currentUser);
       })
       .catch((error) => {
         this.setState({ showError: true, errorMessage: error.message, showLoading: false });
       });
   }
-
-  // doFacebookSignUp = () => {
-  //   LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
-  //     (result) => {
-  //       if (result.isCancelled) {
-  //         this.setState({ showLoading: false });
-  //       } else {
-  //         AccessToken.getCurrentAccessToken()
-  //           .then((data) => {
-  //             axios.get(
-  //               `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
-  //             ).then((response) => {
-  //               const { email, first_name, last_name } = response.data;
-  //               this.setState({ email, firstName: first_name, lastName: last_name });
-  //               const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-  //               firebase.auth().signInAndRetrieveDataWithCredential(credential)
-  //                 .then((currentUser) => {
-  //                   this.setUserData(currentUser);
-  //                 })
-  //                 .catch(error => console.log(error));
-  //             });
-  //           });
-  //       }
-  //     },
-  //   ).catch(error => console.log(`Login failed with error: ${error}`));
-  // }
 
   render() {
     const {
@@ -233,7 +204,10 @@ export default class Signup extends React.Component {
               containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -25 }}
               onIconPress={() => this.setState({ checked: !checked })}
             />
-            <TouchableOpacity onPress={() => this.props.navigation.navigate('Agreement')}>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('Agreement', {
+              showCheckbox: false,
+            })}
+            >
               <View>
                 <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold' }}>
                   I agree to the User Agreement

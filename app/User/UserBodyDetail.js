@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   dropdownContainerStyle: {
-    height: 30, paddingLeft: 20, paddingTop: 2,
+    height: 30, paddingLeft: 20, paddingTop: 3,
   },
   dropdownStyle: {
     padding: 10, backgroundColor: '#001331',
@@ -78,8 +78,8 @@ export default class UserBodyDetail extends React.Component {
     weight: '',
     age: '',
     gender: '',
-    weightCategory: '',
-    heightCategory: '',
+    weightCategory: 'kg',
+    heightCategory: 'cm',
     showError: false,
     showLoading: false,
     showButton: false,
@@ -150,7 +150,7 @@ export default class UserBodyDetail extends React.Component {
             <ModalDropdown
               options={ageArray}
               showsVerticalScrollIndicator
-              style={[styles.dropdownContainerStyle, { marginLeft: 25 }]}
+              style={[styles.dropdownContainerStyle, { marginLeft: 20 }]}
               defaultIndex={0}
               defaultValue="[selection field]"
               textStyle={styles.inputText}
@@ -161,50 +161,60 @@ export default class UserBodyDetail extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <TextInput
-              style={[styles.inputText, { width: 60 }]}
-              keyboardType="numeric"
-              underlineColorAndroid="transparent"
-              placeholder="Height"
-              placeholderTextColor="white"
-              onChangeText={value => this.setState({ height: value })}
-              value={height}
-            />
-            <ModalDropdown
-              options={heightArray}
-              showsVerticalScrollIndicator
-              style={styles.dropdownContainerStyle}
-              defaultIndex={0}
-              defaultValue="[cm/inches]"
-              textStyle={styles.inputText}
-              dropdownStyle={styles.dropdownStyle}
-              dropdownTextStyle={[styles.inputText, { backgroundColor: '#001331' }]}
-              dropdownTextHighlightStyle={{ color: '#f5cb23' }}
-              onSelect={(index, value) => this.setState({ heightCategory: value })}
-            />
+            <Text style={[styles.inputText, { marginTop: 5 }]}>
+              Height
+            </Text>
+            <View style={{ flexDirection: 'row', marginLeft: 20 }}>
+              <TextInput
+                style={[styles.inputText, { width: 60 }]}
+                keyboardType="numeric"
+                underlineColorAndroid="transparent"
+                placeholder="[ 168 ]"
+                placeholderTextColor="gray"
+                onChangeText={value => this.setState({ height: value })}
+                value={height}
+              />
+              <ModalDropdown
+                options={heightArray}
+                showsVerticalScrollIndicator
+                style={styles.dropdownContainerStyle}
+                defaultIndex={0}
+                defaultValue="[cm]"
+                textStyle={styles.inputText}
+                dropdownStyle={styles.dropdownStyle}
+                dropdownTextStyle={[styles.inputText, { backgroundColor: '#001331' }]}
+                dropdownTextHighlightStyle={{ color: '#f5cb23' }}
+                onSelect={(index, value) => this.setState({ heightCategory: value })}
+              />
+            </View>
           </View>
           <View style={styles.fieldContainer}>
-            <TextInput
-              style={[styles.inputText, { width: 60 }]}
-              keyboardType="numeric"
-              underlineColorAndroid="transparent"
-              placeholder="Weight"
-              placeholderTextColor="white"
-              onChangeText={value => this.setState({ weight: value })}
-              value={weight}
-            />
-            <ModalDropdown
-              options={weightArray}
-              showsVerticalScrollIndicator
-              style={styles.dropdownContainerStyle}
-              defaultIndex={0}
-              defaultValue="[kg/lbs]"
-              textStyle={styles.inputText}
-              dropdownStyle={styles.dropdownStyle}
-              dropdownTextStyle={[styles.inputText, { backgroundColor: '#001331' }]}
-              dropdownTextHighlightStyle={{ color: '#f5cb23' }}
-              onSelect={(index, value) => this.setState({ weightCategory: value })}
-            />
+            <Text style={[styles.inputText, { marginTop: 5 }]}>
+              Weight
+            </Text>
+            <View style={{ flexDirection: 'row', marginLeft: 20 }}>
+              <TextInput
+                style={[styles.inputText, { width: 60 }]}
+                keyboardType="numeric"
+                underlineColorAndroid="transparent"
+                placeholder="[ 75 ]"
+                placeholderTextColor="gray"
+                onChangeText={value => this.setState({ weight: value })}
+                value={weight}
+              />
+              <ModalDropdown
+                options={weightArray}
+                showsVerticalScrollIndicator
+                style={styles.dropdownContainerStyle}
+                defaultIndex={0}
+                defaultValue="[kg]"
+                textStyle={styles.inputText}
+                dropdownStyle={styles.dropdownStyle}
+                dropdownTextStyle={[styles.inputText, { backgroundColor: '#001331' }]}
+                dropdownTextHighlightStyle={{ color: '#f5cb23' }}
+                onSelect={(index, value) => this.setState({ weightCategory: value })}
+              />
+            </View>
           </View>
           <View style={styles.fieldContainer}>
             <Text style={[styles.inputText, { marginTop: 2 }]}>

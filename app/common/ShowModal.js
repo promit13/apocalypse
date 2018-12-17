@@ -5,6 +5,7 @@ import { Button, Text } from 'react-native-elements';
 const styles = {
   modal: {
     flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
@@ -21,7 +22,6 @@ const styles = {
   },
   text: {
     color: '#001331',
-    fontSize: 14,
     marginTop: 10,
     textAlign: 'center',
   },
@@ -32,6 +32,7 @@ export default ShowModal = ({
   title,
   description,
   buttonText,
+  textSize,
   secondButtonText,
   askAdvance,
   onSecondButtonPress,
@@ -41,7 +42,7 @@ export default ShowModal = ({
     <View style={styles.modal}>
       <View style={styles.modalInnerView}>
         <View style={{ justifyContent: 'center' }}>
-          <Text style={[styles.text, { fontWeight: 'bold' }]}>
+          <Text style={[styles.text, { fontWeight: 'bold', fontSize: textSize }]}>
             {title}
           </Text>
           <Text style={styles.text}>
@@ -51,17 +52,17 @@ export default ShowModal = ({
         { askAdvance && (
           <Button
             buttonStyle={[styles.button, { backgroundColor: 'white' }]}
-            title={buttonText}
+            title={secondButtonText}
             color="gray"
-            onPress={() => onPress()}
+            onPress={() => onSecondButtonPress()}
           />
         )
         }
         <Button
           buttonStyle={styles.button}
-          title={secondButtonText}
-          color="#fff"
-          onPress={() => onSecondButtonPress()}
+          title={buttonText}
+          color="white"
+          onPress={() => onPress()}
         />
       </View>
     </View>

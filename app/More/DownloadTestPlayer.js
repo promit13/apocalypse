@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView, Modal, Platform, AsyncStorage, BackHandler,
+  AppState, View, Platform, AsyncStorage, BackHandler,
 } from 'react-native';
-import { Text, Button, Icon } from 'react-native-elements';
+import { Text, Icon } from 'react-native-elements';
 import MusicControl from 'react-native-music-control';
 import Video from 'react-native-video';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Pedometer from 'react-native-pedometer';
 import GoogleFit from 'react-native-google-fit';
 import Orientation from 'react-native-orientation';
-import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
@@ -73,7 +72,9 @@ const styles = {
     width: '100%',
   },
 };
-const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2FTALON.png?alt=media&token=4c4566fc-ff31-4a89-b674-7e73e52eaa98';
+const talonImage = require('../../img/talon.png');
+const appicon = require('../../img/appicon.png');
+// const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2FTALON.png?alt=media&token=4c4566fc-ff31-4a89-b674-7e73e52eaa98';
 
 export default class DownloadTestPlayer extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -100,6 +101,7 @@ export default class DownloadTestPlayer extends Component {
     episodeTitle: '',
     uid: '',
     logId: '',
+    loggedWorkOut: '',
     lastLoggedDate: 0,
     previousStartTime: [],
     episodeCompletedArray: [],
@@ -124,25 +126,9 @@ export default class DownloadTestPlayer extends Component {
     showIntroAdvanceDialog: false,
   };
 
-  // componentWillMount() {
-  //   const platform = Platform.OS;
-  //   const {
-  //     check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance,
-  //   } = this.props.navigation.state.params;
-  //   this.setState({
-  //     listen: check,
-  //     episodeId,
-  //     category,
-  //     advance,
-  //     episodeIndex,
-  //     seriesIndex,
-  //     platform,
-  //     mode,
-  //     episodeTitle: title,
-  //     uid: this.props.screenProps.user.uid,
-  //     playingExercise: { value: { image: albumImage, title: '' } },
-  //   });
-  // }
+  componentWillMount() {
+    this.setState({ playingExercise: { value: { image: '', title: '' } } });
+  }
 
   componentDidMount = async () => {
     Orientation.unlockAllOrientations();
@@ -165,7 +151,7 @@ export default class DownloadTestPlayer extends Component {
       mode,
       episodeTitle: title,
       uid,
-      playingExercise: { value: { image: albumImage, title: '' } },
+      playingExercise: { value: { image: '', title: '' } },
     });
     if (platform === 'android') {
       GoogleFit.authorize((error, result) => {
@@ -173,13 +159,6 @@ export default class DownloadTestPlayer extends Component {
           console.log(`AUTH ERROR ${error}`);
         }
         console.log(`AUTH SUCCESS ${result}`);
-      });
-      GoogleFit.onAuthorize(() => {
-        console.log('AUTH SUCCESS');
-      });
-  
-      GoogleFit.onAuthorizeFailure(() => {
-        console.log('AUTH FAILED');
       });
     }
     if (category === 'Speed') {
@@ -189,20 +168,9 @@ export default class DownloadTestPlayer extends Component {
     }
    
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-    this.registerEvents();
-    if (check) {
-      return this.setState({ loadScreen: false });
-      // if (category === 'Speed') {
-      //   return this.setState({ loadScreen: false, showWelcomeDialog: true });
-      // }
-      // return this.setState({ loadScreen: false, showIntroAdvanceDialog: true });
-    }
-    this.formatWorkOutTime();
     this.getTimeFirebase();
-    const episodeCompletedArray = await AsyncStorage.getItem('episodeCompletedArray');
-    if (episodeCompletedArray !== null) {
-      console.log(episodeCompletedArray);
-      this.setState({ episodeCompletedArray: JSON.parse(episodeCompletedArray) });
+    if (!check) {
+      this.formatWorkOutTime();
     }
   }
 
@@ -221,12 +189,14 @@ export default class DownloadTestPlayer extends Component {
     const { currentTime } = this.state;
     this.setState({ currentTime: currentTime - 10 });
     this.player.seek(currentTime - 10, 10);
+    this.updateMusicControl(currentTime - 10);
   }
 
   onForward = () => {
     const { currentTime } = this.state;
     this.setState({ currentTime: currentTime + 10 });
     this.player.seek(currentTime + 10, 10);
+    this.updateMusicControl(currentTime + 10);
   }
 
   onSeek = () => {
@@ -248,6 +218,7 @@ export default class DownloadTestPlayer extends Component {
       advance: this.state.advance,
       exercise: true,
       mode: 'Exercise Player',
+      navigateBack: 'DownloadTestPlayer',
     });
     this.setState({ paused: true });
   }
@@ -259,12 +230,14 @@ export default class DownloadTestPlayer extends Component {
 
   onProgress = (data) => {
     const {
-      paused, listen, playDate, currentTime, formattedWorkOutStartTime, trackingStarted, formattedWorkOutEndTime,
+      paused, listen, playDate, currentTime, formattedWorkOutStartTime, trackingStarted, formattedWorkOutEndTime, episodeCompleted,
     } = this.state;
     if (!paused) { // onProgress gets called when component starts in IOS
       if (trackingStarted) {
         if ((data.currentTime - formattedWorkOutEndTime) >= 0) {
           this.setState({ currentTime: data.currentTime, workOutCompleted: true });
+        } else if ((data.currentTime - formattedWorkOutStartTime) <= 0) {
+          this.setState({ currentTime: data.currentTime, workOutTime: 0 });
         } else {
           this.setState({ currentTime: data.currentTime, workOutTime: (data.currentTime - formattedWorkOutStartTime) });
         }
@@ -287,70 +260,58 @@ export default class DownloadTestPlayer extends Component {
 
   onLoad = (data) => {
     const {
-      uid, episodeId, logId,
+      logId, loggedWorkOut, listen,
     } = this.state;
-    console.log(data);
-    console.log(logId);
-    this.setState({ totalLength: data.duration });
-    if (this.state.listen) {
-      this.setState({ currentTime: this.getCurrentTimeInMs(0.0), loading: false });
-    } else {
-      const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
-      console.log(workOut);
-      const { workOutLogs } = workOut[0];
-      console.log(Array.from(workOutLogs));
-      console.log(Array.from(workOutLogs)[logId]);
-      const { dateNow, timeStamp, workOutTime, trackingStarted } = Array.from(workOutLogs)[logId];
-      const currentDate = this.getDate();
-      if ((currentDate - dateNow) > 900000) {
+    this.registerEvents(data);
+    // this.setState({ totalLength: data.duration });
+    const currentDate = this.getDate();
+    if (listen) {
+      const { currentTime, lastLoggedDate } = loggedWorkOut;
+      if ((currentDate - lastLoggedDate) > 900000) {
         return this.setState({
           currentTime: this.getCurrentTimeInMs(0.0),
-          lastLoggedDate: dateNow,
+          lastLoggedDate,
+          totalLength: data.duration,
+          loading: false,
+        });
+      }
+      this.setState({
+        currentTime: this.getCurrentTimeInMs(currentTime),
+        lastLoggedDate,
+        totalLength: data.duration,
+        loading: false,
+      },
+      () => {
+        this.player.seek(this.state.currentTime, 10);
+      });
+    } else {
+      const {
+        workoutDate, timeStamp, workOutTime, trackingStarted,
+      } = Array.from(loggedWorkOut)[logId];
+      if ((currentDate - workoutDate) > 900000) {
+        return this.setState({
+          currentTime: this.getCurrentTimeInMs(0.0),
+          lastLoggedDate: workoutDate,
           startDate: 0,
           playDate: currentDate,
+          totalLength: data.duration,
           loading: false,
         });
       }
       this.setState({
         currentTime: this.getCurrentTimeInMs(timeStamp),
-        lastLoggedDate: dateNow,
-        startDate: dateNow,
+        lastLoggedDate: workoutDate,
+        startDate: workoutDate,
         playDate: currentDate,
         workOutTime,
         trackingStarted,
+        totalLength: data.duration,
         loading: false,
       },
       () => {
         this.player.seek(this.state.currentTime, 10);
       });
     }
-    //   firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).on('value', (snapshot) => {
-    //     const { dateNow, timeStamp, workOutTime, trackingStarted } = snapshot.val();
-    //     const currentDate = this.getDate();
-    //     if ((currentDate - dateNow) > 900000) {
-    //       return this.setState({
-    //         currentTime: this.getCurrentTimeInMs(0.0),
-    //         lastLoggedDate: dateNow,
-    //         startDate: 0,
-    //         playDate: currentDate,
-    //       });
-    //     }
-    //     this.setState({
-    //       currentTime: this.getCurrentTimeInMs(timeStamp),
-    //       lastLoggedDate: dateNow,
-    //       startDate: dateNow,
-    //       playDate: currentDate,
-    //       workOutTime,
-    //       trackingStarted,
-    //     },
-    //     () => {
-    //       this.player.seek(this.state.currentTime, 10);
-    //     });
-    //   }, (error) => {
-    //     console.log(error);
-    //   });
-    // }
-    // this.setState({ loading: false });
   };
 
   onEnd = () => {
@@ -376,11 +337,6 @@ export default class DownloadTestPlayer extends Component {
       const currentDate = this.getDate();
       if ((currentDate - startDate) < 900000) {
         this.setState({ startDate });
-        // this.startTrackingSteps();
-        // }
-      // } else {
-      //   this.setState({ startDate: currentDate });
-      // }
       }
     }
   }
@@ -389,9 +345,16 @@ export default class DownloadTestPlayer extends Component {
 
   setTimeFirebase = async () => {
     const {
-      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps, episodeIndex, seriesIndex, episodeCompleted, workOutCompleted, trackingStarted, workOutTime, category,
+      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps, episodeIndex, seriesIndex, listen, workOutCompleted, trackingStarted, workOutTime, category, episodeCompleted,
     } = this.state;
     const currentDate = this.getDate();
+    if (listen) {
+      await AsyncStorage.setItem(episodeTitle, JSON.stringify({
+        currentTime,
+        lastLoggedDate: currentDate,
+      }));
+      return;
+    }
     const startDate = await AsyncStorage.getItem(episodeId);
     const timeInterval = !trackingStarted
       ? 0
@@ -412,7 +375,8 @@ export default class DownloadTestPlayer extends Component {
       workOutTime: workOutCompletedTime,
       trackingStarted,
       workOutCompleted,
-      dateNow: currentDate,
+      workoutDate: currentDate,
+      episodeCompleted,
       distance,
       timeInterval,
       timeStamp: currentTime,
@@ -423,70 +387,6 @@ export default class DownloadTestPlayer extends Component {
         uid, episodeId, workOutLogs: workOutLogsArray,
       }, true);
     });
-    
-    // firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
-    //   {
-    //     episodeTitle,
-    //     episodeId,
-    //     episodeIndex,
-    //     seriesIndex,
-    //     episodeCompleted,
-    //   },
-    // ).then(() => {
-    //   if ((currentDate - lastLoggedDate) > 900000) {
-    //     const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
-    //     realm.write(() => {
-    //       const createWorkOut = realm.create('SavedWorkOut', {
-    //         uid, episodeId, workOutLogs: [],
-    //       });
-    //       createWorkOut.workOutLogs.push({
-    //         logId,
-    //         episodeTitle,
-    //         category,
-    //         episodeIndex,
-    //         seriesIndex,
-    //         workOutTime,
-    //         trackingStarted,
-    //         workOutCompleted,
-    //         dateNow: currentDate,
-    //         distance,
-    //         timeInterval,
-    //         timeStamp: currentTime,
-    //         steps,
-    //       });
-    //     });
-    //     firebase.database().ref(`logs/${uid}/${episodeId}/`).push({
-    //       timeStamp: currentTime,
-    //       dateNow: currentDate,
-    //       episodeTitle,
-    //       distance,
-    //       timeInterval,
-    //       steps,
-    //       episodeIndex,
-    //       seriesIndex,
-    //       trackingStarted,
-    //       category,
-    //       workOutTime: workOutCompletedTime,
-    //       workOutCompleted,
-    //     }).then(() => this.setState({ lastLoggedDate: currentDate }));
-    //   } else {
-    //     firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
-    //       timeStamp: currentTime,
-    //       dateNow: currentDate,
-    //       episodeTitle,
-    //       distance,
-    //       timeInterval,
-    //       steps,
-    //       episodeIndex,
-    //       seriesIndex,
-    //       category,
-    //       trackingStarted,
-    //       workOutTime: workOutCompletedTime,
-    //       workOutCompleted,
-    //     }).then(() => this.setState({ lastLoggedDate: currentDate }));
-    //   }
-    // })
-    //   .catch(error => console.log(error));
   }
 
   getDate = () => {
@@ -496,13 +396,33 @@ export default class DownloadTestPlayer extends Component {
 
   getLastLogId = (snapshot) => {
     const array = Array.from(snapshot);
-    this.setState({ logId: array.length - 1, loadScreen: false });
+    this.setState({ logId: array.length - 1, loggedWorkOut: snapshot, loadScreen: false });
   }
 
-  getTimeFirebase = () => {
+  getTimeFirebase = async () => {
     const {
-      episodeId, episodeIndex, seriesIndex, title, category, uid,
+      episodeId, episodeIndex, seriesIndex, title, category, uid, check,
     } = this.props.navigation.state.params;
+    if (check) {
+      try {
+        const listenModeData = await AsyncStorage.getItem(title);
+        if (listenModeData !== null) {
+          const toLogData = JSON.parse(listenModeData);
+          this.setState({ loggedWorkOut: toLogData, loadScreen: false });
+        } else {
+          this.setState({
+            loggedWorkOut: {
+              currentTime: 0.0,
+              lastLoggedDate: 0,
+            },
+            loadScreen: false,
+          });
+        }
+      } catch (err) {
+        console.log(err);
+      }
+      return;
+    }
     const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
     console.log(workOut);
     if (workOut.length === 0) {
@@ -519,7 +439,8 @@ export default class DownloadTestPlayer extends Component {
           workOutTime: 0,
           trackingStarted: false,
           workOutCompleted: false,
-          dateNow: 0,
+          episodeCompleted: false,
+          workoutDate: 0,
           distance: 0,
           timeInterval: '0',
           timeStamp: 0,
@@ -605,7 +526,7 @@ export default class DownloadTestPlayer extends Component {
     }
   }
 
-  registerEvents = () => {
+  registerEvents = (data) => {
     const {
       check, title,
     } = this.props.navigation.state.params;
@@ -614,77 +535,51 @@ export default class DownloadTestPlayer extends Component {
     // on iOS, pause playback during audio interruptions (incoming calls) and resume afterwards.
     MusicControl.handleAudioInterruptions(true);
 
+    MusicControl.on('previousTrack', () => {
+      this.navigateToPreviousExercise();
+    });
+
+    MusicControl.on('skipBackward', () => {
+      this.onBack();
+    });
+
     MusicControl.on('play', () => {
       // this.props.dispatch(this.onPressPlay());
       this.onPressPlay();
     });
 
-    // on iOS this event will also be triggered by audio router change events
-    // happening when headphones are unplugged or a bluetooth audio peripheral disconnects from the device
     MusicControl.on('pause', () => {
       this.onPressPause();
-    });
-
-    MusicControl.on('nextTrack', () => {
-      this.onForward();
-    });
-    MusicControl.on('previousTrack', () => {
-      this.navigateToPreviousExercise();
     });
 
     MusicControl.on('skipForward', () => {
       this.onForward();
     });
-    MusicControl.on('skipBackward', () => {
-      this.onBack();
-    });
 
     MusicControl.setNowPlaying({
       title,
+      duration: data.duration,
+      artwork: appicon,
     });
 
+    MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
+    MusicControl.enableControl('previousTrack', !check);
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('nextTrack', check);
-    MusicControl.enableControl('previousTrack', !check);
-    MusicControl.enableControl('seek', false);
     MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
-    MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
     MusicControl.enableControl('closeNotification', true, { when: 'never' });
+  }
+
+  updateMusicControl = (elapsedTime) => {
+    MusicControl.updatePlayback({
+      elapsedTime,
+    });
   }
 
   sliderReleased = (currentTime) => {
     this.setState({ paused: false, currentTime });
     this.player.seek(currentTime);
   }
-
-  // storeDistance = async (timeInterval) => {
-  //   console.log(timeInterval);
-  //   const {
-  //     uid, episodeId, episodeTitle, distance, currentTime, steps, episodeIndex, seriesIndex, workOutTime, episodeCompleted, workOutCompleted, category, trackingStarted,
-  //   } = this.state;
-  //   try {
-  //     await AsyncStorage.setItem('distance', JSON.stringify({
-  //       uid,
-  //       episodeId,
-  //       timeStamp: currentTime,
-  //       dateNow: new Date().getTime(),
-  //       episodeTitle,
-  //       distance,
-  //       timeInterval,
-  //       steps,
-  //       episodeIndex,
-  //       seriesIndex,
-  //       workOutTime,
-  //       episodeCompleted,
-  //       workOutCompleted,
-  //       trackingStarted,
-  //       category,
-  //     }));
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
 
   formatWorkOutTime = () => {
     const { startWT, workoutTime, endWT } = this.props.navigation.state.params;
@@ -699,30 +594,26 @@ export default class DownloadTestPlayer extends Component {
   }
 
   navigateToEpisodeView = async (onEnd) => {
-    const { listen, episodeCompletedArray, episodeId, episodeCompleted, trackingStarted } = this.state;
+    const { listen, episodeCompleted, trackingStarted } = this.state;
     Orientation.lockToPortrait();
-    // this.setTimeFirebase();
-    // this.props.navigation.navigate('EpisodeView');
     try {
-      if (!listen) {
-        // const distance = await AsyncStorage.getItem('distance');
-        // console.log(distance);
-        // if (distance !== null) {
-        //   AsyncStorage.removeItem('distance');
-        // }
+      if (listen) {
+        this.setTimeFirebase();
+      } else {
         if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
         }
         if (onEnd) {
-          if (!episodeCompletedArray.includes(episodeId)) {
-            episodeCompletedArray.push(episodeId);
-          }
-          try {
-            await AsyncStorage.setItem('episodeCompletedArray', JSON.stringify(episodeCompletedArray));
-          } catch (err) {
-            console.log(err);
-          }
-          return this.setState({ showDialog: true });
+          return console.log('EPISODE COMPLETED');
+          // if (!episodeCompletedArray.includes(episodeId)) {
+          //   episodeCompletedArray.push(episodeId);
+          // }
+          // try {
+          //   await AsyncStorage.setItem('episodeCompletedArray', JSON.stringify(episodeCompletedArray));
+          // } catch (err) {
+          //   console.log(err);
+          // }
+          // return this.setState({ showDialog: true });
         }
       }
       this.props.navigation.navigate('EpisodeView');
@@ -732,12 +623,14 @@ export default class DownloadTestPlayer extends Component {
   }
 
   navigateToPreviousExercise = () => {
-    const { previousStartTime, formattedWorkOutStartTime } = this.state;
-    console.log(formattedWorkOutStartTime);
+    const { previousStartTime } = this.state;
     const startTime = previousStartTime[previousStartTime.length - 2];
-    this.setState({ currentTime: startTime });
-    this.player.seek(startTime, 10);
-    this.state.previousStartTime.pop(); // removes last item of array
+    this.setState({ currentTime: startTime === undefined ? 0 : startTime }, () => {
+      const { currentTime } = this.state;
+      this.player.seek(currentTime, 10);
+      this.updateMusicControl(currentTime);
+      this.state.previousStartTime.pop(); // removes last item of array
+    });
   }
 
   startTrackingSteps = async () => {
@@ -759,42 +652,6 @@ export default class DownloadTestPlayer extends Component {
     }
   }
 
-  // showModal = (title, description, buttonText, end) => {
-  //   const { showDialog, episodeId } = this.state;
-  //   console.log(title, buttonText, end);
-  //   console.log(description);
-  //   if (showDialog) {
-  //     console.log(showDialog);
-  //     return (
-  //       <Modal transparent visible={this.state.showDialog}>
-  //         <View style={styles.modal}>
-  //           <View style={styles.modalInnerView}>
-  //             <View style={{ justifyContent: 'center' }}>
-  //               <Text style={{ color: '#001331', fontWeight: 'bold', fontSize: 14, textAlign: 'center' }}>
-  //                 {`${title}`}
-  //               </Text>
-  //               <Text style={{ color: '#001331', fontSize: 14 }}>
-  //                 {description}
-  //               </Text>
-  //             </View>
-  //             <Button
-  //               buttonStyle={styles.button}
-  //               title={buttonText}
-  //               color="#fff"
-  //               onPress={() => {
-  //                 this.setState({ showDialog: false });
-  //                 if (end) {
-  //                   this.props.navigation.navigate('TalonScreen', { episodeId, talon: true, mode: 'Talon Intel Player' });
-  //                 }
-  //               }}
-  //             />
-  //           </View>
-  //         </View>
-  //       </Modal>
-  //     );
-  //   }
-  // }
-
   detectOrientation = () => {
     if (this.state.windowsHeight > this.state.windowsWidth) {
       return this.renderPortraitView();
@@ -803,8 +660,10 @@ export default class DownloadTestPlayer extends Component {
   };
 
   changeExercises = () => {
-
     const { exercises, exerciseLengthList } = this.props.navigation.state.params;
+    if (exercises.length === 0) {
+      return;
+    }
     const {
       formattedWorkOutStartTime, currentTime, listen, trackingStarted,
     } = this.state;
@@ -813,25 +672,25 @@ export default class DownloadTestPlayer extends Component {
       this.setState({ trackingStarted: true });
     }
     exerciseLengthList.map((value, i) => {
-      // const exercise = value[0];
-      // const { length } = value;
       if (this.state.currentTime > (value / 1000)) {
         const exercise = exercises[i];
-        const { cmsTitle, visible, title, episodeExerciseTitle } = exercise[0];
+        const {
+          cmsTitle, visible, title, episodeExerciseTitle,
+        } = exercise[0];
         const showInfo = visible;
         this.setState({
           showInfo,
           playingExercise: {
-            // value: { image: exercise[0].title, title: exercise[0].title },
             value: { image: cmsTitle, title, episodeExerciseTitle },
           },
         });
-        this.state.previousStartTime.push(value);
+        this.state.previousStartTime.push(value / 1000);
       }
     });
   }
 
   handleBackButton = () => {
+    this.navigateToEpisodeView();
     return true;
   }
 
@@ -933,6 +792,16 @@ export default class DownloadTestPlayer extends Component {
                     seekValue={currentTime && currentTime}
                     listen={!listen}
                   />
+                  <ShowModal
+                    visible={showIntroAdvanceDialog}
+                    title="Choose Exercise Difficulty Level"
+                    description="Would you like to see the easier or harder versions of the exercises and stretches?"
+                    buttonText="Whoa, I'm with Flynn..."
+                    secondButtonText="Hell yes, I'm with Bay!"
+                    askAdvance
+                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
+                  />
                   <View>
                     { !listen
                       ? (
@@ -941,25 +810,18 @@ export default class DownloadTestPlayer extends Component {
                             visible={showDialog}
                             title={`Well done! Workout complete,\nAgent Whisky Gambit`}
                             description="Go to TALON to hear your essential intel and track your progress"
-                            secondButtonText="OK"
+                            buttonText="OK"
                             onPress={() => {
                               this.setState({ showDialog: false });
-                              // this.props.navigation.navigate('TalonScreen');
+                              this.props.navigation.navigate('TalonScreen');
                             }}
                           />
                           <ShowModal
                             visible={showWelcomeDialog}
                             title="Stay safe while running"
                             description="Keep your volume at a level that allows you to hear other sounds and remain aware of real world hazards"
-                            secondButtonText="Got it"
+                            buttonText="Got it"
                             onPress={() => this.setState({ showWelcomeDialog: false })}
-                          />
-                          <ShowModal
-                            visible={showIntroAdvanceDialog}
-                            description="Would you like to see the easier or harder versions of the exercises and stretches on the player?"
-                            buttonText="Whoa, I'm with Flynn..."
-                            secondButtonText="Hell yes, I'm with Bay!"
-                            onPress={() => this.setState({ showIntroAdvanceDialog: false })}
                           />
                         </View>
                       )
@@ -1053,12 +915,13 @@ export default class DownloadTestPlayer extends Component {
               <View>
                 <ShowModal
                   visible={showIntroAdvanceDialog}
-                  description="Would you like to see the easier or harder versions of the exercises and stretches on the player?"
+                  title="Choose Exercise Difficulty Level"
+                  description="Would you like to see the easier or harder versions of the exercises and stretches?"
                   buttonText="Whoa, I'm with Flynn..."
                   secondButtonText="Hell yes, I'm with Bay!"
                   askAdvance
-                  onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
-                  onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                  onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                  onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
                 />
                 { !listen
                   ? (
@@ -1067,8 +930,8 @@ export default class DownloadTestPlayer extends Component {
                         visible={showDialog}
                         title={`Well done! Workout complete,\nAgent Whisky Gambit`}
                         description="Go to TALON to hear your essential intel and track your progress"
-                        secondButtonText="OK"
-                        onSecondButtonPress={() => {
+                        buttonText="OK"
+                        onPress={() => {
                           this.setState({ showDialog: false });
                           this.props.navigation.navigate('TalonScreen');
                         }}
@@ -1077,8 +940,8 @@ export default class DownloadTestPlayer extends Component {
                         visible={showWelcomeDialog}
                         title="Stay safe while running"
                         description="Keep your volume at a level that allows you to hear other sounds and remain aware of real world hazards"
-                        secondButtonText="Got it"
-                        onSecondButtonPress={() => this.setState({ showWelcomeDialog: false })}
+                        buttonText="Got it"
+                        onPress={() => this.setState({ showWelcomeDialog: false })}
                       />
                     </View>
                   )

@@ -20,14 +20,17 @@ buildscript {
 allprojects {
     repositories {
         mavenLocal()
-        jcenter()
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$rootDir/../node_modules/react-native/android"
-        }
         maven {
             url 'https://maven.google.com/'
             name 'Google'
         }
+        maven {
+            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+            url "$rootDir/../node_modules/react-native/android"
+        }
+        jcenter()
+    }
+    configurations.all {
+        resolutionStrategy.force "com.android.support:support-v4:26.1.0"
     }
 }

@@ -8,6 +8,7 @@ import {
 import realm from '../config/Database';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
+import ShowModal from '../common/ShowModal';
 
 const styles = {
   mainContainer: {
@@ -61,6 +62,7 @@ export default class EpisodeView extends React.Component {
 
   state = {
     loading: true,
+    deviceId: '',
     imageSource: '',
     episodeId: '',
     title: '',
@@ -85,6 +87,11 @@ export default class EpisodeView extends React.Component {
     introButtonColor: '#f5cb23',
     advancedButtonColor: '#fff',
     advance: false,
+    purchased: false,
+    counter: 0,
+    freeTrials: '',
+    showModal: false,
+    mode: false,
   }
 
   componentDidMount= async () => {
@@ -106,17 +113,27 @@ export default class EpisodeView extends React.Component {
       startWT,
       endWT,
       completed,
+      deviceId,
+      purchased,
+      counter,
     } = this.props.navigation.state.params;
+    console.log(deviceId);
     this.setState({ offline });
     if (offline && episodeList && !netInfo) {
-      this.getOfflineDatas(title);
+      this.getOfflineDatas(title, deviceId, offline, purchased, counter);
     } else if (offline && !episodeList && netInfo) {
-      this.getOfflineDatas(title);
+      this.getOfflineDatas(title, deviceId, offline, purchased, counter);
     } else if (offline && !episodeList && !netInfo) {
-      this.getOfflineDatas(title);
+      this.getOfflineDatas(title, deviceId, offline, purchased, counter);
     } else {
+      let freeTrials;
+      if (counter === 0) {
+        freeTrials = 'two';
+      }
+      if (counter === 1) {
+        freeTrials = 'one';
+      }
       firebase.database().ref('exercises').on('value', (snapshot) => {
-        console.log(snapshot.val());
         this.setState({
           episodeId,
           title,
@@ -132,6 +149,11 @@ export default class EpisodeView extends React.Component {
           startWT,
           endWT,
           completed,
+          deviceId,
+          purchased,
+          offline,
+          counter,
+          freeTrials,
           uid: this.props.screenProps.user.uid,
           completeExercises: snapshot.val(),
           loading: false,
@@ -152,11 +174,10 @@ export default class EpisodeView extends React.Component {
   //   }
   // }
 
-  getOfflineDatas = async (episodeTitle) => {
+  getOfflineDatas = async (episodeTitle, deviceId, offline, purchased, counter) => {
     const offlineData = await AsyncStorage.getItem('series');
     const jsonObjectData = JSON.parse(offlineData);
     const { uid } = jsonObjectData;
-    console.log(uid);
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
     const {
       category,
@@ -192,6 +213,10 @@ export default class EpisodeView extends React.Component {
       videoSize,
       uid,
       video,
+      deviceId,
+      purchased,
+      offline,
+      counter,
       exerciseLengthList: Array.from(exerciseLengthList),
       loading: false,
     });
@@ -233,6 +258,9 @@ export default class EpisodeView extends React.Component {
       completeExercises,
       workoutTime,
       uid,
+      deviceId,
+      counter,
+      purchased,
     } = this.state;
     this.props.navigation.navigate(navigateTo, {
       check,
@@ -251,7 +279,10 @@ export default class EpisodeView extends React.Component {
       advance,
       workoutTime,
       uid,
+      counter,
       completeExercises,
+      deviceId,
+      purchased,
     });
   }
 
@@ -260,11 +291,10 @@ export default class EpisodeView extends React.Component {
     if (exercises.length === 0) {
       return;
     }
-    console.log(exercises);
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t[0].id === thing[0].id) === index);
     const exercisesList = reducedExercise.map((value, i) => {
       const exercise = value[0];
-      const { title, visible, cmsTitle, advanced, episodeExerciseTitle } = exercise;
+      const { title, visible, cmsTitle, advanced } = exercise;
       if (!visible) {
         return console.log('');
       }
@@ -284,6 +314,7 @@ export default class EpisodeView extends React.Component {
               advance,
               exercise: true,
               mode: 'Exercise Player',
+              navigateBack: 'EpisodeView',
             });
           }}
         />
@@ -294,12 +325,12 @@ export default class EpisodeView extends React.Component {
 
   renderExerciseList = () => {
     const { exercises, advance, completeExercises } = this.state;
-    if (completeExercises === '') {
+    if (exercises === undefined) {
       return;
     }
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t.uid === thing.uid) === index);
     const exercisesList = Object.entries(reducedExercise).map(([key, value], i) => {
-      const { uid, visible, episodeExerciseTitle } = value;
+      const { uid, visible } = value;
       if (!visible) {
         return console.log(visible);
       }
@@ -325,6 +356,7 @@ export default class EpisodeView extends React.Component {
               image: imageUrl,
               exercise: true,
               mode: 'Exercise Player',
+              navigateBack: 'EpisodeView',
             });
           }}
         />
@@ -334,10 +366,10 @@ export default class EpisodeView extends React.Component {
   }
 
   render() {
-    if (this.state.loading) return <LoadScreen />;
     const {
-      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex, completed, episodeList,
+      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex, completed, episodeList, loading, exercises, purchased, showModal, freeTrials, mode,
     } = this.state;
+    if (loading) return <LoadScreen />;
     return (
       <ScrollView style={styles.mainContainer}>
         <View style={{ flexDirection: 'row', padding: 15 }}>
@@ -397,10 +429,15 @@ export default class EpisodeView extends React.Component {
               fontSize={18}
               title="Workout Mode"
               onPress={() => {
-                if (offline && !episodeList) {
-                  return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
+                if (purchased) {
+                  // if (offline && !episodeList) {
+                  if (offline) {
+                    return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
+                  }
+                  this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
+                } else {
+                  this.setState({ showModal: true });
                 }
-                this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
               }}
             />
           </View>
@@ -418,19 +455,48 @@ export default class EpisodeView extends React.Component {
               fontSize={18}
               title="Listen Mode"
               onPress={() => {
-                if (offline && !episodeList) {
-                  return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
+                if (purchased) {
+                  if (offline) {
+                  // if (offline && !episodeList) {
+                    return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
+                  }
+                  this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
+                } else {
+                  this.setState({ showModal: true, mode: true });
                 }
-                this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
               }}
             />
           </View>
         </View>
+        <ShowModal
+          visible={showModal}
+          title={`You have ${freeTrials} free trials plays of this episode`}
+          description={`Are you ready to workout?\n\nAfter 1 minute of listening, this session will count as one of your two free trial plays`}
+          buttonText="Play"
+          secondButtonText="Cancel"
+          askAdvance
+          onPress={() => {
+            this.setState({ showModal: false });
+            if (mode) {
+              if (offline) {
+                // if (offline && !episodeList) {
+                return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
+              }
+              this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
+            } else {
+              if (offline) {
+                return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
+              }
+              this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
+            }
+          }}
+          onSecondButtonPress={() => this.setState({ showModal: false })}
+        />
         {
-          category === 'Speed'
+          (category === 'Speed' || exercises === undefined || exercises.length === 0)
             ? (
               <Text style={[styles.text, { marginTop: 15, marginBottom: 10 }]}>
-                EXERCISES IN EPISODE
+                {exercises === undefined ? '' : 'EXERCISES IN EPISODE'}
               </Text>
             )
             : (

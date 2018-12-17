@@ -18,9 +18,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OfflineMsg = () => {
+export default OfflineMsg = ({ margin }) => {
   return (
-    <View style={styles.offlineContainer}>
+    <View style={[styles.offlineContainer, { marginTop: margin }]}>
       <Text style={styles.offlineText}>
         No Internet Connection
       </Text>

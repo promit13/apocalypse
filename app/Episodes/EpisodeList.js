@@ -3,12 +3,14 @@ import {
   ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, Alert, PermissionsAndroid, AsyncStorage, Dimensions,
 } from 'react-native';
 import {
-  Text, ListItem, Icon, Button,
+  Text, ListItem, Icon, Button, List,
 } from 'react-native-elements';
 import * as RNIap from 'react-native-iap';
 import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Orientation from 'react-native-orientation';
+import DeviceInfo from 'react-native-device-info';
+import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
@@ -29,7 +31,7 @@ const styles = {
   },
   imageStyle: {
     width: '100%',
-    height: '27%',
+    height: imageSize,
   },
   textStyle: {
     color: 'white',
@@ -73,67 +75,93 @@ export default class EpisodeList extends React.Component {
   };
 
   state = {
+    deviceId: '',
     series: '',
+    episodeWatchedCount: '',
     completeEpisodes: '',
     completedEpisodesArray: [],
     loading: true,
     purchasedSeries: [],
     filesList: [],
+    modalText: '',
     lastPlayedEpisode: '',
     isConnected: true,
     downloaded: false,
+    showModal: false,
+    showDeleteDialog: false,
+    deleteFileTitle: '',
   }
 
   componentDidMount= async () => {
     Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
-    try {
-      const completedEpisodesArray = await AsyncStorage.getItem('episodeCompletedArray');
-      if (completedEpisodesArray === null) {
-        this.setState({ isConnected: netInfo });
-      } else {
-        this.setState({ isConnected: netInfo, completedEpisodesArray: JSON.parse(completedEpisodesArray) });
-      }
-    } catch (err) {
-      console.log(err.code, err.message);
-    }
+    const deviceId = DeviceInfo.getDeviceId();
+    // Alert.alert(deviceId);
+
+    // try {
+    //   const completedEpisodesArray = await AsyncStorage.getItem('episodeCompletedArray');
+    //   if (completedEpisodesArray === null) {
+    //     this.setState({ isConnected: netInfo });
+    //   } else {
+    //     this.setState({ isConnected: netInfo, completedEpisodesArray: JSON.parse(completedEpisodesArray) });
+    //   }
+    // } catch (err) {
+    //   console.log(err.code, err.message);
+    // }
     this.readDirectory();
     try {
       if (!netInfo) {
         const offlineData = await AsyncStorage.getItem('series');
         const jsonObjectData = JSON.parse(offlineData);
         const {
-          series, purchasedSeries, lastPlayedEpisode, completeEpisodes,
+          series, purchasedSeries, lastPlayedEpisode, completeEpisodes, completedEpisodesArray, episodeWatchedCount,
         } = jsonObjectData;
         return this.setState({
-          loading: false, series, purchasedSeries, lastPlayedEpisode, completeEpisodes,
+          loading: false,
+          series,
+          purchasedSeries,
+          lastPlayedEpisode,
+          completeEpisodes,
+          completedEpisodesArray,
+          isConnected: netInfo,
+          episodeWatchedCount,
+          deviceId,
         });
       }
       // await RNIap.initConnection();
       this.requestPermissions();
       firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
-        if (snap.val() === null) {
-          return;
-        }
-        const { purchases, lastPlayedEpisode } = snap.val();
-        firebase.database().ref('series').on('value', (snapshot) => {
-          firebase.database().ref('episodes').on('value', (snapEpisode) => {
-            const completeEpisodes = snapEpisode.val();
-            const series = Object.values(snapshot.val());
-            const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
-            const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
-              return value.seriesId;
-            });
-            this.setState({
-              series: sortedSeries, lastPlayedEpisode, purchasedSeries, loading: false, completeEpisodes,
-            });
-            AsyncStorage.setItem('series', JSON.stringify({
-              uid: this.props.screenProps.user.uid,
-              series: sortedSeries,
-              purchasedSeries,
-              lastPlayedEpisode,
-              completeEpisodes,
-            })).then(() => {
+        firebase.database().ref(`episodeWatchedCount/${deviceId}`).on('value', (snapWatchCount) => {
+          firebase.database().ref('series').on('value', (snapshot) => {
+            firebase.database().ref('episodes').on('value', (snapEpisode) => {
+              const completeEpisodes = snapEpisode.val();
+              const series = Object.values(snapshot.val());
+              const episodeWatchedCount = snapWatchCount.val() !== null ? Object.values(snapWatchCount.val()) : null;
+              const { purchases, lastPlayedEpisode, episodeCompletedArray } = snap.val();
+              const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+              const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
+                return value.seriesId;
+              });
+              this.setState({
+                series: sortedSeries,
+                episodeWatchedCount,
+                lastPlayedEpisode,
+                purchasedSeries,
+                loading: false,
+                completedEpisodesArray: Object.values(episodeCompletedArray),
+                completeEpisodes,
+                isConnected: netInfo,
+                deviceId,
+              });
+              AsyncStorage.setItem('series', JSON.stringify({
+                uid: this.props.screenProps.user.uid,
+                episodeWatchedCount,
+                series: sortedSeries,
+                purchasedSeries,
+                lastPlayedEpisode,
+                completedEpisodesArray: Object.values(episodeCompletedArray),
+                completeEpisodes,
+              }));
             });
           });
         });
@@ -171,6 +199,9 @@ export default class EpisodeList extends React.Component {
     videoSize,
     episodeIndex,
     seriesIndex,
+    deviceId,
+    counter,
+    purchased,
     alreadyDownloaded,
     completed,
     download,
@@ -184,7 +215,8 @@ export default class EpisodeList extends React.Component {
     //   } = snapshot.val();
     if (download) {
       if (alreadyDownloaded) {
-        this.deleteEpisode(title);
+        this.setState({ showDeleteDialog: true, deleteFileTitle: title });
+        // this.deleteEpisode(title);
       } else {
         this.props.navigation.navigate('DownloadFiles', {
           episodeId,
@@ -197,6 +229,7 @@ export default class EpisodeList extends React.Component {
           workoutTime,
           videoSize,
           startWT,
+          counter,
           endWT,
           episodeIndex,
           seriesIndex,
@@ -219,6 +252,9 @@ export default class EpisodeList extends React.Component {
       startWT,
       endWT,
       completed,
+      counter,
+      deviceId,
+      purchased,
       offline: alreadyDownloaded,
       episodeList: true,
     });
@@ -253,6 +289,21 @@ export default class EpisodeList extends React.Component {
     return length;
   }
 
+  getEpisodeCount = (episodeIndex, seriesIndex) => {
+    const { purchasedSeries, episodeWatchedCount } = this.state;
+    const buy = purchasedSeries.includes(seriesIndex.toString());
+    let counter = 0;
+    if (buy) {
+      counter = 3;
+      return counter;
+    }
+    if (episodeIndex <= 2 && episodeWatchedCount !== null) {
+      counter = episodeWatchedCount[episodeIndex] !== undefined ? episodeWatchedCount[episodeIndex].count : 0;
+      return counter;
+    }
+    return counter;
+  }
+
   readDirectory = () => {
     const { dirs, ls } = RNFetchBlob.fs;
     ls(`${dirs.DocumentDir}/AST/episodes`)
@@ -281,7 +332,7 @@ export default class EpisodeList extends React.Component {
       } else {
         Permissions.check('motion').then((response) => {
           if (response !== 'authorized') {
-            Permissions.request('motion').then((res) => {
+            Permissions.request(['motion', 'notification']).then((res) => {
               console.log(res);
             });
           }
@@ -294,24 +345,24 @@ export default class EpisodeList extends React.Component {
 
   buyItem = async (item, itemId, itemPrice) => {
     try {
-      await RNIap.prepare();
-      const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
-      // to something in your server
-      const { transactionReceipt, purchaseToken } = purchase;
+      // await RNIap.prepare();
+      // const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
+      // // to something in your server
+      // const { transactionReceipt, purchaseToken } = purchase;
       firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
         inAppPurchaseId: itemId,
         seriesId: item,
         price: itemPrice,
         date: new Date().getTime(),
-        transactionReceipt,
-        purchaseToken,
+        transactionReceipt: 'kdjfkalkf',
+        purchaseToken: 'fjskjdfkjas',
       })
         .then(() => {
-          Alert.alert('Item purchased');
+          this.setState({ showModal: true, modalText: 'Item purchased successfully' });
           RNIap.finishTransaction();
         });
     } catch (err) {
-      Alert.alert(err.message);
+      this.setState({ showModal: true, modalText: err.message });
       RNIap.endConnection();
     }
   }
@@ -331,17 +382,21 @@ export default class EpisodeList extends React.Component {
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode,
+      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount,
     } = this.state;
-    let minIndex = 0;
-    let maxIndex = 0;
+    console.log(series);
+    // let minIndex = 0;
+    // let maxIndex = 0;
+    let counter;
+    const counterArray = [];
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
       const buy = purchasedSeries.includes(seriesKey);
-      minIndex = maxIndex + 1;
+      // minIndex = maxIndex + 1;
       if (value.episodes === undefined) {
         return console.log('no episodes added');
       }
-      maxIndex += Object.keys(value.episodes).length; // value.episodes.length ;
+      // maxIndex += Object.keys(value.episodes).length; // value.episodes.length ;
+      const seriesLength = Object.keys(value.episodes).length;
       const episodesList = Object.entries(value.episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
           const { uid } = episodeValue;
@@ -350,10 +405,20 @@ export default class EpisodeList extends React.Component {
           } = completeEpisodes[uid];
           const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
           const downloaded = filesList.includes(formattedFileName);
-          let completed = completedEpisodesArray.includes(uid);
+          let completed = completedEpisodesArray.some((el) => {
+            return el.episodeId === uid;
+          });
           const currentEpisode = lastPlayedEpisode.episodeId;
           if (currentEpisode === uid) {
             completed = undefined;
+          }
+          if (!buy && episodeIndex <= 2) {
+            if (episodeWatchedCount !== null) {
+              counter = episodeWatchedCount[episodeIndex] !== undefined ? episodeWatchedCount[episodeIndex].count : 0;
+              counterArray.push(counter);
+            } else {
+              counterArray.push(0);
+            }
           }
           return (
             <ListItem
@@ -367,23 +432,27 @@ export default class EpisodeList extends React.Component {
                         : { name: 'circle', type: 'font-awesome', color: '#f5cb23', size: 15 }
                   )
               }
-              title={`${episodeIndex + minIndex}. ${title}`}
-              subtitle={`${category} - ${videoSize} mb`}
-              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white', fontSize: 18 }}
-              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white' }}
+              title={`${episodeIndex + 1}. ${title}`}
+              subtitle={`${category} - ${videoSize} MB`}
+              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: 18 }}
+              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }}
               rightIcon={
                 downloaded
                   ? { name: 'trash-2', type: 'feather', color: 'white' }
-                  : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) ? 'gray' : 'white' }
+                  : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white' }
+                  // : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }
                 }
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
               onPressRightIcon={() => {
                 if (!isConnected) {
-                  return Alert.alert('No internet connection');
+                  return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                 }
-                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0)) {
-                  return Alert.alert('Item not purchased');
+                // if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counterArray[episodeIndex] >= 2)) {
+                //   return this.setState({ showModal: true, modalText: 'Item not purchased' });
+                // }
+                if (!buy) {
+                  return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
                 this.onEpisodeClick(
                   title,
@@ -399,6 +468,9 @@ export default class EpisodeList extends React.Component {
                   videoSize,
                   episodeIndex,
                   seriesIndex,
+                  deviceId,
+                  counterArray[episodeIndex],
+                  buy,
                   downloaded,
                   completed,
                   true,
@@ -407,10 +479,10 @@ export default class EpisodeList extends React.Component {
               }
               onPress={() => {
                 if (!isConnected && !downloaded) {
-                  return Alert.alert('No internet connection');
+                  return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                 }
-                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0)) {
-                  return Alert.alert('Item not purchased');
+                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counterArray[episodeIndex] >= 2)) {
+                  return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
                 this.onEpisodeClick(
                   title,
@@ -426,6 +498,9 @@ export default class EpisodeList extends React.Component {
                   videoSize,
                   episodeIndex,
                   seriesIndex,
+                  deviceId,
+                  counterArray[episodeIndex],
+                  buy,
                   downloaded,
                   completed,
                 );
@@ -437,7 +512,7 @@ export default class EpisodeList extends React.Component {
         <View>
           <View style={styles.episodeHeaderView}>
             <Text style={styles.textStyle}>
-              {`Part ${seriesIndex + 1} (Episodes ${minIndex}-${maxIndex})`}
+              {`Part ${seriesIndex + 1} (Episodes 01 - ${seriesLength})`}
             </Text>
             <View>
               {
@@ -448,7 +523,7 @@ export default class EpisodeList extends React.Component {
                       buttonStyle={[styles.purchaseButtonStyle, { borderColor: 'white', borderWidth: 1 }]}
                       onPress={() => {
                         if (!this.state.isConnected) {
-                          return Alert.alert('No internet connection');
+                          return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
                       }}
                     />)
@@ -458,7 +533,7 @@ export default class EpisodeList extends React.Component {
                       buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
                         if (!this.state.isConnected) {
-                          return Alert.alert('No internet connection');
+                          return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
                         const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
                         this.buyItem(seriesKey, purchaseId, value.price);
@@ -483,7 +558,7 @@ export default class EpisodeList extends React.Component {
 
   render() {
     const {
-      isConnected, lastPlayedEpisode, completeEpisodes, loading,
+      isConnected, lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle,
     } = this.state;
     if (loading) return <LoadScreen />;
     const {
@@ -498,18 +573,36 @@ export default class EpisodeList extends React.Component {
         {/* <StatusBar hidden /> */}
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         <DeleteDownloads ref={ref => (this.child = ref)} />
-        { !isConnected ? <OfflineMsg /> : null }
+        { !isConnected ? <OfflineMsg margin={18} /> : null }
         <ScrollView>
           <View>
             <Image
               style={styles.imageStyle}
               resizeMode="stretch"
+              resizeMethod="resize"
               source={homeCover}
             />
             <TouchableOpacity onPress={() => {
               if (!isConnected) {
-                return Alert.alert('No internet connection');
+                return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
               }
+              const epIndex = lastPlayedEpisode === ''
+                ? 0
+                : (
+                    episodeCompleted
+                    ? (
+                          (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                            ? 0
+                            : (episodeIndex + 1)
+                      )
+                    : episodeIndex
+                  )
+              const serIndex = lastPlayedEpisode === '' ? 0 : seriesIndex;
+              const counter = this.getEpisodeCount(epIndex, serIndex);
+              if (counter === 2) {
+                return this.setState({ showModal: true, modalText: 'Item not purchased' });
+              }
+              const buy = counter === 3 ? true : false;
               const id = lastPlayedEpisode === ''
                 ? this.getTitleAndId(0, 0).uid
                 : (
@@ -524,8 +617,7 @@ export default class EpisodeList extends React.Component {
               const {
                 totalTime, workoutTime, videoSize, title, category, description, exercises, video, startWT, endWT,
               } = completeEpisodes[id];
-              const epIndex = lastPlayedEpisode === '' ? 0 : episodeIndex;
-              const serIndex = lastPlayedEpisode === '' ? 0 : seriesIndex;
+              
               this.onEpisodeClick(
                 title,
                 id,
@@ -540,6 +632,9 @@ export default class EpisodeList extends React.Component {
                 videoSize,
                 epIndex,
                 serIndex,
+                deviceId,
+                counter,
+                buy,
               );
             }}
             >
@@ -617,6 +712,28 @@ export default class EpisodeList extends React.Component {
                 <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
               </View>
             </TouchableOpacity>
+            <View>
+              <ShowModal
+                visible={showModal}
+                title={modalText}
+                buttonText="OK"
+                onPress={() => {
+                  this.setState({ showModal: false });
+                }}
+              />
+              <ShowModal
+                visible={showDeleteDialog}
+                description="Do you really want to delete episode?"
+                buttonText="Cancel"
+                secondButtonText="Confirm"
+                askAdvance
+                onSecondButtonPress={() => {
+                  this.setState({ showDeleteDialog: false });
+                  this.deleteEpisode(deleteFileTitle);
+                }}
+                onPress={() => this.setState({ showDeleteDialog: false })}
+              />
+            </View>
             {this.renderList()}
           </View>
         </ScrollView>

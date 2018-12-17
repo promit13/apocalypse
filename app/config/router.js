@@ -109,7 +109,7 @@ const EpisodeStack = createStackNavigator({
 
 EpisodeStack.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
-  if (navigation.state.index > 1) {
+  if (navigation.state.index > 0) {
     tabBarVisible = false;
   }
   return {
@@ -137,7 +137,7 @@ const ExerciseStack = createStackNavigator({
 
 ExerciseStack.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
-  if (navigation.state.index > 1) {
+  if (navigation.state.index > 0) {
     tabBarVisible = false;
   }
   return {
@@ -205,7 +205,7 @@ const MoreStack = createStackNavigator({
 
 MoreStack.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
-  if (navigation.state.index >= 2) {
+  if (navigation.state.index > 0) {
     tabBarVisible = false;
   }
   return {

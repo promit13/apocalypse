@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.5</string>
+	<string>1.0.7</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -34,7 +34,7 @@
 	<key>FacebookAppID</key>
 	<string>252442255529101</string>
 	<key>FacebookDisplayName</key>
-	<string>ASTraining</string>
+	<string>AST</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
@@ -58,7 +58,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Track user location</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Motion is used to track distance user cover</string>
+	<string>Your phone's pedometer is used to estimate distance based on average stride length</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Render downloaded image</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
@@ -88,6 +88,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

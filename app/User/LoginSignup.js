@@ -3,15 +3,12 @@ import {
   View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, StatusBar,
 } from 'react-native';
 import { Icon, Text } from 'react-native-elements';
-import { LoginManager, AccessToken } from 'react-native-fbsdk';
-import axios from 'axios';
-import firebase from '../config/firebase';
-import Loading from '../common/Loading';
+import Orientation from 'react-native-orientation';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
 
-const talonImage = require('../../img/talon.png');
+const talonImage = require('../../img/talonLight.png');
 
 const styles = StyleSheet.create({
   container: {
@@ -53,6 +50,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 15,
   },
+  modal: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  modalInnerView: {
+    backgroundColor: '#f2f2f2',
+    padding: 10,
+    justifyContent: 'center',
+  },
 });
 
 
@@ -61,65 +70,18 @@ export default class Login extends React.Component {
     header: null,
   };
 
-  state = {
-    showLoading: false,
-  }
-
-  doFacebookSignUp = () => {
-    LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
-      (result) => {
-        if (result.isCancelled) {
-          this.setState({ showLoading: false });
-        } else {
-          AccessToken.getCurrentAccessToken()
-            .then((data) => {
-              axios.get(
-                `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
-              ).then((response) => {
-                const { email, first_name, last_name} = response.data;
-                const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-                firebase.auth().signInAndRetrieveDataWithCredential(credential)
-                  .then((currentUser) => {
-                    firebase.database().ref(`users/${currentUser.user.uid}`).set({
-                      firstName: first_name,
-                      lastName: last_name,
-                      email,
-                      age: 0,
-                      weight: 0,
-                      height: 0,
-                      gender: '',
-                      extended: false,
-                      tutorial: false,
-                      fullNameLowercase: `${first_name.toLowerCase()} ${last_name.toLocaleLowerCase()}`,
-                      purchases: '',
-                      lastPlayedEpisode: '',
-                      checked: false,
-                    })
-                      .then(() => {
-                        this.setState({ showLoading: false });
-                      });
-                  })
-                  .catch((error) => {
-                    this.setState({ showLoading: false });
-                    console.log(error);
-                  });
-              });
-            });
-        }
-      },
-    ).catch(error => console.log(`Login failed with error: ${error}`));
-  }
-
   render() {
+    Orientation.lockToPortrait();
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         <ImageBackground style={styles.imageStyle} source={talonImage}>
           <Text style={[styles.text, { textAlign: 'center' }]}>
-            Log in to optimise user experience and personalise workout data
+            {`Ok let's go!\nPlease log in to create a training account`}
           </Text>
         </ImageBackground>
-        <TouchableOpacity onPress={() => this.doFacebookSignUp()}>
+        
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('Agreement', { showCheckbox: true })}>
           <View style={styles.fieldContainer}>
             <Icon name="facebook" type="entypo" color="white" />
             <Text style={styles.text}>
@@ -143,7 +105,6 @@ export default class Login extends React.Component {
             </Text>
           </View>
         </TouchableOpacity>
-        {this.state.showLoading ? <Loading /> : null}
       </View>
     );
   }

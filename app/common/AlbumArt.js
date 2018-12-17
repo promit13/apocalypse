@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 
+const talonImage = require('../../img/talondark.png');
 const backgroundImage = require('../../img/background.png');
 
 const { width } = Dimensions.get('window');
@@ -20,12 +21,17 @@ const styles = StyleSheet.create({
     width: '75%',
     height: '80%',
   },
+  imageView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
   infoView: {
-    height: 18,
-    width: 18,
+    height: 20,
+    width: 20,
     borderWidth: 1,
     borderColor: '#f5cb23',
-    borderRadius: 18 / 2,
+    borderRadius: 20 / 2,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-end',
@@ -49,19 +55,31 @@ export default function AlbumArt({
 }) {
   const { dirs } = RNFetchBlob.fs;
   const formattedUrl = offline ? url.replace(/\s+/g, '') : '';
+  console.log(formattedUrl);
   return (
     <ImageBackground style={[styles.container, { paddingTop }]} source={backgroundImage}>
       {
         offline
           ? (
-            <Image
-              style={styles.image}
-              source={{
-                uri: advance
-                  ? `file://${dirs.DocumentDir}/AST/advanceImages/${formattedUrl}.png`
-                  : `file://${dirs.DocumentDir}/AST/introImages/${formattedUrl}.png`,
-              }}
-            />
+            formattedUrl === ''
+            ? (
+              <Image
+              resizeMode='contain'
+                resizeMethod="scale"
+                style={styles.image}
+                source={talonImage}
+              />
+            )
+            : (
+              <Image
+                style={styles.image}
+                source={{
+                  uri: advance
+                    ? `file://${dirs.DocumentDir}/AST/advanceImages/${formattedUrl}.png`
+                    : `file://${dirs.DocumentDir}/AST/introImages/${formattedUrl}.png`,
+                }}
+              />
+            )
           )
           : (
             <Image
@@ -77,11 +95,11 @@ export default function AlbumArt({
                 ? (
                     <TouchableOpacity onPress={onPress}>
                       <View style={styles.infoView}>
-                        <Icon type="ionicon" name="ios-information" color="#f5cb23" />
+                        <Icon type="ionicon" size={20} name="ios-information" color="#f5cb23" />
                       </View>
                     </TouchableOpacity>
                   )
-                : <View style={{ height: 27 }} />
+                : <View style={{ height: 20 }} />
             )
         // : <View style={{ height: 27 }} />
       }

@@ -64,6 +64,7 @@ export default class Login extends React.Component {
     password: '',
     showError: false,
     showLoading: false,
+    errorMessage: ''
   }
 
   handleSubmit = () => {
@@ -71,68 +72,74 @@ export default class Login extends React.Component {
       .then(() => {
         this.setState({ showError: false, showLoading: false });
       })
-      .catch(() => {
-        this.setState({ showError: true, showLoading: false });
+      .catch((error) => {
+        const errorMessage = error.code === 'auth/wrong-password'
+          ? 'Please enter valid password'
+          : 'Please enter valid email address';
+        this.setState({ showError: true, showLoading: false, errorMessage });
       });
   }
 
   render() {
+    const {
+      email, password, showError, showLoading, errorMessage,
+    } = this.state;
     return (
       <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
         <ScrollView>
-        <StatusBar backgroundColor="#00000b" barStyle="light-content" />
-        <Image style={styles.imageStyle} source={talonImage} />
-        <View style={[styles.fieldContainer, { paddingTop: 20, paddingBottom: 20 }]}>
-          <Text style={styles.text}>
-            AGENT: Whiskey Gambit
-          </Text>
-        </View>
-        <View style={styles.fieldContainer}>
-          <Icon name="user" type="entypo" color="white" size={16} />
-          <TextInput
-            keyboardType="email-address"
-            underlineColorAndroid="transparent"
-            placeholder="Email"
-            style={styles.inputStyle}
-            placeholderTextColor="gray"
-            onChangeText={email => this.setState({ email })}
-            value={this.state.email}
+          <StatusBar backgroundColor="#00000b" barStyle="light-content" />
+          <Image style={styles.imageStyle} source={talonImage} />
+          <View style={[styles.fieldContainer, { paddingTop: 20, paddingBottom: 20 }]}>
+            <Text style={styles.text}>
+              AGENT: Whiskey Gambit
+            </Text>
+          </View>
+          <View style={styles.fieldContainer}>
+            <Icon name="user" type="entypo" color="white" size={16} />
+            <TextInput
+              keyboardType="email-address"
+              underlineColorAndroid="transparent"
+              placeholder="Email"
+              style={styles.inputStyle}
+              placeholderTextColor="gray"
+              onChangeText={emailInput => this.setState({ email: emailInput })}
+              value={email}
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Icon name="lock" type="entypo" color="white" size={16} />
+            <TextInput
+              underlineColorAndroid="transparent"
+              secureTextEntry
+              style={styles.inputStyle}
+              placeholder="Password"
+              placeholderTextColor="gray"
+              onChangeText={passwordInput => this.setState({ password: passwordInput })}
+              value={password}
+            />
+          </View>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('ForgotPassword')}>
+            <Text style={[styles.text, { fontSize: 14, alignSelf: 'flex-end', marginTop: 5 }]}>
+              Forgot Password
+            </Text>
+          </TouchableOpacity>
+          {showError ? <ErrorMessage errorMessage={errorMessage} /> : null}
+          {showLoading ? <Loading /> : null}
+          <Button
+            buttonStyle={{ backgroundColor: '#445878', borderRadius: 5, marginTop: 10 }}
+            title="Log in"
+            onPress={() => {
+              this.setState({ showLoading: true });
+              this.handleSubmit();
+              // this.props.navigation.navigate('UserBodyDetail');
+            }}
           />
-        </View>
-        <View style={styles.fieldContainer}>
-          <Icon name="lock" type="entypo" color="white" size={16} />
-          <TextInput
-            underlineColorAndroid="transparent"
-            secureTextEntry
-            style={styles.inputStyle}
-            placeholder="Password"
-            placeholderTextColor="gray"
-            onChangeText={password => this.setState({ password })}
-            value={this.state.password}
-          />
-        </View>
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('ForgotPassword')}>
-          <Text style={[styles.text, { fontSize: 14, alignSelf: 'flex-end', marginTop: 5 }]}>
-            Forgot Password
-          </Text>
-        </TouchableOpacity>
-        {this.state.showError ? <ErrorMessage errorMessage="Incorrect username/password" /> : null}
-        {this.state.showLoading ? <Loading /> : null}
-        <Button
-          buttonStyle={{ backgroundColor: '#445878', borderRadius: 5, marginTop: 10 }}
-          title="Log in"
-          onPress={() => {
-            this.setState({ showLoading: true });
-            this.handleSubmit();
-            // this.props.navigation.navigate('UserBodyDetail');
-          }}
-        />
-        {/* <Button
-          buttonStyle={{ backgroundColor: '#fff', borderRadius: 5, marginTop: 10 }}
-          color="#001331"
-          title="Create Account"
-          onPress={() => this.props.navigation.navigate('Signup')}
-        /> */}
+          {/* <Button
+            buttonStyle={{ backgroundColor: '#fff', borderRadius: 5, marginTop: 10 }}
+            color="#001331"
+            title="Create Account"
+            onPress={() => this.props.navigation.navigate('Signup')}
+          /> */}
         </ScrollView>
       </KeyboardAwareScrollView>
     );

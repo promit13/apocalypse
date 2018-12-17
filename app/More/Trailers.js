@@ -46,6 +46,7 @@ export default class Trailers extends React.Component {
               exerciseTitle: title,
               image,
               mode: 'Trailer Player',
+              navigateBack: 'Trailers',
             });
           }}
         />

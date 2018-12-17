@@ -4,6 +4,7 @@ import {
   View, Image, TouchableOpacity, StatusBar, Alert,
 } from 'react-native';
 import OfflineMsg from '../common/OfflineMsg';
+import ShowModal from '../common/ShowModal';
 
 const speedImage = require('../../img/speed.png');
 const strengthImage = require('../../img/strength.png');
@@ -46,6 +47,7 @@ export default class ExerciseCategory extends React.Component {
 
   state = {
     isConnected: true,
+    showNoInternetDialog: false,
   }
 
   componentDidMount() {
@@ -56,7 +58,7 @@ export default class ExerciseCategory extends React.Component {
       return (
         <TouchableOpacity onPress={() => {
           if (!this.state.isConnected) {
-            return Alert.alert('No internet connection');
+            return this.setState({ showNoInternetDialog: true });
           }
           this.props.navigation.navigate('ExerciseList', { category: title });
         }
@@ -92,6 +94,7 @@ export default class ExerciseCategory extends React.Component {
     }
 
     render() {
+      const { showNoInternetDialog } = this.state;
       return (
         <View style={styles.maincontainer}>
           { !this.state.isConnected ? <OfflineMsg /> : null }
@@ -99,6 +102,14 @@ export default class ExerciseCategory extends React.Component {
             {this.renderView('Speed', 'Running Training', speedImage)}
           </View>
           <View style={styles.line} />
+          <ShowModal
+            visible={showNoInternetDialog}
+            title="Please check your internet connection"
+            buttonText="OK"
+            onPress={() => {
+              this.setState({ showNoInternetDialog: false });
+            }}
+          />
           <View style={{ flex: 1, justifyContent: 'center' }}>
             {this.renderView('Strength', 'Bodyweight Circuits', strengthImage)}
           </View>

@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
+import ShowModal from '../common/ShowModal';
 
 const episodesIcon = require('../../img/episodes.png');
 
@@ -44,6 +45,7 @@ export default class More extends React.Component {
 
   state = {
     isConnected: true,
+    showNoInternetDialog: false,
   }
 
   componentDidMount() {
@@ -56,15 +58,17 @@ export default class More extends React.Component {
 
   navigateTo = (navigateScreen) => {
     if (!this.state.isConnected && navigateScreen !== 'Downloads') {
-      return Alert.alert('No internet connection');
+      return this.setState({ showNoInternetDialog: true });
     }
     if (navigateScreen === 'Feedback') {
       return this.sendEmail();
     }
-    this.props.navigation.navigate(navigateScreen, { showButton: false }); // showButton for tutorial
+    this.props.navigation.navigate(navigateScreen, { showButton: false, showCheckbox: false });
+    // showButton for tutorial, showCheckbox for Agreement
   }
 
   render() {
+    const { showNoInternetDialog } = this.state;
     const menuList = Object.entries(menu).map(([key, value], i) => {
       return (
         <ListItem
@@ -98,6 +102,14 @@ export default class More extends React.Component {
           backgroundColor="#00000b"
         />
         { !this.state.isConnected ? <OfflineMsg /> : null }
+        <ShowModal
+          visible={showNoInternetDialog}
+          title="Please check your internet connection"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showNoInternetDialog: false });
+          }}
+        />
         <ScrollView>
           { menuList }
         </ScrollView>
