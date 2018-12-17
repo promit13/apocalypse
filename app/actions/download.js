@@ -78,6 +78,7 @@ const startDownload = (
                 if (alreadyExist) {
                   dispatch({
                     type: ACTION_DOWNLOAD,
+                    payload: 'Episode already exists',
                   });
                 }
                 if (exercise.video === '') {
@@ -96,6 +97,7 @@ const startDownload = (
                           if (i === (exercisesList.length - 1)) {
                             dispatch({
                               type: ACTION_DOWNLOAD,
+                              payload: 'Download complete',
                             });
                             // this.setState({ loading: false, showModal: true, modalText: 'Episode downloaded successfully' });
                             // return this.props.navigation.navigate('EpisodeList', { downloaded: true });
@@ -133,6 +135,7 @@ const startDownload = (
                                 if (i === (exercisesList.length - 1)) {
                                   dispatch({
                                     type: ACTION_DOWNLOAD,
+                                    payload: 'Download complete',
                                   });
                                   // this.setState({ loading: false, showModal: true, modalText: 'Episode downloaded successfully' });
                                   // return this.props.navigation.navigate('EpisodeList', { downloaded: true });
@@ -167,37 +170,35 @@ const downloadEpisode = ({
   startWT,
   endWT,
 }) => {
-  return (dispatch) => {
+  return async (dispatch) => {
     if (exercises !== undefined) {
-      exercises.map((value, i) => {
+      await exercises.map((value, i) => {
         const {
           length, uid, visible, episodeExerciseTitle,
         } = value;
+        console.log(episodeExerciseTitle);
         firebase.database().ref(`exercises/${uid}`).on('value', (snapShot) => {
           const exercise = { ...snapShot.val(), id: uid, visible, episodeExerciseTitle };
           exerciseLengthList.push(length);
           exerciseIdList.push(uid);
           exercisesList.push(exercise);
-        })
-          .then(() => {
-            startDownload(
-              episodeTitle,
-              episodeId,
-              category,
-              description,
-              video,
-              totalTime,
-              workoutTime,
-              videoSize,
-              episodeIndex,
-              seriesIndex,
-              startWT,
-              endWT,
-              dispatch,
-            );
-          })
-          .catch(err => console.log(err));
+        });
       });
+      startDownload(
+        episodeTitle,
+        episodeId,
+        category,
+        description,
+        video,
+        totalTime,
+        workoutTime,
+        videoSize,
+        episodeIndex,
+        seriesIndex,
+        startWT,
+        endWT,
+        dispatch,
+      );
     } else {
       startDownload(
         episodeTitle,

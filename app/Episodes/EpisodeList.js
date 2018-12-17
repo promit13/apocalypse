@@ -17,7 +17,7 @@ import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 import DeleteDownloads from '../common/DeleteDownloads';
 import store from '../store';
-import { downloadEpisode } from '../actions';
+import downloadEpisode from '../actions/download';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 110;
@@ -760,10 +760,12 @@ class EpisodeList extends React.Component {
   }
 }
 
-// const mapStateToProps = (state) => { download: state.download; }
+const mapStateToProps = (state) => {
+  return { check: state };
+};
 
 const mapDispatchToProps = {
   downloadEpisode,
 };
 
-export default connect(null, mapDispatchToProps)(EpisodeList);
+export default connect(mapStateToProps, mapDispatchToProps)(EpisodeList);

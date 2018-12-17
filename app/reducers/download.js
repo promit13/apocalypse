@@ -3,7 +3,7 @@ import { ACTION_DOWNLOAD } from '../actions/types';
 const download = (state = {}, action) => {
   switch (action.type) {
     case ACTION_DOWNLOAD: {
-      return action.payload;
+      return { message: action.payload };
     }
     default:
       return state;

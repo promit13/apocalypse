@@ -2,13 +2,8 @@ import React from 'react';
 import {
   View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions,
 } from 'react-native';
-<<<<<<< HEAD
-import { ListItem, Button, Alert } from 'react-native-elements';
-import { FacebookAuthProvider, AccessToken } from 'react-native-fbsdk';
-=======
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
->>>>>>> 8ae139b7b2d4f350f48157aa3f478c5d1add71a3
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -94,14 +89,11 @@ export default class MyAccount extends React.Component {
         this.state.password,
       );
     } else {
-      console.log(this.props.screenProps.user.uid);
       await AccessToken.getCurrentAccessToken().then(
         (data) => {
-          console.log(data.accessToken.toString())
           credentials = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-          console.log(credentials);
-        }
-      )
+        },
+      );
     }
     user.reauthenticateAndRetrieveDataWithCredential(credentials)
       .then(() => {
