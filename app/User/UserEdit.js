@@ -2,8 +2,13 @@ import React from 'react';
 import {
   View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions,
 } from 'react-native';
+<<<<<<< HEAD
 import { ListItem, Button, Alert } from 'react-native-elements';
 import { FacebookAuthProvider, AccessToken } from 'react-native-fbsdk';
+=======
+import { ListItem, Button } from 'react-native-elements';
+import { AccessToken } from 'react-native-fbsdk';
+>>>>>>> 8ae139b7b2d4f350f48157aa3f478c5d1add71a3
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -71,6 +76,7 @@ export default class MyAccount extends React.Component {
   componentDidMount() {
     const { providerData } = this.props.screenProps.user;
     this.setState({ providerId: providerData[0].providerId });
+    console.log(providerData);
   }
 
   logOut = () => {
@@ -88,11 +94,19 @@ export default class MyAccount extends React.Component {
         this.state.password,
       );
     } else {
-      credentials = FacebookAuthProvider.getCredential(AccessToken.getCurrentAccessToken());
+      console.log(this.props.screenProps.user.uid);
+      await AccessToken.getCurrentAccessToken().then(
+        (data) => {
+          console.log(data.accessToken.toString())
+          credentials = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+          console.log(credentials);
+        }
+      )
     }
     user.reauthenticateAndRetrieveDataWithCredential(credentials)
       .then(() => {
-        // this.deleteAccount();
+        console.log(credentials);
+        this.deleteAccount();
       }).catch(() => this.setState({ showError: true, showLoading: false }));
   }
 
@@ -161,7 +175,12 @@ export default class MyAccount extends React.Component {
     const { providerId } = this.state;
     const items = listItems.map((item, index) => {
       if (index === 1 && providerId !== 'password') {
-        return console.log('facebook provider');
+        console.log('renderlist inside IF')
+        var provider = new firebase.auth.FacebookAuthProvider();
+        provider.setCustomParameters({
+          'display': 'popup'
+        });
+        console.log(provider);
       }
       return (
         <ListItem
