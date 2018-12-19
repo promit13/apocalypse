@@ -159,14 +159,14 @@ export default class EpisodeSingle extends Component {
         }
         console.log(`AUTH SUCCESS ${result}`);
       });
-      // GoogleFit.onAuthorize(() => {
-      //   console.log('AUTH SUCCESS');
-      // });
-  
-      // GoogleFit.onAuthorizeFailure(() => {
-      //   console.log('AUTH FAILED');
-      // });
     }
+    //   GoogleFit.onAuthorize(() => {
+    //     console.log('AUTH SUCCESS');
+    //   });
+    //   GoogleFit.onAuthorizeFailure(() => {
+    //     console.log('AUTH FAILED');
+    //   });
+    // }
     if (category === 'Speed') {
       this.setState({ showWelcomeDialog: true });
     } else {
@@ -625,7 +625,7 @@ export default class EpisodeSingle extends Component {
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
     MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
-    MusicControl.enableControl('closeNotification', true, { when: 'never' });
+    MusicControl.enableControl('closeNotification', true, { when: 'paused' });
   }
 
   updateMusicControl = (elapsedTime) => {

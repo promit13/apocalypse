@@ -3,9 +3,9 @@ import firebase from '../config/firebase';
 import realm from '../config/Database';
 import { ACTION_DOWNLOAD } from './types';
 
-const exercisesList = [];
-const exerciseLengthList = [];
-const exerciseIdList = [];
+let exercisesList = [];
+let exerciseLengthList = [];
+let exerciseIdList = [];
 
 const startDownload = (
   episodeTitle,
@@ -60,8 +60,15 @@ const startDownload = (
             });
           });
           if (exercisesList.length === 0) {
+            exercisesList = [];
+            exerciseLengthList = [];
+            exerciseIdList = [];
             // this.setState({ loading: false, showModal: true, modalText: 'Episode downloaded successfully' });
-            return this.props.navigation.navigate('EpisodeList', { downloaded: true });
+            dispatch({
+              type: ACTION_DOWNLOAD,
+              payload: true,
+            });
+            return;
           }
           exercisesList.map((exercise, i) => {
             const {
@@ -97,6 +104,9 @@ const startDownload = (
                         .fetch('GET', advanced === undefined ? image : advanced.image, {
                         }).then(() => {
                           if (i === (exercisesList.length - 1)) {
+                            exercisesList = [];
+                            exerciseLengthList = [];
+                            exerciseIdList = [];
                             dispatch({
                               type: ACTION_DOWNLOAD,
                               payload: true,
@@ -135,6 +145,9 @@ const startDownload = (
                               .fetch('GET', advanced === undefined ? image : advanced.image, {
                               }).then(() => {
                                 if (i === (exercisesList.length - 1)) {
+                                  exercisesList = [];
+                                  exerciseLengthList = [];
+                                  exerciseIdList = [];
                                   dispatch({
                                     type: ACTION_DOWNLOAD,
                                     payload: true,

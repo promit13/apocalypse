@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions,
+  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions, AsyncStorage,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
@@ -75,7 +75,9 @@ export default class MyAccount extends React.Component {
   }
 
   logOut = () => {
-    firebase.auth().signOut();
+    firebase.auth().signOut().then(() => {
+      this.deleteUserAsync();
+    });
   }
 
   authenticateUser = async () => {
@@ -107,11 +109,16 @@ export default class MyAccount extends React.Component {
       .then(() => {
         firebase.auth().currentUser.delete()
           .then(() => {
+            this.deleteUserAsync();
             this.setState({ showError: false, showLoading: false });
           })
           .catch(err => console.log(err));
       })
       .catch(err => console.log(err));
+  }
+
+  deleteUserAsync = async () => {
+    await AsyncStorage.removeItem('login');
   }
 
   showModal = () => {

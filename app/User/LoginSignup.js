@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Icon, Text } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
+import OfflineMsg from '../common/OfflineMsg';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
@@ -65,23 +66,47 @@ const styles = StyleSheet.create({
 });
 
 
-export default class Login extends React.Component {
+export default class LoginSignUp extends React.Component {
   static navigationOptions = {
     header: null,
   };
 
+  state = {
+    isConnected: true,
+    showModal: false,
+  }
+
+  componentDidMount() {
+    this.setState({ isConnected: this.props.screenProps.netInfo });
+  }
+
   render() {
+    const { isConnected, showModal } = this.state;
     Orientation.lockToPortrait();
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
+        { !isConnected ? <OfflineMsg margin={18} /> : null }
         <ImageBackground style={styles.imageStyle} source={talonImage}>
           <Text style={[styles.text, { textAlign: 'center' }]}>
             {`Ok let's go!\nPlease log in to create a training account`}
           </Text>
         </ImageBackground>
-        
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Agreement', { showCheckbox: true })}>
+        <ShowModal
+          visible={showModal}
+          title="Please check your internet connection"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showModal: false });
+          }}
+        />
+        <TouchableOpacity onPress={() => {
+          if (!isConnected) {
+            return this.setState({ showModal: true });
+          }
+          this.props.navigation.navigate('Agreement', { showCheckbox: true });
+        }}
+        >
           <View style={styles.fieldContainer}>
             <Icon name="facebook" type="entypo" color="white" />
             <Text style={styles.text}>
@@ -89,7 +114,13 @@ export default class Login extends React.Component {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
+        <TouchableOpacity onPress={() => {
+          if (!isConnected) {
+            return this.setState({ showModal: true });
+          }
+          this.props.navigation.navigate('Login');
+        }}
+        >
           <View style={[styles.fieldContainer, { backgroundColor: '#33425a' }]}>
             <Icon name="email-outline" type="material-community" color="white" />
             <Text style={styles.text}>
@@ -97,7 +128,13 @@ export default class Login extends React.Component {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')}>
+        <TouchableOpacity onPress={() => {
+          if (!isConnected) {
+            return this.setState({ showModal: true });
+          }
+          this.props.navigation.navigate('Signup');
+        }}
+        >
           <View style={[styles.fieldContainer, { backgroundColor: '#D44A37' }]}>
             <Icon name="account" type="material-community" color="white" />
             <Text style={styles.text}>

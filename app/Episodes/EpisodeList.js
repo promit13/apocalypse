@@ -95,7 +95,7 @@ class EpisodeList extends React.Component {
     showDeleteDialog: false,
     showLoading: false,
     deleteFileTitle: '',
-    checkDownloadStatus: undefined,
+    checkDownloadStatus: false,
     downloadActive: false,
   }
 
@@ -182,8 +182,8 @@ class EpisodeList extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.downloadStatus !== prevProps.downloadStatus) {
-      this.readDirectory(undefined);
+    if (this.props.downloadStatus === prevState.downloadActive) {
+      this.readDirectory();
       this.renderList();
     }
     // if (this.props.navigation.state.params === undefined) {
@@ -222,15 +222,12 @@ class EpisodeList extends React.Component {
     download,
   ) => {
     const { index } = this.state;
-    // console.log('CHECK INDEX', checkIndex, index, this.props.downloadStatus);
+     console.log('CHECK INDEX', checkIndex, index, this.props.downloadStatus);
     if (download) {
       if (alreadyDownloaded) {
         this.setState({ showDeleteDialog: true, deleteFileTitle: title });
         // this.deleteEpisode(title);
       } else {
-        if (this.props.downloadStatus === undefined && checkIndex === index) {
-          this.setState({ checkDownloadStatus: false });
-        }
         this.props.downloadEpisode({
           exercises,
           episodeTitle: title,
@@ -321,12 +318,12 @@ class EpisodeList extends React.Component {
     ls(`${dirs.DocumentDir}/AST/episodes`)
       .then((files) => {
         this.setState({ filesList: files, index: 0, downloadActive: false });
-        // if (check) {
-        //   this.setState({ filesList: files, index: 0, downloadActive: false });
-        // } else {
-        //   // this.setState({ filesList: files });
-        //   this.setState({ filesList: files, index: 0, downloadActive: false });
-        // }
+        if (check) {
+          this.setState({ filesList: files, index: 0, downloadActive: false });
+        } else {
+          // this.setState({ filesList: files });
+          this.setState({ filesList: files });
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -400,11 +397,9 @@ class EpisodeList extends React.Component {
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
+      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive, checkDownloadStatus,
     } = this.state;
-    console.log(series);
-    // let minIndex = 0;
-    // let maxIndex = 0;
+    console.log('Renderlist', downloadActive, index);
     let counter;
     const counterArray = [];
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
@@ -458,10 +453,10 @@ class EpisodeList extends React.Component {
                   downloaded
                   ? { name: 'trash-2', type: 'feather', color: 'white' }
                   : (
-                      this.props.downloadStatus && index === (episodeIndex + 1)
+                      this.props.downloadStatus && !downloadActive && index === (episodeIndex + 1)
                         ? { name: 'trash-2', type: 'feather', color: 'white' }
                         : (
-                            downloadActive === true && index === (episodeIndex + 1)
+                            downloadActive && index === (episodeIndex + 1)
                             ?  <ActivityIndicator size="small" color="gray" />
                             : { name: 'download', type: 'feather', color: 'white' }
                           )

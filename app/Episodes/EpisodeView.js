@@ -430,8 +430,8 @@ export default class EpisodeView extends React.Component {
               title="Workout Mode"
               onPress={() => {
                 if (purchased) {
-                  // if (offline && !episodeList) {
-                  if (offline) {
+                  if (offline && !episodeList) {
+                  // if (offline) {
                     return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
                   }
                   this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
@@ -456,8 +456,8 @@ export default class EpisodeView extends React.Component {
               title="Listen Mode"
               onPress={() => {
                 if (purchased) {
-                  if (offline) {
-                  // if (offline && !episodeList) {
+                  // if (offline) {
+                  if (offline && !episodeList) {
                     return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
                   }
                   this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');

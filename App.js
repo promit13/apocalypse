@@ -18,6 +18,7 @@ export default class App extends React.Component {
     user: null,
     data: null,
     isConnected: true,
+    userLoggedIn: false,
   }
 
   componentDidMount() {
@@ -31,7 +32,7 @@ export default class App extends React.Component {
     // }
   }
 
-  handleConnectivityChange = (isConnected) => {
+  handleConnectivityChange = async (isConnected) => {
     if (isConnected) {
       this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -46,7 +47,12 @@ export default class App extends React.Component {
         }
       });
     } else {
-      this.setState({ isConnected, loading: false });
+      const checkLoggedIn = await AsyncStorage.getItem('login');
+      if (checkLoggedIn !== null) {
+        this.setState({ isConnected, loading: false, userLoggedIn: true });
+      } else {
+        this.setState({ isConnected, loading: false });
+      }
     }
   };
 
@@ -77,8 +83,8 @@ export default class App extends React.Component {
           .catch(error => console.log(error));
       }
       firebase.database().ref(`users/${this.state.user.uid}`)
-        .on('value', (snapshot) => {
-          snapshot.val();
+        .on('value', async (snapshot) => {
+          await AsyncStorage.setItem('login', 'loggedIn');
           this.setState({ data: snapshot.val(), loading: false });
         });
     } catch (err) {
@@ -253,7 +259,7 @@ export default class App extends React.Component {
 
   renderComponent = () => {
     if (this.state.loading) return <LoadScreen />;
-    if (!this.state.isConnected) {
+    if (!this.state.isConnected && this.state.userLoggedIn) {
       return <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />;
     }
     if (this.state.user) {
@@ -297,7 +303,7 @@ export default class App extends React.Component {
       //   );
       // }
     }
-    return <SignedOut />;
+    return <SignedOut screenProps={{ netInfo: this.state.isConnected }} />;
   }
 
   render() {

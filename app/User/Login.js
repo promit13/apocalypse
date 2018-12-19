@@ -64,7 +64,7 @@ export default class Login extends React.Component {
     password: '',
     showError: false,
     showLoading: false,
-    errorMessage: ''
+    errorMessage: '',
   }
 
   handleSubmit = () => {
