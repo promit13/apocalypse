@@ -11,7 +11,9 @@ import Loading from '../common/Loading';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 
-const gifImageSource = require('../../img/walk.gif');
+const runningMan = require('../../img/running-man.png');
+const talonRoute = require('../../img/talon-route.jpg');
+const talonRouteSecond = require('../../img/talon-route-2.jpg');
 
 const barWidth = Dimensions.get('screen').width - 30;
 const progressCustomStyles = {
@@ -185,18 +187,24 @@ export default class TalonScreen extends React.Component {
                 <ListItem
                   title={`${formatDate} - ${distance} km (${steps} steps) in ${timeInterval} mins`}
                   titleStyle={styles.textStyle}
+                  key={key}
                   subtitle={
                     (
                       <View>
-                        <Animatable.Image
+                        <Image
+                          source={i === 1 ? talonRoute : talonRouteSecond}
+                          style={[styles.imageStyle, { height: 80, marginTop: 10, marginBottom: 10 }]}
+                          resizeMethod="resize"
+                        />
+                        <Image
                           style={{
-                            height: 40,
-                            width: 40,
-                            marginBottom: 5,
+                            height: 30,
+                            width: 30,
+                            marginBottom: -15,
                             marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth),
                           }}
                           animation="fadeInLeft"
-                          source={gifImageSource}
+                          source={runningMan}
                         />
                         <ProgressBarAnimated
                           width={barWidth}
@@ -290,9 +298,6 @@ export default class TalonScreen extends React.Component {
           console.log(logsArray);
           const { workOutCompleted } = (logsArray[logsArray.length - 1]);
           const talonArrayLength = talonDone ? logsArray.length : 1;
-          console.log(talonDone, 'talonDone');
-          console.log(talonArrayLength > 1, 'talonArrayLength > 1');
-          console.log(workOutCompleted, 'workoutCompleted');
           return (
             <View>
               <ListItem
