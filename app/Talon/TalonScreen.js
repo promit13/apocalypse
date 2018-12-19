@@ -65,20 +65,20 @@ export default class TalonScreen extends React.Component {
     title: 'TALON',
   };
 
-    state = {
-      talonLogs: '',
-      index: 0,
-      loading: true,
-      lastIntel: '',
-      showTalon: false,
-      isConnected: true,
-      showModal: false,
-      modalText: '',
-      modalTitle: '',
-      lastPlayedEpisode: '',
-      series: '',
-      playedIntelArray: [],
-    };
+  state = {
+    talonLogs: '',
+    index: 0,
+    loading: true,
+    lastIntel: '',
+    showTalon: false,
+    isConnected: true,
+    showModal: false,
+    modalText: '',
+    modalTitle: '',
+    lastPlayedEpisode: '',
+    series: '',
+    playedIntelArray: [],
+  };
 
   componentDidMount = async () => {
     const { netInfo } = this.props.screenProps;
@@ -171,7 +171,7 @@ export default class TalonScreen extends React.Component {
             </View>
           </TouchableOpacity>
           {
-            Object.entries(logsArray).map(([key, value], ind) => {   
+            Object.entries(logsArray).map(([key, value], ind) => {
               const {
                 dateNow, timeInterval, distance, steps, trackingStarted, category, workOutCompleted,
               } = value;
@@ -206,7 +206,7 @@ export default class TalonScreen extends React.Component {
                         />
                       </View>
                     )
-                    }
+                  }
                   containerStyle={{ marginLeft: 10, marginRight: 10 }}
                   hideChevron
                 />
@@ -263,7 +263,7 @@ export default class TalonScreen extends React.Component {
     //     </View>
     //   );
     // }
-    
+
     const {
       modalText, series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle,
     } = this.state;
@@ -290,6 +290,9 @@ export default class TalonScreen extends React.Component {
           console.log(logsArray);
           const { workOutCompleted } = (logsArray[logsArray.length - 1]);
           const talonArrayLength = talonDone ? logsArray.length : 1;
+          console.log(talonDone, 'talonDone');
+          console.log(talonArrayLength > 1, 'talonArrayLength > 1');
+          console.log(workOutCompleted, 'workoutCompleted');
           return (
             <View>
               <ListItem
@@ -297,32 +300,32 @@ export default class TalonScreen extends React.Component {
                 roundAvatar
                 avatar={
                   category === 'Speed' && talonDone && (talonArrayLength > 1)
-                  ? speedImage
+                    ? speedImage
                     : (
                       category === 'Speed' && !talonDone
                         ? speedImageGray
                         : (
                           category === 'Strength' && talonDone && (talonArrayLength > 1) && workOutCompleted
-                          ? strengthImage
-                          : (
+                            ? strengthImage
+                            : (
                               category === 'Strength' && !talonDone
-                              ? strengthImageGray
-                              : (
-                                category === 'Control' && talonDone && (talonArrayLength > 1) && workOutCompleted
-                                ? controlImage
-                                : controlImageGray
-                              )
-                            ) 
-                          )
-                      )
+                                ? strengthImageGray
+                                : (
+                                  category === 'Control' && talonDone && (talonArrayLength > 1) && workOutCompleted
+                                    ? controlImage
+                                    : controlImageGray
+                                )
+                            )
+                        )
+                    )
                 }
-                title={`Episode ${i + 1} Intel File`}
+                title={ talonDone ? `Episode ${i + 1} Intel File` : 'No Essential Intel Available'}
                 titleStyle={{
                   color:
                     category !== 'Speed' && talonDone && (talonArrayLength > 1) && workOutCompleted
                       ? 'white'
                       : (
-                          category === 'Speed' && talonDone && (talonArrayLength > 1)
+                        category === 'Speed' && talonDone && (talonArrayLength > 1)
                           ? 'white'
                           : 'gray'
                       ),
@@ -335,11 +338,11 @@ export default class TalonScreen extends React.Component {
                     category !== 'Speed' && talonDone && (talonArrayLength > 1) && workOutCompleted
                       ? '#f5cb23'
                       : (
-                          category === 'Speed' && talonDone && (talonArrayLength > 1)
+                        category === 'Speed' && talonDone && (talonArrayLength > 1)
                           ? '#f5cb23'
                           : 'gray'
                       ),
-                  }}
+                }}
                 containerStyle={{ backgroundColor: '#33425a' }}
                 underlayColor="#2a3545"
                 onPress={() => {
@@ -352,7 +355,7 @@ export default class TalonScreen extends React.Component {
                   this.setState({ index: i + 1, showTalon: !this.state.showTalon });
                 }}
               />
-              { this.renderContent((i + 1), uid, episodeValue, category) }
+              {this.renderContent((i + 1), uid, episodeValue, category)}
             </View>
           );
         });
@@ -363,8 +366,8 @@ export default class TalonScreen extends React.Component {
         <StatusBar
           backgroundColor="#00000b"
         />
-        { !isConnected ? <OfflineMsg /> : null }
-        { loading
+        {!isConnected ? <OfflineMsg /> : null}
+        {loading
           ? <Loading />
           : (
             <ScrollView>
@@ -391,12 +394,12 @@ export default class TalonScreen extends React.Component {
                           marginRight: 10,
                         }}
                       >
-                        { lastPlayedEpisode === '' || playedIntelArray.length === 0
+                        {lastPlayedEpisode === '' || playedIntelArray.length === 0
                           ? 'No Essential Intel Available'
                           : (
                             alreadyPlayed
-                            ? 'Play Latest Essential Intel'
-                            : 'Play New Essential Intel'
+                              ? 'Play Latest Essential Intel'
+                              : 'Play New Essential Intel'
                           )
                         }
                       </Text>
@@ -409,7 +412,7 @@ export default class TalonScreen extends React.Component {
                       }}
                       >
                         {/* {`${Object.values(Object.values(this.state.talonLogs)[0])[0].episodeTitle}`} */}
-                        { lastPlayedEpisode === '' || playedIntelArray.length === 0
+                        {lastPlayedEpisode === '' || playedIntelArray.length === 0
                           ? 'Play Ep 1 to unlock your intel'
                           : `${episodeTitle}`
                         }
@@ -431,7 +434,7 @@ export default class TalonScreen extends React.Component {
               {episodes}
             </ScrollView>
           )
-      }
+        }
       </View>
     );
   }
