@@ -298,6 +298,7 @@ export default class DownloadTestPlayer extends Component {
           loading: false,
         });
       }
+      this.setLastPlayedEpisode();
       this.setState({
         currentTime: this.getCurrentTimeInMs(timeStamp),
         lastLoggedDate: workoutDate,
@@ -604,16 +605,7 @@ export default class DownloadTestPlayer extends Component {
           this.setTimeFirebase();
         }
         if (onEnd) {
-          return console.log('EPISODE COMPLETED');
-          // if (!episodeCompletedArray.includes(episodeId)) {
-          //   episodeCompletedArray.push(episodeId);
-          // }
-          // try {
-          //   await AsyncStorage.setItem('episodeCompletedArray', JSON.stringify(episodeCompletedArray));
-          // } catch (err) {
-          //   console.log(err);
-          // }
-          // return this.setState({ showDialog: true });
+          this.setLastPlayedEpisode();
         }
       }
       this.props.navigation.navigate('EpisodeView');
@@ -668,6 +660,7 @@ export default class DownloadTestPlayer extends Component {
       formattedWorkOutStartTime, currentTime, listen, trackingStarted,
     } = this.state;
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
+      this.setLastPlayedEpisode();
       this.startTrackingSteps();
       this.setState({ trackingStarted: true });
     }
@@ -692,6 +685,18 @@ export default class DownloadTestPlayer extends Component {
   handleBackButton = () => {
     this.navigateToEpisodeView();
     return true;
+  }
+
+  setLastPlayedEpisode = () => {
+    const { uid, episodeId, episodeTitle, episodeIndex, seriesIndex, episodeCompleted } = this.state;
+    AsyncStorage.setItem('lastPlayedEpisode', JSON.stringify({
+      userId: uid,
+      epId: episodeId,
+      epTitle: episodeTitle,
+      epIndex: episodeIndex,
+      serIndex: seriesIndex,
+      epCompleted: episodeCompleted,
+    }));
   }
 
   renderLandscapeView = () => {

@@ -22,6 +22,10 @@ const startDownload = (
   endWT,
   dispatch,
 ) => {
+  dispatch({
+    type: ACTION_DOWNLOAD,
+    payload: false,
+  });
   const { dirs } = RNFetchBlob.fs;
   const formattedFileName = episodeTitle.replace(/ /g, '_');
   RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
@@ -29,6 +33,7 @@ const startDownload = (
       if (exist) {
         return this.setState({ loading: false, showModal: true, modalText: 'Episode already downloaded' });
       }
+      
       RNFetchBlob
         .config({
           path: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`, // file saved in this path
@@ -76,10 +81,7 @@ const startDownload = (
                   });
                 });
                 if (alreadyExist) {
-                  dispatch({
-                    type: ACTION_DOWNLOAD,
-                    payload: 'Episode already exists',
-                  });
+                  return;
                 }
                 if (exercise.video === '') {
                   RNFetchBlob
@@ -97,7 +99,7 @@ const startDownload = (
                           if (i === (exercisesList.length - 1)) {
                             dispatch({
                               type: ACTION_DOWNLOAD,
-                              payload: 'Download complete',
+                              payload: true,
                             });
                             // this.setState({ loading: false, showModal: true, modalText: 'Episode downloaded successfully' });
                             // return this.props.navigation.navigate('EpisodeList', { downloaded: true });
@@ -135,7 +137,7 @@ const startDownload = (
                                 if (i === (exercisesList.length - 1)) {
                                   dispatch({
                                     type: ACTION_DOWNLOAD,
-                                    payload: 'Download complete',
+                                    payload: true,
                                   });
                                   // this.setState({ loading: false, showModal: true, modalText: 'Episode downloaded successfully' });
                                   // return this.props.navigation.navigate('EpisodeList', { downloaded: true });

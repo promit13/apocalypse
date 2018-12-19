@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, ActivityIndicator,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button, List,
@@ -78,6 +78,7 @@ class EpisodeList extends React.Component {
   };
 
   state = {
+    index: 0,
     deviceId: '',
     series: '',
     episodeWatchedCount: '',
@@ -92,7 +93,10 @@ class EpisodeList extends React.Component {
     downloaded: false,
     showModal: false,
     showDeleteDialog: false,
+    showLoading: false,
     deleteFileTitle: '',
+    checkDownloadStatus: undefined,
+    downloadActive: false,
   }
 
   componentDidMount= async () => {
@@ -134,6 +138,9 @@ class EpisodeList extends React.Component {
       // await RNIap.initConnection();
       this.requestPermissions();
       firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
+        if (snap.val() === null) {
+          return;
+        }
         firebase.database().ref(`episodeWatchedCount/${deviceId}`).on('value', (snapWatchCount) => {
           firebase.database().ref('series').on('value', (snapshot) => {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
@@ -175,13 +182,17 @@ class EpisodeList extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.navigation.state.params === undefined) {
-      return;
-    }
-    if (this.props.navigation.state.params.downloaded !== prevState.downloaded) {
-      this.readDirectory();
+    if (this.props.downloadStatus !== prevProps.downloadStatus) {
+      this.readDirectory(undefined);
       this.renderList();
     }
+    // if (this.props.navigation.state.params === undefined) {
+    //   return;
+    // }
+    // if (this.props.navigation.state.params.downloaded !== prevState.downloaded) {
+    //   this.readDirectory();
+    //   this.renderList();
+    // }
   }
 
   componentWillUnmount() {
@@ -189,6 +200,7 @@ class EpisodeList extends React.Component {
   }
 
   onEpisodeClick = (
+    checkIndex,
     title,
     episodeId,
     category,
@@ -209,33 +221,30 @@ class EpisodeList extends React.Component {
     completed,
     download,
   ) => {
-    // if (!this.state.isConnected && !alreadyDownloaded) {
-    //   return Alert.alert('No internet connection');
-    // }
-    // firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
-    //   const {
-    //     title, category, description, exercises, video, startWT, endWT,
-    //   } = snapshot.val();
+    const { index } = this.state;
+    // console.log('CHECK INDEX', checkIndex, index, this.props.downloadStatus);
     if (download) {
       if (alreadyDownloaded) {
         this.setState({ showDeleteDialog: true, deleteFileTitle: title });
         // this.deleteEpisode(title);
       } else {
-        this.props.navigation.navigate('DownloadFiles', {
-          episodeId,
+        if (this.props.downloadStatus === undefined && checkIndex === index) {
+          this.setState({ checkDownloadStatus: false });
+        }
+        this.props.downloadEpisode({
+          exercises,
           episodeTitle: title,
+          episodeId,
           category,
           description,
-          exercises,
           video,
           totalTime,
           workoutTime,
           videoSize,
-          startWT,
-          counter,
-          endWT,
           episodeIndex,
           seriesIndex,
+          startWT,
+          endWT,
         });
       }
       return;
@@ -307,11 +316,17 @@ class EpisodeList extends React.Component {
     return counter;
   }
 
-  readDirectory = () => {
+  readDirectory = (check) => {
     const { dirs, ls } = RNFetchBlob.fs;
     ls(`${dirs.DocumentDir}/AST/episodes`)
       .then((files) => {
-        this.setState({ filesList: files });
+        this.setState({ filesList: files, index: 0, downloadActive: false });
+        // if (check) {
+        //   this.setState({ filesList: files, index: 0, downloadActive: false });
+        // } else {
+        //   // this.setState({ filesList: files });
+        //   this.setState({ filesList: files, index: 0, downloadActive: false });
+        // }
       })
       .catch((error) => {
         console.log(error);
@@ -378,14 +393,14 @@ class EpisodeList extends React.Component {
         if (exists) {
           this.child.deleteEpisodes(fileName);
         }
-        this.readDirectory();
+        this.readDirectory(true);
         this.renderList();
       });
   }
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount,
+      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
     } = this.state;
     console.log(series);
     // let minIndex = 0;
@@ -440,10 +455,18 @@ class EpisodeList extends React.Component {
               titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: 18 }}
               subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }}
               rightIcon={
-                downloaded
+                  downloaded
                   ? { name: 'trash-2', type: 'feather', color: 'white' }
-                  : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white' }
-                  // : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }
+                  : (
+                      this.props.downloadStatus && index === (episodeIndex + 1)
+                        ? { name: 'trash-2', type: 'feather', color: 'white' }
+                        : (
+                            downloadActive === true && index === (episodeIndex + 1)
+                            ?  <ActivityIndicator size="small" color="gray" />
+                            : { name: 'download', type: 'feather', color: 'white' }
+                          )
+                    )
+                // : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }
                 }
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
@@ -451,48 +474,40 @@ class EpisodeList extends React.Component {
                 if (!isConnected) {
                   return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                 }
+                if (this.state.downloadActive) {
+                  return this.setState({ showModal: true, modalText: 'Please wait while download finishes' });
+                }
                 // if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counterArray[episodeIndex] >= 2)) {
                 //   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 // }
                 if (!buy) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
-                this.props.downloadEpisode({
-                  exercises,
-                  episodeTitle: title,
-                  episodeId: uid,
-                  category,
-                  description,
-                  video,
-                  totalTime,
-                  workoutTime,
-                  videoSize,
-                  episodeIndex,
-                  seriesIndex,
-                  startWT,
-                  endWT,
-                });
-                // this.onEpisodeClick(
-                //   title,
-                //   uid,
-                //   category,
-                //   description,
-                //   exercises,
-                //   video,
-                //   startWT,
-                //   endWT,
-                //   totalTime,
-                //   workoutTime,
-                //   videoSize,
-                //   episodeIndex,
-                //   seriesIndex,
-                //   deviceId,
-                //   counterArray[episodeIndex],
-                //   buy,
-                //   downloaded,
-                //   completed,
-                //   true,
-                // );
+                this.setState({ index: (episodeIndex + 1), downloadActive: true },
+                  () => {
+                    this.onEpisodeClick(
+                      (episodeIndex + 1),
+                      title,
+                      uid,
+                      category,
+                      description,
+                      exercises,
+                      video,
+                      startWT,
+                      endWT,
+                      totalTime,
+                      workoutTime,
+                      videoSize,
+                      episodeIndex,
+                      seriesIndex,
+                      deviceId,
+                      counterArray[episodeIndex],
+                      buy,
+                      downloaded,
+                      completed,
+                      true,
+                    );
+                  });
               }
               }
               onPress={() => {
@@ -503,6 +518,7 @@ class EpisodeList extends React.Component {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
                 this.onEpisodeClick(
+                  (episodeIndex + 1),
                   title,
                   uid,
                   category,
@@ -579,6 +595,7 @@ class EpisodeList extends React.Component {
       isConnected, lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle,
     } = this.state;
     if (loading) return <LoadScreen />;
+    console.log(this.props.downloadStatus);
     const {
       episodeTitle,
       episodeId,
@@ -637,6 +654,7 @@ class EpisodeList extends React.Component {
               } = completeEpisodes[id];
               
               this.onEpisodeClick(
+                (epIndex + 1),
                 title,
                 id,
                 category,
@@ -760,8 +778,8 @@ class EpisodeList extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return { check: state };
+const mapStateToProps = ({ download }) => {
+  return { downloadStatus: download.message };
 };
 
 const mapDispatchToProps = {

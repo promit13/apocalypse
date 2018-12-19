@@ -86,7 +86,28 @@ export default class App extends React.Component {
     }
   }
 
-  sendDataToFirebase = () => {
+  sendDataToFirebase = async () => {
+    const offlineData = await AsyncStorage.getItem('lastPlayedEpisode');
+    const jsonObjectData = JSON.parse(offlineData);
+    if (jsonObjectData !== null) {
+      const {
+        userId,
+        epId,
+        epTitle,
+        epIndex,
+        serIndex,
+        epCompleted,
+      } = jsonObjectData;
+      firebase.database().ref(`users/${userId}/lastPlayedEpisode`).set(
+        {
+          episodeTitle: epTitle,
+          episodeId: epId,
+          episodeIndex: epIndex,
+          seriesIndex: serIndex,
+          episodeCompleted: epCompleted,
+        },
+      ).then(() => AsyncStorage.removeItem('lastPlayedEpisode'));
+    }
     const allEpisodeWorkoutArray = Array.from(realm.objects('SavedWorkOut'));
     allEpisodeWorkoutArray.map((value, index) => {
       const { episodeId, uid, workOutLogs } = value;
@@ -98,28 +119,15 @@ export default class App extends React.Component {
         }
         if ((workOutIndex === workOutArrayLength - 1) && (index === allEpisodeWorkoutArray.length - 1)) {
           const {
-            episodeTitle,
-            episodeIndex,
-            seriesIndex,
             episodeCompleted,
           } = workOutValue;
-          firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
-            {
-              episodeTitle,
-              episodeId,
-              episodeIndex,
-              seriesIndex,
-              episodeCompleted,
-            },
-          ).then(() => {
-            if (episodeCompleted) {
-              firebase.database().ref(`users/${uid}/episodeCompletedArray`).push(
-                {
-                  episodeId,
-                },
-              );
-            }
-          });
+          if (episodeCompleted) {
+            firebase.database().ref(`users/${uid}/episodeCompletedArray`).push(
+              {
+                episodeId,
+              },
+            );
+          }
         }
         this.checkLogIfExists(false, workOutValue, uid, episodeId, workOutIndex, workOutArrayLength, workOutLogsArray);
       });
