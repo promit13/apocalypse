@@ -64,7 +64,7 @@ export default function AlbumArt({
             formattedUrl === ''
             ? (
               <Image
-              resizeMode='contain'
+                resizeMode='contain'
                 resizeMethod="scale"
                 style={styles.image}
                 source={talonImage}
@@ -72,6 +72,8 @@ export default function AlbumArt({
             )
             : (
               <Image
+                resizeMode='contain'
+                resizeMethod="scale"
                 style={styles.image}
                 source={{
                   uri: advance
@@ -83,6 +85,8 @@ export default function AlbumArt({
           )
           : (
             <Image
+              resizeMode='contain'
+              resizeMethod="scale"
               style={styles.image}
               source={{ uri: url }}
             />
