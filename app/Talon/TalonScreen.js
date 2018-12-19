@@ -184,40 +184,38 @@ export default class TalonScreen extends React.Component {
               const date = new Date(dateNow);
               const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
               return (
-                <ListItem
-                  title={`${formatDate} - ${distance} km (${steps} steps) in ${timeInterval} mins`}
-                  titleStyle={styles.textStyle}
-                  key={key}
-                  subtitle={
-                    (
-                      <View>
-                        <Image
-                          source={i === 1 ? talonRoute : talonRouteSecond}
-                          style={[styles.imageStyle, { height: 80, marginTop: 10, marginBottom: 10 }]}
-                          resizeMethod="resize"
-                        />
-                        <Image
-                          style={{
-                            height: 30,
-                            width: 30,
-                            marginBottom: -15,
-                            marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth),
-                          }}
-                          animation="fadeInLeft"
-                          source={runningMan}
-                        />
-                        <ProgressBarAnimated
-                          width={barWidth}
-                          {...progressCustomStyles}
-                          value={progressPercentage}
-                          barAnimationDuration={500}
-                        />
-                      </View>
-                    )
-                  }
-                  containerStyle={{ marginLeft: 10, marginRight: 10 }}
-                  hideChevron
-                />
+                <View>
+                  <ListItem
+                    title={`${formatDate} - ${distance} km (${steps} steps) in ${timeInterval} mins`}
+                    titleStyle={styles.textStyle}
+                    key={key}
+                    containerStyle={{ marginLeft: 10, marginRight: 10 }}
+                    hideChevron
+                  />
+                  <View style={{ backgroundColor: 'white', paddingBottom: 5, paddingLeft: 15, paddingRight: 15 }}>
+                    <Image
+                      source={i === 1 ? talonRoute : talonRouteSecond}
+                      style={[styles.imageStyle, { height: 80, marginTop: 10, marginBottom: 10 }]}
+                      resizeMethod="resize"
+                    />
+                    <Image
+                      style={{
+                        height: 25,
+                        width: 25,
+                        marginBottom: -12.5,
+                        marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth),
+                      }}
+                      animation="fadeInLeft"
+                      source={runningMan}
+                    />
+                    <ProgressBarAnimated
+                      width={barWidth}
+                      {...progressCustomStyles}
+                      value={progressPercentage}
+                      barAnimationDuration={500}
+                    />
+                  </View>
+                </View>
               );
               // }
             })
@@ -324,7 +322,7 @@ export default class TalonScreen extends React.Component {
                         )
                     )
                 }
-                title={ talonDone ? `Episode ${i + 1} Intel File` : 'No Essential Intel Available'}
+                title={talonDone ? `Episode ${i + 1} Intel File` : 'No Essential Intel Available'}
                 titleStyle={{
                   color:
                     category !== 'Speed' && talonDone && (talonArrayLength > 1) && workOutCompleted
