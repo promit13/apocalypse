@@ -156,12 +156,12 @@ export default class EpisodeSingle extends Component {
 
     if (platform === 'android') {
       
-      //GoogleFit.authorize((error, result) => {
-      //  if (error) {
-      //    console.log(`AUTH ERROR ${error}`);
-      //  }
-      //  console.log(`AUTH SUCCESS ${result}`);
-      //});
+      GoogleFit.authorize((error, result) => {
+        if (error) {
+          console.log(`AUTH ERROR ${error}`);
+        }
+        console.log(`AUTH SUCCESS ${result}`);
+      });
       
       // GoogleFit.onAuthorize(() => {
       //   console.log('AUTH SUCCESS');
