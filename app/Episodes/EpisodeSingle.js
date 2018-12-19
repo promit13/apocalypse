@@ -152,13 +152,17 @@ export default class EpisodeSingle extends Component {
       playingExercise: { value: { image: albumImage, title: '' } },
     });
     console.log('ONLINE', purchased);
+
+
     if (platform === 'android') {
-      GoogleFit.authorize((error, result) => {
-        if (error) {
-          console.log(`AUTH ERROR ${error}`);
-        }
-        console.log(`AUTH SUCCESS ${result}`);
-      });
+      
+      //GoogleFit.authorize((error, result) => {
+      //  if (error) {
+      //    console.log(`AUTH ERROR ${error}`);
+      //  }
+      //  console.log(`AUTH SUCCESS ${result}`);
+      //});
+      
       // GoogleFit.onAuthorize(() => {
       //   console.log('AUTH SUCCESS');
       // });
