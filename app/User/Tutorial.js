@@ -60,6 +60,7 @@ export default class Tutorial extends React.Component {
       const tutorials = Object.values(snapshot.val());
       const sortedTutorialArray = tutorials.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
       this.setState({ tutorials: sortedTutorialArray, loading: false, showButton });
+      console.log(this.state.tutorials);
     });
   }
 
@@ -67,8 +68,8 @@ export default class Tutorial extends React.Component {
     const { loading, showButton } = this.state;
     const tutorials = Object.entries(this.state.tutorials).map(([key, value], i) => {
       return (
-        <ScrollView>
-          <View style={styles.slideStyle}>
+        <ScrollView key={key}>
+          <View style={styles.slideStyle} key={key}>
             <Image resizeMode="contain" style={styles.imageStyle} source={{ uri: value.file }} />
             <Text style={styles.textStyle}>
               {value.description}
@@ -84,6 +85,7 @@ export default class Tutorial extends React.Component {
           // showsButtons // shows side arrows
           dotColor="#696238"
           activeDotColor="#f5cb23"
+          key={this.state.tutorials.length}
         >
           {tutorials}
         </Swiper>

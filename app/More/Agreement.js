@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
 import { CheckBox, Text, Icon } from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import axios from 'axios';
@@ -71,7 +71,7 @@ export default class Agreement extends React.Component {
               axios.get(
                 `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
               ).then((response) => {
-                const { email, first_name, last_name} = response.data;
+                const { email, first_name, last_name } = response.data;
                 const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
                 firebase.auth().signInAndRetrieveDataWithCredential(credential)
                   .then((currentUser) => {
@@ -133,17 +133,21 @@ export default class Agreement extends React.Component {
             ? (
               <View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <CheckBox
-                    checked={checked}
-                    checkedColor="#f5cb23"
-                    containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -25 }}
-                    onIconPress={() => {
-                      this.setState({ checked: !checked });
-                    }}
-                  />
-                  <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold' }}>
-                    I agree to the User Agreement
-                  </Text>
+                  <TouchableOpacity
+                    style={{flexDirection:'row', flexWrap:'wrap'}}
+                    onPress={() => this.setState({ checked: !checked })}
+                  >
+                    <CheckBox
+                      checked={checked}
+                      onPress={() => this.setState({ checked: !checked })}
+                      checkedColor="#f5cb23"
+                      containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -20 }}
+
+                    />
+                    <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', marginTop: 17 }}>
+                      I agree to the User Agreement
+                    </Text>
+                  </TouchableOpacity>
                 </View>
                 <TouchableOpacity onPress={() => {
                   if (checked) {
