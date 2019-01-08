@@ -92,6 +92,7 @@ export default class EpisodeView extends React.Component {
     freeTrials: '',
     showModal: false,
     mode: false,
+    isConnected: false,
   }
 
   componentDidMount= async () => {
@@ -118,13 +119,15 @@ export default class EpisodeView extends React.Component {
       counter,
     } = this.props.navigation.state.params;
     console.log(deviceId);
-    this.setState({ offline });
-    if (offline && episodeList && !netInfo) {
-      this.getOfflineDatas(title, deviceId, offline, purchased, counter);
-    } else if (offline && !episodeList && netInfo) {
-      this.getOfflineDatas(title, deviceId, offline, purchased, counter);
-    } else if (offline && !episodeList && !netInfo) {
-      this.getOfflineDatas(title, deviceId, offline, purchased, counter);
+    // if (offline && episodeList && !netInfo) {
+    //   this.getOfflineDatas(title, deviceId, offline, purchased, counter);
+    // } else if (offline && !episodeList && netInfo) {
+    //   this.getOfflineDatas(title, deviceId, offline, purchased, counter);
+    // } else if (offline && !episodeList && !netInfo) {
+    //   this.getOfflineDatas(title, deviceId, offline, purchased, counter);
+    // }
+    if (offline) {
+      this.getOfflineDatas(title, deviceId, offline, purchased, counter, episodeList, netInfo);
     } else {
       let freeTrials;
       if (counter === 0) {
@@ -157,7 +160,8 @@ export default class EpisodeView extends React.Component {
           uid: this.props.screenProps.user.uid,
           completeExercises: snapshot.val(),
           loading: false,
-          episodeList: true,
+          episodeList,
+          isConnected: netInfo,
         });
       });
       this.setImage(category);
@@ -174,7 +178,8 @@ export default class EpisodeView extends React.Component {
   //   }
   // }
 
-  getOfflineDatas = async (episodeTitle, deviceId, offline, purchased, counter) => {
+  getOfflineDatas = async (episodeTitle, deviceId, offline, purchased, counter, episodeList, netInfo) => {
+    console.log('OFFLINE');
     const offlineData = await AsyncStorage.getItem('series');
     const jsonObjectData = JSON.parse(offlineData);
     const { uid } = jsonObjectData;
@@ -215,10 +220,12 @@ export default class EpisodeView extends React.Component {
       video,
       deviceId,
       purchased,
+      episodeList,
       offline,
       counter,
       exerciseLengthList: Array.from(exerciseLengthList),
       loading: false,
+      isConnected: netInfo,
     });
     this.setImage(category);
   }
@@ -261,6 +268,7 @@ export default class EpisodeView extends React.Component {
       deviceId,
       counter,
       purchased,
+      offline,
     } = this.state;
     this.props.navigation.navigate(navigateTo, {
       check,
@@ -283,6 +291,7 @@ export default class EpisodeView extends React.Component {
       completeExercises,
       deviceId,
       purchased,
+      offline,
     });
   }
 
@@ -367,7 +376,7 @@ export default class EpisodeView extends React.Component {
 
   render() {
     const {
-      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex, completed, episodeList, loading, exercises, purchased, showModal, freeTrials, mode,
+      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex, completed, episodeList, loading, exercises, purchased, showModal, freeTrials, mode, isConnected,
     } = this.state;
     if (loading) return <LoadScreen />;
     return (
@@ -407,6 +416,14 @@ export default class EpisodeView extends React.Component {
               {`Size: ${videoSize} MB`}
             </Text>
           </View>
+          {/* <View style={{ flex: 1 }}>
+            <Icon
+              name={offline ? 'trash-2' : 'download'}
+              color="white"
+              type="feather"
+              iconStyle={{ marginLeft: 15 }}
+            />
+          </View> */}
         </View>
         <View>
           <View style={{ flexDirection: 'row', paddingLeft: 15 }}>
@@ -430,7 +447,7 @@ export default class EpisodeView extends React.Component {
               title="Workout Mode"
               onPress={() => {
                 if (purchased) {
-                  if (offline && !episodeList) {
+                  if ((offline && !episodeList) || !isConnected) {
                   // if (offline) {
                     return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
                   }
@@ -457,7 +474,7 @@ export default class EpisodeView extends React.Component {
               onPress={() => {
                 if (purchased) {
                   // if (offline) {
-                  if (offline && !episodeList) {
+                  if ((offline && !episodeList) || !isConnected) {
                     return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
                   }
                   this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
@@ -478,13 +495,13 @@ export default class EpisodeView extends React.Component {
           onPress={() => {
             this.setState({ showModal: false });
             if (mode) {
-              if (offline) {
-                // if (offline && !episodeList) {
+              // if (offline) {
+              if (offline && !episodeList) {
                 return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
               }
               this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
             } else {
-              if (offline) {
+              if (offline && !episodeList) {
                 return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
               }
               this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
@@ -528,7 +545,7 @@ export default class EpisodeView extends React.Component {
         }
         <View style={styles.line} />
         <View />
-        { offline && !episodeList ? this.renderOfflineExerciseList() : this.renderExerciseList()}
+        { offline ? this.renderOfflineExerciseList() : this.renderExerciseList()}
       </ScrollView>
     );
   }

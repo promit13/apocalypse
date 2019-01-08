@@ -30,9 +30,10 @@ const startDownload = (
   const formattedFileName = episodeTitle.replace(/ /g, '_');
   RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
     .then((exist) => {
-      if (exist) {
-        return this.setState({ loading: false, showModal: true, modalText: 'Episode already downloaded' });
-      }
+      // if (exist) {
+      //   console.log('already exists');
+      //   return this.setState({ loading: false, showModal: true, modalText: 'Episode already downloaded' });
+      // }
       
       RNFetchBlob
         .config({
@@ -41,25 +42,25 @@ const startDownload = (
         .fetch('GET', `${video}`, {
         })
         .then((res) => {
-          realm.write(() => {
-            realm.create('SavedEpisodes', {
-              id: episodeId,
-              title: episodeTitle,
-              category,
-              description,
-              exerciseLengthList,
-              exerciseIdList,
-              totalTime,
-              video,
-              workoutTime,
-              videoSize,
-              episodeIndex,
-              seriesIndex,
-              startWT,
-              endWT,
-            });
-          });
           if (exercisesList.length === 0) {
+            realm.write(() => {
+              realm.create('SavedEpisodes', {
+                id: episodeId,
+                title: episodeTitle,
+                category,
+                description,
+                exerciseLengthList,
+                exerciseIdList,
+                totalTime,
+                video,
+                workoutTime,
+                videoSize,
+                episodeIndex,
+                seriesIndex,
+                startWT,
+                endWT,
+              });
+            });
             exercisesList = [];
             exerciseLengthList = [];
             exerciseIdList = [];
@@ -87,9 +88,9 @@ const startDownload = (
                     advanced: advanced === undefined ? false : true,
                   });
                 });
-                if (alreadyExist) {
-                  return;
-                }
+                // if (alreadyExist) {
+                //   return;
+                // }
                 if (exercise.video === '') {
                   RNFetchBlob
                     .config({
@@ -104,6 +105,24 @@ const startDownload = (
                         .fetch('GET', advanced === undefined ? image : advanced.image, {
                         }).then(() => {
                           if (i === (exercisesList.length - 1)) {
+                            realm.write(() => {
+                              realm.create('SavedEpisodes', {
+                                id: episodeId,
+                                title: episodeTitle,
+                                category,
+                                description,
+                                exerciseLengthList,
+                                exerciseIdList,
+                                totalTime,
+                                video,
+                                workoutTime,
+                                videoSize,
+                                episodeIndex,
+                                seriesIndex,
+                                startWT,
+                                endWT,
+                              });
+                            });
                             exercisesList = [];
                             exerciseLengthList = [];
                             exerciseIdList = [];
@@ -145,6 +164,24 @@ const startDownload = (
                               .fetch('GET', advanced === undefined ? image : advanced.image, {
                               }).then(() => {
                                 if (i === (exercisesList.length - 1)) {
+                                  realm.write(() => {
+                                    realm.create('SavedEpisodes', {
+                                      id: episodeId,
+                                      title: episodeTitle,
+                                      category,
+                                      description,
+                                      exerciseLengthList,
+                                      exerciseIdList,
+                                      totalTime,
+                                      video,
+                                      workoutTime,
+                                      videoSize,
+                                      episodeIndex,
+                                      seriesIndex,
+                                      startWT,
+                                      endWT,
+                                    });
+                                  });
                                   exercisesList = [];
                                   exerciseLengthList = [];
                                   exerciseIdList = [];

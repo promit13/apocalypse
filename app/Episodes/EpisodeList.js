@@ -11,6 +11,7 @@ import Permissions from 'react-native-permissions';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Orientation from 'react-native-orientation';
 import DeviceInfo from 'react-native-device-info';
+import realm from '../config/Database';
 import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
@@ -18,6 +19,7 @@ import OfflineMsg from '../common/OfflineMsg';
 import DeleteDownloads from '../common/DeleteDownloads';
 import store from '../store';
 import downloadEpisode from '../actions/download';
+import deleteEpisode from '../actions/deleteEpisode';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 110;
@@ -184,7 +186,7 @@ class EpisodeList extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.props.downloadStatus === prevState.downloadActive) {
       this.readDirectory();
-      this.renderList();
+      // this.renderList();
     }
     // if (this.props.navigation.state.params === undefined) {
     //   return;
@@ -221,8 +223,6 @@ class EpisodeList extends React.Component {
     completed,
     download,
   ) => {
-    const { index } = this.state;
-     console.log('CHECK INDEX', checkIndex, index, this.props.downloadStatus);
     if (download) {
       if (alreadyDownloaded) {
         this.setState({ showDeleteDialog: true, deleteFileTitle: title });
@@ -313,21 +313,28 @@ class EpisodeList extends React.Component {
     return counter;
   }
 
-  readDirectory = (check) => {
-    const { dirs, ls } = RNFetchBlob.fs;
-    ls(`${dirs.DocumentDir}/AST/episodes`)
-      .then((files) => {
-        this.setState({ filesList: files, index: 0, downloadActive: false });
-        if (check) {
-          this.setState({ filesList: files, index: 0, downloadActive: false });
-        } else {
-          // this.setState({ filesList: files });
-          this.setState({ filesList: files });
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  readDirectory = () => {
+    // const { dirs, ls } = RNFetchBlob.fs;
+    console.log('RENDER DIRECTORY');
+    const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
+    const files = allEpisodes.map((episodeValue) => {
+      return episodeValue.title;
+    });
+    this.setState({ filesList: files, index: 0, downloadActive: false });
+
+    // ls(`${dirs.DocumentDir}/AST/episodes`)
+    //   .then((files) => {
+    //     // this.setState({ filesList: files, index: 0, downloadActive: false });
+    //     if (check) {
+    //       this.setState({ filesList: files, index: 0, downloadActive: false });
+    //     } else {
+    //       // this.setState({ filesList: files });
+    //       this.setState({ filesList: files });
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
   }
 
   requestPermissions = async () => {
@@ -383,16 +390,20 @@ class EpisodeList extends React.Component {
   }
 
   deleteEpisode = (fileName) => {
-    const { dirs } = RNFetchBlob.fs;
-    const formattedFileName = fileName.replace(/ /g, '_');
-    RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
-      .then((exists) => {
-        if (exists) {
-          this.child.deleteEpisodes(fileName);
-        }
-        this.readDirectory(true);
-        this.renderList();
-      });
+    this.child.deleteEpisodes(fileName);
+    this.readDirectory();
+    // this.readDirectory();
+    // this.renderList();
+    // const { dirs } = RNFetchBlob.fs;
+    // const formattedFileName = fileName.replace(/ /g, '_');
+    // RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
+    //   .then((exists) => {
+    //     if (exists) {
+    //       this.child.deleteEpisodes(fileName);
+    //     }
+    //     this.readDirectory(true);
+    //     this.renderList();
+    //   });
   }
 
   renderList = () => {
@@ -416,8 +427,8 @@ class EpisodeList extends React.Component {
           const {
             title, category, totalTime, workoutTime, videoSize, description, exercises, video, startWT, endWT,
           } = completeEpisodes[uid];
-          const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
-          const downloaded = filesList.includes(formattedFileName);
+          // const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
+          const downloaded = filesList.includes(title);
           let completed = completedEpisodesArray.some((el) => {
             return el.episodeId === uid;
           });

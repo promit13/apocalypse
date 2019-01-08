@@ -3,12 +3,14 @@ import {
   ScrollView, View, TouchableWithoutFeedback, TouchableOpacity,
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
+import { connect } from 'react-redux';
 import { Text, Icon } from 'react-native-elements';
 import realm from '../config/Database';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 import Loading from '../common/Loading';
-import DeleteDownloads from '../common/DeleteDownloads';
+import deleteEpisode from '../actions/deleteEpisode';
+// import DeleteDownloads from '../common/DeleteDownloads';
 
 const styles = {
   mainContainer: {
@@ -18,12 +20,16 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  listText: {
+    color: 'white',
+    marginLeft: 15,
+  },
   text: {
     color: 'white',
     fontSize: 14,
   },
 };
-export default class Downloads extends React.Component {
+class Downloads extends React.Component {
   static navigationOptions = {
     title: 'Downloads',
   };
@@ -34,65 +40,51 @@ export default class Downloads extends React.Component {
     showDeleteDialog: false,
     deleteFileTitle: '',
     filesList: [],
+    deleteStatus: false,
   }
 
   componentDidMount() {
     this.setState({ isConnected: this.props.screenProps.netInfo });
-    // this.requestPermissions();
     this.readDirectory();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.deleteStatus === prevState.deleteStatus) {
+      this.readDirectory();
+    }
   }
   
   readDirectory = () => {
-    const { dirs, ls } = RNFetchBlob.fs;
-    ls(`${dirs.DocumentDir}/AST/episodes`)
-      .then((files) => {
-        if (files.length === 0) {
-          this.setState({ showModal: true });
-        }
-        this.setState({ filesList: files });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
+    const files = allEpisodes.map((episodeValue) => {
+      const {
+        title, episodeIndex, category, videoSize,
+      } = episodeValue;
+      return {
+        title, episodeIndex, category, videoSize,
+      };
+    });
+    this.setState({ filesList: files, deleteStatus: false });
   }
-
-  // requestPermissions = async () => {
-  //   Permissions.check('mediaLibrary').then((response) => {
-  //     // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-  //     if (response !== 'authorized') {
-  //       Permissions.request('mediaLibrary').then((res) => {
-  //         console.log(res);
-  //       });
-  //     }
-  //   });
-  // }
 
   delete = (fileName) => {
-    this.child.deleteEpisodes(fileName);
-    this.readDirectory();
+    this.setState({ deleteStatus: true });
+    this.props.deleteEpisode(fileName);
   }
 
-  renderDeleteButton = (i, fileName) => {
-    // if (i === this.state.index && this.state.showDeleteButton) {
-    // this.delete(fileName)
+  renderDeleteButton = (fileName) => {
     return (
       <TouchableOpacity onPress={() => this.setState({ showDeleteDialog: true, deleteFileTitle: fileName })}>
         <View style={{
-          backgroundColor: 'red',
-          justifyContent: 'center',
-          alignItems: 'center',
           alignSelf: 'flex-end',
-          padding: 5,
+          marginRight: 15,
         }}
         >
           <Icon
-            name="trash"
+            name="trash-2"
             color="white"
-            type="evilicon"
+            type="feather"
           />
-          <Text style={styles.text}>
-          Delete
-          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -100,32 +92,38 @@ export default class Downloads extends React.Component {
   }
 
   render() {
-    const { isConnected, showModal, showLoading, showDeleteDialog, deleteFileTitle } = this.state;
-    const filesList = this.state.filesList.map((file, i) => {
-      const fileName = file.split('.');
-      const formattedFile = fileName[0].replace(/_/g, ' ');
+    const {
+      isConnected, showModal, showLoading, showDeleteDialog, deleteFileTitle, filesList,
+    } = this.state;
+    const episodesList = filesList.map((file) => {
+      // const fileName = file.split('.');
+      // const title = fileName[0].replace(/_/g, ' ');
+      const {
+        title, episodeIndex, category, videoSize,
+      } = file;
       return (
         <TouchableWithoutFeedback
           onPress={() => {
-            const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${formattedFile}"`));
-            const { episodeIndex } = episodeDetail[0];
             this.props.navigation.navigate('EpisodeView', {
               offline: true,
-              title: formattedFile,
+              title,
               purchased: true,
               episodeIndex,
+              episodesList: false,
             });
           }}
-          // onLongPress={() => {
-          //   this.setState({ showDeleteButton: true, index: i + 1 });
-          // }}
         >
           <View>
             <View style={styles.mainContainer}>
-              <Text style={{ fontSize: 18, color: 'white', margin: 15 }}>
-                {formattedFile}
-              </Text>
-              {this.renderDeleteButton((i + 1), formattedFile)}
+              <View style={{ flexDirection: 'column' }}>
+                <Text style={[styles.listText, { marginTop: 15, fontSize: 18 }]}>
+                  {`${episodeIndex + 1}. ${title}`}
+                </Text>
+                <Text style={[styles.listText, { marginBottom: 15 }]}>
+                  {`${category} - ${videoSize} MB`}
+                </Text>
+              </View>
+              {this.renderDeleteButton(title)}
             </View>
             {showLoading ? <Loading /> : null}
             <View style={{
@@ -142,7 +140,7 @@ export default class Downloads extends React.Component {
     return (
       <View style={{ flex: 1, backgroundColor: '#001331' }}>
         { !isConnected ? <OfflineMsg /> : null }
-        <DeleteDownloads ref={ref => (this.child = ref)} />
+        {/* <DeleteDownloads ref={ref => (this.child = ref)} /> */}
         <ShowModal
           visible={showModal}
           title="You do not have any downloads"
@@ -164,9 +162,19 @@ export default class Downloads extends React.Component {
           onPress={() => this.setState({ showDeleteDialog: false })}
         />
         <ScrollView>
-          {filesList}
+          {episodesList}
         </ScrollView>
       </View>
     );
   }
 }
+
+const mapStateToProps = ({ deleteEpisodeReducer }) => {
+  return { deleteStatus: deleteEpisodeReducer.message };
+};
+
+const mapDispatchToProps = {
+  deleteEpisode,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Downloads);

@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Text, Button, Icon } from 'react-native-elements';
 import MusicControl from 'react-native-music-control';
+import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
 import Pedometer from 'react-native-pedometer';
 import GoogleFit from 'react-native-google-fit';
@@ -113,6 +114,7 @@ export default class EpisodeSingle extends Component {
     mode: '',
     platform: '',
     showInfo: false,
+    offline: false,
     episodeCompleted: false,
     workOutCompleted: false,
     formattedWorkOutStartTime: 0,
@@ -127,12 +129,14 @@ export default class EpisodeSingle extends Component {
     counter: 0,
   };
 
-  componentDidMount = async () => {
+  componentDidMount = () => {
     Orientation.unlockAllOrientations();
     const platform = Platform.OS;
+    const { dirs } = RNFetchBlob.fs;
     const {
-      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance, uid, deviceId, purchased, counter,
+      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance, uid, deviceId, purchased, counter, offline,
     } = this.props.navigation.state.params;
+    const formattedFileName = title.replace(/ /g, '_');
     console.log('COUNTER', counter);
     this.setState({
       listen: check,
@@ -142,13 +146,14 @@ export default class EpisodeSingle extends Component {
       episodeIndex,
       seriesIndex,
       platform,
-      video,
+      video: offline ? `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4` : video,
       mode,
       episodeTitle: title,
       uid,
       deviceId,
       purchased,
       counter,
+      offline,
       playingExercise: { value: { image: albumImage, title: '' } },
     });
     console.log('ONLINE', purchased);
@@ -216,14 +221,18 @@ export default class EpisodeSingle extends Component {
   }
 
   onExercisePress = () => {
+    const { offline, advance } = this.state;
     const { video, image, title } = this.state.playingExercise.value;
     this.props.navigation.navigate('TalonIntelPlayer', {
+      offline,
       exercise: true,
-      video,
-      exerciseTitle: title,
-      image,
       mode: 'Exercise Player',
-      navigateBack: 'EpisodeSingle',
+      video,
+      exerciseTitle: offline ? image : title,
+      episodeExerciseTitle: title,
+      image,
+      advance,
+      navigateBack: offline ? 'DownloadTestPlayer' : 'EpisodeSingle',
     });
     this.setState({ paused: true });
   }
@@ -235,7 +244,7 @@ export default class EpisodeSingle extends Component {
 
   onProgress = (data) => {
     const {
-      paused, listen, playDate, currentTime, formattedWorkOutStartTime, trackingStarted, formattedWorkOutEndTime,
+      paused, listen, playDate, currentTime, formattedWorkOutStartTime, trackingStarted, formattedWorkOutEndTime, offline,
     } = this.state;
     if (!paused) { // onProgress gets called when component starts in IOS
       if (trackingStarted) {
@@ -247,7 +256,11 @@ export default class EpisodeSingle extends Component {
           this.setState({ currentTime: data.currentTime, workOutTime: (data.currentTime - formattedWorkOutStartTime) });
         }
       } else this.setState({ currentTime: data.currentTime });
-      this.changeExercises();
+      if (offline) {
+        this.changeOfflineExercise();
+      } else {
+        this.changeExercises();
+      }
       if (!listen) {
         const currentDate = this.getDate();
         if (((currentDate - playDate) > 60000) && (currentTime > formattedWorkOutStartTime)) {
@@ -615,21 +628,23 @@ export default class EpisodeSingle extends Component {
     });
 
     MusicControl.on('skipForward', () => {
-      this.onForward();
-    });
-
-    MusicControl.setNowPlaying({
-      title,
-      duration: data.duration,
-      artwork: appicon,
+      if (check) {
+        this.onForward();
+      }
     });
 
     MusicControl.enableControl('previousTrack', !check);
     MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', true, { interval: 10 }); // iOS only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
+
+    MusicControl.setNowPlaying({
+      title,
+      duration: data.duration,
+      artwork: appicon,
+    });
   }
 
   updateMusicControl = (elapsedTime) => {
@@ -783,6 +798,37 @@ export default class EpisodeSingle extends Component {
     });
   }
 
+  changeOfflineExercise = () => {
+    const { exercises, exerciseLengthList } = this.props.navigation.state.params;
+    if (exercises.length === 0) {
+      return;
+    }
+    const {
+      formattedWorkOutStartTime, currentTime, listen, trackingStarted,
+    } = this.state;
+    if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
+      // this.setLastPlayedEpisode();
+      this.startTrackingSteps();
+      this.setState({ trackingStarted: true });
+    }
+    exerciseLengthList.map((value, i) => {
+      if (this.state.currentTime > (value / 1000)) {
+        const exercise = exercises[i];
+        const {
+          cmsTitle, visible, title, episodeExerciseTitle,
+        } = exercise[0];
+        const showInfo = visible;
+        this.setState({
+          showInfo,
+          playingExercise: {
+            value: { image: cmsTitle, title, episodeExerciseTitle },
+          },
+        });
+        this.state.previousStartTime.push(value / 1000);
+      }
+    });
+  }
+
   handleBackButton = () => {
     this.navigateToEpisodeView();
     return true;
@@ -790,7 +836,7 @@ export default class EpisodeSingle extends Component {
 
   renderLandscapeView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime,
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime, offline,
       showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
@@ -844,6 +890,7 @@ export default class EpisodeSingle extends Component {
               currentExercise={episodeExerciseTitle}
               onPress={this.onExercisePress}
               showInfo={showInfo}
+              offline={offline}
             />
           </View>
           <View style={{ marginTop: 30, flex: 0.5, justifyContent: 'space-between' }}>
@@ -935,8 +982,8 @@ export default class EpisodeSingle extends Component {
 
   renderPortraitView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime,
-      category, showWelcomeDialog, showIntroAdvanceDialog,
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime, offline,
+      video, showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
@@ -988,6 +1035,7 @@ export default class EpisodeSingle extends Component {
             onPress={this.onExercisePress}
             showInfo={showInfo}
             paddingTop={20}
+            offline={offline}
           />
           <View style={styles.line} />
         </View>

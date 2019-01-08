@@ -554,21 +554,23 @@ export default class DownloadTestPlayer extends Component {
     });
 
     MusicControl.on('skipForward', () => {
-      this.onForward();
-    });
-
-    MusicControl.setNowPlaying({
-      title,
-      duration: data.duration,
-      artwork: appicon,
+      if (check) {
+        this.onForward();
+      }
     });
 
     MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
     MusicControl.enableControl('previousTrack', !check);
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', true, { interval: 10 }); // iOS only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
+
+    MusicControl.setNowPlaying({
+      title,
+      duration: data.duration,
+      artwork: appicon,
+    });
   }
 
   updateMusicControl = (elapsedTime) => {

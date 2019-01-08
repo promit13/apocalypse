@@ -250,11 +250,21 @@ export default class TalonIntelPlayer extends Component {
     });
 
     MusicControl.on('skipForward', () => {
-      this.onForward();
+      if (!exercise) {
+        this.onForward();
+      }
     });
     MusicControl.on('skipBackward', () => {
-      this.onBack();
+      if (!exercise) {
+        this.onBack();
+      }
     });
+
+    MusicControl.enableControl('play', true);
+    MusicControl.enableControl('pause', true);
+    MusicControl.enableControl('skipForward', true, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipBackward', true, { interval: 10 }); // iOS only
+    MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
       title: exerciseTitle,
@@ -262,12 +272,6 @@ export default class TalonIntelPlayer extends Component {
       // artwork: playingExercise.value.image,
       artwork: appicon,
     });
-
-    MusicControl.enableControl('play', true);
-    MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', !exercise, { interval: 10 }); // iOS only
-    MusicControl.enableControl('skipBackward', !exercise, { interval: 10 }); // iOS only
-    MusicControl.enableControl('closeNotification', true, { when: 'paused' });
   }
 
   updateMusicControl = (elapsedTime) => {
