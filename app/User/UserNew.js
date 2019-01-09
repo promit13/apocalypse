@@ -6,10 +6,10 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {
   Button, Text, Icon, CheckBox,
 } from 'react-native-elements';
+import axios from 'axios';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
-
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
 
@@ -124,6 +124,7 @@ export default class Signup extends React.Component {
         //   })
         //   .catch(err => console.log(err));
         this.setUserData(currentUser);
+        axios.post('http://178.128.170.252/', { userEmail: email });
       })
       .catch((error) => {
         this.setState({ showError: true, errorMessage: error.message, showLoading: false });
@@ -230,7 +231,7 @@ export default class Signup extends React.Component {
           {/* <SocialIcon
             title="Sign up With Facebook"
             button
-            style={{ marginTop: 15 }}
+            style={{ marginTop: 15 }
             type="facebook"
             onPress={() => {
               this.setState({ showLoading: true });
