@@ -174,12 +174,7 @@ export default class MyAccount extends React.Component {
     const { providerId } = this.state;
     const items = listItems.map((item, index) => {
       if (index === 1 && providerId !== 'password') {
-        console.log('renderlist inside IF')
-        var provider = new firebase.auth.FacebookAuthProvider();
-        provider.setCustomParameters({
-          'display': 'popup'
-        });
-        console.log(provider);
+        return console.log('FACEBOOK PROVIDER');
       }
       return (
         <ListItem

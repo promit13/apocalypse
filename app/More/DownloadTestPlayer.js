@@ -126,9 +126,9 @@ export default class DownloadTestPlayer extends Component {
     showIntroAdvanceDialog: false,
   };
 
-  componentWillMount() {
-    this.setState({ playingExercise: { value: { image: '', title: '' } } });
-  }
+  // componentWillMount() {
+  //   this.setState({ playingExercise: { value: { image: '', title: '' } } });
+  // }
 
   componentDidMount = async () => {
     Orientation.unlockAllOrientations();
@@ -136,8 +136,9 @@ export default class DownloadTestPlayer extends Component {
     const platform = Platform.OS;
     const { dirs } = RNFetchBlob.fs;
     const {
-      check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid,
+      check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid, exercises,
     } = this.props.navigation.state.params;
+    const { cmsTitle } = (exercises[0])[0];
     const formattedFileName = title.replace(/ /g, '_');
     this.setState({
       listen: check,
@@ -151,7 +152,7 @@ export default class DownloadTestPlayer extends Component {
       mode,
       episodeTitle: title,
       uid,
-      playingExercise: { value: { image: '', title: '' } },
+      playingExercise: { value: { image: cmsTitle, title: '' } },
     });
     if (platform === 'android') {
       GoogleFit.authorize((error, result) => {
@@ -317,6 +318,7 @@ export default class DownloadTestPlayer extends Component {
 
   onEnd = () => {
     // this.player.seek(0, 0);
+    this.updateMusicControl(0);
     this.setState({
       paused: true,
       currentTime: 0.0,
@@ -333,7 +335,8 @@ export default class DownloadTestPlayer extends Component {
 
   onPressPlay = () => {
     this.setState({ paused: false });
-    const { startDate, trackingStarted } = this.state;
+    const { startDate, trackingStarted, currentTime } = this.state;
+    this.updateMusicControl(currentTime);
     if (!this.state.listen) {
       const currentDate = this.getDate();
       if ((currentDate - startDate) < 900000) {
@@ -563,7 +566,8 @@ export default class DownloadTestPlayer extends Component {
     MusicControl.enableControl('previousTrack', !check);
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', true, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
@@ -582,6 +586,7 @@ export default class DownloadTestPlayer extends Component {
   sliderReleased = (currentTime) => {
     this.setState({ paused: false, currentTime });
     this.player.seek(currentTime);
+    this.updateMusicControl(currentTime);
   }
 
   formatWorkOutTime = () => {
@@ -602,6 +607,9 @@ export default class DownloadTestPlayer extends Component {
     try {
       if (listen) {
         this.setTimeFirebase();
+        if (onEnd) {
+          return console.log('EPISODE COMPLETED');
+        }
       } else {
         if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
@@ -806,8 +814,8 @@ export default class DownloadTestPlayer extends Component {
                     buttonText="Whoa, I'm with Flynn..."
                     secondButtonText="Hell yes, I'm with Bay!"
                     askAdvance
-                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
-                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
+                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
+                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
                   />
                   <View>
                     { !listen

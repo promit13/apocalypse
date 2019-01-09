@@ -134,10 +134,11 @@ export default class EpisodeSingle extends Component {
     const platform = Platform.OS;
     const { dirs } = RNFetchBlob.fs;
     const {
-      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance, uid, deviceId, purchased, counter, offline,
+      check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance, uid, deviceId, purchased, counter, offline, exercises, completeExercises,
     } = this.props.navigation.state.params;
     const formattedFileName = title.replace(/ /g, '_');
-    console.log('COUNTER', counter);
+    const firstImage = offline ? ((exercises[0])[0]).cmsTitle : (completeExercises[exercises[0].uid]).image;
+    // const { image, episodeExerciseTitle } = completeExercises[exercises[0].uid];
     this.setState({
       listen: check,
       episodeId,
@@ -154,28 +155,30 @@ export default class EpisodeSingle extends Component {
       purchased,
       counter,
       offline,
-      playingExercise: { value: { image: albumImage, title: '' } },
+      playingExercise: { value: { image: firstImage } },
     });
-    console.log('ONLINE', purchased);
+    // if (platform === 'android') {
+    //   GoogleFit.isEnabled(() => {
+    //     GoogleFit.authorize((error, result) => {
+    //       if (error) {
+    //         console.log(`AUTH ERROR ${error}`);
+    //       }
+    //       console.log(`AUTH SUCCESS ${result}`);
+    //     });
+    //   });
+    // GoogleFit.authorize((error, result) => {
+    //   if (error) {
+    //     console.log(`AUTH ERROR ${error}`);
+    //   }
+    //   console.log(`AUTH SUCCESS ${result}`);
+    // });
+    // GoogleFit.onAuthorize(() => {
+    //   console.log('AUTH SUCCESS');
+    // });
 
-
-    if (platform === 'android') {
-      
-      GoogleFit.authorize((error, result) => {
-        if (error) {
-          console.log(`AUTH ERROR ${error}`);
-        }
-        console.log(`AUTH SUCCESS ${result}`);
-      });
-      
-      GoogleFit.onAuthorize(() => {
-        console.log('AUTH SUCCESS');
-      });
-  
-      GoogleFit.onAuthorizeFailure(() => {
-        console.log('AUTH FAILED');
-      });
-    }
+    // GoogleFit.onAuthorizeFailure(() => {
+    //   console.log('AUTH FAILED');
+    // });
     if (category === 'Speed') {
       this.setState({ showWelcomeDialog: true });
     } else {
@@ -232,7 +235,7 @@ export default class EpisodeSingle extends Component {
       episodeExerciseTitle: title,
       image,
       advance,
-      navigateBack: offline ? 'DownloadTestPlayer' : 'EpisodeSingle',
+      navigateBack: 'EpisodeSingle',
     });
     this.setState({ paused: true });
   }
@@ -333,6 +336,7 @@ export default class EpisodeSingle extends Component {
 
   onEnd = () => {
     // this.player.seek(0, 0);
+    this.updateMusicControl(0);
     this.setState({
       paused: true,
       currentTime: 0.0,
@@ -350,7 +354,8 @@ export default class EpisodeSingle extends Component {
 
   onPressPlay = () => {
     this.setState({ paused: false });
-    const { startDate } = this.state;
+    const { startDate, currentTime } = this.state;
+    this.updateMusicControl(currentTime);
     if (!this.state.listen) {
       const currentDate = this.getDate();
       if ((currentDate - startDate) < 900000) {
@@ -637,7 +642,8 @@ export default class EpisodeSingle extends Component {
     MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', true, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
@@ -656,6 +662,7 @@ export default class EpisodeSingle extends Component {
   sliderReleased = (currentTime) => {
     this.setState({ paused: false, currentTime });
     this.player.seek(currentTime);
+    this.updateMusicControl(currentTime);
   }
 
   storeDistance = async (timeInterval) => {
@@ -706,6 +713,9 @@ export default class EpisodeSingle extends Component {
     try {
       if (listen) {
         this.setTimeFirebase();
+        if (onEnd) {
+          return console.log('EPISODE COMPLETED');
+        }
       } else {
         const distance = await AsyncStorage.getItem('distance');
         if (distance !== null) {
@@ -715,7 +725,6 @@ export default class EpisodeSingle extends Component {
           this.setTimeFirebase();
         }
         if (onEnd) {
-          console.log('END');
           return this.setEpisodeCompletedArray();
         }
       }
@@ -836,7 +845,7 @@ export default class EpisodeSingle extends Component {
 
   renderLandscapeView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime, offline,
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime, offline, advance,
       showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
@@ -891,6 +900,7 @@ export default class EpisodeSingle extends Component {
               onPress={this.onExercisePress}
               showInfo={showInfo}
               offline={offline}
+              advance={advance}
             />
           </View>
           <View style={{ marginTop: 30, flex: 0.5, justifyContent: 'space-between' }}>
@@ -982,7 +992,7 @@ export default class EpisodeSingle extends Component {
 
   renderPortraitView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime, offline,
+      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime, offline, advance,
       video, showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
@@ -1036,6 +1046,7 @@ export default class EpisodeSingle extends Component {
             showInfo={showInfo}
             paddingTop={20}
             offline={offline}
+            advance={advance}
           />
           <View style={styles.line} />
         </View>
@@ -1058,8 +1069,8 @@ export default class EpisodeSingle extends Component {
                   buttonText="Whoa, I'm with Flynn..."
                   secondButtonText="Hell yes, I'm with Bay!"
                   askAdvance
-                  onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
-                  onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
+                  onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
+                  onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
                 />
                 { !listen
                   ? (

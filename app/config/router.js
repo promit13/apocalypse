@@ -30,12 +30,14 @@ import DownloadPlayer from '../More/DownloadPlayer';
 import ForgotPassword from '../User/ForgotPassword';
 import LoginSignup from '../User/LoginSignup';
 import DownloadTestPlayer from '../More/DownloadTestPlayer';
+import SplashScreen from '../common/Splashscreen';
 
 const talonIcon = require('../../img/talondark.png');
 const episodeIcon = require('../../img/episodes.png');
 const exerciseIcon = require('../../img/exercises.png');
 
 export const SignedOut = createStackNavigator({
+  SplashScreen: { screen: SplashScreen },
   LoginSignup: { screen: LoginSignup },
   Login: { screen: Login },
   Signup: { screen: UserNew },
@@ -86,6 +88,7 @@ export const TutorialDisplay = createStackNavigator({
 });
 
 const EpisodeStack = createStackNavigator({
+  SplashScreen: { screen: SplashScreen },
   EpisodeList: { screen: EpisodeList },
   EpisodeView: { screen: EpisodeView },
   TalonScreen: { screen: TalonScreen },
@@ -109,7 +112,7 @@ const EpisodeStack = createStackNavigator({
 
 EpisodeStack.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
-  if (navigation.state.index > 0) {
+  if (navigation.state.index === 0 || navigation.state.index > 1) {
     tabBarVisible = false;
   }
   return {

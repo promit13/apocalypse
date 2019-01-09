@@ -215,7 +215,7 @@ export default class TalonIntelPlayer extends Component {
 
   onEnd = () => {
     this.setState({ paused: true, currentTime: 0 });
-    this.player.seek(0, 10);
+    this.updateMusicControl(0);
   }
 
   onDragSeekBar = (currentTime) => {
@@ -262,8 +262,10 @@ export default class TalonIntelPlayer extends Component {
 
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', true, { interval: 10 }); // iOS only
-    MusicControl.enableControl('skipBackward', true, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', !exercise, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipBackward', !exercise, { interval: 10 }); // iOS only
+    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android
+    // MusicControl.enableControl('skipBackward', true, { interval: 10 }); // for android
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
@@ -296,6 +298,7 @@ export default class TalonIntelPlayer extends Component {
   sliderReleased = (currentTime) => {
     this.setState({ paused: false, currentTime });
     this.player.seek(currentTime, 10);
+    this.updateMusicControl(currentTime);
   }
 
   setEpisodeCompletedArray = (snap, snapshot) => {
@@ -578,7 +581,7 @@ export default class TalonIntelPlayer extends Component {
           onLoad={this.onLoad}
           onProgress={this.onProgress}
           onEnd={this.onEnd}
-          
+          repeat
           style={styles.audioElement}
         />
       );

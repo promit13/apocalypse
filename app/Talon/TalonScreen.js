@@ -75,7 +75,6 @@ export default class TalonScreen extends React.Component {
     showTalon: false,
     isConnected: true,
     showModal: false,
-    modalText: '',
     modalTitle: '',
     lastPlayedEpisode: '',
     series: '',
@@ -232,7 +231,7 @@ export default class TalonScreen extends React.Component {
     }
     if (lastPlayBar) {
       if (lastPlayedEpisode === '' || playedIntelArray.length === 0) {
-        return this.setState({ modalText: 'Complete Episode 1 to unlock your first intel', modalTitle: 'No intel available', showModal: true });
+        return this.setState({ modalTitle: 'No intel available', showModal: true });
       }
     }
     if (!workOutCompleted) {
@@ -271,7 +270,7 @@ export default class TalonScreen extends React.Component {
     // }
 
     const {
-      modalText, series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle,
+      series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle,
     } = this.state;
     let talonKeyArray = [];
     if (talonLogs !== '' && talonLogs !== null) {
@@ -416,7 +415,7 @@ export default class TalonScreen extends React.Component {
                       >
                         {/* {`${Object.values(Object.values(this.state.talonLogs)[0])[0].episodeTitle}`} */}
                         {lastPlayedEpisode === '' || playedIntelArray.length === 0
-                          ? 'Play Ep 1 to unlock your intel'
+                          ? null
                           : `${episodeTitle}`
                         }
                       </Text>
@@ -428,7 +427,6 @@ export default class TalonScreen extends React.Component {
               <ShowModal
                 visible={showModal}
                 title={modalTitle}
-                description={modalText}
                 buttonText="Got it"
                 onPress={() => {
                   this.setState({ showModal: false });

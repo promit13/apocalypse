@@ -49,9 +49,9 @@ export default class App extends React.Component {
     } else {
       const checkLoggedIn = await AsyncStorage.getItem('login');
       if (checkLoggedIn !== null) {
-        this.setState({ isConnected, loading: false, userLoggedIn: true });
+        this.setState({ isConnected, loading: false, userLoggedIn: true, user: null });
       } else {
-        this.setState({ isConnected, loading: false });
+        this.setState({ isConnected, loading: false, user: null });
       }
     }
   };
@@ -253,7 +253,7 @@ export default class App extends React.Component {
         } else {
           this.getLastLogId(check, snapshot.val(), workOutValue, uid, episodeId, workOutIndex, workOutArrayLength, workOutLogsArray);
         }
-      }
+      },
     );
   }
 
