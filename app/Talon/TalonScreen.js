@@ -226,7 +226,8 @@ export default class TalonScreen extends React.Component {
 
   navigateToTalonIntelPlayer = (episodeId, lastPlayBar, workOutCompleted) => {
     const { playedIntelArray, isConnected, lastPlayedEpisode } = this.state;
-    if (!isConnected) {
+    const { netInfo } = this.props.screenProps;
+    if (!netInfo) {
       return this.setState({ modalTitle: 'Please check your internet connection', showModal: true });
     }
     if (lastPlayBar) {
@@ -272,6 +273,7 @@ export default class TalonScreen extends React.Component {
     const {
       series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle,
     } = this.state;
+    const { netInfo } = this.props.screenProps;
     let talonKeyArray = [];
     if (talonLogs !== '' && talonLogs !== null) {
       talonKeyArray = Object.keys(talonLogs);
@@ -368,7 +370,7 @@ export default class TalonScreen extends React.Component {
         <StatusBar
           backgroundColor="#00000b"
         />
-        {!isConnected ? <OfflineMsg /> : null}
+        {!netInfo ? <OfflineMsg /> : null}
         {loading
           ? <Loading />
           : (

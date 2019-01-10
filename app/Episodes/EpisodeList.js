@@ -104,6 +104,7 @@ class EpisodeList extends React.Component {
   componentDidMount= async () => {
     Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
+    console.log('EPISODE LIST', netInfo);
     const deviceId = DeviceInfo.getDeviceId();
     // Alert.alert(deviceId);
 
@@ -188,12 +189,9 @@ class EpisodeList extends React.Component {
       this.readDirectory();
       // this.renderList();
     }
-    // if (this.props.navigation.state.params === undefined) {
-    //   return;
-    // }
-    // if (this.props.navigation.state.params.downloaded !== prevState.downloaded) {
+    // if (this.props.screenProps.netInfo !== prevState.isConnected) {
     //   this.readDirectory();
-    //   this.renderList();
+    //   // this.renderList();
     // }
   }
 
@@ -410,6 +408,7 @@ class EpisodeList extends React.Component {
     const {
       series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive, checkDownloadStatus,
     } = this.state;
+    const { netInfo } = this.props.screenProps;
     console.log('Renderlist', downloadActive, index);
     let counter;
     const counterArray = [];
@@ -477,7 +476,7 @@ class EpisodeList extends React.Component {
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
               onPressRightIcon={() => {
-                if (!isConnected) {
+                if (!netInfo) {
                   return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                 }
                 if (this.state.downloadActive) {
@@ -517,7 +516,7 @@ class EpisodeList extends React.Component {
               }
               }
               onPress={() => {
-                if (!isConnected && !downloaded) {
+                if (!netInfo && !downloaded) {
                   return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                 }
                 if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counterArray[episodeIndex] >= 2)) {
@@ -562,7 +561,7 @@ class EpisodeList extends React.Component {
                       title="Purchased"
                       buttonStyle={[styles.purchaseButtonStyle, { borderColor: 'white', borderWidth: 1 }]}
                       onPress={() => {
-                        if (!this.state.isConnected) {
+                        if (!netInfo) {
                           return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
                       }}
@@ -572,7 +571,7 @@ class EpisodeList extends React.Component {
                       title={`    £${value.price}    `}
                       buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
-                        if (!this.state.isConnected) {
+                        if (!netInfo) {
                           return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
                         const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
@@ -600,6 +599,7 @@ class EpisodeList extends React.Component {
     const {
       isConnected, lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle,
     } = this.state;
+    const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen />;
     console.log(this.props.downloadStatus);
     const {
@@ -614,7 +614,7 @@ class EpisodeList extends React.Component {
         {/* <StatusBar hidden /> */}
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         <DeleteDownloads ref={ref => (this.child = ref)} />
-        { !isConnected ? <OfflineMsg margin={18} /> : null }
+        { !netInfo ? <OfflineMsg margin={18} /> : null }
         <ScrollView>
           <View>
             <Image
@@ -624,7 +624,7 @@ class EpisodeList extends React.Component {
               source={homeCover}
             />
             <TouchableOpacity onPress={() => {
-              if (!isConnected) {
+              if (!netInfo) {
                 return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
               }
               const epIndex = lastPlayedEpisode === ''

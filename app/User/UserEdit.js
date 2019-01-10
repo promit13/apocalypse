@@ -7,6 +7,7 @@ import { AccessToken } from 'react-native-fbsdk';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+import ShowModal from '../common/ShowModal';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
@@ -63,6 +64,7 @@ export default class MyAccount extends React.Component {
   state = {
     password: '',
     showModal: false,
+    showInternetModal: false,
     showError: false,
     showLoading: false,
     providerId: 'password',
@@ -171,6 +173,7 @@ export default class MyAccount extends React.Component {
   }
 
   renderListItem = () => {
+    const { netInfo } = this.props.screenProps;
     const { providerId } = this.state;
     const items = listItems.map((item, index) => {
       if (index === 1 && providerId !== 'password') {
@@ -183,6 +186,9 @@ export default class MyAccount extends React.Component {
           titleStyle={{ color: 'white' }}
           underlayColor="#2a3545"
           onPress={() => {
+            if (!netInfo) {
+              return this.setState({ showInternetModal: true });
+            }
             if (index === 0) {
               return this.logOut();
             }
@@ -206,6 +212,14 @@ export default class MyAccount extends React.Component {
         <ScrollView>
           <Image style={styles.imageStyle} source={talonImage} />
           {this.showModal()}
+          <ShowModal
+            visible={this.state.showInternetModal}
+            title="Please check your internet connection"
+            buttonText="OK"
+            onPress={() => {
+              this.setState({ showInternetModal: false });
+            }}
+          />
           <View style={{ alignSelf: 'center', marginBottom: 10 }}>
             <Text style={[styles.text, { marginTop: 10, fontWeight: 'bold' }]}>
               Welcome, Agent Whiskey Gambit

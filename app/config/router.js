@@ -37,7 +37,6 @@ const episodeIcon = require('../../img/episodes.png');
 const exerciseIcon = require('../../img/exercises.png');
 
 export const SignedOut = createStackNavigator({
-  SplashScreen: { screen: SplashScreen },
   LoginSignup: { screen: LoginSignup },
   Login: { screen: Login },
   Signup: { screen: UserNew },
@@ -88,7 +87,6 @@ export const TutorialDisplay = createStackNavigator({
 });
 
 const EpisodeStack = createStackNavigator({
-  SplashScreen: { screen: SplashScreen },
   EpisodeList: { screen: EpisodeList },
   EpisodeView: { screen: EpisodeView },
   TalonScreen: { screen: TalonScreen },
@@ -112,7 +110,7 @@ const EpisodeStack = createStackNavigator({
 
 EpisodeStack.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
-  if (navigation.state.index === 0 || navigation.state.index > 1) {
+  if (navigation.state.index > 0) {
     tabBarVisible = false;
   }
   return {

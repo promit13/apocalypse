@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import firebase from '../config/firebase';
+import ShowModal from '../common/ShowModal';
 
 const styles = {
   mainViewContainer: {
@@ -33,6 +34,7 @@ export default class ExerciseList extends React.Component {
     exercises: '',
     introButtonColor: '#f5cb23',
     advancedButtonColor: '#fff',
+    showModal: false,
     advance: false,
   }
 
@@ -44,7 +46,8 @@ export default class ExerciseList extends React.Component {
 
   render() {
     const { category } = this.props.navigation.state.params;
-    const { exercises } = this.state;
+    const { exercises, showModal } = this.state;
+    const { netInfo } = this.props.screenProps;
     const exercisesValueArray = Object.values(exercises);
     const sortedExercises = exercisesValueArray.sort((a, b) => a.title.localeCompare(b.title));
     const exerciseList = sortedExercises.map((value, i) => {
@@ -61,6 +64,9 @@ export default class ExerciseList extends React.Component {
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor={this.state.advance && advanced === undefined ? '#33425a' : '#2a3545'}
               onPress={() => {
+                if (!netInfo) {
+                  return this.setState({ showModal: true });
+                }
                 if (this.state.advance && advanced === undefined) {
                   return;
                 }
@@ -112,6 +118,14 @@ export default class ExerciseList extends React.Component {
               </View>
             )
         }
+        <ShowModal
+          visible={showModal}
+          title="Please check your internet connection"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showModal: false });
+          }}
+        />
         <ScrollView>
           { exerciseList }
         </ScrollView>

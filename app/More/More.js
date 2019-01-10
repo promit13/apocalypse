@@ -57,7 +57,8 @@ export default class More extends React.Component {
   }
 
   navigateTo = (navigateScreen) => {
-    if (!this.state.isConnected && navigateScreen !== 'Downloads') {
+    const { netInfo } = this.props.screenProps;
+    if (!netInfo && navigateScreen !== 'Downloads') {
       return this.setState({ showNoInternetDialog: true });
     }
     if (navigateScreen === 'Feedback') {
@@ -69,6 +70,7 @@ export default class More extends React.Component {
 
   render() {
     const { showNoInternetDialog } = this.state;
+    const { netInfo } = this.props.screenProps;
     const menuList = Object.entries(menu).map(([key, value], i) => {
       return (
         <ListItem
@@ -101,7 +103,7 @@ export default class More extends React.Component {
         <StatusBar
           backgroundColor="#00000b"
         />
-        { !this.state.isConnected ? <OfflineMsg /> : null }
+        { !netInfo ? <OfflineMsg /> : null }
         <ShowModal
           visible={showNoInternetDialog}
           title="Please check your internet connection"

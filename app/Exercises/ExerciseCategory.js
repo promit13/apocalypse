@@ -46,18 +46,14 @@ export default class ExerciseCategory extends React.Component {
   };
 
   state = {
-    isConnected: true,
     showNoInternetDialog: false,
   }
 
-  componentDidMount() {
-    this.setState({ isConnected: this.props.screenProps.netInfo });
-  }
-
     renderView = (title, subtitle, imageSource) => {
+      const { netInfo } = this.props.screenProps;
       return (
         <TouchableOpacity onPress={() => {
-          if (!this.state.isConnected) {
+          if (!netInfo) {
             return this.setState({ showNoInternetDialog: true });
           }
           this.props.navigation.navigate('ExerciseList', { category: title });
@@ -95,9 +91,10 @@ export default class ExerciseCategory extends React.Component {
 
     render() {
       const { showNoInternetDialog } = this.state;
+      const { netInfo } = this.props.screenProps;
       return (
         <View style={styles.maincontainer}>
-          { !this.state.isConnected ? <OfflineMsg /> : null }
+          { !netInfo ? <OfflineMsg /> : null }
           <View style={{ flex: 1, justifyContent: 'center' }}>
             {this.renderView('Speed', 'Running Training', speedImage)}
           </View>

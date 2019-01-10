@@ -91,6 +91,7 @@ export default class EpisodeView extends React.Component {
     counter: 0,
     freeTrials: '',
     showModal: false,
+    showInternetModal: false,
     mode: false,
     isConnected: false,
   }
@@ -334,6 +335,7 @@ export default class EpisodeView extends React.Component {
 
   renderExerciseList = () => {
     const { exercises, advance, completeExercises } = this.state;
+    const { netInfo } = this.props.screenProps;
     if (exercises === undefined) {
       return;
     }
@@ -354,6 +356,9 @@ export default class EpisodeView extends React.Component {
           containerStyle={{ backgroundColor: advance && advanced === undefined ? '#2a3545' : '#33425a' }}
           underlayColor="#2a3545"
           onPress={() => {
+            if (!netInfo) {
+              return this.setState({ showInternetModal: true });
+            }
             if (advance && advanced === undefined) {
               return;
             }
@@ -376,8 +381,9 @@ export default class EpisodeView extends React.Component {
 
   render() {
     const {
-      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex, completed, episodeList, loading, exercises, purchased, showModal, freeTrials, mode, isConnected,
+      title, description, category, offline, imageSource, videoSize, totalTime, workoutTime, episodeIndex, completed, episodeList, loading, exercises, purchased, showModal, showInternetModal, freeTrials, mode, isConnected,
     } = this.state;
+    const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen />;
     return (
       <ScrollView style={styles.mainContainer}>
@@ -447,6 +453,9 @@ export default class EpisodeView extends React.Component {
               title="Workout Mode"
               onPress={() => {
                 if (purchased) {
+                  if (!netInfo && !offline) {
+                    return this.setState({ showInternetModal: true });
+                  }
                   if ((offline && !episodeList) || !isConnected) {
                   // if (offline) {
                     return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
@@ -473,6 +482,9 @@ export default class EpisodeView extends React.Component {
               title="Listen Mode"
               onPress={() => {
                 if (purchased) {
+                  if (!netInfo && !offline) {
+                    return this.setState({ showInternetModal: true });
+                  }
                   // if (offline) {
                   if ((offline && !episodeList) || !isConnected) {
                     return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
@@ -508,6 +520,14 @@ export default class EpisodeView extends React.Component {
             }
           }}
           onSecondButtonPress={() => this.setState({ showModal: false })}
+        />
+        <ShowModal
+          visible={showInternetModal}
+          title="Please check your internet connection"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showInternetModal: false });
+          }}
         />
         {
           (category === 'Speed' || exercises === undefined || exercises.length === 0)

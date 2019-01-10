@@ -58,18 +58,6 @@ export default class Splashscreen extends Component {
     };
   };
 
-
-  componentDidMount() {
-    Orientation.lockToPortrait();
-    setTimeout(() => {
-      if (this.props.screenProps.user === null) {
-        this.props.navigation.navigate('LoginSignup');
-      } else {
-        this.props.navigation.navigate('EpisodeList');
-      }
-    }, 4500);
-  }
-
   render() {
     return (
       <View style={styles.container}>
@@ -80,10 +68,6 @@ export default class Splashscreen extends Component {
           playInBackground={false}
           style={styles.backgroundVideo}
         />
-        {/* <Image
-          source={welcome}
-          style={styles.imageStyle}
-        /> */}
       </View>
     );
   }

@@ -86,7 +86,7 @@ export default class LoginSignUp extends React.Component {
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
-        { !isConnected ? <OfflineMsg margin={18} /> : null }
+        { !isConnected ? <OfflineMsg /> : null }
         <ImageBackground style={styles.imageStyle} source={talonImage}>
           <Text style={[styles.text, { textAlign: 'center' }]}>
             {`Ok let's go!\nPlease log in to create a training account`}

@@ -1,3 +1,4 @@
 export const ACTION_DOWNLOAD = 'action_download';
 export const ACTION_DELETE = 'action_delete';
+export const CHANGE_CONNECTION_STATUS = 'change_connection_status';
 export const ERROR_DOWNLOAD = 'error_download';

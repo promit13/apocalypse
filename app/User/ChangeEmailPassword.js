@@ -7,6 +7,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+import ShowModal from '../common/ShowModal';
 
 const styles = StyleSheet.create({
   container: {
@@ -47,6 +48,7 @@ export default class ChangeEmailPassword extends React.Component {
     showError: false,
     error: '',
     showLoading: false,
+    showModal: false,
   }
 
   handleSubmit = async () => {
@@ -73,6 +75,8 @@ export default class ChangeEmailPassword extends React.Component {
   }
 
   render() {
+    const { showModal, showError, error } = this.state;
+    const { netInfo } = this.props.screenProps;
     return (
       <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
         <View style={styles.fieldContainer}>
@@ -87,7 +91,15 @@ export default class ChangeEmailPassword extends React.Component {
             value={this.state.password}
           />
         </View>
-        {this.state.showError ? <ErrorMessage errorMessage={this.state.error} /> : null}
+        {showError ? <ErrorMessage errorMessage={error} /> : null}
+        <ShowModal
+          visible={showModal}
+          title="Please check your internet connection"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showModal: false });
+          }}
+        />
         <View style={styles.fieldContainer}>
           <Icon name="lock" type="entypo" color="white" />
           <TextInput
@@ -117,9 +129,11 @@ export default class ChangeEmailPassword extends React.Component {
           buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
           title="Submit"
           onPress={() => {
-            console.log(this.props.screenProps.user);
+            if (!netInfo) {
+              return this.setState({ showModal: true });
+            }
             this.setState({ showLoading: true });
-            // this.handleSubmit();
+            this.handleSubmit();
           }}
         />
       </KeyboardAwareScrollView>
