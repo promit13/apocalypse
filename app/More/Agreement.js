@@ -43,7 +43,6 @@ export default class Agreement extends React.Component {
     showCheckbox: false,
     showLoading: true,
     showModal: false,
-    showError: false,
     errorMessage: '',
   }
 
@@ -109,8 +108,9 @@ export default class Agreement extends React.Component {
 
   render() {
     const {
-      content, checked, showCheckbox, showLoading, showModal, showError, errorMessage,
+      content, checked, showCheckbox, showLoading, showModal, errorMessage,
     } = this.state;
+    const { netInfo } = this.props.screenProps;
     return (
       <View style={styles.mainViewContainer}>
         {
@@ -152,6 +152,9 @@ export default class Agreement extends React.Component {
                   </TouchableOpacity>
                 </View>
                 <TouchableOpacity onPress={() => {
+                  if (!netInfo) {
+                    return this.setState({ showModal: true, errorMessage: 'Please check your internet connection' });
+                  }
                   if (checked) {
                     this.doFacebookSignUp();
                   } else {

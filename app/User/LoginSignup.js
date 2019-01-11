@@ -5,6 +5,7 @@ import {
 import { Icon, Text } from 'react-native-elements';
 import Orientation from 'react-native-orientation';
 import OfflineMsg from '../common/OfflineMsg';
+import ShowModal from '../common/ShowModal';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
@@ -72,21 +73,17 @@ export default class LoginSignUp extends React.Component {
   };
 
   state = {
-    isConnected: true,
     showModal: false,
   }
 
-  componentDidMount() {
-    this.setState({ isConnected: this.props.screenProps.netInfo });
-  }
-
   render() {
-    const { isConnected, showModal } = this.state;
+    const { showModal } = this.state;
+    const { netInfo } = this.props.screenProps;
     Orientation.lockToPortrait();
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
-        { !isConnected ? <OfflineMsg /> : null }
+        { !netInfo ? <OfflineMsg /> : null }
         <ImageBackground style={styles.imageStyle} source={talonImage}>
           <Text style={[styles.text, { textAlign: 'center' }]}>
             {`Ok let's go!\nPlease log in to create a training account`}
@@ -101,7 +98,7 @@ export default class LoginSignUp extends React.Component {
           }}
         />
         <TouchableOpacity onPress={() => {
-          if (!isConnected) {
+          if (!netInfo) {
             return this.setState({ showModal: true });
           }
           this.props.navigation.navigate('Agreement', { showCheckbox: true });
@@ -115,7 +112,7 @@ export default class LoginSignUp extends React.Component {
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {
-          if (!isConnected) {
+          if (!netInfo) {
             return this.setState({ showModal: true });
           }
           this.props.navigation.navigate('Login');
@@ -129,7 +126,7 @@ export default class LoginSignUp extends React.Component {
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {
-          if (!isConnected) {
+          if (!netInfo) {
             return this.setState({ showModal: true });
           }
           this.props.navigation.navigate('Signup');

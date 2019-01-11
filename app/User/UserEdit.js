@@ -125,6 +125,7 @@ export default class MyAccount extends React.Component {
 
   showModal = () => {
     const { providerId } = this.state;
+    const { netInfo } = this.props.screenProps;
     return (
       <Modal transparent visible={this.state.showModal}>
         <View style={styles.modalView}>
@@ -160,6 +161,9 @@ export default class MyAccount extends React.Component {
                 buttonStyle={[styles.button, { marginTop: 5 }]}
                 title="Confirm"
                 onPress={() => {
+                  if (!netInfo) {
+                    return this.setState({ showInternetModal: true });
+                  }
                   this.setState({ showLoading: true });
                   this.authenticateUser();
                 }}

@@ -1,7 +1,7 @@
 import RNFetchBlob from 'react-native-fetch-blob';
 import firebase from '../config/firebase';
 import realm from '../config/Database';
-import { ACTION_DOWNLOAD } from './types';
+import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS } from './types';
 
 let exercisesList = [];
 let exerciseLengthList = [];
@@ -40,6 +40,12 @@ const startDownload = (
           path: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`, // file saved in this path
         })
         .fetch('GET', `${video}`, {
+        })
+        .progress({ count: 10 }, (received, total) => {
+          dispatch({
+            type: ACTION_DOWNLOAD_PROGRESS,
+            payload: ((received / total) - 0.05),
+          });
         })
         .then((res) => {
           if (exercisesList.length === 0) {

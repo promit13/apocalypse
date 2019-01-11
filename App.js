@@ -51,13 +51,3 @@ export default class App extends React.Component {
     );
   }
 }
-
-// const mapStateToProps = ({ internetReducer }) => {
-//   return { isConnected: internetReducer.isConnected };
-// };
-
-// const mapDispatchToProps = {
-//   connectionState,
-// };
-
-// export default connect(mapStateToProps, mapDispatchToProps)(App);

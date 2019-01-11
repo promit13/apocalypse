@@ -2,7 +2,6 @@ import React from 'react';
 import {
   ScrollView, View, TouchableWithoutFeedback, TouchableOpacity,
 } from 'react-native';
-import RNFetchBlob from 'react-native-fetch-blob';
 import { connect } from 'react-redux';
 import { Text, Icon } from 'react-native-elements';
 import realm from '../config/Database';
@@ -68,6 +67,7 @@ class Downloads extends React.Component {
   }
 
   delete = (fileName) => {
+    // this.child.deleteEpisodes(fileName);
     this.setState({ deleteStatus: true });
     this.props.deleteEpisode(fileName);
   }

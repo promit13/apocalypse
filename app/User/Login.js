@@ -7,6 +7,7 @@ import { Button, Icon, Text } from 'react-native-elements';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+import ShowModal from '../common/ShowModal';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
@@ -65,6 +66,7 @@ export default class Login extends React.Component {
     showError: false,
     showLoading: false,
     errorMessage: '',
+    showModal: false,
   }
 
   handleSubmit = () => {
@@ -82,8 +84,9 @@ export default class Login extends React.Component {
 
   render() {
     const {
-      email, password, showError, showLoading, errorMessage,
+      email, password, showError, showLoading, errorMessage, showModal,
     } = this.state;
+    const { netInfo } = this.props.screenProps;
     return (
       <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
         <ScrollView>
@@ -118,17 +121,34 @@ export default class Login extends React.Component {
               value={password}
             />
           </View>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('ForgotPassword')}>
+          <TouchableOpacity onPress={() => {
+            if (!netInfo) {
+              return this.setState({ showModal: true });
+            }
+            this.props.navigation.navigate('ForgotPassword');
+          }}
+          >
             <Text style={[styles.text, { fontSize: 14, alignSelf: 'flex-end', marginTop: 5 }]}>
               Forgot Password
             </Text>
           </TouchableOpacity>
           {showError ? <ErrorMessage errorMessage={errorMessage} /> : null}
           {showLoading ? <Loading /> : null}
+          <ShowModal
+            visible={showModal}
+            title="Please check your internet connection"
+            buttonText="OK"
+            onPress={() => {
+              this.setState({ showModal: false });
+            }}
+          />
           <Button
             buttonStyle={{ backgroundColor: '#445878', borderRadius: 5, marginTop: 10 }}
             title="Log in"
             onPress={() => {
+              if (!netInfo) {
+                return this.setState({ showModal: true });
+              }
               this.setState({ showLoading: true });
               this.handleSubmit();
               // this.props.navigation.navigate('UserBodyDetail');

@@ -3,7 +3,7 @@ import { Image, View, ScrollView, Dimensions } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import Swiper from 'react-native-swiper';
 import firebase from '../config/firebase';
-import Loading from '../common/Loading';
+import ShowModal from '../common/ShowModal';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 90;
@@ -49,8 +49,8 @@ export default class Tutorial extends React.Component {
 
   state = {
     tutorials: '',
-    loading: true,
     showButton: false,
+    showModal: false,
   }
 
   componentDidMount() {
@@ -59,13 +59,14 @@ export default class Tutorial extends React.Component {
       // this.setState({ tutorials: snapshot.val(), loading: false, showButton });
       const tutorials = Object.values(snapshot.val());
       const sortedTutorialArray = tutorials.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
-      this.setState({ tutorials: sortedTutorialArray, loading: false, showButton });
+      this.setState({ tutorials: sortedTutorialArray, showButton });
       console.log(this.state.tutorials);
     });
   }
 
   render() {
-    const { loading, showButton } = this.state;
+    const { showButton, showModal } = this.state;
+    const { netInfo } = this.props.screenProps;
     const tutorials = Object.entries(this.state.tutorials).map(([key, value], i) => {
       return (
         <ScrollView key={key}>
@@ -89,14 +90,27 @@ export default class Tutorial extends React.Component {
         >
           {tutorials}
         </Swiper>
+        <ShowModal
+          visible={showModal}
+          title="Please check your internet connection"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showModal: false });
+          }}
+        />
         {
               showButton
               && (<Button
                 buttonStyle={styles.buttonStyle}
                 title="Take me in"
-                onPress={() => firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
-                  tutorial: true,
-                })}
+                onPress={() => {
+                  if (!netInfo) {
+                    return this.setState({ showModal: true });
+                  }
+                  firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
+                    tutorial: true,
+                  });
+                }}
               />
               )
             }

@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import {
-  View, Image,
+  View, StatusBar,
 } from 'react-native';
-import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
 import Orientation from 'react-native-orientation';
 
-const video = require('../../img/astwelcome.mov');
-// const welcome = require('../../img/welcome.gif');
+const video = require('../../assets/astwelcome.mov');
 
 const styles = {
   backgroundVideo: {
@@ -59,8 +57,10 @@ export default class Splashscreen extends Component {
   };
 
   render() {
+    Orientation.lockToPortrait();
     return (
       <View style={styles.container}>
+        <StatusBar hidden />
         <Video
           source={video}
           ref={(c) => { this.video = c; }}

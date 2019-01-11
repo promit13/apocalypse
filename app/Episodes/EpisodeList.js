@@ -3,21 +3,20 @@ import {
   ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, ActivityIndicator,
 } from 'react-native';
 import {
-  Text, ListItem, Icon, Button, List,
+  Text, ListItem, Icon, Button,
 } from 'react-native-elements';
 import * as RNIap from 'react-native-iap';
 import { connect } from 'react-redux';
 import Permissions from 'react-native-permissions';
-import RNFetchBlob from 'react-native-fetch-blob';
 import Orientation from 'react-native-orientation';
+import RNFetchBlob from 'react-native-fetch-blob';
 import DeviceInfo from 'react-native-device-info';
+import * as Progress from 'react-native-progress';
 import realm from '../config/Database';
 import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
-import DeleteDownloads from '../common/DeleteDownloads';
-import store from '../store';
 import downloadEpisode from '../actions/download';
 import deleteEpisode from '../actions/deleteEpisode';
 
@@ -92,12 +91,9 @@ class EpisodeList extends React.Component {
     modalText: '',
     lastPlayedEpisode: '',
     isConnected: true,
-    downloaded: false,
     showModal: false,
     showDeleteDialog: false,
-    showLoading: false,
     deleteFileTitle: '',
-    checkDownloadStatus: false,
     downloadActive: false,
   }
 
@@ -185,7 +181,7 @@ class EpisodeList extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.downloadStatus === prevState.downloadActive) {
+    if (this.props.downloadComplete === prevState.downloadActive) {
       this.readDirectory();
       // this.renderList();
     }
@@ -318,6 +314,7 @@ class EpisodeList extends React.Component {
     const files = allEpisodes.map((episodeValue) => {
       return episodeValue.title;
     });
+    console.log(files);
     this.setState({ filesList: files, index: 0, downloadActive: false });
 
     // ls(`${dirs.DocumentDir}/AST/episodes`)
@@ -388,25 +385,21 @@ class EpisodeList extends React.Component {
   }
 
   deleteEpisode = (fileName) => {
-    this.child.deleteEpisodes(fileName);
-    this.readDirectory();
-    // this.readDirectory();
-    // this.renderList();
-    // const { dirs } = RNFetchBlob.fs;
-    // const formattedFileName = fileName.replace(/ /g, '_');
-    // RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
-    //   .then((exists) => {
-    //     if (exists) {
-    //       this.child.deleteEpisodes(fileName);
-    //     }
-    //     this.readDirectory(true);
-    //     this.renderList();
-    //   });
+    // this.child.deleteEpisodes(fileName);
+    const { dirs } = RNFetchBlob.fs;
+    const formattedFileName = fileName.replace(/ /g, '_');
+    RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
+      .then((exist) => {
+        if (exist) {
+          this.props.deleteEpisode(fileName);
+        }
+        this.readDirectory();
+      });
   }
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive, checkDownloadStatus,
+      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     console.log('Renderlist', downloadActive, index);
@@ -463,11 +456,19 @@ class EpisodeList extends React.Component {
                   downloaded
                   ? { name: 'trash-2', type: 'feather', color: 'white' }
                   : (
-                      this.props.downloadStatus && !downloadActive && index === (episodeIndex + 1)
+                      this.props.downloadComplete && !downloadActive && index === (episodeIndex + 1)
                         ? { name: 'trash-2', type: 'feather', color: 'white' }
                         : (
                             downloadActive && index === (episodeIndex + 1)
-                            ?  <ActivityIndicator size="small" color="gray" />
+                            ?  <Progress.Circle
+                                  progress={this.props.downloadProgress}
+                                  showsText
+                                  size={30}
+                                  color='white'
+                                  borderColor='white'
+                                  borderWidth={1}
+                                  thickness={1}
+                                />
                             : { name: 'download', type: 'feather', color: 'white' }
                           )
                     )
@@ -597,11 +598,11 @@ class EpisodeList extends React.Component {
 
   render() {
     const {
-      isConnected, lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle,
+      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen />;
-    console.log(this.props.downloadStatus);
+    console.log(this.props.deleteStatus);
     const {
       episodeTitle,
       episodeId,
@@ -613,7 +614,6 @@ class EpisodeList extends React.Component {
       <View style={styles.mainContainer}>
         {/* <StatusBar hidden /> */}
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
-        <DeleteDownloads ref={ref => (this.child = ref)} />
         { !netInfo ? <OfflineMsg margin={18} /> : null }
         <ScrollView>
           <View>
@@ -773,7 +773,7 @@ class EpisodeList extends React.Component {
                   this.setState({ showDeleteDialog: false });
                   this.deleteEpisode(deleteFileTitle);
                 }}
-                onPress={() => this.setState({ showDeleteDialog: false })}
+                onPress={() => this.setState({ showDeleteDialog: false, downloadActive: false })}
               />
             </View>
             {this.renderList()}
@@ -784,12 +784,15 @@ class EpisodeList extends React.Component {
   }
 }
 
-const mapStateToProps = ({ download }) => {
-  return { downloadStatus: download.message };
+const mapStateToProps = ({ download, deleteEpisodeReducer }) => {
+  const { downloadComplete, downloadProgress } = download;
+  const { message } = deleteEpisodeReducer;
+  return { downloadComplete, downloadProgress, deleteStatus: message };
 };
 
 const mapDispatchToProps = {
   downloadEpisode,
+  deleteEpisode,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EpisodeList);

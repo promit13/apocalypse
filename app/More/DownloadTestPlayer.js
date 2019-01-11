@@ -140,6 +140,7 @@ export default class DownloadTestPlayer extends Component {
     } = this.props.navigation.state.params;
     const { cmsTitle } = (exercises[0])[0];
     const formattedFileName = title.replace(/ /g, '_');
+    console.log(`${dirs.DocumentDir}/AST/episodes/`);
     this.setState({
       listen: check,
       video: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`,

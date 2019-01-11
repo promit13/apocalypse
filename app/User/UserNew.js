@@ -10,6 +10,8 @@ import axios from 'axios';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+import ShowModal from '../common/ShowModal';
+
 const { width } = Dimensions.get('window');
 const imageSize = width - 120;
 
@@ -72,6 +74,7 @@ export default class Signup extends React.Component {
     showError: false,
     errorMessage: '',
     showLoading: false,
+    showModal: false,
   }
 
   setUserData = (currentUser) => {
@@ -133,8 +136,9 @@ export default class Signup extends React.Component {
 
   render() {
     const {
-      email, firstName, lastName, password, confirmPassword, checked, showError, showLoading, errorMessage,
+      email, firstName, lastName, password, confirmPassword, checked, showError, showLoading, errorMessage, showModal,
     } = this.state;
+    const { netInfo } = this.props.screenProps;
     return (
       <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
@@ -205,9 +209,14 @@ export default class Signup extends React.Component {
               containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -25 }}
               onIconPress={() => this.setState({ checked: !checked })}
             />
-            <TouchableOpacity onPress={() => this.props.navigation.navigate('Agreement', {
-              showCheckbox: false,
-            })}
+            <TouchableOpacity onPress={() => {
+              if (!netInfo) {
+                return this.setState({ showModal: true });
+              }
+              this.props.navigation.navigate('Agreement', {
+                showCheckbox: false,
+              });
+            }}
             >
               <View>
                 <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold' }}>
@@ -219,10 +228,21 @@ export default class Signup extends React.Component {
           </View>
           {showError ? <ErrorMessage errorMessage={errorMessage} /> : null}
           {showLoading ? <Loading /> : null}
+          <ShowModal
+            visible={showModal}
+            title="Please check your internet connection"
+            buttonText="OK"
+            onPress={() => {
+              this.setState({ showModal: false });
+            }}
+          />
           <Button
             buttonStyle={styles.button}
             title="Sign up"
             onPress={() => {
+              if (!netInfo) {
+                return this.setState({ showModal: true });
+              }
               this.setState({ showLoading: true });
               this.handleSubmit();
             }

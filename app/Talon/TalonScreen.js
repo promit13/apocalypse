@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import * as Progress from 'react-native-progress';
 import * as Animatable from 'react-native-animatable';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
@@ -179,7 +180,8 @@ export default class TalonScreen extends React.Component {
               if (!trackingStarted || category !== 'Speed') {
                 return console.log(trackingStarted);
               }
-              const progressPercentage = ((distance / 2) * 100) > 100 ? 100 : (distance / 2) * 100;
+              // const progressPercentage = ((distance / 2) * 100) > 100 ? 100 : (distance / 2) * 100;
+              const progressPercentage = (distance / 2) > 1 ? 1 : (distance / 2);
               const date = new Date(dateNow);
               const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
               return (
@@ -197,22 +199,24 @@ export default class TalonScreen extends React.Component {
                       style={[styles.imageStyle, { height: 80, marginTop: 10, marginBottom: 10 }]}
                       resizeMethod="resize"
                     />
+                    {/* marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth) */}
                     <Image
                       style={{
                         height: 25,
                         width: 25,
-                        marginBottom: -12.5,
-                        marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth),
+                        marginBottom: -3,
+                        marginLeft: (progressPercentage <= 0 ? 0 : (progressPercentage - 0.05) * barWidth),
                       }}
                       animation="fadeInLeft"
                       source={runningMan}
                     />
-                    <ProgressBarAnimated
+                    {/* <ProgressBarAnimated
                       width={barWidth}
                       {...progressCustomStyles}
                       value={progressPercentage}
                       barAnimationDuration={500}
-                    />
+                    /> */}
+                    <Progress.Bar progress={progressPercentage} width={barWidth} color="green" />
                   </View>
                 </View>
               );

@@ -6,6 +6,7 @@ import { Button, Icon } from 'react-native-elements';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
+import ShowModal from '../common/ShowModal';
 
 const styles = StyleSheet.create({
   container: {
@@ -44,6 +45,7 @@ export default class ForgotPassword extends React.Component {
     showError: false,
     error: '',
     showLoading: false,
+    showModal: false,
   }
 
   handleSubmit = async () => {
@@ -62,6 +64,10 @@ export default class ForgotPassword extends React.Component {
   }
 
   render() {
+    const {
+      showModal, showError, error, showLoading,
+    } = this.state;
+    const { netInfo } = this.props.screenProps;
     return (
       <View style={styles.container}>
         <View style={styles.fieldContainer}>
@@ -76,12 +82,23 @@ export default class ForgotPassword extends React.Component {
             value={this.state.email}
           />
         </View>
-        {this.state.showError ? <ErrorMessage errorMessage={this.state.error} /> : null}
-        {this.state.showLoading ? <Loading /> : null}
+        {showError ? <ErrorMessage errorMessage={error} /> : null}
+        {showLoading ? <Loading /> : null}
+        <ShowModal
+          visible={showModal}
+          title="Please check your internet connection"
+          buttonText="OK"
+          onPress={() => {
+            this.setState({ showModal: false });
+          }}
+        />
         <Button
           buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
           title="Submit"
           onPress={() => {
+            if (!netInfo) {
+              return this.setState({ showModal: true });
+            }
             this.setState({ showLoading: true });
             this.handleSubmit();
           }}

@@ -14,7 +14,7 @@ export default function LoadScreen() {
   return (
     <View style={styles.container}>
       <StatusBar
-        backgroundColor="#00000b"
+        hidden
       />
       <ActivityIndicator size="large" color="gray" style={{ marginTop: 20 }} />
     </View>
