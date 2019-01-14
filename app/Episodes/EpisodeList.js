@@ -399,10 +399,9 @@ class EpisodeList extends React.Component {
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, isConnected, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
+      series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
     } = this.state;
     const { netInfo } = this.props.screenProps;
-    console.log('Renderlist', downloadActive, index);
     let counter;
     const counterArray = [];
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
@@ -466,6 +465,7 @@ class EpisodeList extends React.Component {
                                   size={30}
                                   color='white'
                                   borderColor='white'
+                                  textStyle={{ fontSize: 10 }}
                                   borderWidth={1}
                                   thickness={1}
                                 />
@@ -602,7 +602,6 @@ class EpisodeList extends React.Component {
     } = this.state;
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen />;
-    console.log(this.props.deleteStatus);
     const {
       episodeTitle,
       episodeId,

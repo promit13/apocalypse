@@ -6,6 +6,9 @@ import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS } from './types';
 let exercisesList = [];
 let exerciseLengthList = [];
 let exerciseIdList = [];
+let episodeExerciseSize = 0;
+let episodeSizeReceived = 0;
+let count = 0;
 
 const startDownload = (
   episodeTitle,
@@ -22,6 +25,8 @@ const startDownload = (
   endWT,
   dispatch,
 ) => {
+  const totalVideoSizeInBytes = (videoSize * 1000 * 1000);
+  console.log(totalVideoSizeInBytes);
   dispatch({
     type: ACTION_DOWNLOAD,
     payload: false,
@@ -42,9 +47,11 @@ const startDownload = (
         .fetch('GET', `${video}`, {
         })
         .progress({ count: 10 }, (received, total) => {
+          console.log(received);
+          episodeSizeReceived = parseInt(received, 10);
           dispatch({
             type: ACTION_DOWNLOAD_PROGRESS,
-            payload: ((received / total) - 0.05),
+            payload: (received / totalVideoSizeInBytes),
           });
         })
         .then((res) => {
@@ -79,8 +86,9 @@ const startDownload = (
           }
           exercisesList.map((exercise, i) => {
             const {
-              cmsTitle, title, image, advanced, id, visible, episodeExerciseTitle,
+              cmsTitle, title, image, advanced, id, visible, episodeExerciseTitle, exerciseSize,
             } = exercise;
+            console.log(exerciseSize);
             const formattedExerciseName = cmsTitle.replace(/\s+/g, '');
             RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`)
               .then((alreadyExist) => {
@@ -103,13 +111,21 @@ const startDownload = (
                       path: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`,
                     })
                     .fetch('GET', `${image}`, {
-                    }).then(() => {
+                    })
+                    .then(() => {
                       RNFetchBlob
                         .config({
                           path: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`,
                         })
                         .fetch('GET', advanced === undefined ? image : advanced.image, {
-                        }).then(() => {
+                        })
+                        .then(() => {
+                          episodeExerciseSize = count === 0 ? (episodeSizeReceived + exerciseSize) : (episodeExerciseSize + exerciseSize);
+                          count += 1;
+                          dispatch({
+                            type: ACTION_DOWNLOAD_PROGRESS,
+                            payload: (episodeExerciseSize / totalVideoSizeInBytes),
+                          });
                           if (i === (exercisesList.length - 1)) {
                             realm.write(() => {
                               realm.create('SavedEpisodes', {
@@ -132,6 +148,9 @@ const startDownload = (
                             exercisesList = [];
                             exerciseLengthList = [];
                             exerciseIdList = [];
+                            episodeExerciseSize = 0;
+                            episodeSizeReceived = 0;
+                            count = 0;
                             dispatch({
                               type: ACTION_DOWNLOAD,
                               payload: true,
@@ -150,25 +169,35 @@ const startDownload = (
                     path: `${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`,
                   })
                   .fetch('GET', `${exercise.video}`, {
-                  }).then(() => {
+                  })
+                  .then(() => {
                     RNFetchBlob
                       .config({
                         path: `${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`,
                       })
                       .fetch('GET', `${image}`, {
-                      }).then(() => {
+                      })
+                      .then(() => {
                         RNFetchBlob
                           .config({
                             path: `${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4`,
                           })
                           .fetch('GET', advanced === undefined ? exercise.video : advanced.video, {
-                          }).then(() => {
+                          })
+                          .then(() => {
                             RNFetchBlob
                               .config({
                                 path: `${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`,
                               })
                               .fetch('GET', advanced === undefined ? image : advanced.image, {
-                              }).then(() => {
+                              })
+                              .then(() => {
+                                episodeExerciseSize = count === 0 ? (episodeSizeReceived + exerciseSize) : (episodeExerciseSize + exerciseSize);
+                                count += 1;
+                                dispatch({
+                                  type: ACTION_DOWNLOAD_PROGRESS,
+                                  payload: (episodeExerciseSize / totalVideoSizeInBytes),
+                                });
                                 if (i === (exercisesList.length - 1)) {
                                   realm.write(() => {
                                     realm.create('SavedEpisodes', {
@@ -191,6 +220,9 @@ const startDownload = (
                                   exercisesList = [];
                                   exerciseLengthList = [];
                                   exerciseIdList = [];
+                                  episodeExerciseSize = 0;
+                                  episodeSizeReceived = 0;
+                                  count = 0;
                                   dispatch({
                                     type: ACTION_DOWNLOAD,
                                     payload: true,
@@ -207,7 +239,7 @@ const startDownload = (
                   })
                   .catch(error => console.log(error));
               }).catch(error => console.log(error));
-          }).catch(error => console.log(error));
+          });
         })
         .catch(error => console.log(error));
     }).catch(() => {});
@@ -234,7 +266,6 @@ const downloadEpisode = ({
         const {
           length, uid, visible, episodeExerciseTitle,
         } = value;
-        console.log(episodeExerciseTitle);
         firebase.database().ref(`exercises/${uid}`).on('value', (snapShot) => {
           const exercise = { ...snapShot.val(), id: uid, visible, episodeExerciseTitle };
           exerciseLengthList.push(length);

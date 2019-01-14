@@ -8,7 +8,7 @@ const INITIAL_STATE = {
 const download = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ACTION_DOWNLOAD: {
-      return { ...state, downloadComplete: action.payload };
+      return { ...state, downloadComplete: action.payload, downloadProgress: 0 };
     }
     case ACTION_DOWNLOAD_PROGRESS: {
       return { ...state, downloadProgress: action.payload };
