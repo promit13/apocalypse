@@ -155,14 +155,19 @@ export default class DownloadTestPlayer extends Component {
       uid,
       playingExercise: { value: { image: cmsTitle, title: '' } },
     });
-    // if (platform === 'android') {
-    //   GoogleFit.authorize((error, result) => {
-    //     if (error) {
-    //       console.log(`AUTH ERROR ${error}`);
-    //     }
-    //     console.log(`AUTH SUCCESS ${result}`);
-    //   });
-    // }
+    if (platform === 'android') {
+      GoogleFit.isEnabled((error, isEnabled) => {
+        console.log(isEnabled);
+        if (!isEnabled) {
+          GoogleFit.authorize((authError, result) => {
+            if (authError) {
+              console.log(`AUTH ERROR ${authError}`);
+            }
+            console.log(`AUTH SUCCESS ${result}`);
+          });
+        }
+      });
+    }
     if (category === 'Speed') {
       this.setState({ showWelcomeDialog: true });
     } else {
@@ -482,7 +487,7 @@ export default class DownloadTestPlayer extends Component {
           if (error) {
             return console.log(error);
           }
-          const distance = ((response[0].distance) / 1000).toFixed(2);
+          const distance = response[0];
           this.setState({ distance, steps });
           // this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
         });
@@ -496,7 +501,7 @@ export default class DownloadTestPlayer extends Component {
             return console.log(error);
           }
           const { distance, numberOfSteps } = pedometerData;
-          this.setState({ steps: numberOfSteps, distance: (distance / 1000).toFixed(2) });
+          this.setState({ steps: numberOfSteps, distance });
           // this.storeDistance(endDate - formattedDate);
         },
       );
@@ -504,12 +509,14 @@ export default class DownloadTestPlayer extends Component {
   };
 
   setCurrentExercise = (snapshot, uid, episodeExerciseTitle) => {
-    const { image, title, advanced, video } = snapshot;
+    const { image, advanced, video } = snapshot;
     if (video === '') {
       this.setState({
         showInfo: false,
         playingExercise: {
-          value: { image, title: episodeExerciseTitle, exerciseId: uid, video },
+          value: {
+            image, title: episodeExerciseTitle, exerciseId: uid, video,
+          },
         },
       });
     } else {
@@ -517,7 +524,9 @@ export default class DownloadTestPlayer extends Component {
         this.setState({
           showInfo: true,
           playingExercise: {
-            value: { image: advanced.image, title: episodeExerciseTitle, exerciseId: uid, video: advanced.video },
+            value: {
+              image: advanced.image, title: episodeExerciseTitle, exerciseId: uid, video: advanced.video,
+            },
           },
         });
         return;
@@ -525,7 +534,9 @@ export default class DownloadTestPlayer extends Component {
       this.setState({
         showInfo: true,
         playingExercise: {
-          value: { image, title: episodeExerciseTitle, exerciseId: uid, video },
+          value: {
+            image, title: episodeExerciseTitle, exerciseId: uid, video,
+          },
         },
       });
     }
@@ -575,6 +586,7 @@ export default class DownloadTestPlayer extends Component {
       title,
       duration: data.duration,
       artwork: appicon,
+      color: 0xFFFFFF,
     });
   }
 

@@ -91,6 +91,7 @@ export default class Signup extends React.Component {
       playedIntelArray: '',
       episodeCompletedArray: '',
       checked: false,
+      distanceUnit: false,
     })
       .then(() => {
         console.log('CHECK second');

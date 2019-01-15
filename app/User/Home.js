@@ -1,12 +1,11 @@
 import React from 'react';
-import { NetInfo, View, AsyncStorage } from 'react-native';
+import { View, AsyncStorage } from 'react-native';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
 import realm from '../config/Database';
 import {
   SignedIn,
   SignedOut,
-  UserDetails,
   TutorialDisplay,
 } from '../config/router';
 

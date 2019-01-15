@@ -262,6 +262,7 @@ export default class TalonIntelPlayer extends Component {
 
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
+    MusicControl.enableControl('previousTrack', false);
     // MusicControl.enableControl('skipForward', !exercise, { interval: 10 }); // iOS only
     // MusicControl.enableControl('skipBackward', !exercise, { interval: 10 }); // iOS only
     MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android

@@ -10,6 +10,10 @@ target 'apocalypse' do
   target 'apocalypse-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
+    pod 'react-native-video', :path => '../node_modules/react-native-video'
+
+    pod 'react-native-music-control', :path => '../node_modules/react-native-music-control'
+
   end
 
   target 'apocalypseTests' do

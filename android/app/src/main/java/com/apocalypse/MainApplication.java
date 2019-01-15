@@ -3,9 +3,10 @@ package com.apocalypse;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.tanguyantoine.react.MusicControl;
+import com.brentvatne.react.ReactVideoPackage;
 import com.eko.RNBackgroundDownloaderPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
-import com.tanguyantoine.react.MusicControl;
 import com.github.yamill.orientation.OrientationPackage;
 import io.realm.react.RealmReactPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
@@ -14,7 +15,6 @@ import com.reactnative.googlefit.GoogleFitPackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.rnfs.RNFSPackage;
-import com.brentvatne.react.ReactVideoPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -46,9 +46,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new MusicControl(),
+            new ReactVideoPackage(),
             new RNBackgroundDownloaderPackage(),
             new RNDeviceInfo(),
-            new MusicControl(),
             new OrientationPackage(),
             new RealmReactPackage(),
             new RNFetchBlobPackage(),
@@ -56,8 +57,7 @@ public class MainApplication extends Application implements ReactApplication {
             new GoogleFitPackage(BuildConfig.APPLICATION_ID),
             new FBSDKPackage(mCallbackManager),
             new VectorIconsPackage(),
-            new RNFSPackage(),
-            new ReactVideoPackage()
+            new RNFSPackage()
       );
     }
 

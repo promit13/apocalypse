@@ -89,6 +89,7 @@ export default class Agreement extends React.Component {
                           playedIntelArray: '',
                           episodeCompletedArray: '',
                           checked: false,
+                          distanceUnit: false,
                         });
                       }
                     })

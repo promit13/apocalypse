@@ -157,28 +157,19 @@ export default class EpisodeSingle extends Component {
       offline,
       playingExercise: { value: { image: firstImage } },
     });
-    // if (platform === 'android') {
-    //   GoogleFit.isEnabled(() => {
-    //     GoogleFit.authorize((error, result) => {
-    //       if (error) {
-    //         console.log(`AUTH ERROR ${error}`);
-    //       }
-    //       console.log(`AUTH SUCCESS ${result}`);
-    //     });
-    //   });
-    // GoogleFit.authorize((error, result) => {
-    //   if (error) {
-    //     console.log(`AUTH ERROR ${error}`);
-    //   }
-    //   console.log(`AUTH SUCCESS ${result}`);
-    // });
-    // GoogleFit.onAuthorize(() => {
-    //   console.log('AUTH SUCCESS');
-    // });
-
-    // GoogleFit.onAuthorizeFailure(() => {
-    //   console.log('AUTH FAILED');
-    // });
+    if (platform === 'android') {
+      GoogleFit.isEnabled((error, isEnabled) => {
+        console.log(isEnabled);
+        if (!isEnabled) {
+          GoogleFit.authorize((authError, result) => {
+            if (authError) {
+              console.log(`AUTH ERROR ${authError}`);
+            }
+            console.log(`AUTH SUCCESS ${result}`);
+          });
+        }
+      });
+    }
     if (category === 'Speed') {
       this.setState({ showWelcomeDialog: true });
     } else {
@@ -554,7 +545,7 @@ export default class EpisodeSingle extends Component {
           if (error) {
             return console.log(error);
           }
-          const distance = ((response[0].distance) / 1000).toFixed(2);
+          const { distance } = response[0];
           this.setState({ distance, steps });
           this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
         });
@@ -571,7 +562,7 @@ export default class EpisodeSingle extends Component {
             return console.log(error);
           }
           const { distance, numberOfSteps } = pedometerData;
-          this.setState({ steps: numberOfSteps, distance: (distance / 1000).toFixed(2) });
+          this.setState({ steps: numberOfSteps, distance });
           this.storeDistance(endDate - formattedDate);
         },
       );
@@ -650,6 +641,7 @@ export default class EpisodeSingle extends Component {
       title,
       duration: data.duration,
       artwork: appicon,
+      color: 0xFFFFFF,
     });
   }
 

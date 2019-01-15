@@ -6,9 +6,6 @@ import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS } from './types';
 let exercisesList = [];
 let exerciseLengthList = [];
 let exerciseIdList = [];
-let episodeExerciseSize = 0;
-let episodeSizeReceived = 0;
-let count = 0;
 
 const startDownload = (
   episodeTitle,
@@ -25,6 +22,10 @@ const startDownload = (
   endWT,
   dispatch,
 ) => {
+  let episodeExerciseSize = 0;
+  let episodeSizeReceived = 0;
+  let count = 0;
+
   const totalVideoSizeInBytes = (videoSize * 1000 * 1000);
   console.log(totalVideoSizeInBytes);
   dispatch({
@@ -122,6 +123,8 @@ const startDownload = (
                         .then(() => {
                           episodeExerciseSize = count === 0 ? (episodeSizeReceived + exerciseSize) : (episodeExerciseSize + exerciseSize);
                           count += 1;
+                          console.log('EPEX 1', episodeExerciseSize);
+                          console.log('COUNT 1', count);
                           dispatch({
                             type: ACTION_DOWNLOAD_PROGRESS,
                             payload: (episodeExerciseSize / totalVideoSizeInBytes),
@@ -150,7 +153,6 @@ const startDownload = (
                             exerciseIdList = [];
                             episodeExerciseSize = 0;
                             episodeSizeReceived = 0;
-                            count = 0;
                             dispatch({
                               type: ACTION_DOWNLOAD,
                               payload: true,
@@ -194,6 +196,8 @@ const startDownload = (
                               .then(() => {
                                 episodeExerciseSize = count === 0 ? (episodeSizeReceived + exerciseSize) : (episodeExerciseSize + exerciseSize);
                                 count += 1;
+                                console.log('EPEX 2', episodeExerciseSize);
+                                console.log('COUNT 2', count);
                                 dispatch({
                                   type: ACTION_DOWNLOAD_PROGRESS,
                                   payload: (episodeExerciseSize / totalVideoSizeInBytes),
@@ -222,7 +226,6 @@ const startDownload = (
                                   exerciseIdList = [];
                                   episodeExerciseSize = 0;
                                   episodeSizeReceived = 0;
-                                  count = 0;
                                   dispatch({
                                     type: ACTION_DOWNLOAD,
                                     payload: true,

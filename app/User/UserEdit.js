@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions, AsyncStorage,
+  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions, AsyncStorage, Switch,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
@@ -68,12 +68,19 @@ export default class MyAccount extends React.Component {
     showError: false,
     showLoading: false,
     providerId: 'password',
+    switchValue: false,
   };
 
-  componentDidMount() {
+  componentDidMount = async () => {
     const { providerData } = this.props.screenProps.user;
-    this.setState({ providerId: providerData[0].providerId });
-    console.log(providerData);
+    // const switchValue = await AsyncStorage.getItem('distanceUnit');
+    firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snapShot) => {
+      const { distanceUnit } = snapShot.val();
+      this.setState({
+        providerId: providerData[0].providerId,
+        switchValue: distanceUnit,
+      });
+    });
   }
 
   logOut = () => {
@@ -209,6 +216,14 @@ export default class MyAccount extends React.Component {
     return items;
   }
 
+  setSwitchValue = async (switchValue) => {
+    this.setState({ switchValue });
+    // await AsyncStorage.setItem('distanceUnit', switchValue ? 'miles' : 'k.m.');
+    firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
+      distanceUnit: switchValue,
+    });
+  }
+
   render() {
     const { user, userData } = this.props.screenProps;
     return (
@@ -235,6 +250,16 @@ export default class MyAccount extends React.Component {
           <Text style={[styles.text, { fontSize: 16, textAlign: 'left', paddingLeft: 25, paddingBottom: 10 }]}>
             ACCOUNT ACTIONS
           </Text>
+          <View style={{ flexDirection: 'row', marginLeft: 30, alignItems: 'center' }}>
+            <Text style={styles.text}>
+              Use Imperial Units
+            </Text>
+            <Switch
+              value={this.state.switchValue}
+              onValueChange={switchValue => this.setSwitchValue(switchValue)}
+              style={{ marginLeft: 10, transform: [{ scaleX: 0.6 }, { scaleY: 0.6 }] }}
+            />
+          </View>
           <View style={{ padding: 10, backgroundColor: '#33425a' }}>
             {this.renderListItem()}
           </View>

@@ -80,6 +80,7 @@ export default class TalonScreen extends React.Component {
     lastPlayedEpisode: '',
     series: '',
     playedIntelArray: [],
+    distanceUnit: false,
   };
 
   componentDidMount = async () => {
@@ -90,10 +91,10 @@ export default class TalonScreen extends React.Component {
       const offlineData = await AsyncStorage.getItem('talonLogs');
       const jsonObjectData = JSON.parse(offlineData);
       const {
-        talonLogs, lastPlayedEpisode, series,
+        talonLogs, lastPlayedEpisode, series, distanceUnit,
       } = jsonObjectData;
       return this.setState({
-        loading: false, talonLogs, lastPlayedEpisode, series,
+        loading: false, talonLogs, lastPlayedEpisode, series, distanceUnit,
       });
     }
     firebase.database().ref('series').on('value', (snapSeries) => {
@@ -110,19 +111,21 @@ export default class TalonScreen extends React.Component {
           const series = Object.values(snapSeries.val());
           const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
 
-          const { lastPlayedEpisode, playedIntelArray } = snap.val();
+          const { lastPlayedEpisode, playedIntelArray, distanceUnit } = snap.val();
           console.log(playedIntelArray);
           this.setState({
             talonLogs: snapshot.val(),
             lastPlayedEpisode,
             loading: false,
             series: sortedSeries,
+            distanceUnit,
             playedIntelArray: Object.values(playedIntelArray),
           });
           AsyncStorage.setItem('talonLogs', JSON.stringify({
             talonLogs: snapshot.val(),
             lastPlayedEpisode,
             series: sortedSeries,
+            distanceUnit,
             playedIntelArray: Object.values(playedIntelArray),
           }));
           console.log(this.state.lastIntel);
@@ -132,7 +135,7 @@ export default class TalonScreen extends React.Component {
   }
 
   renderContent = (i, episodeId, logs, category) => {
-    const { index, showTalon, talonLogs } = this.state;
+    const { index, showTalon, talonLogs, distanceUnit } = this.state;
     if (talonLogs === null) {
       return console.log('TALONG LOGS');
     }
@@ -181,13 +184,15 @@ export default class TalonScreen extends React.Component {
                 return console.log(trackingStarted);
               }
               // const progressPercentage = ((distance / 2) * 100) > 100 ? 100 : (distance / 2) * 100;
-              const progressPercentage = (distance / 2) > 1 ? 1 : (distance / 2);
               const date = new Date(dateNow);
               const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+              const unit = distanceUnit ? 'miles' : 'km';
+              const convertedDistance = distanceUnit ? (distance / 1609.34).toFixed(2) : (distance / 1000).toFixed(2);
+              const progressPercentage = (convertedDistance / 2) > 1 ? 1 : (convertedDistance / 2);
               return (
                 <View>
                   <ListItem
-                    title={`${formatDate} - ${distance} km (${steps} steps) in ${timeInterval} mins`}
+                    title={`${formatDate} - ${convertedDistance} ${unit} (${steps} steps) in ${timeInterval} mins`}
                     titleStyle={styles.textStyle}
                     key={key}
                     containerStyle={{ marginLeft: 10, marginRight: 10 }}

@@ -62,7 +62,7 @@ export default class Splashscreen extends Component {
       <View style={styles.container}>
         <StatusBar hidden />
         <Video
-          source={video}
+          source={require('../../assets/astwelcome.mov')}
           ref={(c) => { this.video = c; }}
           resizeMode="cover"
           playInBackground={false}
