@@ -3,6 +3,10 @@ import realm from '../config/Database';
 import { ACTION_DELETE } from './types';
 
 const deleteEpisode = fileName => (dispatch) => {
+  dispatch({
+    type: ACTION_DELETE,
+    payload: false,
+  });
   console.log(fileName);
   const { dirs } = RNFetchBlob.fs;
   const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${fileName}"`));

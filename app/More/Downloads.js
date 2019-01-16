@@ -48,7 +48,7 @@ class Downloads extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.deleteStatus === prevState.deleteStatus) {
+    if (this.props.deleteStatus === this.state.deleteStatus) {
       this.readDirectory();
     }
   }

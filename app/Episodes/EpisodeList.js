@@ -9,16 +9,15 @@ import * as RNIap from 'react-native-iap';
 import { connect } from 'react-redux';
 import Permissions from 'react-native-permissions';
 import Orientation from 'react-native-orientation';
-import RNFetchBlob from 'react-native-fetch-blob';
 import DeviceInfo from 'react-native-device-info';
 import * as Progress from 'react-native-progress';
+import { NavigationEvents } from 'react-navigation';
 import realm from '../config/Database';
 import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
-import downloadEpisode from '../actions/download';
-import deleteEpisode from '../actions/deleteEpisode';
+import { downloadEpisode, deleteEpisodeList } from '../actions/download';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 110;
@@ -95,6 +94,7 @@ class EpisodeList extends React.Component {
     showDeleteDialog: false,
     deleteFileTitle: '',
     downloadActive: false,
+    deleteStatus: false,
   }
 
   componentDidMount= async () => {
@@ -181,7 +181,7 @@ class EpisodeList extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.downloadComplete === prevState.downloadActive) {
+    if (this.props.downloadComplete === prevState.downloadActive || this.props.deleteStatus === this.state.deleteStatus) {
       this.readDirectory();
       // this.renderList();
     }
@@ -314,8 +314,7 @@ class EpisodeList extends React.Component {
     const files = allEpisodes.map((episodeValue) => {
       return episodeValue.title;
     });
-    console.log(files);
-    this.setState({ filesList: files, index: 0, downloadActive: false });
+    this.setState({ filesList: files, index: 0, downloadActive: false, deleteStatus: false });
 
     // ls(`${dirs.DocumentDir}/AST/episodes`)
     //   .then((files) => {
@@ -386,15 +385,17 @@ class EpisodeList extends React.Component {
 
   deleteEpisode = (fileName) => {
     // this.child.deleteEpisodes(fileName);
-    const { dirs } = RNFetchBlob.fs;
-    const formattedFileName = fileName.replace(/ /g, '_');
-    RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
-      .then((exist) => {
-        if (exist) {
-          this.props.deleteEpisode(fileName);
-        }
-        this.readDirectory();
-      });
+    this.setState({ deleteStatus: true });
+    this.props.deleteEpisodeList(fileName);
+    // const { dirs } = RNFetchBlob.fs;
+    // const formattedFileName = fileName.replace(/ /g, '_');
+    // RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
+    //   .then((exist) => {
+    //     if (exist) {
+    //       this.props.deleteEpisodeList(fileName);
+    //     }
+    //     this.readDirectory(true);
+    //   });
   }
 
   renderList = () => {
@@ -469,7 +470,7 @@ class EpisodeList extends React.Component {
                                   borderWidth={1}
                                   thickness={1}
                                 />
-                            : { name: 'download', type: 'feather', color: 'white' }
+                            : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white' }
                           )
                     )
                 // : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }
@@ -598,7 +599,7 @@ class EpisodeList extends React.Component {
 
   render() {
     const {
-      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle,
+      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle, downloadActive,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen />;
@@ -614,6 +615,9 @@ class EpisodeList extends React.Component {
         {/* <StatusBar hidden /> */}
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         { !netInfo ? <OfflineMsg margin={18} /> : null }
+        <NavigationEvents
+          onDidFocus={() => { downloadActive ? null : this.readDirectory(); }}
+        />
         <ScrollView>
           <View>
             <Image
@@ -783,15 +787,15 @@ class EpisodeList extends React.Component {
   }
 }
 
-const mapStateToProps = ({ download, deleteEpisodeReducer }) => {
+const mapStateToProps = ({ download, deleteEpisodeListReducer }) => {
   const { downloadComplete, downloadProgress } = download;
-  const { message } = deleteEpisodeReducer;
+  const { message } = deleteEpisodeListReducer;
   return { downloadComplete, downloadProgress, deleteStatus: message };
 };
 
 const mapDispatchToProps = {
   downloadEpisode,
-  deleteEpisode,
+  deleteEpisodeList,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EpisodeList);

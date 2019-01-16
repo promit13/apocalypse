@@ -46,6 +46,7 @@ export default class App extends React.Component {
               ? <Home screenProps={{ netInfo: this.state.isConnected }} />
               : <Splashscreen />
           }
+          {/* <Home screenProps={{ netInfo: this.state.isConnected }} /> */}
         </View>
       </Provider>
     );
