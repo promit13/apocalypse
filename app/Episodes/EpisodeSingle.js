@@ -212,6 +212,10 @@ export default class EpisodeSingle extends Component {
 
   onPressPause = () => {
     this.setState({ paused: true });
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PAUSED,
+      elapsedTime: this.state.currentTime,
+    });
   }
 
   onExercisePress = () => {
@@ -326,6 +330,7 @@ export default class EpisodeSingle extends Component {
   };
 
   onEnd = () => {
+    console.log('ON END');
     // this.player.seek(0, 0);
     this.updateMusicControl(0);
     this.setState({
@@ -346,7 +351,10 @@ export default class EpisodeSingle extends Component {
   onPressPlay = () => {
     this.setState({ paused: false });
     const { startDate, currentTime } = this.state;
-    this.updateMusicControl(currentTime);
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PLAYING,
+      elapsedTime: currentTime,
+    });
     if (!this.state.listen) {
       const currentDate = this.getDate();
       if ((currentDate - startDate) < 900000) {
@@ -1137,7 +1145,7 @@ export default class EpisodeSingle extends Component {
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground
         ignoreSilentSwitch="ignore"
-        repeat
+        // repeat // ios only
         playWhenInactive
         onLoad={this.onLoad}
         onEnd={this.onEnd}

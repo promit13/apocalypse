@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions, AsyncStorage, Switch,
+  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions, AsyncStorage, Switch, Platform,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
@@ -69,16 +69,22 @@ export default class MyAccount extends React.Component {
     showLoading: false,
     providerId: 'password',
     switchValue: false,
+    platform: 'android',
   };
 
   componentDidMount = async () => {
     const { providerData } = this.props.screenProps.user;
+    const platform = Platform.OS;
     // const switchValue = await AsyncStorage.getItem('distanceUnit');
     firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snapShot) => {
+      if (snapShot.val() === null) {
+        return;
+      }
       const { distanceUnit } = snapShot.val();
       this.setState({
         providerId: providerData[0].providerId,
         switchValue: distanceUnit,
+        platform,
       });
     });
   }
@@ -226,6 +232,7 @@ export default class MyAccount extends React.Component {
 
   render() {
     const { user, userData } = this.props.screenProps;
+    const { platform } = this.state;
     return (
       <View style={styles.container}>
         <ScrollView>
@@ -247,17 +254,14 @@ export default class MyAccount extends React.Component {
               {user.email}
             </Text>
           </View>
-          <Text style={[styles.text, { fontSize: 16, textAlign: 'left', paddingLeft: 25, paddingBottom: 10 }]}>
-            ACCOUNT ACTIONS
-          </Text>
-          <View style={{ flexDirection: 'row', marginLeft: 30, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', marginLeft: 30, marginBottom: 10, marginTop: 30, alignItems: 'center' }}>
             <Text style={styles.text}>
               Use Imperial Units
             </Text>
             <Switch
               value={this.state.switchValue}
               onValueChange={switchValue => this.setSwitchValue(switchValue)}
-              style={{ marginLeft: 10, transform: [{ scaleX: 0.6 }, { scaleY: 0.6 }] }}
+              style={{ marginLeft: 10 , transform: [{ scaleX: platform === 'ios' ? 0.7 : 1 }, { scaleY: platform === 'ios' ? 0.7 : 1 }] }}
             />
           </View>
           <View style={{ padding: 10, backgroundColor: '#33425a' }}>

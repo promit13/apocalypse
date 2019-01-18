@@ -166,6 +166,10 @@ export default class TalonIntelPlayer extends Component {
     }
   }
 
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+  }
+
   onBack = () => {
     const { currentTime } = this.state;
     this.setState({ currentTime: currentTime - 10 });
@@ -182,6 +186,9 @@ export default class TalonIntelPlayer extends Component {
 
   onPressPause = () => {
     this.setState({ paused: true });
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PAUSED,
+    });
   }
 
   onExercisePress = () => {
@@ -224,6 +231,9 @@ export default class TalonIntelPlayer extends Component {
 
   onPressPlay = () => {
     this.setState({ paused: false });
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PLAYING,
+    });
   }
 
   getCurrentTimeInMs = time => parseInt(time, 10);
@@ -284,6 +294,7 @@ export default class TalonIntelPlayer extends Component {
   }
 
   navigateBackTo = () => {
+    Orientation.lockToPortrait();
     const { navigateBack } = this.state;
     // if (navigateBack !== 'DownloadTestPlayer' && navigateBack !== 'EpisodeSingle') {
     //   Orientation.lockToPortrait();
@@ -582,7 +593,7 @@ export default class TalonIntelPlayer extends Component {
           onLoad={this.onLoad}
           onProgress={this.onProgress}
           onEnd={this.onEnd}
-          repeat
+          // repeat // ios only
           style={styles.audioElement}
         />
       );

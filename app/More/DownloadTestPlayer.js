@@ -213,6 +213,9 @@ export default class DownloadTestPlayer extends Component {
 
   onPressPause = () => {
     this.setState({ paused: true });
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PAUSED,
+    });
   }
 
   onExercisePress = () => {
@@ -342,7 +345,10 @@ export default class DownloadTestPlayer extends Component {
   onPressPlay = () => {
     this.setState({ paused: false });
     const { startDate, trackingStarted, currentTime } = this.state;
-    this.updateMusicControl(currentTime);
+    MusicControl.updatePlayback({
+      state: MusicControl.STATE_PLAYING,
+      elapsedTime: currentTime,
+    });
     if (!this.state.listen) {
       const currentDate = this.getDate();
       if ((currentDate - startDate) < 900000) {
@@ -1024,7 +1030,7 @@ export default class DownloadTestPlayer extends Component {
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground
         ignoreSilentSwitch="ignore"
-        repeat
+        // repeat // ios only
         playWhenInactive
         onLoad={this.onLoad}
         onEnd={this.onEnd}

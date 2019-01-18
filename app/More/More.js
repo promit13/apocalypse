@@ -44,12 +44,7 @@ export default class More extends React.Component {
   };
 
   state = {
-    isConnected: true,
     showNoInternetDialog: false,
-  }
-
-  componentDidMount() {
-    this.setState({ isConnected: this.props.screenProps.netInfo });
   }
 
   sendEmail = () => {

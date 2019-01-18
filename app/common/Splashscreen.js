@@ -5,7 +5,7 @@ import {
 import Video from 'react-native-video';
 import Orientation from 'react-native-orientation';
 
-const video = require('../../assets/astwelcome.mov');
+const video = require('../../assets/astwelcome.mp4');
 
 const styles = {
   backgroundVideo: {
@@ -62,9 +62,10 @@ export default class Splashscreen extends Component {
       <View style={styles.container}>
         <StatusBar hidden />
         <Video
-          source={require('../../assets/astwelcome.mov')}
+          source={video}
           ref={(c) => { this.video = c; }}
           resizeMode="cover"
+          ignoreSilentSwitch="ignore"
           playInBackground={false}
           style={styles.backgroundVideo}
         />

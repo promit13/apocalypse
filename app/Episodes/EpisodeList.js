@@ -95,6 +95,7 @@ class EpisodeList extends React.Component {
     deleteFileTitle: '',
     downloadActive: false,
     deleteStatus: false,
+    downloadPercentage: 2,
   }
 
   componentDidMount= async () => {
@@ -181,14 +182,9 @@ class EpisodeList extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.downloadComplete === prevState.downloadActive || this.props.deleteStatus === this.state.deleteStatus) {
+    if ((this.props.downloadProgress >= prevState.downloadPercentage) || (this.props.deleteStatus === this.state.deleteStatus)) {
       this.readDirectory();
-      // this.renderList();
     }
-    // if (this.props.screenProps.netInfo !== prevState.isConnected) {
-    //   this.readDirectory();
-    //   // this.renderList();
-    // }
   }
 
   componentWillUnmount() {
@@ -308,27 +304,13 @@ class EpisodeList extends React.Component {
   }
 
   readDirectory = () => {
-    // const { dirs, ls } = RNFetchBlob.fs;
-    console.log('RENDER DIRECTORY');
     const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
     const files = allEpisodes.map((episodeValue) => {
       return episodeValue.title;
     });
-    this.setState({ filesList: files, index: 0, downloadActive: false, deleteStatus: false });
-
-    // ls(`${dirs.DocumentDir}/AST/episodes`)
-    //   .then((files) => {
-    //     // this.setState({ filesList: files, index: 0, downloadActive: false });
-    //     if (check) {
-    //       this.setState({ filesList: files, index: 0, downloadActive: false });
-    //     } else {
-    //       // this.setState({ filesList: files });
-    //       this.setState({ filesList: files });
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
+    this.setState({
+      filesList: files, index: 0, downloadActive: false, deleteStatus: false, downloadPercentage: 2,
+    });
   }
 
   requestPermissions = async () => {
@@ -387,15 +369,6 @@ class EpisodeList extends React.Component {
     // this.child.deleteEpisodes(fileName);
     this.setState({ deleteStatus: true });
     this.props.deleteEpisodeList(fileName);
-    // const { dirs } = RNFetchBlob.fs;
-    // const formattedFileName = fileName.replace(/ /g, '_');
-    // RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`)
-    //   .then((exist) => {
-    //     if (exist) {
-    //       this.props.deleteEpisodeList(fileName);
-    //     }
-    //     this.readDirectory(true);
-    //   });
   }
 
   renderList = () => {
@@ -490,7 +463,7 @@ class EpisodeList extends React.Component {
                 if (!buy) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
-                this.setState({ index: (episodeIndex + 1), downloadActive: true },
+                this.setState({ index: (episodeIndex + 1), downloadActive: true, downloadPercentage: 0.90 },
                   () => {
                     this.onEpisodeClick(
                       (episodeIndex + 1),
