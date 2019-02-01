@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -37,7 +38,7 @@ const styles = {
     padding: 10,
   },
   modalInnerView: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f2f2f2',
     padding: 10,
   },
   inputStyle: {
@@ -50,8 +51,8 @@ const styles = {
     margin: 10,
   },
   imageStyle: {
-    height: imageSize,
-    width: imageSize,
+    height: scale(imageSize),
+    width: scale(imageSize),
     alignSelf: 'center',
     marginTop: 20,
   },
@@ -65,6 +66,7 @@ export default class MyAccount extends React.Component {
     password: '',
     showModal: false,
     showInternetModal: false,
+    showLogoutModal: false,
     showError: false,
     showLoading: false,
     providerId: 'password',
@@ -120,14 +122,11 @@ export default class MyAccount extends React.Component {
   }
 
   deleteAccount = () => {
-    firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove()
+    firebase.auth().currentUser.delete()
       .then(() => {
-        firebase.auth().currentUser.delete()
-          .then(() => {
-            this.deleteUserAsync();
-            this.setState({ showError: false, showLoading: false });
-          })
-          .catch(err => console.log(err));
+        firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove();
+        this.deleteUserAsync();
+        this.setState({ showError: false, showLoading: false });
       })
       .catch(err => console.log(err));
   }
@@ -162,8 +161,8 @@ export default class MyAccount extends React.Component {
               {this.state.showError ? <ErrorMessage errorMessage="Incorrect password" /> : null}
               {this.state.showLoading ? <Loading /> : null}
               <Button
-                color="#fff"
-                buttonStyle={styles.button}
+                color="gray"
+                buttonStyle={[styles.button, { backgroundColor: 'white' }]}
                 title="Cancel"
                 onPress={() => {
                   this.setState({ showModal: false });
@@ -171,7 +170,7 @@ export default class MyAccount extends React.Component {
               />
               <Button
                 color="#fff"
-                buttonStyle={[styles.button, { marginTop: 5 }]}
+                buttonStyle={[styles.button, { marginTop: 10 }]}
                 title="Confirm"
                 onPress={() => {
                   if (!netInfo) {
@@ -207,7 +206,7 @@ export default class MyAccount extends React.Component {
               return this.setState({ showInternetModal: true });
             }
             if (index === 0) {
-              return this.logOut();
+              return this.setState({ showLogoutModal: true });
             }
             if (index === 1) {
               return this.props.navigation.navigate('ChangeEmailPassword');
@@ -231,20 +230,29 @@ export default class MyAccount extends React.Component {
   }
 
   render() {
-    const { user, userData } = this.props.screenProps;
-    const { platform } = this.state;
+    const { user } = this.props.screenProps;
+    const { platform, showInternetModal, showLogoutModal } = this.state;
     return (
       <View style={styles.container}>
         <ScrollView>
           <Image style={styles.imageStyle} source={talonImage} />
           {this.showModal()}
           <ShowModal
-            visible={this.state.showInternetModal}
-            title="Please check your internet connection"
-            buttonText="OK"
-            onPress={() => {
-              this.setState({ showInternetModal: false });
+            visible={showLogoutModal}
+            title="Are you sure you want to sign out?"
+            buttonText="Confirm"
+            secondButtonText="Cancel"
+            askAdvance
+            onSecondButtonPress={() => {
+              this.setState({ showLogoutModal: false });
             }}
+            onPress={() => this.logOut()}
+          />
+          <ShowModal
+            visible={showInternetModal}
+            title="Please check your internet connection"
+            buttonText="Ok"
+            onPress={() => this.setState({ showInternetModal: false })}
           />
           <View style={{ alignSelf: 'center', marginBottom: 10 }}>
             <Text style={[styles.text, { marginTop: 10, fontWeight: 'bold' }]}>

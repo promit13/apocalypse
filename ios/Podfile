@@ -14,6 +14,9 @@ target 'apocalypse' do
 
     pod 'react-native-music-control', :path => '../node_modules/react-native-music-control'
 
+
+    pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+
   end
 
   target 'apocalypseTests' do

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, ActivityIndicator,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, ActivityIndicator, SafeAreaView,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button,
@@ -9,6 +9,7 @@ import * as RNIap from 'react-native-iap';
 import { connect } from 'react-redux';
 import Permissions from 'react-native-permissions';
 import Orientation from 'react-native-orientation';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import DeviceInfo from 'react-native-device-info';
 import * as Progress from 'react-native-progress';
 import { NavigationEvents } from 'react-navigation';
@@ -34,7 +35,7 @@ const styles = {
   },
   imageStyle: {
     width: '100%',
-    height: imageSize,
+    height: scale(200),
   },
   textStyle: {
     color: 'white',
@@ -146,7 +147,8 @@ class EpisodeList extends React.Component {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
               const completeEpisodes = snapEpisode.val();
               const series = Object.values(snapshot.val());
-              const episodeWatchedCount = snapWatchCount.val() !== null ? Object.values(snapWatchCount.val()) : null;
+              // const episodeWatchedCount = snapWatchCount.val() !== null ? Object.values(snapWatchCount.val()) : null;
+              const episodeWatchedCount = snapWatchCount.val();
               const { purchases, lastPlayedEpisode, episodeCompletedArray } = snap.val();
               const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
               const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
@@ -288,7 +290,7 @@ class EpisodeList extends React.Component {
     return length;
   }
 
-  getEpisodeCount = (episodeIndex, seriesIndex) => {
+  getEpisodeCount = (episodeIndex, seriesIndex, id) => {
     const { purchasedSeries, episodeWatchedCount } = this.state;
     const buy = purchasedSeries.includes(seriesIndex.toString());
     let counter = 0;
@@ -297,7 +299,7 @@ class EpisodeList extends React.Component {
       return counter;
     }
     if (episodeIndex <= 2 && episodeWatchedCount !== null) {
-      counter = episodeWatchedCount[episodeIndex] !== undefined ? episodeWatchedCount[episodeIndex].count : 0;
+      counter = episodeWatchedCount[id] !== undefined ? episodeWatchedCount[id].count : 0;
       return counter;
     }
     return counter;
@@ -328,11 +330,24 @@ class EpisodeList extends React.Component {
           console.log('Location permission denied');
         }
       } else {
-        Permissions.check('motion').then((response) => {
+        Permissions.check('notification').then((response) => {
+          console.log(response);
           if (response !== 'authorized') {
-            Permissions.request(['motion', 'notification']).then((res) => {
-              console.log(res);
-            });
+            Permissions.request('notification', { type: ['alert', 'badge'] }).then(
+              (res) => {
+                console.log(res);
+              },
+            );
+          }
+        });
+        await Permissions.check('motion').then((response) => {
+          console.log(response);
+          if (response !== 'authorized') {
+            Permissions.request('motion').then(
+              (res) => {
+                console.log(res);
+              },
+            );
           }
         });
       }
@@ -376,8 +391,8 @@ class EpisodeList extends React.Component {
       series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
     } = this.state;
     const { netInfo } = this.props.screenProps;
-    let counter;
-    const counterArray = [];
+    // let counter;
+    // const counterArray = [];
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
       const buy = purchasedSeries.includes(seriesKey);
       // minIndex = maxIndex + 1;
@@ -401,14 +416,16 @@ class EpisodeList extends React.Component {
           if (currentEpisode === uid) {
             completed = undefined;
           }
-          if (!buy && episodeIndex <= 2) {
-            if (episodeWatchedCount !== null) {
-              counter = episodeWatchedCount[episodeIndex] !== undefined ? episodeWatchedCount[episodeIndex].count : 0;
-              counterArray.push(counter);
-            } else {
-              counterArray.push(0);
-            }
-          }
+          // if (!buy && episodeIndex <= 2) {
+          //   if (episodeWatchedCount !== null) {
+          //     counter = episodeWatchedCount[episodeIndex] !== undefined ? episodeWatchedCount[episodeIndex].count : 0;
+          //     counterArray.push(counter);
+          //   } else {
+          //     counterArray.push(0);
+          //   }
+          // }
+          const counter = episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
+
           return (
             <ListItem
               key={episodeKey}
@@ -481,7 +498,7 @@ class EpisodeList extends React.Component {
                       episodeIndex,
                       seriesIndex,
                       deviceId,
-                      counterArray[episodeIndex],
+                      0,
                       buy,
                       downloaded,
                       completed,
@@ -491,10 +508,12 @@ class EpisodeList extends React.Component {
               }
               }
               onPress={() => {
+                console.log(counter);
+                // const count = episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
                 if (!netInfo && !downloaded) {
                   return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                 }
-                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counterArray[episodeIndex] >= 2)) {
+                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2)) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
                 this.onEpisodeClick(
@@ -513,7 +532,7 @@ class EpisodeList extends React.Component {
                   episodeIndex,
                   seriesIndex,
                   deviceId,
-                  counterArray[episodeIndex],
+                  counter,
                   buy,
                   downloaded,
                   completed,
@@ -615,11 +634,6 @@ class EpisodeList extends React.Component {
                     : episodeIndex
                   )
               const serIndex = lastPlayedEpisode === '' ? 0 : seriesIndex;
-              const counter = this.getEpisodeCount(epIndex, serIndex);
-              if (counter === 2) {
-                return this.setState({ showModal: true, modalText: 'Item not purchased' });
-              }
-              const buy = counter === 3 ? true : false;
               const id = lastPlayedEpisode === ''
                 ? this.getTitleAndId(0, 0).uid
                 : (
@@ -631,6 +645,12 @@ class EpisodeList extends React.Component {
                         )
                       : episodeId
                   )
+              const counter = this.getEpisodeCount(epIndex, serIndex, id);
+              console.log(counter);
+              if (counter === 2) {
+                return this.setState({ showModal: true, modalText: 'Item not purchased' });
+              }
+              const buy = counter === 3 ? true : false;
               const {
                 totalTime, workoutTime, videoSize, title, category, description, exercises, video, startWT, endWT,
               } = completeEpisodes[id];

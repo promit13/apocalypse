@@ -58,8 +58,17 @@ const appicon = require('../../img/appicon.png');
 export default class TalonIntelPlayer extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      // title: navigation.state.params.mode,
-      header: null,
+      title: navigation.getParam('mode', ''),
+      headerLeft: (
+        <Icon
+          name="chevron-left"
+          type="feather"
+          size={38}
+          color="#fff"
+          underlayColor="#001331"
+          onPress={() => { navigation.state.params.handleSave(); }}
+        />
+      ),
     };
   };
 
@@ -81,26 +90,16 @@ export default class TalonIntelPlayer extends Component {
   };
 
   componentDidMount() {
-    console.log('TALON I P');
     const platform = Platform.OS;
     Orientation.unlockAllOrientations();
+    this.props.navigation.setParams({ handleSave: this.navigateBackTo });
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     const {
       episodeId, talon, exerciseTitle, video, image, offline, advance, exercise, episodeExerciseTitle, uid, mode, navigateBack,
     } = this.props.navigation.state.params;
     if (talon) {
       firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
-       
         const { title, intel } = snapshot.val();
-        // const { playedIntelArray } = snap.val();
-        // let playedIntelArray = [];
-        // const playedIntel = await AsyncStorage.getItem('playedIntelArray');
-        // if (playedIntel !== null) {
-        //   playedIntelArray = JSON.parse(playedIntel);
-        // }
-        // if (!playedIntelArray.includes(episodeId)) {
-        //   playedIntelArray.push(episodeId);
-        // }
         this.setState({
           platform,
           playerTitle: mode,
@@ -359,7 +358,7 @@ export default class TalonIntelPlayer extends Component {
     } = this.state;
     return (
       <View style={{ flex: 1 }}>
-        { platform === 'android'
+        {/* { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -391,7 +390,7 @@ export default class TalonIntelPlayer extends Component {
               </View>
             </View>
           )
-        }
+        } */}
         <View style={{ flex: 2, flexDirection: 'row' }}>
           <View style={{ flex: 1, padding: 10 }}>
             <AlbumArt
@@ -467,7 +466,7 @@ export default class TalonIntelPlayer extends Component {
     } = this.state;
     return (
       <View>
-        { platform === 'android'
+        {/* { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -501,7 +500,7 @@ export default class TalonIntelPlayer extends Component {
               </View>
             </View>
           )
-            }
+        } */}
         <View style={styles.line} />
         <View style={styles.albumView}>
           <AlbumArt

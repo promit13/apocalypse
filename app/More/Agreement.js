@@ -70,6 +70,7 @@ export default class Agreement extends React.Component {
               axios.get(
                 `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
               ).then((response) => {
+                console.log(response);
                 const { email, first_name, last_name } = response.data;
                 axios.post('http://178.128.170.252/', { userEmail: email });
                 const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
@@ -98,7 +99,7 @@ export default class Agreement extends React.Component {
                       });
                   })
                   .catch((error) => {
-                    this.setState({ showLoading: false, errorMessage: 'An account already exists with the same email address', showModal: true });
+                    this.setState({ showLoading: false, errorMessage: 'Your email is currently linked to another account which has been previously registered. Please log in using your email address.', showModal: true });
                   });
               });
             });

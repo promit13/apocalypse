@@ -3,6 +3,7 @@ import {
   AppState, View, ScrollView, Modal, Platform, AsyncStorage, BackHandler,
 } from 'react-native';
 import { Text, Button, Icon } from 'react-native-elements';
+import { SafeAreaView } from 'react-navigation';
 import MusicControl from 'react-native-music-control';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
@@ -77,8 +78,17 @@ const appicon = require('../../img/appicon.png');
 export default class EpisodeSingle extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      // title: navigation.getParam('mode', ''),
-      header: null,
+      title: navigation.getParam('mode', ''),
+      headerLeft: (
+        <Icon
+          name="chevron-left"
+          type="feather"
+          size={38}
+          color="#fff"
+          underlayColor="#001331"
+          onPress={() => { navigation.state.params.handleSave(); }}
+        />
+      ),
     };
   };
 
@@ -131,6 +141,7 @@ export default class EpisodeSingle extends Component {
 
   componentDidMount = () => {
     Orientation.unlockAllOrientations();
+    this.props.navigation.setParams({ handleSave: this.navigateToEpisodeView });
     const platform = Platform.OS;
     const { dirs } = RNFetchBlob.fs;
     const {
@@ -284,7 +295,7 @@ export default class EpisodeSingle extends Component {
       const { currentTime, lastLoggedDate } = logValue;
       if ((currentDate - lastLoggedDate) > 900000) {
         return this.setState({
-          currentTime: this.getCurrentTimeInMs(0.0),
+          currentTime: 0.0,
           lastLoggedDate,
           totalLength: data.duration,
           loading: false,
@@ -295,34 +306,37 @@ export default class EpisodeSingle extends Component {
         lastLoggedDate,
         totalLength: data.duration,
         loading: false,
-        updateWatchedTimes: true,
+        updateWatchedTimes: currentTime < 600 ? false : true,
       },
       () => {
         this.player.seek(this.state.currentTime, 10);
       });
     } else {
       const {
-        dateNow, timeStamp, workOutTime, trackingStarted,
+        dateNow, timeStamp, workOutTime, trackingStarted, workOutCompleted,
       } = logValue;
       if ((currentDate - dateNow) > 900000) {
         return this.setState({
-          currentTime: this.getCurrentTimeInMs(0.0),
+          currentTime: 0.0,
           lastLoggedDate: dateNow,
           startDate: 0,
           playDate: currentDate,
           totalLength: data.duration,
           loading: false,
+          workOutCompleted,
         });
       }
       this.setState({
-        currentTime: this.getCurrentTimeInMs(timeStamp),
+        currentTime: timeStamp,
         lastLoggedDate: dateNow,
         startDate: dateNow,
         playDate: currentDate,
         totalLength: data.duration,
         loading: false,
         workOutTime,
+        workOutCompleted,
         trackingStarted,
+        updateWatchedTimes: timeStamp < 600 ? false : true,
       }, () => {
         this.player.seek(this.state.currentTime, 10);
       });
@@ -787,14 +801,12 @@ export default class EpisodeSingle extends Component {
     const {
       formattedWorkOutStartTime, currentTime, listen, trackingStarted, updateWatchedTimes, purchased,
     } = this.state;
-    if (listen && (currentTime > formattedWorkOutStartTime) && !updateWatchedTimes && !purchased) {
+    // if (listen && (currentTime > formattedWorkOutStartTime) && !updateWatchedTimes && !purchased) {
+    if ((currentTime > 600) && !updateWatchedTimes && !purchased) { 
       this.updateWatchedTimes();
       this.setState({ updateWatchedTimes: true });
     }
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
-      if (!purchased) {
-        this.updateWatchedTimes();
-      }
       this.startTrackingSteps();
       this.setState({ trackingStarted: true });
     }
@@ -851,7 +863,7 @@ export default class EpisodeSingle extends Component {
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ flex: 1 }}>
-        { platform === 'android'
+        {/* { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -883,7 +895,7 @@ export default class EpisodeSingle extends Component {
               </View>
             </View>
           )
-        }
+        } */}
         <View style={styles.line} />
         <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
           <View style={{
@@ -945,8 +957,8 @@ export default class EpisodeSingle extends Component {
                     visible={showIntroAdvanceDialog}
                     title="Choose Exercise Difficulty Level"
                     description="Would you like to see the easier or harder versions of the exercises and stretches?"
-                    buttonText="Whoa, I'm with Flynn..."
-                    secondButtonText="Hell yes, I'm with Bay!"
+                    secondButtonText="Whoa, I'm with Flynn..."
+                    buttonText="Hell yes, I'm with Bay!"
                     askAdvance
                     onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
                     onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
@@ -998,7 +1010,7 @@ export default class EpisodeSingle extends Component {
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ height: '100%' }}>
-        { platform === 'android'
+        {/* { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -1032,7 +1044,7 @@ export default class EpisodeSingle extends Component {
               </View>
             </View>
           )
-          }
+          } */}
         <View style={styles.albumView}>
           <View style={styles.line} />
           <AlbumArt
@@ -1066,11 +1078,11 @@ export default class EpisodeSingle extends Component {
                   visible={showIntroAdvanceDialog}
                   title="Choose Exercise Difficulty Level"
                   description="Would you like to see the easier or harder versions of the exercises and stretches?"
-                  buttonText="Whoa, I'm with Flynn..."
-                  secondButtonText="Hell yes, I'm with Bay!"
+                  secondButtonText="Whoa, I'm with Flynn..."
+                  buttonText="Hell yes, I'm with Bay!"
                   askAdvance
-                  onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
-                  onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                  onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                  onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
                 />
                 { !listen
                   ? (

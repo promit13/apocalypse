@@ -40,7 +40,6 @@ const styles = {
     width: 0,
   },
   albumView: {
-    paddingTop: 10,
     height: '50%',
   },
   line: {
@@ -79,8 +78,17 @@ const appicon = require('../../img/appicon.png');
 export default class DownloadTestPlayer extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      // title: navigation.getParam('mode', ''),
-      header: null,
+      title: navigation.getParam('mode', ''),
+      headerLeft: (
+        <Icon
+          name="chevron-left"
+          type="feather"
+          size={38}
+          color="#fff"
+          underlayColor="#001331"
+          onPress={() => { navigation.state.params.handleSave(); }}
+        />
+      ),
     };
   };
 
@@ -132,6 +140,7 @@ export default class DownloadTestPlayer extends Component {
 
   componentDidMount = async () => {
     Orientation.unlockAllOrientations();
+    this.props.navigation.setParams({ handleSave: this.navigateToEpisodeView });
     console.log('OFFLINE');
     const platform = Platform.OS;
     const { dirs } = RNFetchBlob.fs;
@@ -296,7 +305,7 @@ export default class DownloadTestPlayer extends Component {
       });
     } else {
       const {
-        workoutDate, timeStamp, workOutTime, trackingStarted,
+        workoutDate, timeStamp, workOutTime, trackingStarted, workOutCompleted,
       } = Array.from(loggedWorkOut)[logId];
       if ((currentDate - workoutDate) > 900000) {
         return this.setState({
@@ -305,6 +314,7 @@ export default class DownloadTestPlayer extends Component {
           startDate: 0,
           playDate: currentDate,
           totalLength: data.duration,
+          workOutCompleted,
           loading: false,
         });
       }
@@ -315,6 +325,7 @@ export default class DownloadTestPlayer extends Component {
         startDate: workoutDate,
         playDate: currentDate,
         workOutTime,
+        workOutCompleted,
         trackingStarted,
         totalLength: data.duration,
         loading: false,
@@ -736,7 +747,7 @@ export default class DownloadTestPlayer extends Component {
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ flex: 1 }}>
-        { platform === 'android'
+        {/* { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -768,7 +779,7 @@ export default class DownloadTestPlayer extends Component {
               </View>
             </View>
           )
-        }
+        } */}
         <View style={styles.line} />
         <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
           <View style={{
@@ -830,11 +841,11 @@ export default class DownloadTestPlayer extends Component {
                     visible={showIntroAdvanceDialog}
                     title="Choose Exercise Difficulty Level"
                     description="Would you like to see the easier or harder versions of the exercises and stretches?"
-                    buttonText="Whoa, I'm with Flynn..."
-                    secondButtonText="Hell yes, I'm with Bay!"
+                    secondButtonText="Whoa, I'm with Flynn..."
+                    buttonText="Hell yes, I'm with Bay!"
                     askAdvance
-                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
-                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
                   />
                   <View>
                     { !listen
@@ -883,7 +894,7 @@ export default class DownloadTestPlayer extends Component {
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ height: '100%' }}>
-        { platform === 'android'
+        {/* { platform === 'android'
           ? (
             <View style={styles.headerView}>
               <Icon
@@ -917,7 +928,7 @@ export default class DownloadTestPlayer extends Component {
               </View>
             </View>
           )
-          }
+          } */}
         <View style={styles.albumView}>
           <View style={styles.line} />
           <AlbumArt
@@ -951,8 +962,8 @@ export default class DownloadTestPlayer extends Component {
                   visible={showIntroAdvanceDialog}
                   title="Choose Exercise Difficulty Level"
                   description="Would you like to see the easier or harder versions of the exercises and stretches?"
-                  buttonText="Whoa, I'm with Flynn..."
-                  secondButtonText="Hell yes, I'm with Bay!"
+                  secondButtonText="Whoa, I'm with Flynn..."
+                  buttonText="Hell yes, I'm with Bay!"
                   askAdvance
                   onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
                   onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}

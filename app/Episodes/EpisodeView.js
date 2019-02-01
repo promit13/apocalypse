@@ -56,6 +56,7 @@ export default class EpisodeView extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
       title: `Episode ${navigation.state.params.episodeIndex + 1}`,
+      
       // header: null,
     };
   };
@@ -499,8 +500,8 @@ export default class EpisodeView extends React.Component {
         </View>
         <ShowModal
           visible={showModal}
-          title={`You have ${freeTrials} free trials plays of this episode`}
-          description={`Are you ready to workout?\n\nAfter 1 minute of listening, this session will count as one of your two free trial plays`}
+          title={`You have ${freeTrials} free trial plays of this episode`}
+          description={`Are you ready to workout?\n\nAfter 10 minutes of listening, this session will count as one of your two free trial plays`}
           buttonText="Play"
           secondButtonText="Cancel"
           askAdvance

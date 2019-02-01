@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, AsyncStorage } from 'react-native';
+import { SafeAreaView } from 'react-navigation';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
 import realm from '../config/Database';
 import {
-  SignedIn,
-  SignedOut,
-  TutorialDisplay,
+  SignedInContainer,
+  SignedOutContainer,
+  TutorialDisplayContainer,
 } from '../config/router';
 
 export default class Home extends React.Component {
@@ -261,18 +262,18 @@ export default class Home extends React.Component {
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen />;
     if (!netInfo && userLoggedIn) {
-      return <SignedIn screenProps={{ user, netInfo }} />;
+      return <SignedInContainer screenProps={{ user, netInfo }} />;
     }
     if (user) {
       if (data === null) return <LoadScreen />;
       if (data.tutorial) {
         return (
-          <SignedIn screenProps={{ user, netInfo }} />
+          <SignedInContainer screenProps={{ user, netInfo }} />
         );
       }
       if (!data.tutorial) {
         return (
-          <TutorialDisplay
+          <TutorialDisplayContainer
             screenProps={{ user, netInfo }}
           />
         );
@@ -304,13 +305,13 @@ export default class Home extends React.Component {
       //   );
       // }
     }
-    return <SignedOut screenProps={{ netInfo }} />;
+    return <SignedOutContainer screenProps={{ netInfo }} />;
   }
 
   render() {
     console.disableYellowBox = true;
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: '#001331' }}>
         {
           this.renderComponent()
         }

@@ -3,6 +3,7 @@ import { Icon, Text } from 'react-native-elements';
 import {
   View, Image, TouchableOpacity, StatusBar, Alert,
 } from 'react-native';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 
@@ -28,9 +29,9 @@ const styles = {
     backgroundColor: 'white',
   },
   circularImageView: {
-    height: 100,
-    width: 100,
-    borderRadius: 100 / 2,
+    height: scale(100),
+    width: scale(100),
+    borderRadius: scale(100 / 2),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -65,9 +66,9 @@ export default class ExerciseCategory extends React.Component {
               <View style={styles.circularImageView}>
                 <Image
                   style={{
-                    height: 100,
-                    width: 100,
-                    borderRadius: 100 / 2,
+                    height: scale(100),
+                    width: scale(100),
+                    borderRadius: scale(100 / 2),
                     borderColor: 'white',
                   }}
                   source={imageSource}

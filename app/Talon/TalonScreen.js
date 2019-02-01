@@ -4,9 +4,8 @@ import {
   AsyncStorage, Alert, Dimensions,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
-import ProgressBarAnimated from 'react-native-progress-bar-animated';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import * as Progress from 'react-native-progress';
-import * as Animatable from 'react-native-animatable';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import OfflineMsg from '../common/OfflineMsg';
@@ -30,7 +29,7 @@ const styles = {
   },
   imageStyle: {
     width: '100%',
-    height: 200,
+    height: scale(200),
   },
   textStyle: {
     color: 'white',
@@ -100,9 +99,9 @@ export default class TalonScreen extends React.Component {
     firebase.database().ref('series').on('value', (snapSeries) => {
       firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).on('value', (snapshot) => {
         firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
-          // if (snap.val() === null) {
-          //   return;
-          // }
+          if (snap.val() === null) {
+            return;
+          }
           // let playedIntelArray = [];
           // const playedIntel = await AsyncStorage.getItem('playedIntelArray');
           // if (playedIntel !== null) {
@@ -175,10 +174,17 @@ export default class TalonScreen extends React.Component {
               }
             </View>
           </TouchableOpacity>
+          <View style={{ backgroundColor: 'white', paddingBottom: 5, paddingLeft: 15, paddingRight: 15 }}>
+            <Image
+              source={i === 1 ? talonRoute : talonRouteSecond}
+              style={[styles.imageStyle, { height: 80, marginTop: 10, marginBottom: 10 }]}
+              resizeMethod="resize"
+            />
+          </View>
           {
             Object.entries(logsArray).map(([key, value], ind) => {
               const {
-                dateNow, timeInterval, distance, steps, trackingStarted, category, workOutCompleted,
+                dateNow, timeInterval, distance, steps, trackingStarted,
               } = value;
               if (!trackingStarted || category !== 'Speed') {
                 return console.log(trackingStarted);
@@ -188,7 +194,7 @@ export default class TalonScreen extends React.Component {
               const formatDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
               const unit = distanceUnit ? 'miles' : 'km';
               const convertedDistance = distanceUnit ? (distance / 1609.34).toFixed(2) : (distance / 1000).toFixed(2);
-              const progressPercentage = (convertedDistance / 2) > 1 ? 1 : (convertedDistance / 2);
+              const progressPercentage = (convertedDistance / 5) > 1 ? 1 : (convertedDistance / 5);
               return (
                 <View>
                   <ListItem
@@ -199,11 +205,6 @@ export default class TalonScreen extends React.Component {
                     hideChevron
                   />
                   <View style={{ backgroundColor: 'white', paddingBottom: 5, paddingLeft: 15, paddingRight: 15 }}>
-                    <Image
-                      source={i === 1 ? talonRoute : talonRouteSecond}
-                      style={[styles.imageStyle, { height: 80, marginTop: 10, marginBottom: 10 }]}
-                      resizeMethod="resize"
-                    />
                     {/* marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth) */}
                     <Image
                       style={{
@@ -240,8 +241,8 @@ export default class TalonScreen extends React.Component {
       return this.setState({ modalTitle: 'Please check your internet connection', showModal: true });
     }
     if (lastPlayBar) {
-      if (lastPlayedEpisode === '' || playedIntelArray.length === 0) {
-        return this.setState({ modalTitle: 'No intel available', showModal: true });
+      if (lastPlayedEpisode === '') {
+        return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
       }
     }
     if (!workOutCompleted) {
@@ -290,8 +291,6 @@ export default class TalonScreen extends React.Component {
     const alreadyPlayed = lastPlayedEpisode !== '' ? playedIntelArray.some((el) => {
       return el.episodeId === lastPlayedEpisode.episodeId;
     }) : null;
-    console.log(alreadyPlayed);
-    console.log(playedIntelArray.length);
     const { episodeId, episodeTitle } = lastPlayedEpisode;
     const episodes = Object.entries(series).map(([seriesKey, value], index) => {
       if (value.episodes === undefined) {
@@ -303,7 +302,6 @@ export default class TalonScreen extends React.Component {
           const talonDone = talonKeyArray.includes(uid);
 
           const logsArray = talonDone ? (Object.values(talonLogs[uid])) : [{ workOutCompleted: false }];
-          console.log(logsArray);
           const { workOutCompleted } = (logsArray[logsArray.length - 1]);
           const talonArrayLength = talonDone ? logsArray.length : 1;
           return (
@@ -312,19 +310,19 @@ export default class TalonScreen extends React.Component {
                 key={episodeKey}
                 roundAvatar
                 avatar={
-                  category === 'Speed' && talonDone && (talonArrayLength > 1)
+                  category === 'Speed' && workOutCompleted && (talonArrayLength > 1)
                     ? speedImage
                     : (
-                      category === 'Speed' && !talonDone
+                      category === 'Speed' && !workOutCompleted
                         ? speedImageGray
                         : (
-                          category === 'Strength' && talonDone && (talonArrayLength > 1) && workOutCompleted
+                          category === 'Strength' && (talonArrayLength > 1) && workOutCompleted
                             ? strengthImage
                             : (
-                              category === 'Strength' && !talonDone
+                              category === 'Strength' && !workOutCompleted
                                 ? strengthImageGray
                                 : (
-                                  category === 'Control' && talonDone && (talonArrayLength > 1) && workOutCompleted
+                                  category === 'Control' && (talonArrayLength > 1) && workOutCompleted
                                     ? controlImage
                                     : controlImageGray
                                 )
@@ -332,37 +330,29 @@ export default class TalonScreen extends React.Component {
                         )
                     )
                 }
-                title={talonDone ? `Episode ${i + 1} Intel File` : 'No Essential Intel Available'}
+                title={workOutCompleted ? `Episode ${i + 1} Intel File` : 'No Essential Intel Available'}
                 titleStyle={{
                   color:
-                    category !== 'Speed' && talonDone && (talonArrayLength > 1) && workOutCompleted
-                      ? 'white'
-                      : (
-                        category === 'Speed' && talonDone && (talonArrayLength > 1)
-                          ? 'white'
-                          : 'gray'
-                      ),
+                   (talonArrayLength > 1) && workOutCompleted
+                     ? 'white'
+                     : 'gray',
                   fontWeight: 'bold',
                 }}
                 rightIcon={{
-                  name: 'chevron-down',
+                  name: category !== 'Speed' ? 'chevron-right' : 'chevron-down',
                   type: 'feather',
                   color:
-                    category !== 'Speed' && talonDone && (talonArrayLength > 1) && workOutCompleted
-                      ? '#f5cb23'
-                      : (
-                        category === 'Speed' && talonDone && (talonArrayLength > 1)
-                          ? '#f5cb23'
-                          : 'gray'
-                      ),
+                     (talonArrayLength > 1) && workOutCompleted
+                       ? '#f5cb23'
+                       : 'gray',
                 }}
                 containerStyle={{ backgroundColor: '#33425a' }}
                 underlayColor="#2a3545"
                 onPress={() => {
-                  if (category === 'Speed' && (!talonDone || (talonArrayLength === 1))) {
+                  if (category === 'Speed' && (!workOutCompleted || (talonArrayLength === 1))) {
                     return;
                   }
-                  if (category !== 'Speed' && (!talonDone || (talonArrayLength === 1) || !workOutCompleted)) {
+                  if (category !== 'Speed' && ((talonArrayLength === 1) || !workOutCompleted)) {
                     return;
                   }
                   this.setState({ index: i + 1, showTalon: !this.state.showTalon });
@@ -391,7 +381,9 @@ export default class TalonScreen extends React.Component {
               />
               <TouchableOpacity onPress={() => {
                 // const episodeId = (Object.keys(this.state.talonLogs))[0];
-                this.navigateToTalonIntelPlayer(episodeId, true, true);
+                const logsArrayLastEpisode = Object.values(talonLogs[episodeId]);
+                const workOutCompletedLastEpisode = (logsArrayLastEpisode[logsArrayLastEpisode.length - 1]).workOutCompleted;
+                this.navigateToTalonIntelPlayer(episodeId, true, workOutCompletedLastEpisode);
               }}
               >
                 <View style={styles.latestIntelView}>
@@ -407,7 +399,7 @@ export default class TalonScreen extends React.Component {
                           marginRight: 10,
                         }}
                       >
-                        {lastPlayedEpisode === '' || playedIntelArray.length === 0
+                        {lastPlayedEpisode === ''
                           ? 'No Essential Intel Available'
                           : (
                             alreadyPlayed
@@ -425,7 +417,7 @@ export default class TalonScreen extends React.Component {
                       }}
                       >
                         {/* {`${Object.values(Object.values(this.state.talonLogs)[0])[0].episodeTitle}`} */}
-                        {lastPlayedEpisode === '' || playedIntelArray.length === 0
+                        {lastPlayedEpisode === ''
                           ? null
                           : `${episodeTitle}`
                         }

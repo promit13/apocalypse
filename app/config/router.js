@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image } from 'react-native';
-import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
 import { Icon } from 'react-native-elements';
 import Login from '../User/Login';
 import UserNew from '../User/UserNew';
@@ -36,7 +36,7 @@ const talonIcon = require('../../img/talondark.png');
 const episodeIcon = require('../../img/episodes.png');
 const exerciseIcon = require('../../img/exercises.png');
 
-export const SignedOut = createStackNavigator({
+const SignedOut = createStackNavigator({
   LoginSignup: { screen: LoginSignup },
   Login: { screen: Login },
   Signup: { screen: UserNew },
@@ -45,7 +45,7 @@ export const SignedOut = createStackNavigator({
   UserBodyDetail: { screen: UserBodyDetail },
 },
 {
-  navigationOptions: {
+  defaultNavigationOptions: {
     headerStyle: {
       backgroundColor: '#001331',
     },
@@ -56,6 +56,9 @@ export const SignedOut = createStackNavigator({
     },
   },
 });
+
+export const SignedOutContainer = createAppContainer(SignedOut);
+
 export const UserDetails = createStackNavigator({
   UserBodyDetail: { screen: UserBodyDetail },
   Tutorial: { screen: Tutorial },
@@ -71,11 +74,11 @@ export const UserDetails = createStackNavigator({
     },
   },
 });
-export const TutorialDisplay = createStackNavigator({
+const TutorialDisplay = createStackNavigator({
   Tutorial: { screen: Tutorial },
 },
 {
-  navigationOptions: {
+  defaultNavigationOptions: {
     headerStyle: {
       backgroundColor: '#001331',
     },
@@ -85,6 +88,8 @@ export const TutorialDisplay = createStackNavigator({
     },
   },
 });
+
+export const TutorialDisplayContainer = createAppContainer(TutorialDisplay);
 
 const EpisodeStack = createStackNavigator({
   EpisodeList: { screen: EpisodeList },
@@ -97,13 +102,14 @@ const EpisodeStack = createStackNavigator({
   DownloadPlayer: { screen: DownloadPlayer },
   DownloadTestPlayer: { screen: DownloadTestPlayer },
 }, {
-  navigationOptions: () => ({
+  defaultNavigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
+      color: '#fff',
     },
   }),
 });
@@ -125,7 +131,7 @@ const ExerciseStack = createStackNavigator({
   TalonIntelPlayer: { screen: TalonIntelPlayer },
 },
 {
-  navigationOptions: () => ({
+  defaultNavigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
@@ -151,7 +157,7 @@ const TalonStack = createStackNavigator({
   TalonIntelPlayer: { screen: TalonIntelPlayer },
 },
 {
-  navigationOptions: () => ({
+  defaultNavigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
@@ -193,7 +199,7 @@ const MoreStack = createStackNavigator({
   DownloadTestPlayer: { screen: DownloadTestPlayer },
 },
 {
-  navigationOptions: () => ({
+  defaultNavigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
@@ -222,7 +228,7 @@ export const SignedIn = createBottomTabNavigator({
 }, {
   // initialRouteName: 'Episode',
 
-  navigationOptions: ({ navigation }) => ({
+  defaultNavigationOptions: ({ navigation }) => ({
     tabBarIcon: ({ tintColor }) => {
       const { routeName } = navigation.state;
       if (routeName === 'More') {
@@ -261,3 +267,5 @@ export const SignedIn = createBottomTabNavigator({
     style: { height: 65 },
   },
 });
+
+export const SignedInContainer = createAppContainer(SignedIn);
