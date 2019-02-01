@@ -128,7 +128,7 @@ export default class Signup extends React.Component {
         //   })
         //   .catch(err => console.log(err));
         this.setUserData(currentUser);
-        axios.post('http://178.128.170.252/', { userEmail: email });
+        axios.post('http://178.128.170.252/', { email });
       })
       .catch((error) => {
         this.setState({ showError: true, errorMessage: error.message, showLoading: false });
