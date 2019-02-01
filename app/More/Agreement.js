@@ -73,7 +73,7 @@ export default class Agreement extends React.Component {
                 const { email, first_name, last_name } = response.data;
                 const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
                 firebase.auth().signInAndRetrieveDataWithCredential(credential)
-                .then((currentUser) => {
+                  .then((currentUser) => {
                     firebase.database().ref(`users/${currentUser.user.uid}`).on('value', (snapShot) => {
                       if (snapShot.val() === null) {
                         axios.post('http://178.128.170.252/', { email });
