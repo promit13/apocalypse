@@ -71,13 +71,12 @@ export default class Agreement extends React.Component {
                 `https://graph.facebook.com/v3.1/me?access_token=${data.accessToken}&fields=email,first_name,last_name`,
               ).then((response) => {
                 const { email, first_name, last_name } = response.data;
-                axios.post('http://178.128.170.252/', { userEmail: email });
                 const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
                 firebase.auth().signInAndRetrieveDataWithCredential(credential)
-                  .then((currentUser) => {
-                    
+                .then((currentUser) => {
                     firebase.database().ref(`users/${currentUser.user.uid}`).on('value', (snapShot) => {
                       if (snapShot.val() === null) {
+                        axios.post('http://178.128.170.252/', { email });
                         firebase.database().ref(`users/${currentUser.user.uid}`).set({
                           firstName: first_name,
                           lastName: last_name,
