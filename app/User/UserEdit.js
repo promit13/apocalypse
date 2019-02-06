@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -23,40 +23,42 @@ const styles = {
     backgroundColor: '#001331',
   },
   text: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     color: 'white',
     textAlign: 'center',
   },
   button: {
-    borderRadius: 5,
+    borderRadius: moderateScale(5),
     backgroundColor: '#001331',
   },
   modalView: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
-    padding: 10,
+    padding: moderateScale(10),
   },
   modalInnerView: {
     backgroundColor: '#f2f2f2',
-    padding: 10,
+    padding: moderateScale(10),
   },
   inputStyle: {
     borderColor: '#001331',
-    borderRadius: 5,
-    borderWidth: 2,
-    padding: 10,
-    height: 40,
+    borderRadius: moderateScale(5),
+    borderWidth: moderateScale(2),
+    padding: moderateScale(10),
+    height: moderateScale(40),
     color: '#001331',
-    margin: 10,
+    margin: moderateScale(10),
+    fontSize: moderateScale(12),
   },
   imageStyle: {
-    height: scale(imageSize),
-    width: scale(imageSize),
+    height: moderateScale(imageSize, -0.2),
+    width: moderateScale(imageSize, -0.2),
     alignSelf: 'center',
-    marginTop: 20,
+    marginTop: moderateScale(20),
   },
 };
+
 export default class MyAccount extends React.Component {
   static navigationOptions = {
     title: 'My Account',
@@ -163,6 +165,7 @@ export default class MyAccount extends React.Component {
               <Button
                 color="gray"
                 buttonStyle={[styles.button, { backgroundColor: 'white' }]}
+                fontSize={moderateScale(18)}
                 title="Cancel"
                 onPress={() => {
                   this.setState({ showModal: false });
@@ -170,7 +173,8 @@ export default class MyAccount extends React.Component {
               />
               <Button
                 color="#fff"
-                buttonStyle={[styles.button, { marginTop: 10 }]}
+                buttonStyle={[styles.button, { marginTop: moderateScale(10) }]}
+                fontSize={moderateScale(18)}
                 title="Confirm"
                 onPress={() => {
                   if (!netInfo) {
@@ -199,8 +203,9 @@ export default class MyAccount extends React.Component {
         <ListItem
           key={item}
           title={item}
-          titleStyle={{ color: 'white' }}
+          titleStyle={{ color: 'white', fontSize: moderateScale(14) }}
           underlayColor="#2a3545"
+          containerStyle={{ paddingBottom: moderateScale(5), paddingTop: moderateScale(5) }}
           onPress={() => {
             if (!netInfo) {
               return this.setState({ showInternetModal: true });
@@ -254,25 +259,25 @@ export default class MyAccount extends React.Component {
             buttonText="Ok"
             onPress={() => this.setState({ showInternetModal: false })}
           />
-          <View style={{ alignSelf: 'center', marginBottom: 10 }}>
-            <Text style={[styles.text, { marginTop: 10, fontWeight: 'bold' }]}>
+          <View style={{ alignSelf: 'center', marginBottom: moderateScale(10) }}>
+            <Text style={[styles.text, { marginTop: moderateScale(10), fontWeight: 'bold' }]}>
               Welcome, Agent Whiskey Gambit
             </Text>
             <Text style={styles.text}>
               {user.email}
             </Text>
           </View>
-          <View style={{ flexDirection: 'row', marginLeft: 30, marginBottom: 10, marginTop: 30, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', marginLeft: moderateScale(30), marginBottom: moderateScale(10), marginTop: moderateScale(30), alignItems: 'center' }}>
             <Text style={styles.text}>
               Use Imperial Units
             </Text>
             <Switch
               value={this.state.switchValue}
               onValueChange={switchValue => this.setSwitchValue(switchValue)}
-              style={{ marginLeft: 10 , transform: [{ scaleX: platform === 'ios' ? 0.7 : 1 }, { scaleY: platform === 'ios' ? 0.7 : 1 }] }}
+              style={{ marginLeft: moderateScale(10) , transform: [{ scaleX: platform === 'ios' ? 0.7 : 1 }, { scaleY: platform === 'ios' ? 0.7 : 1 }] }}
             />
           </View>
-          <View style={{ padding: 10, backgroundColor: '#33425a' }}>
+          <View style={{ padding: moderateScale(10), backgroundColor: '#33425a' }}>
             {this.renderListItem()}
           </View>
         </ScrollView>

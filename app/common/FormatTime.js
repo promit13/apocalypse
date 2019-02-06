@@ -1,6 +1,13 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { moderateScale } from 'react-native-size-matters';
 
+const styles = {
+  textStyle: {
+    color: 'white',
+    fontSize: moderateScale(12),
+  },
+};
 export default class FormatTime extends React.Component {
   formatTime = (timeToFormat) => {
     let minutes = 0;
@@ -23,13 +30,13 @@ export default class FormatTime extends React.Component {
     const { workOutTime, currentTime, remainingTime, landscape } = this.props;
     return (
       <View style={{ flexDirection: workOutTime && landscape ? 'column' : 'row', justifyContent: workOutTime ? 'center' : 'space-between', padding: 10 }}>
-        <Text style={{ color: 'white', alignSelf: workOutTime && landscape ? 'center' : 'flex-start' }}>
+        <Text style={[styles.textStyle, { alignSelf: workOutTime && landscape ? 'center' : 'flex-start' }]}>
           { workOutTime
             ? `Workout Time: ${this.formatTime(currentTime)}`
             : this.formatTime(currentTime)
           }
         </Text>
-        <Text style={{ color: 'white', alignSelf: workOutTime && landscape ? 'center' : 'flex-end' }}>
+        <Text style={[styles.textStyle, { alignSelf: workOutTime && landscape ? 'center' : 'flex-end' }]}>
           { workOutTime
             ? `  Workout Left: ${this.formatTime(remainingTime)}`
             : this.formatTime(remainingTime)

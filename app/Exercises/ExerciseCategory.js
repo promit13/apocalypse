@@ -20,8 +20,8 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingLeft: moderateScale(10),
+    paddingRight: moderateScale(10),
   },
   line: {
     width: '100%',
@@ -37,8 +37,9 @@ const styles = {
   },
   textStyle: {
     color: 'white',
-    marginLeft: 20,
-    marginRight: 10,
+    fontSize: moderateScale(10),
+    marginLeft: moderateScale(20),
+    marginRight: moderateScale(10),
   },
 };
 export default class ExerciseCategory extends React.Component {
@@ -76,7 +77,7 @@ export default class ExerciseCategory extends React.Component {
                 />
               </View>
               <View>
-                <Text style={[styles.textStyle, { fontSize: 20, fontWeight: 'bold' }]}>
+                <Text style={[styles.textStyle, { fontSize: moderateScale(20), fontWeight: 'bold' }]}>
                   {title}
                 </Text>
                 <Text style={styles.textStyle}>
@@ -84,7 +85,7 @@ export default class ExerciseCategory extends React.Component {
                 </Text>
               </View>
             </View>
-            <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="white" />
+            <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="white" size={moderateScale(30)} />
           </View>
         </TouchableOpacity>
       );

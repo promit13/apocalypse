@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -13,22 +14,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 10,
+    padding: moderateScale(10),
     backgroundColor: '#001331',
   },
   fieldContainer: {
     flexDirection: 'row',
-    borderRadius: 10,
+    borderRadius: moderateScale(10),
     borderColor: 'white',
-    borderWidth: 1,
-    padding: 10,
-    marginTop: 5,
+    borderWidth: moderateScale(1),
+    padding: moderateScale(10),
+    marginTop: moderateScale(5),
   },
   inputStyle: {
     flex: 1,
-    height: 40,
+    height: moderateScale(40),
     color: 'white',
-    marginLeft: 10,
+    fontSize: moderateScale(12),
+    marginLeft: moderateScale(10),
   },
   button: {
     width: '100%',
@@ -80,7 +82,7 @@ export default class ChangeEmailPassword extends React.Component {
     return (
       <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
         <View style={styles.fieldContainer}>
-          <Icon name="lock" type="entypo" color="white" />
+          <Icon name="lock" type="entypo" color="white" size={moderateScale(30)}/>
           <TextInput
             underlineColorAndroid="transparent"
             style={styles.inputStyle}
@@ -101,7 +103,7 @@ export default class ChangeEmailPassword extends React.Component {
           }}
         />
         <View style={styles.fieldContainer}>
-          <Icon name="lock" type="entypo" color="white" />
+          <Icon name="lock" type="entypo" color="white" size={moderateScale(30)} />
           <TextInput
             underlineColorAndroid="transparent"
             secureTextEntry
@@ -113,7 +115,7 @@ export default class ChangeEmailPassword extends React.Component {
           />
         </View>
         <View style={styles.fieldContainer}>
-          <Icon name="lock" type="entypo" color="white" />
+          <Icon name="lock" type="entypo" color="white" size={moderateScale(30)}/>
           <TextInput
             underlineColorAndroid="transparent"
             secureTextEntry
@@ -126,7 +128,8 @@ export default class ChangeEmailPassword extends React.Component {
         </View>
         {this.state.showLoading ? <Loading /> : null}
         <Button
-          buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
+          buttonStyle={{ backgroundColor: '#445878', borderRadius: moderateScale(10), marginTop: moderateScale(10) }}
+          fontSize={moderateScale(18)}
           title="Submit"
           onPress={() => {
             if (!netInfo) {

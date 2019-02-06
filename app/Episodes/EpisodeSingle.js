@@ -3,7 +3,7 @@ import {
   AppState, View, ScrollView, Modal, Platform, AsyncStorage, BackHandler,
 } from 'react-native';
 import { Text, Button, Icon } from 'react-native-elements';
-import { SafeAreaView } from 'react-navigation';
+import { moderateScale } from 'react-native-size-matters';
 import MusicControl from 'react-native-music-control';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
@@ -26,15 +26,16 @@ const styles = {
     height: '100%',
   },
   containerInner: {
-    marginTop: 30,
+    marginTop: moderateScale(30),
   },
   textTitle: {
     color: 'white',
     textAlign: 'center',
     fontWeight: 'bold',
+    fontSize: moderateScale(24),
   },
   loading: {
-    marginTop: 30,
+    marginTop: moderateScale(30),
   },
   audioElement: {
     height: 0,
@@ -45,30 +46,30 @@ const styles = {
   },
   line: {
     width: '100%',
-    height: 1,
+    height: moderateScale(1),
     backgroundColor: 'white',
   },
   modal: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
+    padding: moderateScale(10),
   },
   modalInnerView: {
     backgroundColor: '#fff',
-    padding: 10,
+    padding: moderateScale(10),
     justifyContent: 'center',
   },
   button: {
     backgroundColor: '#001331',
-    borderRadius: 5,
-    marginTop: 10,
+    borderRadius: moderateScale(5),
+    marginTop: moderateScale(10),
   },
   headerView: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#001331',
-    height: 50,
+    height: moderateScale(50),
     width: '100%',
   },
 };
@@ -838,9 +839,9 @@ export default class EpisodeSingle extends Component {
         const {
           cmsTitle, visible, title, episodeExerciseTitle,
         } = exercise[0];
-        const showInfo = visible;
+        // const showInfo = visible;
         this.setState({
-          showInfo,
+          showInfo: visible,
           playingExercise: {
             value: { image: cmsTitle, title, episodeExerciseTitle },
           },
@@ -899,7 +900,7 @@ export default class EpisodeSingle extends Component {
         <View style={styles.line} />
         <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
           <View style={{
-            flex: 0.5, padding: 5, height: '100%',
+            flex: 0.5, padding: moderateScale(5), height: '100%',
           }}
           >
             <AlbumArt
@@ -915,8 +916,8 @@ export default class EpisodeSingle extends Component {
               advance={advance}
             />
           </View>
-          <View style={{ marginTop: 30, flex: 0.5, justifyContent: 'space-between' }}>
-            <Text h4 style={styles.textTitle}>
+          <View style={{ marginTop: moderateScale(30), flex: 0.5, justifyContent: 'space-between' }}>
+            <Text style={styles.textTitle}>
               {episodeTitle}
             </Text>
             <View>
@@ -1056,7 +1057,7 @@ export default class EpisodeSingle extends Component {
             currentExercise={episodeExerciseTitle}
             onPress={this.onExercisePress}
             showInfo={showInfo}
-            paddingTop={20}
+            paddingTop={moderateScale(20)}
             offline={offline}
             advance={advance}
           />
@@ -1113,7 +1114,7 @@ export default class EpisodeSingle extends Component {
                 currentTime={currentTime}
                 remainingTime={totalLength - currentTime}
               />
-              <Text h4 style={styles.textTitle}>
+              <Text style={styles.textTitle}>
                 {episodeTitle}
               </Text>
               {

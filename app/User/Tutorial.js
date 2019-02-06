@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, View, ScrollView, Dimensions } from 'react-native';
 import { Text, Button } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import Video from 'react-native-video';
 import Swiper from 'react-native-swiper';
 import firebase from '../config/firebase';
@@ -13,8 +14,8 @@ const styles = {
   containerStyle: {
     flex: 1,
     backgroundColor: '#001331',
-    paddingBottom: 10,
-    paddingTop: 30,
+    paddingBottom: moderateScale(10),
+    paddingTop: moderateScale(30),
     justifyContent: 'center',
   },
   swiperContainer: {
@@ -22,13 +23,14 @@ const styles = {
     alignItems: 'center',
   },
   textStyle: {
-    marginTop: 20,
+    marginTop: moderateScale(20),
     color: 'white',
     textAlign: 'center',
+    fontSize: moderateScale(14),
   },
   imageStyle: {
-    height: imageSize,
-    width: imageSize,
+    height: moderateScale(imageSize, -0.2),
+    width: moderateScale(imageSize, -0.2),
   },
   slideStyle: {
     flex: 1,
@@ -38,9 +40,9 @@ const styles = {
   buttonStyle: {
     backgroundColor: '#001331',
     borderColor: '#f5cb23',
-    borderRadius: 20,
-    marginTop: 15,
-    borderWidth: 2,
+    borderRadius: moderateScale(20),
+    marginTop: moderateScale(15),
+    borderWidth: moderateScale(2),
   },
 };
 
@@ -50,7 +52,7 @@ export default class Tutorial extends React.Component {
   };
 
   state = {
-    tutorials: '',
+    tutorials: {},
     showButton: false,
     showModal: false,
     paused: true,
@@ -89,7 +91,6 @@ export default class Tutorial extends React.Component {
     const { showButton, showModal, tutorials, paused, loading } = this.state;
     const { netInfo } = this.props.screenProps;
     const { length } = Object.keys(tutorials);
-    console.log(length);
     const tutorialsList = Object.entries(tutorials).map(([key, value], i) => {
       return (
         <ScrollView key={key}>
@@ -105,6 +106,7 @@ export default class Tutorial extends React.Component {
                   <View>
                     <Button
                       buttonStyle={[styles.buttonStyle, { backgroundColor: '#f5cb23' }]}
+                      fontSize={moderateScale(16)}
                       color="#001331"
                       title={paused ? 'PLAY TRAILER ' : 'PAUSE TRAILER'}
                       onPress={() => {
@@ -115,6 +117,7 @@ export default class Tutorial extends React.Component {
                       showButton
                       && (<Button
                         buttonStyle={styles.buttonStyle}
+                        fontSize={moderateScale(12)}
                         color="#f5cb23"
                         title="TAKE ME IN"
                         onPress={() => {
@@ -154,7 +157,7 @@ export default class Tutorial extends React.Component {
           }}
         />
         <Video
-          source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/trailers%2F-LP5Jim23GTDagRtsj4_%2Fepisode1.mp4?alt=media&token=a79ff78e-b149-4de6-a928-ed2c3c9a7ef8' }} // Can be a URL or a local file.
+          source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/trailers%2F-LP5Jim23GTDagRtsj4_%2FAST%20December%20Audio%20Trailer.mp3.mp3?alt=media&token=37f8bd46-5d16-4c60-acc7-e35f25dc46f8' }} // Can be a URL or a local file.
           ref={(ref) => {
             this.player = ref;
           }}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ScrollView, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { moderateScale } from 'react-native-size-matters';
 import { CheckBox, Text, Icon } from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import axios from 'axios';
@@ -12,22 +13,22 @@ const styles = {
   mainViewContainer: {
     backgroundColor: '#001331',
     flex: 1,
-    marginTop: 1,
-    padding: 16,
+    marginTop: moderateScale(1),
+    padding: moderateScale(16),
   },
   fieldContainer: {
     flexDirection: 'row',
     backgroundColor: '#3C5A96',
-    borderRadius: 5,
+    borderRadius: moderateScale(5),
     alignItems: 'center',
-    padding: 15,
-    marginBottom: 15,
+    padding: moderateScale(15),
+    marginBottom: moderateScale(15),
   },
   text: {
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 20,
-    marginLeft: 15,
+    fontSize: moderateScale(20),
+    marginLeft: moderateScale(15),
   },
 };
 
@@ -138,17 +139,18 @@ export default class Agreement extends React.Component {
               <View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <TouchableOpacity
-                    style={{flexDirection:'row', flexWrap:'wrap'}}
+                    style={{ flexDirection: 'row', flexWrap: 'wrap' }}
                     onPress={() => this.setState({ checked: !checked })}
                   >
                     <CheckBox
                       checked={checked}
+                      size={moderateScale(30)}
                       onPress={() => this.setState({ checked: !checked })}
                       checkedColor="#f5cb23"
                       containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -20 }}
 
                     />
-                    <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', marginTop: 17 }}>
+                    <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', marginTop: moderateScale(15), fontSize: moderateScale(12) }}>
                       I agree to the User Agreement
                     </Text>
                   </TouchableOpacity>
@@ -165,7 +167,7 @@ export default class Agreement extends React.Component {
                 }}
                 >
                   <View style={styles.fieldContainer}>
-                    <Icon name="facebook" type="entypo" color="white" />
+                    <Icon name="facebook" type="entypo" color="white" size={moderateScale(30)} />
                     <Text style={styles.text}>
                       Continue with Facebook
                     </Text>

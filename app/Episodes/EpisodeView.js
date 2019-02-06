@@ -5,6 +5,7 @@ import {
 import {
   ListItem, Button, Text, Icon,
 } from 'react-native-elements';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import realm from '../config/Database';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
@@ -19,19 +20,20 @@ const styles = {
     backgroundColor: '#f5cb23',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 15,
+    marginTop: moderateScale(15),
   },
   circularImageView: {
-    height: 120,
-    width: 120,
-    borderRadius: 120 / 2,
+    height: moderateScale(120),
+    width: moderateScale(120),
+    borderRadius: moderateScale(120 / 2),
     alignItems: 'center',
     justifyContent: 'center',
   },
   text: {
     color: 'white',
-    marginLeft: 15,
-    marginRight: 15,
+    marginLeft: moderateScale(15),
+    marginRight: moderateScale(15),
+    fontSize: moderateScale(12),
   },
   buttonView: {
     flex: 1,
@@ -43,7 +45,7 @@ const styles = {
   },
   line: {
     width: '100%',
-    height: 1,
+    height: moderateScale(1),
     backgroundColor: 'white',
   },
 };
@@ -202,6 +204,8 @@ export default class EpisodeView extends React.Component {
       endWT,
       video,
     } = episodeDetail[0];
+    console.log(Array.from(exerciseIdList));
+    console.log(Array.from(exerciseLengthList));
     const exercises = exerciseIdList.map((value, i) => {
       return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
     });
@@ -312,7 +316,7 @@ export default class EpisodeView extends React.Component {
       return (
         <ListItem
           title={title}
-          titleStyle={{ color: advance && !advanced ? 'gray' : 'white' }}
+          titleStyle={{ color: advance && !advanced ? 'gray' : 'white', fontSize: moderateScale(16) }}
           containerStyle={{ backgroundColor: '#33425a' }}
           underlayColor="#2a3545"
           onPress={() => {
@@ -353,7 +357,7 @@ export default class EpisodeView extends React.Component {
         <ListItem
           key={key}
           title={title}
-          titleStyle={{ color: advance && advanced === undefined ? 'gray' : 'white' }}
+          titleStyle={{ color: advance && advanced === undefined ? 'gray' : 'white', fontSize: moderateScale(16) }}
           containerStyle={{ backgroundColor: advance && advanced === undefined ? '#2a3545' : '#33425a' }}
           underlayColor="#2a3545"
           onPress={() => {
@@ -388,19 +392,19 @@ export default class EpisodeView extends React.Component {
     if (loading) return <LoadScreen />;
     return (
       <ScrollView style={styles.mainContainer}>
-        <View style={{ flexDirection: 'row', padding: 15 }}>
+        <View style={{ flexDirection: 'row', padding: moderateScale(15) }}>
           <View style={styles.circularImageView}>
             <Image
               style={{
-                height: 120,
-                width: 120,
-                borderRadius: 120 / 2,
+                height: moderateScale(120),
+                width: moderateScale(120),
+                borderRadius: moderateScale(120 / 2),
               }}
               source={imageSource}
             />
           </View>
-          <View style={{ marginLeft: 10 }}>
-            <Text style={[styles.text, { fontSize: 20, fontWeight: 'bold' }]}>
+          <View style={{ marginLeft: moderateScale(10), marginTop: moderateScale(5) }}>
+            <Text style={[styles.text, { fontSize: moderateScale(20), fontWeight: 'bold' }]}>
               {category}
             </Text>
             <Text style={styles.text}>
@@ -433,9 +437,9 @@ export default class EpisodeView extends React.Component {
           </View> */}
         </View>
         <View>
-          <View style={{ flexDirection: 'row', paddingLeft: 15 }}>
-            <Icon name={completed ? 'circle-thin' : (completed === undefined ? 'unmute' : 'circle')} type={completed === undefined ? 'octicon' : 'font-awesome'} color={completed ? '#7a6306' : '#f5cb23'} size={20} />
-            <Text style={[styles.text, { fontSize: 20, fontWeight: 'bold' }]}>
+          <View style={{ flexDirection: 'row', paddingLeft: moderateScale(15) }}>
+            <Icon name={completed ? 'circle-thin' : (completed === undefined ? 'unmute' : 'circle')} type={completed === undefined ? 'octicon' : 'font-awesome'} color={completed ? '#7a6306' : '#f5cb23'} size={moderateScale(20)} />
+            <Text style={[styles.text, { fontSize: moderateScale(20), fontWeight: 'bold' }]}>
               {`${episodeIndex + 1}. ${title}`}
             </Text>
           </View>
@@ -448,9 +452,9 @@ export default class EpisodeView extends React.Component {
           <View style={styles.buttonView}>
             <Button
               buttonStyle={styles.button}
-              icon={{ name: 'play-arrow', color: '#001331', size: 30 }}
+              icon={{ name: 'play-arrow', color: '#001331', size: moderateScale(30) }}
               color="#001331"
-              fontSize={18}
+              fontSize={moderateScale(18)}
               title="Workout Mode"
               onPress={() => {
                 if (purchased) {
@@ -469,17 +473,17 @@ export default class EpisodeView extends React.Component {
             />
           </View>
           <View style={{
-            width: 1,
-            height: 30,
+            width: moderateScale(1),
+            height: moderateScale(30),
             backgroundColor: '#001331',
           }}
           />
           <View style={styles.buttonView}>
             <Button
               buttonStyle={styles.button}
-              icon={{ name: 'play-arrow', color: '#001331', size: 30 }}
+              icon={{ name: 'play-arrow', color: '#001331', size: moderateScale(30) }}
               color="#001331"
-              fontSize={18}
+              fontSize={moderateScale(18)}
               title="Listen Mode"
               onPress={() => {
                 if (purchased) {
@@ -500,7 +504,7 @@ export default class EpisodeView extends React.Component {
         </View>
         <ShowModal
           visible={showModal}
-          title={`You have ${freeTrials} free trial plays of this episode`}
+          title={`You have ${freeTrials} free trial ${freeTrials === 'one' ? 'play' : 'plays'} of this episode ${freeTrials === 'one' ? 'left' : ''}`}
           description={`Are you ready to workout?\n\nAfter 10 minutes of listening, this session will count as one of your two free trial plays`}
           buttonText="Play"
           secondButtonText="Cancel"
@@ -533,7 +537,7 @@ export default class EpisodeView extends React.Component {
         {
           (category === 'Speed' || exercises === undefined || exercises.length === 0)
             ? (
-              <Text style={[styles.text, { marginTop: 15, marginBottom: 10 }]}>
+              <Text style={[styles.text, { marginTop: moderateScale(15), marginBottom: moderateScale(10) }]}>
                 {exercises === undefined ? '' : 'EXERCISES IN EPISODE'}
               </Text>
             )
@@ -543,7 +547,7 @@ export default class EpisodeView extends React.Component {
                   <Button
                     buttonStyle={{ backgroundColor: 'transparent' }}
                     color="#001331"
-                    fontSize={18}
+                    fontSize={moderateScale(18)}
                     title="Intro"
                     onPress={() => {
                       this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
@@ -554,7 +558,7 @@ export default class EpisodeView extends React.Component {
                   <Button
                     buttonStyle={{ backgroundColor: 'transparent' }}
                     color="#001331"
-                    fontSize={18}
+                    fontSize={moderateScale(18)}
                     title="Advanced"
                     onPress={() => {
                       this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });

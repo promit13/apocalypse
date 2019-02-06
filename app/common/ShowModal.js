@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Modal } from 'react-native';
 import { Button, Text } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 
 const styles = {
   modal: {
@@ -8,21 +9,21 @@ const styles = {
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
+    padding: moderateScale(10),
   },
   modalInnerView: {
     backgroundColor: '#f2f2f2',
-    padding: 10,
+    padding: moderateScale(10),
     justifyContent: 'center',
   },
   button: {
     backgroundColor: '#001331',
-    borderRadius: 5,
-    marginTop: 10,
+    borderRadius: moderateScale(5),
+    marginTop: moderateScale(10),
   },
   text: {
     color: '#001331',
-    marginTop: 10,
+    marginTop: moderateScale(10),
     textAlign: 'center',
   },
 };
@@ -42,10 +43,10 @@ export default ShowModal = ({
     <View style={styles.modal}>
       <View style={styles.modalInnerView}>
         <View style={{ justifyContent: 'center' }}>
-          <Text style={[styles.text, { fontWeight: 'bold', fontSize: textSize }]}>
+          <Text style={[styles.text, { fontWeight: 'bold', fontSize: moderateScale(18) }]}>
             {title}
           </Text>
-          <Text style={styles.text}>
+          <Text style={[styles.text, { fontSize: moderateScale(14) }]}>
             {description}
           </Text>
         </View>
@@ -54,6 +55,7 @@ export default ShowModal = ({
             buttonStyle={[styles.button, { backgroundColor: 'white' }]}
             title={secondButtonText}
             color="gray"
+            fontSize={moderateScale(14)}
             onPress={() => onSecondButtonPress()}
           />
         )
@@ -62,6 +64,7 @@ export default ShowModal = ({
           buttonStyle={styles.button}
           title={buttonText}
           color="white"
+          fontSize={moderateScale(16)}
           onPress={() => onPress()}
         />
       </View>

@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Button, Icon, Text } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -18,38 +19,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 10,
+    padding: moderateScale(10),
     backgroundColor: '#001331',
   },
   fieldContainer: {
     flexDirection: 'row',
-    borderRadius: 10,
+    borderRadius: moderateScale(10),
     borderColor: 'white',
-    borderWidth: 2,
-    padding: 10,
-    marginTop: 5,
+    borderWidth: moderateScale(2),
+    padding: moderateScale(10),
+    marginTop: moderateScale(5),
   },
   inputStyle: {
     flex: 1,
-    height: 40,
+    height: moderateScale(40),
     color: 'white',
-    marginLeft: 10,
-    fontSize: 18,
+    marginLeft: moderateScale(10),
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
   },
-  button: {
-    width: '100%',
-  },
   imageStyle: {
-    height: imageSize,
-    width: imageSize,
+    height: moderateScale(imageSize, -0.2),
+    width: moderateScale(imageSize, -0.2),
     alignSelf: 'center',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: moderateScale(20),
+    marginBottom: moderateScale(20),
   },
   text: {
     color: 'white',
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
   },
 });
@@ -92,13 +90,13 @@ export default class Login extends React.Component {
         <ScrollView>
           <StatusBar backgroundColor="#00000b" barStyle="light-content" />
           <Image style={styles.imageStyle} source={talonImage} />
-          <View style={[styles.fieldContainer, { paddingTop: 20, paddingBottom: 20 }]}>
+          <View style={[styles.fieldContainer, { paddingTop: moderateScale(20), paddingBottom: moderateScale(20) }]}>
             <Text style={styles.text}>
               AGENT: Whiskey Gambit
             </Text>
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="user" type="entypo" color="white" size={16} />
+            <Icon name="user" type="entypo" color="white" size={moderateScale(16)} />
             <TextInput
               keyboardType="email-address"
               underlineColorAndroid="transparent"
@@ -110,7 +108,7 @@ export default class Login extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" size={16} />
+            <Icon name="lock" type="entypo" color="white" size={moderateScale(16)} />
             <TextInput
               underlineColorAndroid="transparent"
               secureTextEntry
@@ -128,7 +126,7 @@ export default class Login extends React.Component {
             this.props.navigation.navigate('ForgotPassword');
           }}
           >
-            <Text style={[styles.text, { fontSize: 14, alignSelf: 'flex-end', marginTop: 5 }]}>
+            <Text style={[styles.text, { fontSize: moderateScale(14), alignSelf: 'flex-end', marginTop: moderateScale(5) }]}>
               Forgot Password
             </Text>
           </TouchableOpacity>
@@ -143,8 +141,9 @@ export default class Login extends React.Component {
             }}
           />
           <Button
-            buttonStyle={{ backgroundColor: '#445878', borderRadius: 5, marginTop: 10 }}
+            buttonStyle={{ backgroundColor: '#445878', borderRadius: moderateScale(5), marginTop: moderateScale(10) }}
             title="Log in"
+            fontSize={moderateScale(18)}
             onPress={() => {
               if (!netInfo) {
                 return this.setState({ showModal: true });

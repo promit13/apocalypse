@@ -5,6 +5,7 @@ import {
 import { Text, Icon } from 'react-native-elements';
 import Video from 'react-native-video';
 import MusicControl from 'react-native-music-control';
+import { moderateScale } from 'react-native-size-matters';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Orientation from 'react-native-orientation';
 import firebase from '../config/firebase';
@@ -22,15 +23,16 @@ const styles = {
     height: '100%',
   },
   containerInner: {
-    marginTop: 30,
+    marginTop: moderateScale(30),
   },
   textTitle: {
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
+    fontSize: moderateScale(24),
   },
   loading: {
-    marginTop: 30,
+    marginTop: moderateScale(30),
   },
   audioElement: {
     height: 0,
@@ -41,14 +43,14 @@ const styles = {
   },
   line: {
     width: '100%',
-    height: 1,
+    height: moderateScale(1),
     backgroundColor: 'white',
   },
   headerView: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#001331',
-    height: 50,
+    height: moderateScale(50),
     width: '100%',
   },
 };
@@ -392,7 +394,7 @@ export default class TalonIntelPlayer extends Component {
           )
         } */}
         <View style={{ flex: 2, flexDirection: 'row' }}>
-          <View style={{ flex: 1, padding: 10 }}>
+          <View style={{ flex: 1, padding: moderateScale(10) }}>
             <AlbumArt
               url={
               playingExercise
@@ -405,7 +407,7 @@ export default class TalonIntelPlayer extends Component {
             />
           </View>
           <View style={{ flex: 1, justifyContent: videoUrl === '' ? 'center' : 'space-between' }}>
-            <Text h4 style={[styles.textTitle, { marginTop: 10 }]}>
+            <Text style={[styles.textTitle, { marginTop: moderateScale(10) }]}>
               {episodeTitle}
             </Text>
             {
@@ -537,7 +539,7 @@ export default class TalonIntelPlayer extends Component {
                     </View>
                   )
               }
-              <Text h4 style={[styles.textTitle, { marginTop: 10 }]}>
+              <Text style={[styles.textTitle, { marginTop: moderateScale(10) }]}>
                 {episodeTitle}
               </Text>
               {

@@ -5,11 +5,17 @@ import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
 import realm from '../config/Database';
 import {
-  SignedInContainer,
-  SignedOutContainer,
-  TutorialDisplayContainer,
+  SignedIn,
+  SignedOut,
+  TutorialDisplay,
 } from '../config/router';
 
+const styles = {
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#001331',
+  },
+};
 export default class Home extends React.Component {
   state = {
     loading: true,
@@ -262,18 +268,18 @@ export default class Home extends React.Component {
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen />;
     if (!netInfo && userLoggedIn) {
-      return <SignedInContainer screenProps={{ user, netInfo }} />;
+      return <SignedIn screenProps={{ user, netInfo }} />;
     }
     if (user) {
       if (data === null) return <LoadScreen />;
       if (data.tutorial) {
         return (
-          <SignedInContainer screenProps={{ user, netInfo }} />
+          <SignedIn screenProps={{ user, netInfo }} />
         );
       }
       if (!data.tutorial) {
         return (
-          <TutorialDisplayContainer
+          <TutorialDisplay
             screenProps={{ user, netInfo }}
           />
         );
@@ -305,17 +311,19 @@ export default class Home extends React.Component {
       //   );
       // }
     }
-    return <SignedOutContainer screenProps={{ netInfo }} />;
+    return <SignedOut screenProps={{ netInfo }} />;
   }
 
   render() {
     console.disableYellowBox = true;
     return (
-      <View style={{ flex: 1, backgroundColor: '#001331' }}>
-        {
-          this.renderComponent()
-        }
-      </View>
+      <SafeAreaView style={styles.mainContainer} forceInset={{ top: 'never' }}>
+        <View style={styles.mainContainer}>
+          {
+            this.renderComponent()
+          }
+        </View>
+      </SafeAreaView>
     );
   }
 }

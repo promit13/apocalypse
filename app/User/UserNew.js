@@ -6,6 +6,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {
   Button, Text, Icon, CheckBox,
 } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import axios from 'axios';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
@@ -21,35 +22,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 10,
+    padding: moderateScale(10),
     backgroundColor: '#001331',
   },
   fieldContainer: {
     flexDirection: 'row',
-    borderRadius: 5,
+    borderRadius: moderateScale(5),
     borderColor: 'white',
-    borderWidth: 1,
-    marginTop: 5,
-    padding: 10,
+    borderWidth: moderateScale(1),
+    marginTop: moderateScale(5),
+    padding: moderateScale(10),
   },
   imageStyle: {
-    height: imageSize,
-    width: imageSize,
+    height: moderateScale(imageSize, -0.2),
+    width: moderateScale(imageSize, -0.2),
     alignSelf: 'center',
-    marginTop: 50,
-    marginBottom: 20,
+    marginTop: moderateScale(50),
+    marginBottom: moderateScale(20),
   },
   line: {
     width: '100%',
-    height: 1,
+    height: moderateScale(1),
     backgroundColor: 'white',
   },
   inputStyle: {
     flex: 1,
-    height: 40,
+    height: moderateScale(40),
     color: 'white',
-    marginLeft: 10,
-    fontSize: 18,
+    marginLeft: moderateScale(10),
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
   },
   button: {
@@ -146,7 +147,7 @@ export default class Signup extends React.Component {
         <ScrollView>
           <Image style={styles.imageStyle} source={talonImage} />
           <View style={styles.fieldContainer} behavior="padding">
-            <Icon name="email" color="white" size={16} />
+            <Icon name="email" color="white" size={moderateScale(16)} />
             <TextInput
               keyboardType="email-address"
               underlineColorAndroid="transparent"
@@ -158,7 +159,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="user" type="entypo" color="white" size={16} />
+            <Icon name="user" type="entypo" color="white" size={moderateScale(16)} />
             <TextInput
               underlineColorAndroid="transparent"
               style={styles.inputStyle}
@@ -169,7 +170,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="user" type="entypo" color="white" size={16} />
+            <Icon name="user" type="entypo" color="white" size={moderateScale(16)} />
             <TextInput
               underlineColorAndroid="transparent"
               style={styles.inputStyle}
@@ -180,7 +181,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" size={16} />
+            <Icon name="lock" type="entypo" color="white" size={moderateScale(16)} />
             <TextInput
               secureTextEntry
               underlineColorAndroid="transparent"
@@ -192,7 +193,7 @@ export default class Signup extends React.Component {
             />
           </View>
           <View style={styles.fieldContainer}>
-            <Icon name="lock" type="entypo" color="white" size={16} />
+            <Icon name="lock" type="entypo" color="white" size={moderateScale(16)} />
             <TextInput
               secureTextEntry
               underlineColorAndroid="transparent"
@@ -207,6 +208,7 @@ export default class Signup extends React.Component {
             <CheckBox
               checked={checked}
               checkedColor="#f5cb23"
+              size={moderateScale(30)}
               containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -25 }}
               onIconPress={() => this.setState({ checked: !checked })}
             />
@@ -220,7 +222,7 @@ export default class Signup extends React.Component {
             }}
             >
               <View>
-                <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold' }}>
+                <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', fontSize: moderateScale(12) }}>
                   I agree to the User Agreement
                 </Text>
                 <View style={[styles.line, { backgroundColor: checked ? '#f5cb23' : 'white' }]} />
@@ -240,6 +242,7 @@ export default class Signup extends React.Component {
           <Button
             buttonStyle={styles.button}
             title="Sign up"
+            fontSize={moderateScale(18)}
             onPress={() => {
               if (!netInfo) {
                 return this.setState({ showModal: true });

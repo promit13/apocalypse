@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Slider } from 'react-native';
+import { moderateScale } from 'react-native-size-matters';
 
 export default Seekbar = ({
   totalLength,
@@ -20,7 +21,7 @@ export default Seekbar = ({
       maximumTrackTintColor="#ffffff"
       onValueChange={changedValue => onDragSeekBar(changedValue)}
       onSlidingComplete={changedValue => sliderReleased(changedValue)}
-      style={{ width: '100%', marginTop: 10 }}
+      style={{ width: '100%', marginTop: moderateScale(10) }}
     />
   </View>
 );

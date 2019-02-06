@@ -3,6 +3,7 @@ import {
   View, TextInput, StyleSheet, Alert,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -25,12 +26,10 @@ const styles = StyleSheet.create({
   },
   inputStyle: {
     flex: 1,
-    height: 40,
+    height: moderateScale(40),
     color: 'white',
-    marginLeft: 10,
-  },
-  button: {
-    width: '100%',
+    marginLeft: moderateScale(10),
+    fontSize: moderateScale(18),
   },
 });
 
@@ -71,7 +70,7 @@ export default class ForgotPassword extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.fieldContainer}>
-          <Icon name="user" type="entypo" color="white" />
+          <Icon name="user" type="entypo" color="white" size={moderateScale(16)} />
           <TextInput
             underlineColorAndroid="transparent"
             style={styles.inputStyle}
@@ -93,8 +92,9 @@ export default class ForgotPassword extends React.Component {
           }}
         />
         <Button
-          buttonStyle={{ backgroundColor: '#445878', borderRadius: 10, marginTop: 10 }}
+          buttonStyle={{ backgroundColor: '#445878', borderRadius: moderateScale(10), marginTop: moderateScale(10) }}
           title="Submit"
+          fontSize={moderateScale(18)}
           onPress={() => {
             if (!netInfo) {
               return this.setState({ showModal: true });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
 import ShowModal from '../common/ShowModal';
 
@@ -60,7 +61,7 @@ export default class ExerciseList extends React.Component {
             <ListItem
               key={title}
               title={title}
-              titleStyle={{ color: this.state.advance && advanced === undefined ? 'gray' : 'white', fontSize: 18 }}
+              titleStyle={{ color: this.state.advance && advanced === undefined ? 'gray' : 'white', fontSize: moderateScale(18) }}
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor={this.state.advance && advanced === undefined ? '#33425a' : '#2a3545'}
               onPress={() => {
@@ -97,7 +98,7 @@ export default class ExerciseList extends React.Component {
                   <Button
                     buttonStyle={{ backgroundColor: 'transparent' }}
                     color="#001331"
-                    fontSize={18}
+                    fontSize={moderateScale(18)}
                     title="Intro"
                     onPress={() => {
                       this.setState({ advance: false, introButtonColor: '#f5cb23', advancedButtonColor: '#fff' });
@@ -108,7 +109,7 @@ export default class ExerciseList extends React.Component {
                   <Button
                     buttonStyle={{ backgroundColor: 'transparent' }}
                     color="#001331"
-                    fontSize={18}
+                    fontSize={moderateScale(18)}
                     title="Advanced"
                     onPress={() => {
                       this.setState({ advance: true, introButtonColor: '#fff', advancedButtonColor: '#f5cb23' });

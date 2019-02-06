@@ -3,6 +3,7 @@ import {
   View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, StatusBar,
 } from 'react-native';
 import { Icon, Text } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import Orientation from 'react-native-orientation';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
@@ -16,52 +17,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 10,
+    padding: moderateScale(10),
     backgroundColor: '#001331',
   },
   fieldContainer: {
     flexDirection: 'row',
     backgroundColor: '#3C5A96',
-    borderRadius: 5,
+    borderRadius: moderateScale(5),
     alignItems: 'center',
-    padding: 15,
-    marginBottom: 15,
+    padding: moderateScale(15),
+    marginBottom: moderateScale(15),
   },
   inputStyle: {
     flex: 1,
-    height: 40,
+    height: moderateScale(40),
     color: 'white',
-    marginLeft: 10,
-    fontSize: 20,
-  },
-  button: {
-    width: '100%',
+    marginLeft: moderateScale(10),
+    fontSize: moderateScale(20),
   },
   imageStyle: {
-    height: imageSize,
-    width: imageSize,
+    height: moderateScale(imageSize, -0.2),
+    width: moderateScale(imageSize, -0.2),
     alignSelf: 'center',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: moderateScale(20),
+    marginBottom: moderateScale(20),
     justifyContent: 'center',
     alignContent: 'center',
   },
   text: {
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 20,
-    marginLeft: 15,
+    fontSize: moderateScale(20),
+    marginLeft: moderateScale(15),
   },
   modal: {
     flex: 1,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
+    padding: moderateScale(10),
   },
   modalInnerView: {
     backgroundColor: '#f2f2f2',
-    padding: 10,
+    padding: moderateScale(10),
     justifyContent: 'center',
   },
 });
@@ -105,7 +103,7 @@ export default class LoginSignUp extends React.Component {
         }}
         >
           <View style={styles.fieldContainer}>
-            <Icon name="facebook" type="entypo" color="white" />
+            <Icon name="facebook" type="entypo" color="white" size={moderateScale(30)} />
             <Text style={styles.text}>
               Log in with Facebook
             </Text>
@@ -119,7 +117,7 @@ export default class LoginSignUp extends React.Component {
         }}
         >
           <View style={[styles.fieldContainer, { backgroundColor: '#33425a' }]}>
-            <Icon name="email-outline" type="material-community" color="white" />
+            <Icon name="email-outline" type="material-community" color="white" size={moderateScale(30)} />
             <Text style={styles.text}>
               Log in with Email
             </Text>
@@ -133,7 +131,7 @@ export default class LoginSignUp extends React.Component {
         }}
         >
           <View style={[styles.fieldContainer, { backgroundColor: '#D44A37' }]}>
-            <Icon name="account" type="material-community" color="white" />
+            <Icon name="account" type="material-community" color="white" size={moderateScale(30)} />
             <Text style={styles.text}>
               Create Account
             </Text>

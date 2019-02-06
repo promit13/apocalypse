@@ -1,7 +1,8 @@
 import React from 'react';
 import { Image } from 'react-native';
-import { createStackNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import { Icon } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import Login from '../User/Login';
 import UserNew from '../User/UserNew';
 import UserBodyDetail from '../User/UserBodyDetail';
@@ -30,13 +31,12 @@ import DownloadPlayer from '../More/DownloadPlayer';
 import ForgotPassword from '../User/ForgotPassword';
 import LoginSignup from '../User/LoginSignup';
 import DownloadTestPlayer from '../More/DownloadTestPlayer';
-import SplashScreen from '../common/Splashscreen';
 
 const talonIcon = require('../../img/talondark.png');
 const episodeIcon = require('../../img/episodes.png');
 const exerciseIcon = require('../../img/exercises.png');
 
-const SignedOut = createStackNavigator({
+export const SignedOut = createStackNavigator({
   LoginSignup: { screen: LoginSignup },
   Login: { screen: Login },
   Signup: { screen: UserNew },
@@ -45,7 +45,7 @@ const SignedOut = createStackNavigator({
   UserBodyDetail: { screen: UserBodyDetail },
 },
 {
-  defaultNavigationOptions: {
+  navigationOptions: {
     headerStyle: {
       backgroundColor: '#001331',
     },
@@ -53,11 +53,12 @@ const SignedOut = createStackNavigator({
     headerTitleStyle: {
       fontWeight: 'bold',
       textAlign: 'center',
+      fontSize: moderateScale(16),
     },
   },
 });
 
-export const SignedOutContainer = createAppContainer(SignedOut);
+// export const SignedOutContainer = createAppContainer(SignedOut);
 
 export const UserDetails = createStackNavigator({
   UserBodyDetail: { screen: UserBodyDetail },
@@ -71,25 +72,28 @@ export const UserDetails = createStackNavigator({
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
+      fontSize: moderateScale(16),
     },
   },
 });
-const TutorialDisplay = createStackNavigator({
+export const TutorialDisplay = createStackNavigator({
   Tutorial: { screen: Tutorial },
 },
 {
-  defaultNavigationOptions: {
+  navigationOptions: {
     headerStyle: {
       backgroundColor: '#001331',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
+      fontSize: moderateScale(16),
     },
+    headerLeft: <Icon name="chevron-left" type="feather" size={38} color="#fff" underlayColor="#001331" onPress={() => { navigation.goBack(); }} />,
   },
 });
 
-export const TutorialDisplayContainer = createAppContainer(TutorialDisplay);
+// export const TutorialDisplayContainer = createAppContainer(TutorialDisplay);
 
 const EpisodeStack = createStackNavigator({
   EpisodeList: { screen: EpisodeList },
@@ -102,7 +106,7 @@ const EpisodeStack = createStackNavigator({
   DownloadPlayer: { screen: DownloadPlayer },
   DownloadTestPlayer: { screen: DownloadTestPlayer },
 }, {
-  defaultNavigationOptions: () => ({
+  navigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
@@ -110,6 +114,7 @@ const EpisodeStack = createStackNavigator({
     headerTitleStyle: {
       fontWeight: 'bold',
       color: '#fff',
+      fontSize: moderateScale(16),
     },
   }),
 });
@@ -131,13 +136,14 @@ const ExerciseStack = createStackNavigator({
   TalonIntelPlayer: { screen: TalonIntelPlayer },
 },
 {
-  defaultNavigationOptions: () => ({
+  navigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
+      fontSize: moderateScale(16),
     },
   }),
 });
@@ -157,13 +163,14 @@ const TalonStack = createStackNavigator({
   TalonIntelPlayer: { screen: TalonIntelPlayer },
 },
 {
-  defaultNavigationOptions: () => ({
+  navigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
+      fontSize: moderateScale(16),
     },
   }),
 });
@@ -199,13 +206,14 @@ const MoreStack = createStackNavigator({
   DownloadTestPlayer: { screen: DownloadTestPlayer },
 },
 {
-  defaultNavigationOptions: () => ({
+  navigationOptions: () => ({
     headerStyle: {
       backgroundColor: '#001331',
     },
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
+      fontSize: moderateScale(16),
     },
   }),
 });
@@ -228,11 +236,11 @@ export const SignedIn = createBottomTabNavigator({
 }, {
   // initialRouteName: 'Episode',
 
-  defaultNavigationOptions: ({ navigation }) => ({
+  navigationOptions: ({ navigation }) => ({
     tabBarIcon: ({ tintColor }) => {
       const { routeName } = navigation.state;
       if (routeName === 'More') {
-        return <Icon name="dots-three-horizontal" type="entypo" size={30} color={tintColor} />;
+        return <Icon name="dots-three-horizontal" type="entypo" size={moderateScale(30)} color={tintColor} />;
         // return (
         //   <View>
         //     <Badge
@@ -246,26 +254,26 @@ export const SignedIn = createBottomTabNavigator({
       }
       if (routeName === 'TALON') {
         // return <Icon name="connectdevelop" type="font-awesome" size={30} color={tintColor} />;
-        return <Image source={talonIcon} style={{ height: 30, width: 30, tintColor }} />;
+        return <Image source={talonIcon} style={{ height: moderateScale(30), width: moderateScale(30), tintColor }} />;
       }
       if (routeName === 'Exercises') {
         // return <Icon name="man" type="entypo" size={30} color={tintColor} />;
-        return <Image source={exerciseIcon} style={{ height: 36, width: 20, tintColor }} />;
+        return <Image source={exerciseIcon} style={{ height: moderateScale(36), width: moderateScale(20), tintColor }} />;
       }
       if (routeName === 'Episodes') {
         // return <Icon name="soundcloud" type="entypo" size={30} color={tintColor} />;
-        return <Image source={episodeIcon} style={{ height: 30, width: 35, tintColor }} />;
+        return <Image source={episodeIcon} style={{ height: moderateScale(30), width: moderateScale(35), tintColor }} />;
       }
     },
   }),
-
   tabBarOptions: {
     activeTintColor: '#f5cb23',
     inactiveTintColor: '#fff',
     activeBackgroundColor: '#001331',
     inactiveBackgroundColor: '#001331',
-    style: { height: 65 },
+    style: { height: moderateScale(65) },
+    labelStyle: { fontSize: moderateScale(12) },
   },
 });
 
-export const SignedInContainer = createAppContainer(SignedIn);
+// export const SignedInContainer = createAppContainer(SignedIn);

@@ -13,7 +13,7 @@ import ShowModal from '../common/ShowModal';
 
 const runningMan = require('../../img/running-man.png');
 const talonRoute = require('../../img/talon-route.jpg');
-const talonRouteSecond = require('../../img/talon-route-2.jpg');
+const talonRouteSecond = require('../../img/talon-route-2.png');
 
 const barWidth = Dimensions.get('screen').width - 30;
 const progressCustomStyles = {
@@ -33,7 +33,7 @@ const styles = {
   },
   textStyle: {
     color: 'white',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   latestIntelView: {
     flex: 1,
@@ -41,16 +41,7 @@ const styles = {
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 10,
-  },
-  circularImageView: {
-    height: 60,
-    width: 60,
-    borderWidth: 2,
-    borderColor: 'white',
-    borderRadius: 60 / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: moderateScale(10),
   },
 };
 const talonImage = require('../../img/talondark.png');
@@ -153,7 +144,7 @@ export default class TalonScreen extends React.Component {
           }}
           >
             <View style={{
-              flexDirection: 'row', padding: 16, justifyContent: 'space-between', borderWidth: 1, borderColor: 'gray',
+              flexDirection: 'row', padding: moderateScale(16), justifyContent: 'space-between', borderWidth: 1, borderColor: 'gray',
             }}
             >
               <Text style={styles.textStyle}>
@@ -174,10 +165,10 @@ export default class TalonScreen extends React.Component {
               }
             </View>
           </TouchableOpacity>
-          <View style={{ backgroundColor: 'white', paddingBottom: 5, paddingLeft: 15, paddingRight: 15 }}>
+          <View style={{ backgroundColor: 'white', paddingBottom: moderateScale(5), paddingLeft: moderateScale(15), paddingRight: moderateScale(15) }}>
             <Image
               source={i === 1 ? talonRoute : talonRouteSecond}
-              style={[styles.imageStyle, { height: 80, marginTop: 10, marginBottom: 10 }]}
+              style={[styles.imageStyle, { height: moderateScale(100), marginTop: moderateScale(10), marginBottom: moderateScale(10) }]}
               resizeMethod="resize"
             />
           </View>
@@ -201,17 +192,17 @@ export default class TalonScreen extends React.Component {
                     title={`${formatDate} - ${convertedDistance} ${unit} (${steps} steps) in ${timeInterval} mins`}
                     titleStyle={styles.textStyle}
                     key={key}
-                    containerStyle={{ marginLeft: 10, marginRight: 10 }}
+                    containerStyle={{ marginLeft: moderateScale(10), marginRight: moderateScale(10) }}
                     hideChevron
                   />
-                  <View style={{ backgroundColor: 'white', paddingBottom: 5, paddingLeft: 15, paddingRight: 15 }}>
+                  <View style={{ backgroundColor: 'white', paddingBottom: moderateScale(5), paddingLeft: moderateScale(15), paddingRight: moderateScale(15) }}>
                     {/* marginLeft: (progressPercentage <= 0 ? 0 : ((progressPercentage - 10) / 100) * barWidth) */}
                     <Image
                       style={{
-                        height: 25,
-                        width: 25,
-                        marginBottom: -3,
-                        marginLeft: (progressPercentage <= 0 ? 0 : (progressPercentage - 0.05) * barWidth),
+                        height: moderateScale(25),
+                        width: moderateScale(25),
+                        marginBottom: moderateScale(-3),
+                        marginLeft: moderateScale((progressPercentage <= 0 ? 0 : (progressPercentage - 0.05) * barWidth)),
                       }}
                       animation="fadeInLeft"
                       source={runningMan}
@@ -222,7 +213,7 @@ export default class TalonScreen extends React.Component {
                       value={progressPercentage}
                       barAnimationDuration={500}
                     /> */}
-                    <Progress.Bar progress={progressPercentage} width={barWidth} color="green" />
+                    <Progress.Bar progress={progressPercentage} width={moderateScale(barWidth)} color="green" />
                   </View>
                 </View>
               );
@@ -330,6 +321,7 @@ export default class TalonScreen extends React.Component {
                         )
                     )
                 }
+                avatarStyle={{ height: moderateScale(30), width: moderateScale(30) }}
                 title={workOutCompleted ? `Episode ${i + 1} Intel File` : 'No Essential Intel Available'}
                 titleStyle={{
                   color:
@@ -337,6 +329,8 @@ export default class TalonScreen extends React.Component {
                      ? 'white'
                      : 'gray',
                   fontWeight: 'bold',
+                  fontSize: moderateScale(18),
+                  marginLeft: moderateScale(10),
                 }}
                 rightIcon={{
                   name: category !== 'Speed' ? 'chevron-right' : 'chevron-down',
@@ -381,6 +375,9 @@ export default class TalonScreen extends React.Component {
               />
               <TouchableOpacity onPress={() => {
                 // const episodeId = (Object.keys(this.state.talonLogs))[0];
+                if (talonLogs === null) {
+                  return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
+                }
                 const logsArrayLastEpisode = Object.values(talonLogs[episodeId]);
                 const workOutCompletedLastEpisode = (logsArrayLastEpisode[logsArrayLastEpisode.length - 1]).workOutCompleted;
                 this.navigateToTalonIntelPlayer(episodeId, true, workOutCompletedLastEpisode);
@@ -388,15 +385,15 @@ export default class TalonScreen extends React.Component {
               >
                 <View style={styles.latestIntelView}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Image style={{ height: 60, width: 60 }} source={talonImage} resizeMethod="resize" />
+                    <Image style={{ height: moderateScale(50), width: moderateScale(50) }} source={talonImage} resizeMethod="resize" />
                     <View>
                       <Text
                         style={{
                           color: '#001331',
-                          fontSize: 20,
+                          fontSize: moderateScale(18),
                           fontWeight: 'bold',
-                          marginLeft: 10,
-                          marginRight: 10,
+                          marginLeft: moderateScale(10),
+                          marginRight: moderateScale(10),
                         }}
                       >
                         {lastPlayedEpisode === ''
@@ -409,10 +406,10 @@ export default class TalonScreen extends React.Component {
                         }
                       </Text>
                       <Text style={{
-                        fontSize: 16,
+                        fontSize: moderateScale(16),
                         color: '#001331',
-                        marginLeft: 10,
-                        marginRight: 10,
+                        marginLeft: moderateScale(10),
+                        marginRight: moderateScale(10),
                         fontWeight: 'bold',
                       }}
                       >
@@ -424,7 +421,7 @@ export default class TalonScreen extends React.Component {
                       </Text>
                     </View>
                   </View>
-                  <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color={lastPlayedEpisode === '' ? 'gray' : '#f5cb23'} />
+                  <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color={lastPlayedEpisode === '' ? 'gray' : '#f5cb23'} size={moderateScale(25)} />
                 </View>
               </TouchableOpacity>
               <ShowModal

@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { Text, Icon } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import realm from '../config/Database';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
@@ -21,11 +22,11 @@ const styles = {
   },
   listText: {
     color: 'white',
-    marginLeft: 15,
+    marginLeft: moderateScale(15),
   },
   text: {
     color: 'white',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
 };
 class Downloads extends React.Component {
@@ -77,13 +78,14 @@ class Downloads extends React.Component {
       <TouchableOpacity onPress={() => this.setState({ showDeleteDialog: true, deleteFileTitle: fileName })}>
         <View style={{
           alignSelf: 'flex-end',
-          marginRight: 15,
+          marginRight: moderateScale(15),
         }}
         >
           <Icon
             name="trash-2"
             color="white"
             type="feather"
+            size={moderateScale(30)}
           />
         </View>
       </TouchableOpacity>
@@ -116,10 +118,10 @@ class Downloads extends React.Component {
           <View>
             <View style={styles.mainContainer}>
               <View style={{ flexDirection: 'column' }}>
-                <Text style={[styles.listText, { marginTop: 15, fontSize: 18 }]}>
+                <Text style={[styles.listText, { marginTop: moderateScale(15), fontSize: moderateScale(18) }]}>
                   {`${episodeIndex + 1}. ${title}`}
                 </Text>
-                <Text style={[styles.listText, { marginBottom: 15 }]}>
+                <Text style={[styles.listText, { marginBottom: moderateScale(15), fontSize: moderateScale(10) }]}>
                   {`${category} - ${videoSize} MB`}
                 </Text>
               </View>
@@ -129,7 +131,7 @@ class Downloads extends React.Component {
             <View style={{
               height: 1,
               width: '100%',
-              leftmargin: 10,
+              leftmargin: moderateScale(10),
               backgroundColor: 'white',
             }}
             />

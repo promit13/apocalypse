@@ -4,7 +4,7 @@ import {
   View, StyleSheet, Image, TouchableOpacity, Dimensions, ImageBackground,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
-
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 const talonImage = require('../../img/talondark.png');
 const backgroundImage = require('../../img/background.png');
 
@@ -13,8 +13,8 @@ const imageSize = width - 80;
 const styles = StyleSheet.create({
   container: {
     height: '100%',
-    paddingRight: 20,
-    paddingLeft: 20,
+    paddingRight: moderateScale(20),
+    paddingLeft: moderateScale(20),
   },
   image: {
     alignSelf: 'center',
@@ -27,11 +27,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoView: {
-    height: 20,
-    width: 20,
+    height: moderateScale(20),
+    width: moderateScale(20),
     borderWidth: 1,
     borderColor: '#f5cb23',
-    borderRadius: 20 / 2,
+    borderRadius: moderateScale(20 / 2),
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-end',
@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     alignSelf: 'center',
-    paddingBottom: 10,
+    paddingBottom: moderateScale(10),
+    fontSize: moderateScale(24),
   },
 });
 
@@ -99,15 +100,15 @@ export default function AlbumArt({
                 ? (
                     <TouchableOpacity onPress={onPress}>
                       <View style={styles.infoView}>
-                        <Icon type="ionicon" size={20} name="ios-information" color="#f5cb23" />
+                        <Icon type="ionicon" size={moderateScale(20)} name="ios-information" color="#f5cb23" />
                       </View>
                     </TouchableOpacity>
                   )
-                : <View style={{ height: 20 }} />
+                : <View style={{ height: moderateScale(20) }} />
             )
         // : <View style={{ height: 27 }} />
       }
-      <Text h4 style={styles.text}>
+      <Text style={styles.text}>
         {currentExercise}
       </Text>
       {/* {

@@ -1,10 +1,16 @@
 import React from 'react';
-import { NetInfo, View } from 'react-native';
+import { NetInfo, View, SafeAreaView } from 'react-native';
 import { Provider } from 'react-redux';
 import store from './app/store';
 import Splashscreen from './app/common/Splashscreen';
 import Home from './app/User/Home';
 
+const styles = {
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#001331',
+  },
+};
 export default class App extends React.Component {
   state = {
     isConnected: true,
@@ -40,13 +46,12 @@ export default class App extends React.Component {
     console.log(this.state.isConnected);
     return (
       <Provider store={store}>
-        <View style={{ flex: 1 }}>
+        <View style={styles.mainContainer}>
           {
             this.state.timePassed
               ? <Home screenProps={{ netInfo: this.state.isConnected }} />
               : <Splashscreen />
           }
-          {/* <Home screenProps={{ netInfo: this.state.isConnected }} /> */}
         </View>
       </Provider>
     );

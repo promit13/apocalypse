@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { ListItem } from 'react-native-elements';
+import { moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 
@@ -8,7 +9,7 @@ const styles = {
   mainViewContainer: {
     flex: 1,
     backgroundColor: '#001331',
-    marginTop: 1,
+    marginTop: moderateScale(1),
   },
 };
 
@@ -36,7 +37,7 @@ export default class Trailers extends React.Component {
         <ListItem
           key={key}
           title={value.title}
-          titleStyle={{ color: 'white', fontSize: 18 }}
+          titleStyle={{ color: 'white', fontSize: moderateScale(18) }}
           containerStyle={{ backgroundColor: '#33425a' }}
           undderlayColor="#2a3545"
           onPress={() => {

@@ -2,6 +2,7 @@ import React from 'react';
 import {
   ScrollView, View, StatusBar, Alert, Image, Linking,
 } from 'react-native';
+import { moderateScale } from 'react-native-size-matters';
 import { ListItem } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
@@ -71,21 +72,21 @@ export default class More extends React.Component {
         <ListItem
           key={key}
           title={value.title}
-          titleStyle={{ color: 'white', fontSize: 18 }}
+          titleStyle={{ color: 'white', fontSize: moderateScale(18) }}
           containerStyle={{ backgroundColor: '#33425a' }}
           leftIcon={value.title === 'Trailers'
             ? (
               <Image
                 source={episodesIcon}
                 style={{
-                  height: 30, width: 30, tintColor: 'white', marginRight: 5,
+                  height: moderateScale(30), width: moderateScale(30), tintColor: 'white', marginRight: moderateScale(5),
                 }}
               />
             )
             : {
               name: value.iconName,
               type: value.iconType,
-              size: 30,
+              size: moderateScale(30),
               color: 'white',
             }}
           underlayColor="#2a3545"

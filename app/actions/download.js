@@ -111,6 +111,7 @@ const startDownload = (
         const {
           cmsTitle, title, image, advanced, id, visible, episodeExerciseTitle, exerciseSize,
         } = exercise;
+        console.log(id);
         const formattedExerciseName = cmsTitle.replace(/\s+/g, '');
         realm.write(() => {
           realm.create('SavedExercises', {
@@ -261,10 +262,10 @@ export const downloadEpisode = ({
         const {
           length, uid, visible, episodeExerciseTitle,
         } = value;
+        exerciseLengthList.push(length);
+        exerciseIdList.push(uid);
         firebase.database().ref(`exercises/${uid}`).on('value', (snapShot) => {
           const exercise = { ...snapShot.val(), id: uid, visible, episodeExerciseTitle };
-          exerciseLengthList.push(length);
-          exerciseIdList.push(uid);
           exercisesList.push(exercise);
         });
       });

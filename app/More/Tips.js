@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
+import { moderateScale } from 'react-native-size-matters';
 import { ListItem, Text } from 'react-native-elements';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
@@ -14,11 +15,11 @@ const styles = {
   },
   textStyle: {
     color: 'white',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   line: {
     width: '100%',
-    height: 2,
+    height: moderateScale(2),
     backgroundColor: '#59677A',
   },
 };
@@ -44,7 +45,7 @@ export default class Tips extends React.Component {
       return (
         <View style={styles.listItemContainer}>
           <Text
-            style={[styles.textStyle, { padding: 10, marginLeft: 20 }]}
+            style={[styles.textStyle, { padding: moderateScale(10), marginLeft: moderateScale(20) }]}
           >
             {content}
           </Text>
@@ -64,7 +65,7 @@ export default class Tips extends React.Component {
           <ListItem
             key={key}
             title={title}
-            titleStyle={[styles.textStyle, { fontSize: 16 }]}
+            titleStyle={[styles.textStyle, { fontSize: moderateScale(16) }]}
             containerStyle={{ backgroundColor: (index === i + 1) && showContent ? '#f5cb23' : '#33425a' }}
             rightIcon={{ name: (index === i + 1) && showContent ? 'chevron-up' : 'chevron-down', type: 'feather', color: 'white' }}
             underlayColor="#2a3545"

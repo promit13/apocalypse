@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, ActivityIndicator, SafeAreaView,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions,
 } from 'react-native';
 import {
   Text, ListItem, Icon, Button,
@@ -39,7 +39,7 @@ const styles = {
   },
   textStyle: {
     color: 'white',
-    fontSize: 18,
+    fontSize: moderateScale(18),
   },
   purchaseButtonStyle: {
     alignItems: 'flex-end',
@@ -47,7 +47,7 @@ const styles = {
     borderRadius: 5,
   },
   episodeHeaderView: {
-    padding: 15,
+    padding: moderateScale(15),
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
@@ -60,11 +60,11 @@ const styles = {
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 10,
+    padding: moderateScale(10),
   },
   circularImageView: {
-    height: 60,
-    width: 60,
+    height: moderateScale(60),
+    width: moderateScale(60),
     borderWidth: 2,
     borderColor: 'white',
     borderRadius: 60 / 2,
@@ -143,6 +143,7 @@ class EpisodeList extends React.Component {
           return;
         }
         firebase.database().ref(`episodeWatchedCount/${deviceId}`).on('value', (snapWatchCount) => {
+        // firebase.database().ref('episodeWatchedCount/universal8895').on('value', (snapWatchCount) => {
           firebase.database().ref('series').on('value', (snapshot) => {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
               const completeEpisodes = snapEpisode.val();
@@ -220,6 +221,7 @@ class EpisodeList extends React.Component {
         this.setState({ showDeleteDialog: true, deleteFileTitle: title });
         // this.deleteEpisode(title);
       } else {
+        console.log(exercises);
         this.props.downloadEpisode({
           exercises,
           episodeTitle: title,
@@ -431,36 +433,36 @@ class EpisodeList extends React.Component {
               key={episodeKey}
               leftIcon={
                 currentEpisode === uid
-                  ? { name: 'unmute', type: 'octicon', color: '#f5cb23', size: 20 }
+                  ? { name: 'unmute', type: 'octicon', color: '#f5cb23', size: moderateScale(20) }
                   : (
                       completed
-                        ? { name: 'circle-thin', type: 'font-awesome', color: '#7a6306', size: 15 }
-                        : { name: 'circle', type: 'font-awesome', color: '#f5cb23', size: 15 }
+                        ? { name: 'circle-thin', type: 'font-awesome', color: '#7a6306', size: moderateScale(15) }
+                        : { name: 'circle', type: 'font-awesome', color: '#f5cb23', size: moderateScale(15) }
                   )
               }
               title={`${episodeIndex + 1}. ${title}`}
               subtitle={`${category} - ${videoSize} MB`}
-              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: 18 }}
-              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }}
+              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(18) }}
+              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(10) }}
               rightIcon={
                   downloaded
-                  ? { name: 'trash-2', type: 'feather', color: 'white' }
+                  ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40) }
                   : (
                       this.props.downloadComplete && !downloadActive && index === (episodeIndex + 1)
-                        ? { name: 'trash-2', type: 'feather', color: 'white' }
+                        ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40) }
                         : (
                             downloadActive && index === (episodeIndex + 1)
                             ?  <Progress.Circle
                                   progress={this.props.downloadProgress}
                                   showsText
-                                  size={30}
+                                  size={moderateScale(30)}
                                   color='white'
                                   borderColor='white'
-                                  textStyle={{ fontSize: 10 }}
+                                  textStyle={{ fontSize: moderateScale(10) }}
                                   borderWidth={1}
                                   thickness={1}
                                 />
-                            : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white' }
+                            : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40) }
                           )
                     )
                 // : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }
@@ -553,6 +555,7 @@ class EpisodeList extends React.Component {
                   ? (
                     <Button
                       title="Purchased"
+                      fontSize={moderateScale(12)}
                       buttonStyle={[styles.purchaseButtonStyle, { borderColor: 'white', borderWidth: 1 }]}
                       onPress={() => {
                         if (!netInfo) {
@@ -563,6 +566,7 @@ class EpisodeList extends React.Component {
                   : (
                     <Button
                       title={`    £${value.price}    `}
+                      fontSize={moderateScale(12)}
                       buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
                         if (!netInfo) {
@@ -681,9 +685,9 @@ class EpisodeList extends React.Component {
                   <View style={styles.circularImageView}>
                     <Image
                       style={{
-                        height: 60,
-                        width: 60,
-                        borderRadius: 60 / 2,
+                        height: moderateScale(60),
+                        width: moderateScale(60),
+                        borderRadius: moderateScale(60 / 2),
                       }}
                       source={
                         lastPlayedEpisode === ''
@@ -702,7 +706,7 @@ class EpisodeList extends React.Component {
                   </View>
                   <View>
                     <Text style={{
-                      fontSize: 20,
+                      fontSize: moderateScale(20),
                       fontWeight: 'bold',
                       color: '#001331',
                       marginLeft: 10,
@@ -725,7 +729,7 @@ class EpisodeList extends React.Component {
                     </Text>
                     <Text style={{
                       color: '#001331',
-                      fontSize: 16,
+                      fontSize: moderateScale(16),
                       fontWeight: 'bold',
                       marginLeft: 10,
                       marginRight: 10,
@@ -747,7 +751,7 @@ class EpisodeList extends React.Component {
                     </Text>
                   </View>
                 </View>
-                <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" />
+                <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" size={moderateScale(30)} />
               </View>
             </TouchableOpacity>
             <View>
