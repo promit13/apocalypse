@@ -708,6 +708,7 @@ export default class DownloadTestPlayer extends Component {
     }
     exerciseLengthList.map((value, i) => {
       if (this.state.currentTime > (value / 1000)) {
+        console.log(i);
         const exercise = exercises[i];
         const {
           cmsTitle, visible, title, episodeExerciseTitle,

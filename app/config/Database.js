@@ -33,6 +33,7 @@ SavedExercises.schema = {
     episodeExerciseTitle: 'string',
     visible: 'bool',
     advanced: 'bool',
+    index: 'int',
   },
 };
 

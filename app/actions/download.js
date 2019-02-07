@@ -1,4 +1,5 @@
 import RNFetchBlob from 'react-native-fetch-blob';
+import { AsyncStorage } from 'react-native';
 import firebase from '../config/firebase';
 import realm from '../config/Database';
 import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS, ACTION_DELETE_EPISODE } from './types';
@@ -109,9 +110,8 @@ const startDownload = (
       }
       exercisesList.map((exercise, i) => {
         const {
-          cmsTitle, title, image, advanced, id, visible, episodeExerciseTitle, exerciseSize,
+          cmsTitle, title, image, advanced, id, visible, episodeExerciseTitle, exerciseSize, index,
         } = exercise;
-        console.log(id);
         const formattedExerciseName = cmsTitle.replace(/\s+/g, '');
         realm.write(() => {
           realm.create('SavedExercises', {
@@ -120,6 +120,7 @@ const startDownload = (
             cmsTitle,
             visible,
             episodeExerciseTitle,
+            index,
             advanced: advanced === undefined ? false : true,
           });
         });
@@ -256,16 +257,17 @@ export const downloadEpisode = ({
   startWT,
   endWT,
 }) => {
+  console.log(exercises);
   return async (dispatch) => {
     if (exercises !== undefined) {
-      await exercises.map((value, i) => {
+      await exercises.map(async (value, i) => {
         const {
           length, uid, visible, episodeExerciseTitle,
         } = value;
         exerciseLengthList.push(length);
         exerciseIdList.push(uid);
-        firebase.database().ref(`exercises/${uid}`).on('value', (snapShot) => {
-          const exercise = { ...snapShot.val(), id: uid, visible, episodeExerciseTitle };
+        await firebase.database().ref(`exercises/${uid}`).on('value', (snapShot) => {
+          const exercise = { ...snapShot.val(), id: uid, visible, episodeExerciseTitle, index: i };
           exercisesList.push(exercise);
         });
       });
@@ -305,6 +307,7 @@ export const downloadEpisode = ({
 };
 
 export const deleteEpisodeList = fileName => (dispatch) => {
+  console.log(fileName);
   dispatch({
     type: ACTION_DELETE_EPISODE,
     payload: false,
@@ -352,6 +355,7 @@ export const deleteEpisodeList = fileName => (dispatch) => {
       realm.write(() => {
         realm.delete(episodeDetail);
       });
+      await AsyncStorage.removeItem(fileName);
       dispatch({
         type: ACTION_DELETE_EPISODE,
         payload: true,

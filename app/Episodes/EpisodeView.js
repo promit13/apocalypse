@@ -204,10 +204,8 @@ export default class EpisodeView extends React.Component {
       endWT,
       video,
     } = episodeDetail[0];
-    console.log(Array.from(exerciseIdList));
-    console.log(Array.from(exerciseLengthList));
     const exercises = exerciseIdList.map((value, i) => {
-      return Array.from(realm.objects('SavedExercises').filtered(`id="${value}"`));
+      return Array.from(realm.objects('SavedExercises').filtered(`id="${value}" AND index="${i}"`));
     });
     this.setState({
       category,
@@ -249,7 +247,6 @@ export default class EpisodeView extends React.Component {
    }
 
    deleteEmptyTalonLog = () => {
-     console.log('DELETE');
      const { logId, uid, episodeId } = this.props.navigation.state.params;
      firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).remove();
    }
@@ -276,6 +273,7 @@ export default class EpisodeView extends React.Component {
       purchased,
       offline,
     } = this.state;
+    // console.log(exercises);
     this.props.navigation.navigate(navigateTo, {
       check,
       mode,
@@ -309,7 +307,7 @@ export default class EpisodeView extends React.Component {
     const reducedExercise = exercises.filter((thing, index, self) => self.findIndex(t => t[0].id === thing[0].id) === index);
     const exercisesList = reducedExercise.map((value, i) => {
       const exercise = value[0];
-      const { title, visible, cmsTitle, advanced } = exercise;
+      const { title, visible, cmsTitle, advanced, index } = exercise;
       if (!visible) {
         return console.log('');
       }

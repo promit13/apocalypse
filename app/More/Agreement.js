@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
 import { CheckBox, Text, Icon } from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
@@ -99,13 +99,17 @@ export default class Agreement extends React.Component {
                       });
                   })
                   .catch((error) => {
+                    // Alert.alert(error);
                     this.setState({ showLoading: false, errorMessage: 'Your email is currently linked to another account which has been previously registered. Please log in using your email address.', showModal: true });
                   });
               });
             });
         }
       },
-    ).catch(error => console.log(`Login failed with error: ${error}`));
+    ).catch((error) => {
+      // Alert.alert(error);
+      console.log(`Login failed with error: ${error}`);
+    });
   }
 
   render() {

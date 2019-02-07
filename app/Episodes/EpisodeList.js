@@ -9,7 +9,7 @@ import * as RNIap from 'react-native-iap';
 import { connect } from 'react-redux';
 import Permissions from 'react-native-permissions';
 import Orientation from 'react-native-orientation';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { scale, moderateScale } from 'react-native-size-matters';
 import DeviceInfo from 'react-native-device-info';
 import * as Progress from 'react-native-progress';
 import { NavigationEvents } from 'react-navigation';
@@ -82,7 +82,7 @@ class EpisodeList extends React.Component {
     index: 0,
     deviceId: '',
     series: '',
-    episodeWatchedCount: '',
+    episodeWatchedCount: [],
     completeEpisodes: '',
     completedEpisodesArray: [],
     loading: true,
@@ -143,13 +143,13 @@ class EpisodeList extends React.Component {
           return;
         }
         firebase.database().ref(`episodeWatchedCount/${deviceId}`).on('value', (snapWatchCount) => {
-        // firebase.database().ref('episodeWatchedCount/universal8895').on('value', (snapWatchCount) => {
           firebase.database().ref('series').on('value', (snapshot) => {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
               const completeEpisodes = snapEpisode.val();
               const series = Object.values(snapshot.val());
               // const episodeWatchedCount = snapWatchCount.val() !== null ? Object.values(snapWatchCount.val()) : null;
               const episodeWatchedCount = snapWatchCount.val();
+              console.log(snapWatchCount.val());
               const { purchases, lastPlayedEpisode, episodeCompletedArray } = snap.val();
               const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
               const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
@@ -393,7 +393,7 @@ class EpisodeList extends React.Component {
       series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
     } = this.state;
     const { netInfo } = this.props.screenProps;
-    // let counter;
+    let counter = 0;
     // const counterArray = [];
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
       const buy = purchasedSeries.includes(seriesKey);
@@ -426,8 +426,9 @@ class EpisodeList extends React.Component {
           //     counterArray.push(0);
           //   }
           // }
-          const counter = episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
-
+          if (episodeWatchedCount !== null) {
+            counter = episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
+          }
           return (
             <ListItem
               key={episodeKey}
