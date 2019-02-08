@@ -4,10 +4,11 @@ import {
   AsyncStorage, Alert, Dimensions,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { scale, moderateScale } from 'react-native-size-matters';
 import * as Progress from 'react-native-progress';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
+import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 
@@ -52,6 +53,13 @@ const speedImageGray = require('../../img/speedgray.png');
 const strengthImageGray = require('../../img/strengthgray.png');
 const controlImageGray = require('../../img/controlgray.png');
 const talonCover = require('../../img/taloncover.jpg');
+
+const screenMessage = [
+  'Connecting to TALON',
+  'One moment, Risky',
+  'Audio incoming',
+  'Establishing multi-dimensional connection',
+];
 
 export default class TalonScreen extends React.Component {
   static navigationOptions = {
@@ -169,7 +177,7 @@ export default class TalonScreen extends React.Component {
             <Image
               source={i === 1 ? talonRoute : talonRouteSecond}
               style={[styles.imageStyle, { height: moderateScale(100), marginTop: moderateScale(10), marginBottom: moderateScale(10) }]}
-              resizeMethod="resize"
+              resizeMode="center"
             />
           </View>
           {
@@ -213,7 +221,7 @@ export default class TalonScreen extends React.Component {
                       value={progressPercentage}
                       barAnimationDuration={500}
                     /> */}
-                    <Progress.Bar progress={progressPercentage} width={moderateScale(barWidth)} color="green" />
+                    <Progress.Bar progress={progressPercentage} width={barWidth} color="green" />
                   </View>
                 </View>
               );
@@ -321,7 +329,7 @@ export default class TalonScreen extends React.Component {
                         )
                     )
                 }
-                avatarStyle={{ height: moderateScale(30), width: moderateScale(30) }}
+                
                 title={workOutCompleted ? `Episode ${i + 1} Intel File` : 'No Essential Intel Available'}
                 titleStyle={{
                   color:
@@ -365,7 +373,7 @@ export default class TalonScreen extends React.Component {
         />
         {!netInfo ? <OfflineMsg /> : null}
         {loading
-          ? <Loading />
+          ? <LoadScreen />
           : (
             <ScrollView>
               <Image

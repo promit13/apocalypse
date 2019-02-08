@@ -266,7 +266,7 @@ export default class Home extends React.Component {
   renderComponent = () => {
     const { loading, isConnected, userLoggedIn, user, data } = this.state;
     const { netInfo } = this.props.screenProps;
-    if (loading) return <LoadScreen />;
+    if (loading) return <LoadScreen text="Preparing your apocalypse" />;
     if (!netInfo && userLoggedIn) {
       return <SignedIn screenProps={{ user, netInfo }} />;
     }

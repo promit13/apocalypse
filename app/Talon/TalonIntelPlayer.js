@@ -189,6 +189,7 @@ export default class TalonIntelPlayer extends Component {
     this.setState({ paused: true });
     MusicControl.updatePlayback({
       state: MusicControl.STATE_PAUSED,
+      elapsedTime: this.state.currentTime,
     });
   }
 
@@ -234,6 +235,7 @@ export default class TalonIntelPlayer extends Component {
     this.setState({ paused: false });
     MusicControl.updatePlayback({
       state: MusicControl.STATE_PLAYING,
+      elapsedTime: this.state.currentTime,
     });
   }
 
@@ -468,115 +470,81 @@ export default class TalonIntelPlayer extends Component {
     } = this.state;
     return (
       <View>
-        {/* { platform === 'android'
-          ? (
-            <View style={styles.headerView}>
-              <Icon
-                iconStyle={{ marginLeft: 15 }}
-                name="arrow-left"
-                type="material-community"
-                size={25}
-                color="white"
-                underlayColor="#001331"
-                onPress={() => this.navigateBackTo()}
-              />
-              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 20 }]}>
-                {playerTitle}
-              </Text>
-            </View>
-          )
-          : (
-            <View style={[styles.headerView, { marginTop: 15 }]}>
-              <Icon
-                name="chevron-left"
-                type="feather"
-                size={38}
-                color="white"
-                underlayColor="#001331"
-                onPress={() => this.navigateBackTo()}
-              />
-              <View style={{ flex: 1, marginLeft: -10 }}>
-                <Text style={[styles.textTitle, { fontSize: 18 }]}>
-                  {playerTitle}
-                </Text>
+        {
+          loading ? <LoadScreen />
+            : (
+              <View>
+                <View style={styles.line} />
+                <View style={styles.albumView}>
+                  <AlbumArt
+                    url={
+                      playingExercise
+                        ? playingExercise.value.image
+                        : null
+                    }
+                    talonPlayer
+                    onPress={() => {}}
+                    paddingTop="15%"
+                  />
+                </View>
+                <View style={styles.line} />
+                <View>
+                  {
+                    videoUrl === ''
+                      ? null
+                      : (
+                        <View>
+                          <Seekbar
+                            totalLength={totalLength}
+                            onDragSeekBar={this.onDragSeekBar}
+                            sliderReleased={this.sliderReleased}
+                            seekValue={currentTime && currentTime}
+                          />
+                          <FormatTime
+                            currentTime={currentTime}
+                            remainingTime={totalLength - currentTime}
+                          />
+                        </View>
+                      )
+                  }
+                  <Text style={[styles.textTitle, { marginTop: moderateScale(10) }]}>
+                    {episodeTitle}
+                  </Text>
+                  {
+                    exercise
+                      ? (
+                        videoUrl === ''
+                        ? null
+                        : (
+                            <Controls
+                              onPressPlay={this.onPressPlay}
+                              onPressPause={this.onPressPause}
+                              paused={paused}
+                              exercisePlayer
+                            />
+                          )
+                      )
+                      : (
+                        <Controls
+                          onPressPlay={this.onPressPlay}
+                          onPressPause={this.onPressPause}
+                          onBack={this.onBack}
+                          onForward={this.onForward}
+                          onDownload={this.onDownload}
+                          paused={paused}
+                          renderForwardButton
+                        />
+                      )
+                  }
+                </View>
               </View>
-            </View>
-          )
-        } */}
-        <View style={styles.line} />
-        <View style={styles.albumView}>
-          <AlbumArt
-            url={
-              playingExercise
-                ? playingExercise.value.image
-                : null
-            }
-            talonPlayer
-            onPress={() => {}}
-            paddingTop="15%"
-          />
-        </View>
-        <View style={styles.line} />
-        { loading
-          ? <Loading />
-          : (
-            <View>
-              {
-                videoUrl === ''
-                  ? null
-                  : (
-                    <View>
-                      <Seekbar
-                        totalLength={totalLength}
-                        onDragSeekBar={this.onDragSeekBar}
-                        sliderReleased={this.sliderReleased}
-                        seekValue={currentTime && currentTime}
-                      />
-                      <FormatTime
-                        currentTime={currentTime}
-                        remainingTime={totalLength - currentTime}
-                      />
-                    </View>
-                  )
-              }
-              <Text style={[styles.textTitle, { marginTop: moderateScale(10) }]}>
-                {episodeTitle}
-              </Text>
-              {
-            exercise
-              ? (
-                videoUrl === ''
-                ? null
-                : (
-                    <Controls
-                      onPressPlay={this.onPressPlay}
-                      onPressPause={this.onPressPause}
-                      paused={paused}
-                      exercisePlayer
-                    />
-                  )
-              )
-              : (
-                <Controls
-                  onPressPlay={this.onPressPlay}
-                  onPressPause={this.onPressPause}
-                  onBack={this.onBack}
-                  onForward={this.onForward}
-                  onDownload={this.onDownload}
-                  paused={paused}
-                  renderForwardButton
-                />
-              )
-          }
-            </View>
-          )
-        }
+            )}
       </View>
     );
   }
 
   render() {
-    const { videoUrl, loadScreen } = this.state;
+    const { videoUrl, loadScreen, loading } = this.state;
     if (loadScreen) return <LoadScreen />;
     const video = videoUrl === ''
       ? null

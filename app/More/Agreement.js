@@ -60,6 +60,7 @@ export default class Agreement extends React.Component {
   }
 
   doFacebookSignUp = () => {
+    LoginManager.logOut();
     LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
       (result) => {
         if (result.isCancelled) {

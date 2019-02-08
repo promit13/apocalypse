@@ -2,7 +2,7 @@ import React from 'react';
 import { Image } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import { Icon } from 'react-native-elements';
-import { moderateScale } from 'react-native-size-matters';
+import { moderateScale, scale } from 'react-native-size-matters';
 import Login from '../User/Login';
 import UserNew from '../User/UserNew';
 import UserBodyDetail from '../User/UserBodyDetail';
@@ -76,6 +76,7 @@ export const UserDetails = createStackNavigator({
     },
   },
 });
+
 export const TutorialDisplay = createStackNavigator({
   Tutorial: { screen: Tutorial },
 },
@@ -89,7 +90,6 @@ export const TutorialDisplay = createStackNavigator({
       fontWeight: 'bold',
       fontSize: moderateScale(16),
     },
-    headerLeft: <Icon name="chevron-left" type="feather" size={38} color="#fff" underlayColor="#001331" onPress={() => { navigation.goBack(); }} />,
   },
 });
 
@@ -236,11 +236,12 @@ export const SignedIn = createBottomTabNavigator({
 }, {
   // initialRouteName: 'Episode',
 
-  navigationOptions: ({ navigation }) => ({
+  navigationOptions: ({ navigation, horizontal }) => ({
+    tabBarLabel: navigation.state.routeName,
     tabBarIcon: ({ tintColor }) => {
       const { routeName } = navigation.state;
       if (routeName === 'More') {
-        return <Icon name="dots-three-horizontal" type="entypo" size={moderateScale(30)} color={tintColor} />;
+        return <Icon name="dots-three-horizontal" type="entypo" size={horizontal ? moderateScale(20) : moderateScale(30)} color={tintColor} />;
         // return (
         //   <View>
         //     <Badge
@@ -271,8 +272,17 @@ export const SignedIn = createBottomTabNavigator({
     inactiveTintColor: '#fff',
     activeBackgroundColor: '#001331',
     inactiveBackgroundColor: '#001331',
-    style: { height: moderateScale(65) },
-    labelStyle: { fontSize: moderateScale(12) },
+    style: { height: moderateScale(65), backgroundColor: '#001331', paddingVertical: 10 },
+    tabStyle: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    labelStyle: {
+      marginLeft: 0,
+      marginTop: scale(4),
+      fontSize: moderateScale(10),
+    },
   },
 });
 

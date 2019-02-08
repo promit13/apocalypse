@@ -97,7 +97,7 @@ export default class Signup extends React.Component {
       .then(() => {
         console.log('CHECK second');
         this.setState({ showError: false, errorMessage: '', showLoading: false });
-        this.props.navigation.navigate('UserBodyDetail');
+        // this.props.navigation.navigate('UserBodyDetail');
       })
       .catch(error => console.log(error));
   }

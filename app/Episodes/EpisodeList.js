@@ -82,7 +82,7 @@ class EpisodeList extends React.Component {
     index: 0,
     deviceId: '',
     series: '',
-    episodeWatchedCount: [],
+    episodeWatchedCount: {},
     completeEpisodes: '',
     completedEpisodesArray: [],
     loading: true,
@@ -393,7 +393,6 @@ class EpisodeList extends React.Component {
       series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
     } = this.state;
     const { netInfo } = this.props.screenProps;
-    let counter = 0;
     // const counterArray = [];
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
       const buy = purchasedSeries.includes(seriesKey);
@@ -426,9 +425,10 @@ class EpisodeList extends React.Component {
           //     counterArray.push(0);
           //   }
           // }
-          if (episodeWatchedCount !== null) {
-            counter = episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
-          }
+          // if (episodeWatchedCount !== null) {
+          //   counter = episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
+          // }
+          const counter = episodeWatchedCount === null ? 0 : episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
           return (
             <ListItem
               key={episodeKey}
@@ -599,7 +599,7 @@ class EpisodeList extends React.Component {
       lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle, downloadActive,
     } = this.state;
     const { netInfo } = this.props.screenProps;
-    if (loading) return <LoadScreen />;
+    if (loading) return <LoadScreen text="Preparing your apocalypse" />;
     const {
       episodeTitle,
       episodeId,

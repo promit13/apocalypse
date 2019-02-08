@@ -134,6 +134,7 @@ export default class EpisodeView extends React.Component {
       this.getOfflineDatas(title, deviceId, offline, purchased, counter, episodeList, netInfo);
     } else {
       let freeTrials;
+      console.log(counter);
       if (counter === 0) {
         freeTrials = 'two';
       }

@@ -64,8 +64,13 @@ export default class Tips extends React.Component {
         <View>
           <ListItem
             key={key}
-            title={title}
-            titleStyle={[styles.textStyle, { fontSize: moderateScale(16) }]}
+            title={
+              (
+                <Text style={[styles.textStyle, { fontSize: moderateScale(16) }]}>
+                  {title}
+                </Text>
+              )
+            }
             containerStyle={{ backgroundColor: (index === i + 1) && showContent ? '#f5cb23' : '#33425a' }}
             rightIcon={{ name: (index === i + 1) && showContent ? 'chevron-up' : 'chevron-down', type: 'feather', color: 'white' }}
             underlayColor="#2a3545"
