@@ -2,11 +2,17 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import { AsyncStorage } from 'react-native';
 import firebase from '../config/firebase';
 import realm from '../config/Database';
-import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS, ACTION_DELETE_EPISODE } from './types';
+import {
+  ACTION_DOWNLOAD,
+  ACTION_DOWNLOAD_PROGRESS,
+  ACTION_DELETE_EPISODE,
+  ACTION_DOWNLOAD_CANCEL,
+} from './types';
 
 let exercisesList = [];
 let exerciseLengthList = [];
 let exerciseIdList = [];
+let task;
 
 const saveEpisodeToDatabase = (
   episodeTitle,
@@ -66,7 +72,6 @@ const startDownload = (
 ) => {
   let episodeExerciseSize = 0;
   let episodeSizeReceived = 0;
-  let dataReceived = 0;
   let count = 0;
 
   const totalVideoSizeInBytes = (videoSize * 1000 * 1000);
@@ -76,7 +81,7 @@ const startDownload = (
   });
   const { dirs } = RNFetchBlob.fs;
   const formattedFileName = episodeTitle.replace(/ /g, '_');
-  RNFetchBlob
+  task = RNFetchBlob
     .config({
       path: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`, // file saved in this path
     })
@@ -241,6 +246,13 @@ const startDownload = (
 //   });
 // })
 
+export const stopDownload = () => {
+  task.cancel(err => console.log(err));
+  return {
+    type: ACTION_DOWNLOAD_CANCEL,
+  };
+};
+
 
 export const downloadEpisode = ({
   exercises,
@@ -257,7 +269,6 @@ export const downloadEpisode = ({
   startWT,
   endWT,
 }) => {
-  console.log(exercises);
   return async (dispatch) => {
     if (exercises !== undefined) {
       await exercises.map(async (value, i) => {
@@ -307,7 +318,6 @@ export const downloadEpisode = ({
 };
 
 export const deleteEpisodeList = fileName => (dispatch) => {
-  console.log(fileName);
   dispatch({
     type: ACTION_DELETE_EPISODE,
     payload: false,

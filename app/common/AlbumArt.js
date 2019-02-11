@@ -4,7 +4,7 @@ import {
   View, StyleSheet, Image, TouchableOpacity, Dimensions, ImageBackground,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { moderateScale } from 'react-native-size-matters';
 const talonImage = require('../../img/talondark.png');
 const backgroundImage = require('../../img/background.png');
 

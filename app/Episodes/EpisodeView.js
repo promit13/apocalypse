@@ -5,7 +5,7 @@ import {
 import {
   ListItem, Button, Text, Icon,
 } from 'react-native-elements';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { moderateScale } from 'react-native-size-matters';
 import realm from '../config/Database';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';

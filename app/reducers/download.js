@@ -1,8 +1,9 @@
-import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS } from '../actions/types';
+import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS, ACTION_DOWNLOAD_CANCEL } from '../actions/types';
 
 const INITIAL_STATE = {
   downloadComplete: undefined,
   downloadProgress: 0,
+  downloadCancel: false,
 };
 
 const download = (state = INITIAL_STATE, action) => {
@@ -12,6 +13,9 @@ const download = (state = INITIAL_STATE, action) => {
     }
     case ACTION_DOWNLOAD_PROGRESS: {
       return { ...state, downloadProgress: action.payload };
+    }
+    case ACTION_DOWNLOAD_CANCEL: {
+      return { ...state, downloadCancel: true, downloadProgress: 1 };
     }
     default:
       return state;

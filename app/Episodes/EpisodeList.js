@@ -1,7 +1,8 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, Alert,
 } from 'react-native';
+import RNFetchBlob from 'react-native-fetch-blob';
 import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
@@ -18,7 +19,7 @@ import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
-import { downloadEpisode, deleteEpisodeList } from '../actions/download';
+import { downloadEpisode, deleteEpisodeList, stopDownload } from '../actions/download';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 110;
@@ -96,10 +97,12 @@ class EpisodeList extends React.Component {
     deleteFileTitle: '',
     downloadActive: false,
     deleteStatus: false,
+    downloadCancel: false,
     downloadPercentage: 2,
   }
 
   componentDidMount= async () => {
+    console.log(`${RNFetchBlob.fs.dirs.DocumentDir}/AST`);
     Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
     console.log('EPISODE LIST', netInfo);
@@ -453,16 +456,20 @@ class EpisodeList extends React.Component {
                         ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40) }
                         : (
                             downloadActive && index === (episodeIndex + 1)
-                            ?  <Progress.Circle
-                                  progress={this.props.downloadProgress}
-                                  showsText
-                                  size={moderateScale(30)}
-                                  color='white'
-                                  borderColor='white'
-                                  textStyle={{ fontSize: moderateScale(10) }}
-                                  borderWidth={1}
-                                  thickness={1}
-                                />
+                            ?  (
+                              <TouchableOpacity onPress={() => this.props.stopDownload()}>
+                                <Progress.Circle
+                                    progress={this.props.downloadProgress}
+                                    showsText
+                                    size={moderateScale(30)}
+                                    color='white'
+                                    borderColor='white'
+                                    textStyle={{ fontSize: moderateScale(10) }}
+                                    borderWidth={1}
+                                    thickness={1}
+                                  />
+                              </TouchableOpacity>
+                            )
                             : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40) }
                           )
                     )
@@ -598,6 +605,7 @@ class EpisodeList extends React.Component {
     const {
       lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle, downloadActive,
     } = this.state;
+    console.log(this.props.downloadProgress);
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen text="Preparing your apocalypse" />;
     const {
@@ -786,14 +794,15 @@ class EpisodeList extends React.Component {
 }
 
 const mapStateToProps = ({ download, deleteEpisodeListReducer }) => {
-  const { downloadComplete, downloadProgress } = download;
+  const { downloadComplete, downloadProgress, downloadCancel } = download;
   const { message } = deleteEpisodeListReducer;
-  return { downloadComplete, downloadProgress, deleteStatus: message };
+  return { downloadComplete, downloadProgress, deleteStatus: message, downloadCancel };
 };
 
 const mapDispatchToProps = {
   downloadEpisode,
   deleteEpisodeList,
+  stopDownload,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EpisodeList);
