@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import { View, ScrollView } from 'react-native';
 import HTML from 'react-native-render-html';
 import firebase from '../config/firebase';
-import Loading from '../common/Loading';
+import LoadScreen from '../common/LoadScreen';
 
 const styles ={
   mainViewContainer: {
     backgroundColor: '#001331',
     flex: 1,
     marginTop: 1,
-    padding: 16,
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 };
 
@@ -40,7 +42,7 @@ export default class Credits extends Component {
       <View style={styles.mainViewContainer}>
         {
           loading
-            ? <Loading />
+            ? <LoadScreen />
             : (
               <ScrollView>
                 <HTML html={content} />

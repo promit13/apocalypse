@@ -91,13 +91,11 @@ class EpisodeList extends React.Component {
     filesList: [],
     modalText: '',
     lastPlayedEpisode: '',
-    isConnected: true,
     showModal: false,
     showDeleteDialog: false,
     deleteFileTitle: '',
     downloadActive: false,
     deleteStatus: false,
-    downloadCancel: false,
     downloadPercentage: 2,
   }
 
@@ -449,31 +447,26 @@ class EpisodeList extends React.Component {
               titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(18) }}
               subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(10) }}
               rightIcon={
-                  downloaded
+                downloaded
                   ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40) }
                   : (
-                      this.props.downloadComplete && !downloadActive && index === (episodeIndex + 1)
-                        ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40) }
-                        : (
-                            downloadActive && index === (episodeIndex + 1)
-                            ?  (
-                              <TouchableOpacity onPress={() => this.props.stopDownload()}>
-                                <Progress.Circle
-                                    progress={this.props.downloadProgress}
-                                    showsText
-                                    size={moderateScale(30)}
-                                    color='white'
-                                    borderColor='white'
-                                    textStyle={{ fontSize: moderateScale(10) }}
-                                    borderWidth={1}
-                                    thickness={1}
-                                  />
-                              </TouchableOpacity>
-                            )
-                            : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40) }
-                          )
+                      downloadActive && index === (episodeIndex + 1)
+                      ?  (
+                        <TouchableOpacity onPress={() => this.props.stopDownload(title)}>
+                          <Progress.Circle
+                              progress={this.props.downloadProgress}
+                              showsText
+                              size={moderateScale(30)}
+                              color='white'
+                              borderColor='white'
+                              textStyle={{ fontSize: moderateScale(10) }}
+                              borderWidth={1}
+                              thickness={1}
+                            />
+                        </TouchableOpacity>
+                        )
+                    : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40) }
                     )
-                // : { name: 'download', type: 'feather', color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white' }
                 }
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
@@ -794,9 +787,9 @@ class EpisodeList extends React.Component {
 }
 
 const mapStateToProps = ({ download, deleteEpisodeListReducer }) => {
-  const { downloadComplete, downloadProgress, downloadCancel } = download;
+  const { downloadProgress } = download;
   const { message } = deleteEpisodeListReducer;
-  return { downloadComplete, downloadProgress, deleteStatus: message, downloadCancel };
+  return { downloadProgress, deleteStatus: message };
 };
 
 const mapDispatchToProps = {
