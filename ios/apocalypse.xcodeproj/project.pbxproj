@@ -45,7 +45,6 @@
 		64E9164381C946F0ADCBE7DD /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CDAF931A4AE049A8BDCFAB5F /* Ionicons.ttf */; };
 		703731611B2948568AC57B7A /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BEAD8975423F4BE2851FD93F /* FontAwesome.ttf */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		8B03FF612211C83F00FC3796 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B78B7A92123169400E28900 /* libRNVectorIcons.a */; };
 		8B1ADF4721F0E5CE00FAE18A /* libMusicControl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B1ADF4421F0E5B000FAE18A /* libMusicControl.a */; };
 		8B7FF42021E8C95A001B6C4B /* libART.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7FF3E721E8C93E001B6C4B /* libART.a */; };
 		8B823FBB212D60E4004C1EE0 /* libRNPedometer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B823FB9212D60A2004C1EE0 /* libRNPedometer.a */; };
@@ -56,6 +55,7 @@
 		8BAA45A9220C9E2600558E42 /* libRCTFBSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD817FE216CAE260012E530 /* libRCTFBSDK.a */; };
 		8BB35EE22137FA7C004CF383 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB35EE12137FA7C004CF383 /* StoreKit.framework */; };
 		8BC03E8321EDE74A007FA34C /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BC03E6121EDE731007FA34C /* libRCTVideo.a */; };
+		8BECA54622158A4A00489529 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B78B7A92123169400E28900 /* libRNVectorIcons.a */; };
 		9466C626DE4846D8BEEB6FEA /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6F25CA01C94D4A9186773251 /* Entypo.ttf */; };
 		9A988F6A33414785AFF80372 /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1F8A6EE2F2B8470591B4F814 /* MaterialCommunityIcons.ttf */; };
 		A9569F128DF6428FB528996A /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A213850C08364F95AD3774EB /* MaterialIcons.ttf */; };
@@ -567,7 +567,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B03FF612211C83F00FC3796 /* libRNVectorIcons.a in Frameworks */,
+				8BECA54622158A4A00489529 /* libRNVectorIcons.a in Frameworks */,
 				8BAA45A9220C9E2600558E42 /* libRCTFBSDK.a in Frameworks */,
 				8B1ADF4721F0E5CE00FAE18A /* libMusicControl.a in Frameworks */,
 				8BC03E8321EDE74A007FA34C /* libRCTVideo.a in Frameworks */,

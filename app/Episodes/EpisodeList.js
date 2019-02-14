@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, Alert,
+  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, Modal, ActivityIndicator,
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
 import {
@@ -72,6 +72,16 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  modalView: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  modalInnerView: {
+    backgroundColor: '#f2f2f2',
+    alignItems: 'center',
+    padding: moderateScale(10),
+  },
 };
 
 class EpisodeList extends React.Component {
@@ -93,7 +103,9 @@ class EpisodeList extends React.Component {
     lastPlayedEpisode: '',
     showModal: false,
     showDeleteDialog: false,
+    deleteEpisode: false,
     deleteFileTitle: '',
+    modalDescription: '',
     downloadActive: false,
     deleteStatus: false,
     downloadPercentage: 2,
@@ -219,7 +231,7 @@ class EpisodeList extends React.Component {
   ) => {
     if (download) {
       if (alreadyDownloaded) {
-        this.setState({ showDeleteDialog: true, deleteFileTitle: title });
+        this.setState({ showDeleteDialog: true, deleteEpisode: true, modalDescription: 'Do you really want to delete episode?', deleteFileTitle: title });
         // this.deleteEpisode(title);
       } else {
         console.log(exercises);
@@ -452,7 +464,7 @@ class EpisodeList extends React.Component {
                   : (
                       downloadActive && index === (episodeIndex + 1)
                       ?  (
-                        <TouchableOpacity onPress={() => this.props.stopDownload(title)}>
+                        <TouchableOpacity onPress={() => this.setState({ showDeleteDialog: true, modalDescription: 'Do you really want to cancel download?', deleteFileTitle: title })}>
                           <Progress.Circle
                               progress={this.props.downloadProgress}
                               showsText
@@ -594,9 +606,24 @@ class EpisodeList extends React.Component {
     );
   }
 
+  showModal = () => {
+    return (
+      <Modal transparent visible={this.props.showCancel}>
+        <View style={styles.modalView}>
+          <View style={styles.modalInnerView}>
+            <ActivityIndicator size="large" color="#001331" style={{ marginTop: 20 }} />
+            <Text style={[styles.textStyle, { color: '#001331' }]}>
+              Cancelling download
+            </Text>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   render() {
     const {
-      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteFileTitle, downloadActive,
+      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteEpisode, deleteFileTitle, downloadActive, modalDescription,
     } = this.state;
     console.log(this.props.downloadProgress);
     const { netInfo } = this.props.screenProps;
@@ -757,6 +784,7 @@ class EpisodeList extends React.Component {
               </View>
             </TouchableOpacity>
             <View>
+              {/* {this.showModal()} */}
               <ShowModal
                 visible={showModal}
                 title={modalText}
@@ -767,15 +795,15 @@ class EpisodeList extends React.Component {
               />
               <ShowModal
                 visible={showDeleteDialog}
-                description="Do you really want to delete episode?"
+                description={modalDescription}
                 buttonText="Cancel"
                 secondButtonText="Confirm"
                 askAdvance
                 onSecondButtonPress={() => {
-                  this.setState({ showDeleteDialog: false });
-                  this.deleteEpisode(deleteFileTitle);
+                  deleteEpisode ? this.deleteEpisode(deleteFileTitle) : this.props.stopDownload(deleteFileTitle);
+                  this.setState({ showDeleteDialog: false, deleteEpisode: false, deleteStatus: true });
                 }}
-                onPress={() => this.setState({ showDeleteDialog: false, downloadActive: false })}
+                onPress={() => this.setState({ showDeleteDialog: false, downloadActive: deleteEpisode ? false : true, deleteEpisode: false })}
               />
             </View>
             {this.renderList()}
@@ -787,9 +815,9 @@ class EpisodeList extends React.Component {
 }
 
 const mapStateToProps = ({ download, deleteEpisodeListReducer }) => {
-  const { downloadProgress } = download;
+  const { downloadProgress, showCancel } = download;
   const { message } = deleteEpisodeListReducer;
-  return { downloadProgress, deleteStatus: message };
+  return { downloadProgress, deleteStatus: message, showCancel };
 };
 
 const mapDispatchToProps = {

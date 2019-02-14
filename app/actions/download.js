@@ -424,8 +424,13 @@ export const stopDownload = title => async (dispatch) => {
   });
   dispatch({
     type: ACTION_DOWNLOAD_CANCEL,
+    payload: true,
   });
   setTimeout(() => {
     deleteEpisode(title, dispatch);
-  }, 5000);
+    dispatch({
+      type: ACTION_DOWNLOAD_CANCEL,
+      payload: false,
+    });
+  }, 10000);
 };
