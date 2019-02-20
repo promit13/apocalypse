@@ -12,6 +12,7 @@
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import "Orientation.h"
 #import <RNBackgroundDownloader.h>
+#import <RNFSManager.h>
 
 @implementation AppDelegate
 
@@ -51,15 +52,9 @@
 - (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
   return [Orientation getOrientation];
 }
-// - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
-// {
- //  [RNBackgroundDownloader setCompletionHandlerWithIdentifier:identifier completionHandler:completionHandler];
-// }
-
-- (void)application:(UIApplication *)application
-handleEventsForBackgroundURLSession:(NSString *)identifier
-  completionHandler:(void (^)(void))completionHandler {
-  self.backgroundTransferCompletionHandler = completionHandler;
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+{
+    [RNFSManager setCompletionHandlerForIdentifier:identifier completionHandler:completionHandler];
+   // [RNBackgroundDownloader setCompletionHandlerWithIdentifier:identifier completionHandler:completionHandler];
 }
-
 @end

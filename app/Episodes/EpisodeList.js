@@ -19,7 +19,7 @@ import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
-import { downloadEpisode, deleteEpisodeList, stopDownload } from '../actions/download';
+import { downloadEpisode, deleteEpisodeList, stopDownload, stopIOSDownload } from '../actions/download';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 110;
@@ -645,7 +645,7 @@ class EpisodeList extends React.Component {
 
   render() {
     const {
-      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteEpisode, deleteFileTitle, downloadActive, modalDescription,
+      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteEpisode, deleteFileTitle, downloadActive, modalDescription, completeExercises,
     } = this.state;
     console.log(this.props.downloadComplete);
     const { netInfo } = this.props.screenProps;
@@ -717,6 +717,7 @@ class EpisodeList extends React.Component {
                 category,
                 description,
                 exercises,
+                completeExercises,
                 video,
                 startWT,
                 endWT,
@@ -822,7 +823,7 @@ class EpisodeList extends React.Component {
                 secondButtonText="Confirm"
                 askAdvance
                 onSecondButtonPress={() => {
-                  deleteEpisode ? this.deleteEpisode(deleteFileTitle) : this.props.stopDownload(deleteFileTitle);
+                  deleteEpisode ? this.deleteEpisode(deleteFileTitle) : this.props.stopIOSDownload(deleteFileTitle);
                   this.setState({
                     showCancel: deleteEpisode ? false : true,
                     showDeleteDialog: false,
@@ -830,7 +831,11 @@ class EpisodeList extends React.Component {
                     deleteEpisode: false,
                   });
                 }}
-                onPress={() => this.setState({ showDeleteDialog: false, deleteEpisode: false })}
+                onPress={() => this.setState({
+                  downloadActive: deleteEpisode ? false : true,
+                  showDeleteDialog: false,
+                  deleteEpisode: false,
+                })}
               />
             </View>
             {this.renderList()}
@@ -851,6 +856,7 @@ const mapDispatchToProps = {
   downloadEpisode,
   deleteEpisodeList,
   stopDownload,
+  stopIOSDownload,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EpisodeList);

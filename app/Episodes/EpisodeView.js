@@ -123,7 +123,7 @@ export default class EpisodeView extends React.Component {
       purchased,
       counter,
     } = this.props.navigation.state.params;
-    console.log(deviceId);
+    console.log(deviceId, episodeId);
     // if (offline && episodeList && !netInfo) {
     //   this.getOfflineDatas(title, deviceId, offline, purchased, counter);
     // } else if (offline && !episodeList && netInfo) {
