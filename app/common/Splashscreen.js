@@ -1,53 +1,33 @@
 import React, { Component } from 'react';
 import {
-  View, StatusBar,
+  View, StatusBar, Image,
 } from 'react-native';
+import { scale, moderateScale } from 'react-native-size-matters';
 import Video from 'react-native-video';
 import Orientation from 'react-native-orientation';
 
-const video = require('../../assets/astwelcome.mp4');
+const video = require('../../assets/astvideo.mp4');
 
 const styles = {
   backgroundVideo: {
-    position: 'relative',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    flex: 1,
-  },
-  imageStyle: {
     height: '100%',
     width: '100%',
+  },
+  imageStyle: {
+    height: moderateScale(30),
+    width: moderateScale(140),
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 0,
+    marginBottom: moderateScale(10),
   },
   container: {
     flex: 1,
     backgroundColor: '#001331',
   },
-  containerInner: {
-    marginTop: 90,
-  },
-  text: {
-    color: 'white',
-  },
-  audioElement: {
-    height: 0,
-    width: 0,
-  },
-  modal: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-  },
-  button: {
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    marginTop: 10,
-  },
 };
-
+const imaginactive = require('../../img/imaginactive.png');
+const asttext = require('../../img/asttext.png');
 
 export default class Splashscreen extends Component {
   static navigationOptions = () => {
@@ -55,6 +35,18 @@ export default class Splashscreen extends Component {
       header: null,
     };
   };
+
+  renderAstText = () => {
+    console.log('IMAGE');
+    return (
+      <Image
+        style={styles.imageStyle}
+        resizeMode="stretch"
+        resizeMethod="resize"
+        source={imaginactive}
+      />
+    );
+  }
 
   render() {
     Orientation.lockToPortrait();
@@ -68,6 +60,12 @@ export default class Splashscreen extends Component {
           ignoreSilentSwitch="ignore"
           playInBackground={false}
           style={styles.backgroundVideo}
+        />
+        <Image
+          style={styles.imageStyle}
+          resizeMode="stretch"
+          resizeMethod="resize"
+          source={imaginactive}
         />
       </View>
     );

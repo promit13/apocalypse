@@ -6,8 +6,8 @@ import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import axios from 'axios';
 import HTML from 'react-native-render-html';
 import firebase from '../config/firebase';
-import Loading from '../common/Loading';
 import ShowModal from '../common/ShowModal';
+import LoadScreen from '../common/LoadScreen';
 
 const styles = {
   mainViewContainer: {
@@ -119,10 +119,10 @@ export default class Agreement extends React.Component {
     } = this.state;
     const { netInfo } = this.props.screenProps;
     return (
-      <View style={styles.mainViewContainer}>
+      <View style={[styles.mainViewContainer, { justifyContent: showLoading ? 'center' : null, alignItems: showLoading ? 'center' : null }]}>
         {
           showLoading
-            ? <Loading />
+            ? <LoadScreen />
             : (
               <ScrollView>
                 <HTML html={content} />

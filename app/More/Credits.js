@@ -10,8 +10,6 @@ const styles ={
     flex: 1,
     marginTop: 1,
     padding: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 };
 
@@ -39,7 +37,7 @@ export default class Credits extends Component {
   render() {
     const { loading, content } = this.state;
     return (
-      <View style={styles.mainViewContainer}>
+      <View style={[styles.mainViewContainer, { justifyContent: loading ? 'center' : null, alignItems: loading ? 'center' : null }]}>
         {
           loading
             ? <LoadScreen />

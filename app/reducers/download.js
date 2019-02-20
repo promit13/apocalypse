@@ -3,7 +3,7 @@ import { ACTION_DOWNLOAD, ACTION_DOWNLOAD_PROGRESS, ACTION_DOWNLOAD_CANCEL } fro
 const INITIAL_STATE = {
   downloadComplete: undefined,
   downloadProgress: 0,
-  showCancel: false,
+  showCancel: undefined,
 };
 
 const download = (state = INITIAL_STATE, action) => {
@@ -15,7 +15,7 @@ const download = (state = INITIAL_STATE, action) => {
       return { ...state, downloadProgress: action.payload };
     }
     case ACTION_DOWNLOAD_CANCEL: {
-      return { ...state, downloadProgress: 1, showCancel: action.payload };
+      return { ...state, showCancel: action.payload };
     }
     default:
       return state;

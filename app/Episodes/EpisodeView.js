@@ -110,6 +110,7 @@ export default class EpisodeView extends React.Component {
       episodeIndex,
       seriesIndex,
       exercises,
+      completeExercises,
       description,
       video,
       workoutTime,
@@ -141,34 +142,34 @@ export default class EpisodeView extends React.Component {
       if (counter === 1) {
         freeTrials = 'one';
       }
-      firebase.database().ref('exercises').on('value', (snapshot) => {
-        this.setState({
-          episodeId,
-          title,
-          category,
-          description,
-          episodeIndex,
-          seriesIndex,
-          exercises,
-          video,
-          workoutTime,
-          videoSize,
-          totalTime,
-          startWT,
-          endWT,
-          completed,
-          deviceId,
-          purchased,
-          offline,
-          counter,
-          freeTrials,
-          uid: this.props.screenProps.user.uid,
-          completeExercises: snapshot.val(),
-          loading: false,
-          episodeList,
-          isConnected: netInfo,
-        });
+      // firebase.database().ref('exercises').on('value', (snapshot) => {
+      this.setState({
+        episodeId,
+        title,
+        category,
+        description,
+        episodeIndex,
+        seriesIndex,
+        exercises,
+        video,
+        workoutTime,
+        videoSize,
+        totalTime,
+        startWT,
+        endWT,
+        completed,
+        deviceId,
+        purchased,
+        offline,
+        counter,
+        freeTrials,
+        uid: this.props.screenProps.user.uid,
+        completeExercises,
+        loading: false,
+        episodeList,
+        isConnected: netInfo,
       });
+      // });
       this.setImage(category);
     }
   }

@@ -3,7 +3,7 @@ import { View, ScrollView } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import { moderateScale } from 'react-native-size-matters';
 import firebase from '../config/firebase';
-import Loading from '../common/Loading';
+import LoadScreen from '../common/LoadScreen';
 
 const styles = {
   mainViewContainer: {
@@ -32,6 +32,7 @@ export default class Trailers extends React.Component {
   }
 
   render() {
+    const { loading } = this.state;
     const trailerList = Object.entries(this.state.trailers).map(([key, value], i) => {
       return (
         <ListItem
@@ -54,10 +55,10 @@ export default class Trailers extends React.Component {
       );
     });
     return (
-      <View style={styles.mainViewContainer}>
+      <View style={[styles.mainViewContainer, { justifyContent: loading ? 'center' : null, alignItems: loading ? 'center' : null }]}>
         {
           this.state.loading
-            ? <Loading />
+            ? <LoadScreen />
             : (
               <ScrollView>
                 {trailerList}

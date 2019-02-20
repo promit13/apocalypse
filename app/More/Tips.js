@@ -3,7 +3,7 @@ import { View, ScrollView } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
 import { ListItem, Text } from 'react-native-elements';
 import firebase from '../config/firebase';
-import Loading from '../common/Loading';
+import LoadScreen from '../common/LoadScreen';
 
 const styles = {
   mainViewContainer: {
@@ -81,10 +81,10 @@ export default class Tips extends React.Component {
       );
     });
     return (
-      <View style={styles.mainViewContainer}>
+      <View style={[styles.mainViewContainer, { justifyContent: loading ? 'center' : null, alignItems: loading ? 'center' : null }]}>
         {
           loading
-            ? <Loading />
+            ? <LoadScreen />
             : (
               <ScrollView>
                 {tipsList}

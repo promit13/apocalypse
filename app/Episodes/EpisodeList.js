@@ -95,6 +95,7 @@ class EpisodeList extends React.Component {
     series: '',
     episodeWatchedCount: {},
     completeEpisodes: '',
+    completeExercises: '',
     completedEpisodesArray: [],
     loading: true,
     purchasedSeries: [],
@@ -108,7 +109,7 @@ class EpisodeList extends React.Component {
     modalDescription: '',
     downloadActive: false,
     deleteStatus: false,
-    downloadPercentage: 2,
+    showCancel: false,
   }
 
   componentDidMount= async () => {
@@ -144,7 +145,6 @@ class EpisodeList extends React.Component {
           lastPlayedEpisode,
           completeEpisodes,
           completedEpisodesArray,
-          isConnected: netInfo,
           episodeWatchedCount,
           deviceId,
         });
@@ -158,36 +158,39 @@ class EpisodeList extends React.Component {
         firebase.database().ref(`episodeWatchedCount/${deviceId}`).on('value', (snapWatchCount) => {
           firebase.database().ref('series').on('value', (snapshot) => {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
-              const completeEpisodes = snapEpisode.val();
-              const series = Object.values(snapshot.val());
-              // const episodeWatchedCount = snapWatchCount.val() !== null ? Object.values(snapWatchCount.val()) : null;
-              const episodeWatchedCount = snapWatchCount.val();
-              console.log(snapWatchCount.val());
-              const { purchases, lastPlayedEpisode, episodeCompletedArray } = snap.val();
-              const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
-              const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
-                return value.seriesId;
+              firebase.database().ref('exercises').on('value', (snapExercises) => {
+                const completeEpisodes = snapEpisode.val();
+                const completeExercises = snapExercises.val();
+                const series = Object.values(snapshot.val());
+                // const episodeWatchedCount = snapWatchCount.val() !== null ? Object.values(snapWatchCount.val()) : null;
+                const episodeWatchedCount = snapWatchCount.val();
+                console.log(snapWatchCount.val());
+                const { purchases, lastPlayedEpisode, episodeCompletedArray } = snap.val();
+                const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+                const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
+                  return value.seriesId;
+                });
+                this.setState({
+                  series: sortedSeries,
+                  episodeWatchedCount,
+                  lastPlayedEpisode,
+                  purchasedSeries,
+                  loading: false,
+                  completedEpisodesArray: Object.values(episodeCompletedArray),
+                  completeEpisodes,
+                  completeExercises,
+                  deviceId,
+                });
+                AsyncStorage.setItem('series', JSON.stringify({
+                  uid: this.props.screenProps.user.uid,
+                  episodeWatchedCount,
+                  series: sortedSeries,
+                  purchasedSeries,
+                  lastPlayedEpisode,
+                  completedEpisodesArray: Object.values(episodeCompletedArray),
+                  completeEpisodes,
+                }));
               });
-              this.setState({
-                series: sortedSeries,
-                episodeWatchedCount,
-                lastPlayedEpisode,
-                purchasedSeries,
-                loading: false,
-                completedEpisodesArray: Object.values(episodeCompletedArray),
-                completeEpisodes,
-                isConnected: netInfo,
-                deviceId,
-              });
-              AsyncStorage.setItem('series', JSON.stringify({
-                uid: this.props.screenProps.user.uid,
-                episodeWatchedCount,
-                series: sortedSeries,
-                purchasedSeries,
-                lastPlayedEpisode,
-                completedEpisodesArray: Object.values(episodeCompletedArray),
-                completeEpisodes,
-              }));
             });
           });
         });
@@ -197,8 +200,18 @@ class EpisodeList extends React.Component {
     }
   }
 
+  // componentDidUpdate(prevProps, prevState) {
+  //   if ((this.props.downloadProgress >= prevState.downloadPercentage) || (this.props.deleteStatus === this.state.deleteStatus)) {
+  //     this.readDirectory();
+  //   }
+  // }
+
   componentDidUpdate(prevProps, prevState) {
-    if ((this.props.downloadProgress >= prevState.downloadPercentage) || (this.props.deleteStatus === this.state.deleteStatus)) {
+    if (
+      (this.props.downloadComplete === this.state.downloadActive)
+      || (this.props.deleteStatus === this.state.deleteStatus)
+      || (this.props.showCancel === this.state.showCancel)
+    ) {
       this.readDirectory();
     }
   }
@@ -214,6 +227,7 @@ class EpisodeList extends React.Component {
     category,
     description,
     exercises,
+    completeExercises,
     video,
     startWT,
     endWT,
@@ -237,6 +251,7 @@ class EpisodeList extends React.Component {
         console.log(exercises);
         this.props.downloadEpisode({
           exercises,
+          completeExercises,
           episodeTitle: title,
           episodeId,
           category,
@@ -259,6 +274,7 @@ class EpisodeList extends React.Component {
       category,
       description,
       exercises,
+      completeExercises,
       video,
       totalTime,
       workoutTime,
@@ -326,7 +342,7 @@ class EpisodeList extends React.Component {
       return episodeValue.title;
     });
     this.setState({
-      filesList: files, index: 0, downloadActive: false, deleteStatus: false, downloadPercentage: 2,
+      filesList: files, index: 0, downloadActive: false, deleteStatus: false, showCancel: false,
     });
   }
 
@@ -397,13 +413,13 @@ class EpisodeList extends React.Component {
 
   deleteEpisode = (fileName) => {
     // this.child.deleteEpisodes(fileName);
-    this.setState({ deleteStatus: true });
+    // this.setState({ deleteStatus: true });
     this.props.deleteEpisodeList(fileName);
   }
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive,
+      series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive, completeExercises,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     // const counterArray = [];
@@ -464,7 +480,10 @@ class EpisodeList extends React.Component {
                   : (
                       downloadActive && index === (episodeIndex + 1)
                       ?  (
-                        <TouchableOpacity onPress={() => this.setState({ showDeleteDialog: true, modalDescription: 'Do you really want to cancel download?', deleteFileTitle: title })}>
+                        <TouchableOpacity onPress={() => {
+                          console.log(index, episodeIndex + 1, downloadActive);
+                          this.setState({ showDeleteDialog: true, modalDescription: 'Do you really want to cancel download?', deleteFileTitle: title })
+                        }}>
                           <Progress.Circle
                               progress={this.props.downloadProgress}
                               showsText
@@ -495,8 +514,9 @@ class EpisodeList extends React.Component {
                 if (!buy) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
-                this.setState({ index: (episodeIndex + 1), downloadActive: true, downloadPercentage: 0.90 },
+                this.setState({ index: (episodeIndex + 1), downloadActive: true },
                   () => {
+                    console.log(index, episodeIndex + 1, downloadActive, this.props.downloadComplete);
                     this.onEpisodeClick(
                       (episodeIndex + 1),
                       title,
@@ -504,6 +524,7 @@ class EpisodeList extends React.Component {
                       category,
                       description,
                       exercises,
+                      completeExercises,
                       video,
                       startWT,
                       endWT,
@@ -538,6 +559,7 @@ class EpisodeList extends React.Component {
                   category,
                   description,
                   exercises,
+                  completeExercises,
                   video,
                   startWT,
                   endWT,
@@ -625,7 +647,7 @@ class EpisodeList extends React.Component {
     const {
       lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteEpisode, deleteFileTitle, downloadActive, modalDescription,
     } = this.state;
-    console.log(this.props.downloadProgress);
+    console.log(this.props.downloadComplete);
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen text="Preparing your apocalypse" />;
     const {
@@ -801,9 +823,14 @@ class EpisodeList extends React.Component {
                 askAdvance
                 onSecondButtonPress={() => {
                   deleteEpisode ? this.deleteEpisode(deleteFileTitle) : this.props.stopDownload(deleteFileTitle);
-                  this.setState({ showDeleteDialog: false, deleteEpisode: false, deleteStatus: true });
+                  this.setState({
+                    showCancel: deleteEpisode ? false : true,
+                    showDeleteDialog: false,
+                    deleteStatus: true,
+                    deleteEpisode: false,
+                  });
                 }}
-                onPress={() => this.setState({ showDeleteDialog: false, downloadActive: deleteEpisode ? false : true, deleteEpisode: false })}
+                onPress={() => this.setState({ showDeleteDialog: false, deleteEpisode: false })}
               />
             </View>
             {this.renderList()}
@@ -815,9 +842,9 @@ class EpisodeList extends React.Component {
 }
 
 const mapStateToProps = ({ download, deleteEpisodeListReducer }) => {
-  const { downloadProgress, showCancel } = download;
+  const { downloadProgress, showCancel, downloadComplete } = download;
   const { message } = deleteEpisodeListReducer;
-  return { downloadProgress, deleteStatus: message, showCancel };
+  return { downloadProgress, deleteStatus: message, showCancel, downloadComplete };
 };
 
 const mapDispatchToProps = {

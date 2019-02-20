@@ -22,8 +22,7 @@ const styles = {
 const screenMessage = [
   'Connecting to TALON',
   'One moment, Risky',
-  'Audio incoming',
-  'Establishing multi-dimensional connection',
+  'Establishing connection',
 ];
 
 export default function LoadScreen({ text }) {

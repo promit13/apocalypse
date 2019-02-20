@@ -13,8 +13,8 @@ import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 
 const runningMan = require('../../img/running-man.png');
-const talonRoute = require('../../img/talon-route.jpg');
-const talonRouteSecond = require('../../img/talon-route-2.png');
+const talonRoute = require('../../img/talon-route-base.jpg');
+const talonRouteSecond = require('../../img/talon-route-museum.jpg');
 
 const barWidth = Dimensions.get('screen').width - 30;
 const progressCustomStyles = {
@@ -177,7 +177,8 @@ export default class TalonScreen extends React.Component {
             <Image
               source={i === 1 ? talonRoute : talonRouteSecond}
               style={[styles.imageStyle, { height: moderateScale(100), marginTop: moderateScale(10), marginBottom: moderateScale(10) }]}
-              resizeMode="center"
+              resizeMode="contain"
+              resizeMethod="resize"
             />
           </View>
           {
@@ -210,7 +211,7 @@ export default class TalonScreen extends React.Component {
                         height: moderateScale(25),
                         width: moderateScale(25),
                         marginBottom: moderateScale(-3),
-                        marginLeft: moderateScale((progressPercentage <= 0 ? 0 : (progressPercentage - 0.05) * barWidth)),
+                        marginLeft: (progressPercentage <= 0 ? 0 : (progressPercentage - 0.05) * barWidth),
                       }}
                       animation="fadeInLeft"
                       source={runningMan}
@@ -383,7 +384,7 @@ export default class TalonScreen extends React.Component {
               />
               <TouchableOpacity onPress={() => {
                 // const episodeId = (Object.keys(this.state.talonLogs))[0];
-                if (talonLogs === null) {
+                if (talonLogs === null || lastPlayedEpisode === '') {
                   return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
                 }
                 const logsArrayLastEpisode = Object.values(talonLogs[episodeId]);

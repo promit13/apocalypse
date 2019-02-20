@@ -21,7 +21,7 @@ export default class App extends React.Component {
     NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
     setTimeout(() => {
       this.setTimePassed();
-    }, 5000);
+    }, 6000);
   }
 
   componentWillUnmount() {

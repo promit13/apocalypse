@@ -656,8 +656,8 @@ export default class EpisodeSingle extends Component {
     MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    // MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
-    MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
+    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
@@ -858,7 +858,9 @@ export default class EpisodeSingle extends Component {
 
   renderLandscapeView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, workOutTime, formattedTotalWorkOutTime, offline, advance,
+      playingExercise, listen, showInfo, loading, totalLength,
+      currentTime, showDialog, episodeTitle, paused, trackingStarted,
+      workOutTime, formattedTotalWorkOutTime, offline, advance,
       showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
@@ -1005,147 +1007,117 @@ export default class EpisodeSingle extends Component {
 
   renderPortraitView = () => {
     const {
-      platform, playingExercise, listen, mode, showInfo, loading, totalLength, currentTime, showDialog, episodeTitle, paused, trackingStarted, formattedTotalWorkOutTime, workOutTime, offline, advance,
-      video, showWelcomeDialog, showIntroAdvanceDialog,
+      playingExercise, listen, showInfo, loading, totalLength,
+      currentTime, showDialog, episodeTitle, paused, trackingStarted,
+      formattedTotalWorkOutTime, workOutTime, offline, advance,
+      showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
-      <View style={{ height: '100%' }}>
-        {/* { platform === 'android'
-          ? (
-            <View style={styles.headerView}>
-              <Icon
-                iconStyle={{ marginLeft: 15 }}
-                name="arrow-left"
-                type="material-community"
-                size={25}
-                color="white"
-                underlayColor="#001331"
-                onPress={() => this.navigateToEpisodeView()}
-              />
-              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 20 }]}>
-                {mode}
-              </Text>
-            </View>
-          )
-          : (
-            <View style={[styles.headerView, { marginTop: 15 }]}>
-              <Icon
-                name="chevron-left"
-                type="feather"
-                size={38}
-                color="white"
-                underlayColor="#001331"
-                onPress={() => this.navigateToEpisodeView()}
-              />
-              <View style={{ flex: 1, marginLeft: -10 }}>
-                <Text style={[styles.textTitle, { fontSize: 18 }]}>
-                  {mode}
-                </Text>
-              </View>
-            </View>
-          )
-          } */}
-        <View style={styles.albumView}>
-          <View style={styles.line} />
-          <AlbumArt
-            url={
-             playingExercise
-               ? image
-               : null
-            }
-            currentExercise={episodeExerciseTitle}
-            onPress={this.onExercisePress}
-            showInfo={showInfo}
-            paddingTop={moderateScale(20)}
-            offline={offline}
-            advance={advance}
-          />
-          <View style={styles.line} />
-        </View>
+      <View>
         { loading
-          ? <Loading />
+          ? <LoadScreen />
           : (
-            <View>
-              <Seekbar
-                totalLength={totalLength}
-                onDragSeekBar={this.onDragSeekBar}
-                sliderReleased={this.sliderReleased}
-                seekValue={currentTime && currentTime}
-                listen={!listen}
-              />
-              <View>
-                <ShowModal
-                  visible={showIntroAdvanceDialog}
-                  title="Choose Exercise Difficulty Level"
-                  description="Would you like to see the easier or harder versions of the exercises and stretches?"
-                  secondButtonText="Whoa, I'm with Flynn..."
-                  buttonText="Hell yes, I'm with Bay!"
-                  askAdvance
-                  onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
-                  onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
+            <View style={{ height: '100%' }}>
+              <View style={styles.albumView}>
+                <View style={styles.line} />
+                <AlbumArt
+                  url={
+                  playingExercise
+                    ? image
+                    : null
+                  }
+                  currentExercise={episodeExerciseTitle}
+                  onPress={this.onExercisePress}
+                  showInfo={showInfo}
+                  paddingTop={moderateScale(20)}
+                  offline={offline}
+                  advance={advance}
                 />
-                { !listen
-                  ? (
-                    <View>
-                      <ShowModal
-                        visible={showDialog}
-                        title={`Well done! Workout complete,\nAgent Whisky Gambit`}
-                        description="Go to TALON to hear your essential intel and track your progress"
-                        buttonText="OK"
-                        onPress={() => {
-                          this.setState({ showDialog: false });
-                          this.props.navigation.navigate('TalonScreen');
-                        }}
-                      />
-                      <ShowModal
-                        visible={showWelcomeDialog}
-                        title="Stay safe while running"
-                        description="Keep your volume at a level that allows you to hear other sounds and remain aware of real world hazards"
-                        buttonText="Got it"
-                        onPress={() => this.setState({ showWelcomeDialog: false })}
-                      />
-                    </View>
-                  )
-                  : null
-              }
+                <View style={styles.line} />
               </View>
-              <FormatTime
-                currentTime={currentTime}
-                remainingTime={totalLength - currentTime}
-              />
-              <Text style={styles.textTitle}>
-                {episodeTitle}
-              </Text>
-              {
-                trackingStarted
-                  ? (<FormatTime
-                    currentTime={workOutTime}
-                    remainingTime={formattedTotalWorkOutTime - workOutTime}
-                    workOutTime
+              <View>
+                <Seekbar
+                  totalLength={totalLength}
+                  onDragSeekBar={this.onDragSeekBar}
+                  sliderReleased={this.sliderReleased}
+                  seekValue={currentTime && currentTime}
+                  listen={!listen}
+                />
+                <View>
+                  <ShowModal
+                    visible={showIntroAdvanceDialog}
+                    title="Choose Exercise Difficulty Level"
+                    description="Would you like to see the easier or harder versions of the exercises and stretches?"
+                    secondButtonText="Whoa, I'm with Flynn..."
+                    buttonText="Hell yes, I'm with Bay!"
+                    askAdvance
+                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
                   />
-                  )
-                  : null
-              }
-              <Controls
-                onPressPlay={this.onPressPlay}
-                onPressPause={this.onPressPause}
-                onBack={this.onBack}
-                onForward={this.onForward}
-                onDownload={this.onDownload}
-                paused={paused}
-                navigateToPreviousExercise={this.navigateToPreviousExercise}
-                renderForwardButton={listen}
-              />
+                  { !listen
+                    ? (
+                      <View>
+                        <ShowModal
+                          visible={showDialog}
+                          title={`Well done! Workout complete,\nAgent Whisky Gambit`}
+                          description="Go to TALON to hear your essential intel and track your progress"
+                          buttonText="OK"
+                          onPress={() => {
+                            this.setState({ showDialog: false });
+                            this.props.navigation.navigate('TalonScreen');
+                          }}
+                        />
+                        <ShowModal
+                          visible={showWelcomeDialog}
+                          title="Stay safe while running"
+                          description="Keep your volume at a level that allows you to hear other sounds and remain aware of real world hazards"
+                          buttonText="Got it"
+                          onPress={() => this.setState({ showWelcomeDialog: false })}
+                        />
+                      </View>
+                    )
+                    : null
+                }
+                </View>
+                <FormatTime
+                  currentTime={currentTime}
+                  remainingTime={totalLength - currentTime}
+                />
+                <Text style={styles.textTitle}>
+                  {episodeTitle}
+                </Text>
+                {
+                  trackingStarted
+                    ? (<FormatTime
+                      currentTime={workOutTime}
+                      remainingTime={formattedTotalWorkOutTime - workOutTime}
+                      workOutTime
+                    />
+                    )
+                    : null
+                }
+                <Controls
+                  onPressPlay={this.onPressPlay}
+                  onPressPause={this.onPressPause}
+                  onBack={this.onBack}
+                  onForward={this.onForward}
+                  onDownload={this.onDownload}
+                  paused={paused}
+                  navigateToPreviousExercise={this.navigateToPreviousExercise}
+                  renderForwardButton={listen}
+                />
+              </View>
             </View>
-          )
-        }
+          )}
       </View>
     );
   }
 
   render() {
-    const { video, loadScreen, paused } = this.state;
+    const {
+      video, loadScreen, paused, loading,
+    } = this.state;
     if (loadScreen) return <LoadScreen />;
     const videoPlayer = (
       <Video
@@ -1169,7 +1141,7 @@ export default class EpisodeSingle extends Component {
 
     return (
       <View
-        style={styles.container}
+        style={[styles.container, { justifyContent: loading ? 'center' : null, alignItems: loading ? 'center' : null }]}
         onLayout={(event) => {
           this.setState({
             windowsWidth: event.nativeEvent.layout.width,
