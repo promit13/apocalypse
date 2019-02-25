@@ -145,16 +145,16 @@ export default class DownloadTestPlayer extends Component {
     this.props.navigation.setParams({ handleSave: this.navigateToEpisodeView });
     console.log('OFFLINE');
     const platform = Platform.OS;
-    const { dirs } = RNFetchBlob.fs;
+    const dirs = RNFetchBlob.fs.dirs.DocumentDir;
     const {
       check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid, exercises,
     } = this.props.navigation.state.params;
     const { cmsTitle } = (exercises[0])[0];
     const formattedFileName = title.replace(/ /g, '_');
-    console.log(`${dirs.DocumentDir}/AST/episodes/`);
+    // const videoSource = platform === 'android' ? dirs.DocumentDir : RNFS.DocumentDirectoryPath;
     this.setState({
       listen: check,
-      video: `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4`,
+      video: `${dirs}/AST/episodes/${formattedFileName}.mp4`,
       episodeId,
       category,
       advance,

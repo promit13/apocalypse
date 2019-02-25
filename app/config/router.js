@@ -272,7 +272,7 @@ export const SignedIn = createBottomTabNavigator({
     inactiveTintColor: '#fff',
     activeBackgroundColor: '#001331',
     inactiveBackgroundColor: '#001331',
-    style: { height: moderateScale(65), backgroundColor: '#001331', paddingVertical: 10 },
+    style: { height: moderateScale(75), backgroundColor: '#001331', paddingVertical: 10 }, // set to 65 for ios
     tabStyle: {
       flexDirection: 'column',
       alignItems: 'center',

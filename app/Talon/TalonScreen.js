@@ -12,10 +12,6 @@ import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 
-const runningMan = require('../../img/running-man.png');
-const talonRoute = require('../../img/talon-route-base.jpg');
-const talonRouteSecond = require('../../img/talon-route-museum.jpg');
-
 const barWidth = Dimensions.get('screen').width - 30;
 const progressCustomStyles = {
   backgroundColor: 'red',
@@ -53,13 +49,9 @@ const speedImageGray = require('../../img/speedgray.png');
 const strengthImageGray = require('../../img/strengthgray.png');
 const controlImageGray = require('../../img/controlgray.png');
 const talonCover = require('../../img/taloncover.jpg');
-
-const screenMessage = [
-  'Connecting to TALON',
-  'One moment, Risky',
-  'Audio incoming',
-  'Establishing multi-dimensional connection',
-];
+const runningMan = require('../../img/running-man.png');
+const talonRoute = require('../../img/talon-route-base.jpg');
+const talonRouteSecond = require('../../img/talon-route-museum.jpg');
 
 export default class TalonScreen extends React.Component {
   static navigationOptions = {
@@ -173,10 +165,10 @@ export default class TalonScreen extends React.Component {
               }
             </View>
           </TouchableOpacity>
-          <View style={{ backgroundColor: 'white', paddingBottom: moderateScale(5), paddingLeft: moderateScale(15), paddingRight: moderateScale(15) }}>
+          <View style={{ backgroundColor: 'white', paddingLeft: moderateScale(10), paddingRight: moderateScale(10) }}>
             <Image
               source={i === 1 ? talonRoute : talonRouteSecond}
-              style={[styles.imageStyle, { height: moderateScale(100), marginTop: moderateScale(10), marginBottom: moderateScale(10) }]}
+              style={[styles.imageStyle, { height: moderateScale(100) }]}
               resizeMode="contain"
               resizeMethod="resize"
             />

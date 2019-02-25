@@ -144,12 +144,14 @@ export default class EpisodeSingle extends Component {
     Orientation.unlockAllOrientations();
     this.props.navigation.setParams({ handleSave: this.navigateToEpisodeView });
     const platform = Platform.OS;
-    const { dirs } = RNFetchBlob.fs;
     const {
       check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance, uid, deviceId, purchased, counter, offline, exercises, completeExercises,
     } = this.props.navigation.state.params;
+    console.log(offline);
     const formattedFileName = title.replace(/ /g, '_');
+    console.log(formattedFileName);
     const firstImage = offline ? ((exercises[0])[0]).cmsTitle : (completeExercises[exercises[0].uid]).image;
+    const dirs = RNFetchBlob.fs.dirs.DocumentDir;
     // const { image, episodeExerciseTitle } = completeExercises[exercises[0].uid];
     this.setState({
       listen: check,
@@ -159,7 +161,7 @@ export default class EpisodeSingle extends Component {
       episodeIndex,
       seriesIndex,
       platform,
-      video: offline ? `${dirs.DocumentDir}/AST/episodes/${formattedFileName}.mp4` : video,
+      video: offline ? `${dirs}/AST/episodes/${formattedFileName}.mp4` : video,
       mode,
       episodeTitle: title,
       uid,

@@ -114,19 +114,18 @@ export default class TalonIntelPlayer extends Component {
         // this.setEpisodeCompletedArray(snap, snapshot);
       });
     } else if (offline) {
-      const { dirs } = RNFetchBlob.fs;
+      const dirs = RNFetchBlob.fs.dirs.DocumentDir;
       const formattedExerciseName = exerciseTitle.replace(/\s+/g, '');
-      RNFetchBlob.fs.exists(`${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4`)
+      RNFetchBlob.fs.exists(`${dirs}/AST/introExercises/${formattedExerciseName}.mp4`)
         .then((exists) => {
-          console.log(exists);
           if (advance) {
             this.setState({
               platform,
               playerTitle: mode,
               navigateBack,
-              videoUrl: exists ? `file://${dirs.DocumentDir}/AST/advanceExercises/${formattedExerciseName}.mp4` : '',
+              videoUrl: exists ? `file://${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4` : '',
               episodeTitle: episodeExerciseTitle,
-              playingExercise: { value: { image: `file://${dirs.DocumentDir}/AST/advanceImages/${formattedExerciseName}.png`, title: '' } },
+              playingExercise: { value: { image: `file://${dirs}/AST/advanceImages/${formattedExerciseName}.png`, title: '' } },
               loadScreen: false,
               exercise,
               loading: exists ? true : false,
@@ -136,9 +135,9 @@ export default class TalonIntelPlayer extends Component {
               platform,
               playerTitle: mode,
               navigateBack,
-              videoUrl: exists ? `file://${dirs.DocumentDir}/AST/introExercises/${formattedExerciseName}.mp4` : '',
+              videoUrl: exists ? `file://${dirs}/AST/introExercises/${formattedExerciseName}.mp4` : '',
               episodeTitle: episodeExerciseTitle,
-              playingExercise: { value: { image: `file://${dirs.DocumentDir}/AST/introImages/${formattedExerciseName}.png`, title: '' } },
+              playingExercise: { value: { image: `file://${dirs}/AST/introImages/${formattedExerciseName}.png`, title: '' } },
               // playingExercise: { value: { image: formattedExerciseName, title: '' } },
               loadScreen: false,
               exercise,
@@ -475,7 +474,7 @@ export default class TalonIntelPlayer extends Component {
             : (
               <View>
                 <View style={styles.line} />
-                <View style={styles.albumView}>
+                <View style={videoUrl === '' ? { height: '75%' } : styles.albumView}>
                   <AlbumArt
                     url={
                       playingExercise

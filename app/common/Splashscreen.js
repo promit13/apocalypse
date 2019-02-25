@@ -27,7 +27,6 @@ const styles = {
   },
 };
 const imaginactive = require('../../img/imaginactive.png');
-const asttext = require('../../img/asttext.png');
 
 export default class Splashscreen extends Component {
   static navigationOptions = () => {

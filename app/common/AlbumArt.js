@@ -1,10 +1,12 @@
 import React from 'react';
 import RNFetchBlob from 'react-native-fetch-blob';
+import RNFS from 'react-native-fs';
 import {
-  View, StyleSheet, Image, TouchableOpacity, Dimensions, ImageBackground,
+  View, StyleSheet, Image, TouchableOpacity, Dimensions, ImageBackground, Platform,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import { moderateScale } from 'react-native-size-matters';
+
 const talonImage = require('../../img/talondark.png');
 const backgroundImage = require('../../img/background.png');
 
@@ -54,8 +56,8 @@ export default function AlbumArt({
   talonPlayer,
   paddingTop,
 }) {
-  const { dirs } = RNFetchBlob.fs;
   const formattedUrl = offline ? url.replace(/\s+/g, '') : '';
+  const dirs = RNFetchBlob.fs.dirs.DocumentDir;
   console.log(formattedUrl);
   return (
     <ImageBackground style={[styles.container, { paddingTop }]} source={backgroundImage}>
@@ -78,8 +80,8 @@ export default function AlbumArt({
                 style={styles.image}
                 source={{
                   uri: advance
-                    ? `file://${dirs.DocumentDir}/AST/advanceImages/${formattedUrl}.png`
-                    : `file://${dirs.DocumentDir}/AST/introImages/${formattedUrl}.png`,
+                    ? `file://${dirs}/AST/advanceImages/${formattedUrl}.png`
+                    : `file://${dirs}/AST/introImages/${formattedUrl}.png`,
                 }}
               />
             )

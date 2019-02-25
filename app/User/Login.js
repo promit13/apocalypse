@@ -73,8 +73,9 @@ export default class Login extends React.Component {
         this.setState({ showError: false, showLoading: false });
       })
       .catch((error) => {
+        console.log(error);
         const errorMessage = error.code === 'auth/wrong-password'
-          ? 'Please enter valid password'
+          ? 'The password is incorrect or the email is associated with a Facebook account.'
           : 'Please enter valid email address';
         this.setState({ showError: true, showLoading: false, errorMessage });
       });

@@ -208,7 +208,7 @@ class EpisodeList extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      (this.props.downloadComplete === this.state.downloadActive)
+      (this.props.downloadComplete === prevState.downloadActive)
       || (this.props.deleteStatus === this.state.deleteStatus)
       || (this.props.showCancel === this.state.showCancel)
     ) {
@@ -823,7 +823,7 @@ class EpisodeList extends React.Component {
                 secondButtonText="Confirm"
                 askAdvance
                 onSecondButtonPress={() => {
-                  deleteEpisode ? this.deleteEpisode(deleteFileTitle) : this.props.stopIOSDownload(deleteFileTitle);
+                  deleteEpisode ? this.deleteEpisode(deleteFileTitle) : this.props.stopDownload(deleteFileTitle);
                   this.setState({
                     showCancel: deleteEpisode ? false : true,
                     showDeleteDialog: false,

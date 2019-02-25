@@ -154,7 +154,7 @@ export default class Agreement extends React.Component {
                       containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -20 }}
 
                     />
-                    <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', marginTop: moderateScale(15), fontSize: moderateScale(12) }}>
+                    <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', marginTop: 25, fontSize: moderateScale(12) }}>
                       I agree to the User Agreement
                     </Text>
                   </TouchableOpacity>
