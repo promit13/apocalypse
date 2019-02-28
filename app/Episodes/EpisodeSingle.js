@@ -81,14 +81,28 @@ export default class EpisodeSingle extends Component {
     return {
       title: navigation.getParam('mode', ''),
       headerLeft: (
-        <Icon
-          name="chevron-left"
-          type="feather"
-          size={38}
-          color="#fff"
-          underlayColor="#001331"
-          onPress={() => { navigation.state.params.handleSave(); }}
-        />
+        Platform.OS === 'android'
+          ? (
+            <Icon
+              iconStyle={{ marginLeft: 15 }}
+              name="arrow-left"
+              type="material-community"
+              size={25}
+              color="white"
+              underlayColor="#001331"
+              onPress={() => { navigation.state.params.handleSave(); }}
+            />
+          )
+          : (
+            <Icon
+              name="chevron-left"
+              type="feather"
+              size={38}
+              color="#fff"
+              underlayColor="#001331"
+              onPress={() => { navigation.state.params.handleSave(); }}
+            />
+          )
       ),
     };
   };
@@ -658,8 +672,8 @@ export default class EpisodeSingle extends Component {
     MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
-    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
+    // MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
@@ -1118,7 +1132,7 @@ export default class EpisodeSingle extends Component {
 
   render() {
     const {
-      video, loadScreen, paused, loading,
+      video, loadScreen, paused, loading, platform,
     } = this.state;
     if (loadScreen) return <LoadScreen />;
     const videoPlayer = (
@@ -1132,7 +1146,7 @@ export default class EpisodeSingle extends Component {
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground
         ignoreSilentSwitch="ignore"
-        // repeat // ios only
+        repeat={platform === 'android' ? false : true}
         playWhenInactive
         onLoad={this.onLoad}
         onEnd={this.onEnd}

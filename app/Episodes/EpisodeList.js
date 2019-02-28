@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-  ScrollView, View, Image, TouchableOpacity, Platform, StatusBar, PermissionsAndroid, AsyncStorage, Dimensions, Modal, ActivityIndicator,
+  ScrollView, View, Image, TouchableOpacity, Platform,
+  StatusBar, PermissionsAndroid, AsyncStorage, Dimensions,
+  Modal, ActivityIndicator, Alert,
 } from 'react-native';
-import RNFetchBlob from 'react-native-fetch-blob';
 import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
@@ -113,10 +114,8 @@ class EpisodeList extends React.Component {
   }
 
   componentDidMount= async () => {
-    console.log(`${RNFetchBlob.fs.dirs.DocumentDir}/AST`);
     Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
-    console.log('EPISODE LIST', netInfo);
     const deviceId = DeviceInfo.getDeviceId();
     // Alert.alert(deviceId);
 
@@ -149,7 +148,6 @@ class EpisodeList extends React.Component {
           deviceId,
         });
       }
-      // await RNIap.initConnection();
       this.requestPermissions();
       firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
         if (snap.val() === null) {
@@ -389,7 +387,9 @@ class EpisodeList extends React.Component {
 
   buyItem = async (item, itemId, itemPrice) => {
     try {
-      // await RNIap.prepare();
+      // await RNIap.clearTransaction(); //later added
+      // await RNIap.prepare(); // deprecated
+      // const product = await RNIap.getProducts(itemId);   // later added  // ios should always fetch product first
       // const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
       // // to something in your server
       // const { transactionReceipt, purchaseToken } = purchase;
@@ -596,6 +596,8 @@ class EpisodeList extends React.Component {
                         if (!netInfo) {
                           return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
+                        const product = RNIap.getProducts(['com.imaginactive.apocalypse.testseries']);
+                        console.log(product);
                       }}
                     />)
                   : (

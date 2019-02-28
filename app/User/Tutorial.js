@@ -1,11 +1,12 @@
 import React from 'react';
-import { Image, View, ScrollView, Dimensions } from 'react-native';
+import { Image, View, ScrollView, Dimensions, Platform } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import { moderateScale } from 'react-native-size-matters';
 import Video from 'react-native-video';
 import Swiper from 'react-native-swiper';
 import firebase from '../config/firebase';
 import ShowModal from '../common/ShowModal';
+import LoadScreen from '../common/LoadScreen';
 
 const { width } = Dimensions.get('window');
 const imageSize = width - 90;
@@ -56,16 +57,19 @@ export default class Tutorial extends React.Component {
     showButton: false,
     showModal: false,
     paused: true,
+    loadScreen: true,
     loading: true,
+    platform: '',
   }
 
   componentDidMount() {
+    const platform = Platform.OS;
     const showButton = this.props.navigation.state.params === undefined ? true : false;
     firebase.database().ref('tutorials').on('value', (snapshot) => {
       // this.setState({ tutorials: snapshot.val(), loading: false, showButton });
       const tutorials = Object.values(snapshot.val());
       const sortedTutorialArray = tutorials.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
-      this.setState({ tutorials: sortedTutorialArray, showButton });
+      this.setState({ tutorials: sortedTutorialArray, showButton, platform, loadScreen: false });
       console.log(this.state.tutorials);
     });
   }
@@ -79,8 +83,8 @@ export default class Tutorial extends React.Component {
   };
 
   onEnd = () => {
-    this.setState({ paused: true });
     this.player.seek(0);
+    this.setState({ paused: true });
   }
 
   onPressPlay = () => {
@@ -88,7 +92,7 @@ export default class Tutorial extends React.Component {
   }
 
   render() {
-    const { showButton, showModal, tutorials, paused, loading } = this.state;
+    const { showButton, showModal, tutorials, paused, loading, platform, loadScreen } = this.state;
     const { netInfo } = this.props.screenProps;
     const { length } = Object.keys(tutorials);
     const tutorialsList = Object.entries(tutorials).map(([key, value], i) => {
@@ -140,14 +144,20 @@ export default class Tutorial extends React.Component {
     });
     return (
       <View style={styles.containerStyle}>
-        <Swiper
-          loop={false}
-          // showsButtons // shows side arrows
-          dotColor="#696238"
-          activeDotColor="#f5cb23"
-        >
-          {tutorialsList}
-        </Swiper>
+        {
+          loadScreen
+            ? <LoadScreen />
+            : (
+              <Swiper
+                loop={false}
+                // showsButtons // shows side arrows
+                dotColor="#696238"
+                activeDotColor="#f5cb23"
+              >
+                {tutorialsList}
+              </Swiper>
+            )
+        }
         <ShowModal
           visible={showModal}
           title="Please check your internet connection"
@@ -157,7 +167,7 @@ export default class Tutorial extends React.Component {
           }}
         />
         <Video
-          source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/trailers%2F-LP5Jim23GTDagRtsj4_%2FAST%20December%20Audio%20Trailer.mp3.mp3?alt=media&token=37f8bd46-5d16-4c60-acc7-e35f25dc46f8' }} // Can be a URL or a local file.
+          source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/trailers%2FAudio%20Trailer%20for%20app%2020.12.18.mp3?alt=media&token=dba7af3c-439c-4acb-8a9a-efa413d94aa3' }} // Can be a URL or a local file.
           ref={(ref) => {
             this.player = ref;
           }}
@@ -167,7 +177,7 @@ export default class Tutorial extends React.Component {
           onLoad={this.onLoad}
           onProgress={this.onProgress}
           onEnd={this.onEnd}
-          // repeat // ios only
+          repeat={platform === 'android' ? false : true}
           style={styles.audioElement}
         />
       </View>

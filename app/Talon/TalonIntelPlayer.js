@@ -54,7 +54,7 @@ const styles = {
     width: '100%',
   },
 };
-const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2FTALON.png?alt=media&token=4c4566fc-ff31-4a89-b674-7e73e52eaa98';
+const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2FTALON%20(1).png?alt=media&token=fffc9c31-acdb-4c07-aa0f-c9b3912d7755';
 const appicon = require('../../img/appicon.png');
 
 export default class TalonIntelPlayer extends Component {
@@ -62,14 +62,28 @@ export default class TalonIntelPlayer extends Component {
     return {
       title: navigation.getParam('mode', ''),
       headerLeft: (
-        <Icon
-          name="chevron-left"
-          type="feather"
-          size={38}
-          color="#fff"
-          underlayColor="#001331"
-          onPress={() => { navigation.state.params.handleSave(); }}
-        />
+        Platform.OS === 'android'
+          ? (
+            <Icon
+              iconStyle={{ marginLeft: 15 }}
+              name="arrow-left"
+              type="material-community"
+              size={25}
+              color="white"
+              underlayColor="#001331"
+              onPress={() => { navigation.state.params.handleSave(); }}
+            />
+          )
+          : (
+            <Icon
+              name="chevron-left"
+              type="feather"
+              size={38}
+              color="#fff"
+              underlayColor="#001331"
+              onPress={() => { navigation.state.params.handleSave(); }}
+            />
+          )
       ),
     };
   };
@@ -275,10 +289,10 @@ export default class TalonIntelPlayer extends Component {
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
     MusicControl.enableControl('previousTrack', false);
-    MusicControl.enableControl('skipForward', !exercise, { interval: 10 }); // iOS only
-    MusicControl.enableControl('skipBackward', !exercise, { interval: 10 }); // iOS only
-    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android
-    // MusicControl.enableControl('skipBackward', true, { interval: 10 }); // for android
+    // MusicControl.enableControl('skipForward', !exercise, { interval: 10 }); // iOS only
+    // MusicControl.enableControl('skipBackward', !exercise, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android
+    MusicControl.enableControl('skipBackward', true, { interval: 10 }); // for android
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
@@ -543,7 +557,7 @@ export default class TalonIntelPlayer extends Component {
   }
 
   render() {
-    const { videoUrl, loadScreen, loading } = this.state;
+    const { videoUrl, loadScreen, loading, platform } = this.state;
     if (loadScreen) return <LoadScreen />;
     const video = videoUrl === ''
       ? null
@@ -561,7 +575,7 @@ export default class TalonIntelPlayer extends Component {
           onLoad={this.onLoad}
           onProgress={this.onProgress}
           onEnd={this.onEnd}
-          // repeat // ios only
+          repeat={platform === 'android' ? false : true}
           style={styles.audioElement}
         />
       );

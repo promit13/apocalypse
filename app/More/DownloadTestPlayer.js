@@ -73,23 +73,35 @@ const styles = {
     width: '100%',
   },
 };
-const talonImage = require('../../img/talon.png');
 const appicon = require('../../img/appicon.png');
-// const albumImage = 'https://firebasestorage.googleapis.com/v0/b/astraining-95c0a.appspot.com/o/talon%2FTALON.png?alt=media&token=4c4566fc-ff31-4a89-b674-7e73e52eaa98';
 
 export default class DownloadTestPlayer extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       title: navigation.getParam('mode', ''),
       headerLeft: (
-        <Icon
-          name="chevron-left"
-          type="feather"
-          size={38}
-          color="#fff"
-          underlayColor="#001331"
-          onPress={() => { navigation.state.params.handleSave(); }}
-        />
+        Platform.OS === 'android'
+          ? (
+            <Icon
+              iconStyle={{ marginLeft: 15 }}
+              name="arrow-left"
+              type="material-community"
+              size={25}
+              color="white"
+              underlayColor="#001331"
+              onPress={() => { navigation.state.params.handleSave(); }}
+            />
+          )
+          : (
+            <Icon
+              name="chevron-left"
+              type="feather"
+              size={38}
+              color="#fff"
+              underlayColor="#001331"
+              onPress={() => { navigation.state.params.handleSave(); }}
+            />
+          )
       ),
     };
   };
@@ -597,8 +609,8 @@ export default class DownloadTestPlayer extends Component {
     MusicControl.enableControl('previousTrack', !check);
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
-    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
+    // MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({
@@ -1035,7 +1047,7 @@ export default class DownloadTestPlayer extends Component {
   }
 
   render() {
-    const { video, loadScreen, paused, loading } = this.state;
+    const { video, loadScreen, paused, loading, platform } = this.state;
     if (loadScreen) return <LoadScreen />;
     const videoPlayer = (
       <Video
@@ -1048,7 +1060,7 @@ export default class DownloadTestPlayer extends Component {
         resizeMode="cover" // Fill the whole screen at aspect ratio.
         playInBackground
         ignoreSilentSwitch="ignore"
-        // repeat // ios only
+        repeat={platform === 'android' ? false : true} // ios only
         playWhenInactive
         onLoad={this.onLoad}
         onEnd={this.onEnd}
