@@ -146,6 +146,8 @@ export default class DownloadTestPlayer extends Component {
     workOutTime: 0,
     showWelcomeDialog: false,
     showIntroAdvanceDialog: false,
+    workOutEpisodeCompleted: false,
+    sendDataToServer: false,
   };
 
   // componentWillMount() {
@@ -263,7 +265,7 @@ export default class DownloadTestPlayer extends Component {
 
   onProgress = (data) => {
     const {
-      paused, listen, playDate, currentTime, formattedWorkOutStartTime, trackingStarted, formattedWorkOutEndTime, episodeCompleted,
+      paused, listen, playDate, currentTime, formattedWorkOutStartTime, trackingStarted, formattedWorkOutEndTime,
     } = this.state;
     if (!paused) { // onProgress gets called when component starts in IOS
       if (trackingStarted) {
@@ -293,7 +295,7 @@ export default class DownloadTestPlayer extends Component {
 
   onLoad = (data) => {
     const {
-      logId, loggedWorkOut, listen,
+      logId, loggedWorkOut, listen, formattedWorkOutEndTime,
     } = this.state;
     this.registerEvents(data);
     // this.setState({ totalLength: data.duration });
@@ -343,6 +345,8 @@ export default class DownloadTestPlayer extends Component {
         trackingStarted,
         totalLength: data.duration,
         loading: false,
+        workOutEpisodeCompleted: timeStamp > formattedWorkOutEndTime ? true : false,
+        sendDataToServer: timeStamp > formattedWorkOutEndTime ? true: false,
       },
       () => {
         this.player.seek(this.state.currentTime, 10);
@@ -386,7 +390,10 @@ export default class DownloadTestPlayer extends Component {
 
   setTimeFirebase = async () => {
     const {
-      uid, episodeId, episodeTitle, distance, currentTime, lastLoggedDate, logId, steps, episodeIndex, seriesIndex, listen, workOutCompleted, trackingStarted, workOutTime, category, episodeCompleted,
+      uid, episodeId, episodeTitle, distance, currentTime,
+      lastLoggedDate, logId, steps, episodeIndex, seriesIndex, listen,
+      workOutCompleted, trackingStarted, workOutTime, category,
+      episodeCompleted, workOutEpisodeCompleted,
     } = this.state;
     const currentDate = this.getDate();
     if (listen) {
@@ -396,10 +403,12 @@ export default class DownloadTestPlayer extends Component {
       }));
       return;
     }
-    const startDate = await AsyncStorage.getItem(episodeId);
+    const startDate = await AsyncStorage.getItem(`offline${episodeId}`);
+    const storedEndDate = await AsyncStorage.getItem(`offline${episodeId}endDate`);
+    const workedOutToDate = workOutEpisodeCompleted ? storedEndDate : this.getDate();
     const timeInterval = !trackingStarted
       ? 0
-      : ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
+      : ((new Date(workedOutToDate).getTime() - new Date(startDate).getTime()) / 60000).toFixed(2);
     const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
     const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
     const { workOutLogs } = workOut[0];
@@ -427,6 +436,8 @@ export default class DownloadTestPlayer extends Component {
       realm.create('SavedWorkOut', {
         uid, episodeId, workOutLogs: workOutLogsArray,
       }, true);
+    }).then(() => {
+      this.setState({ sendDataToServer: workOutEpisodeCompleted ? true : false });
     });
   }
 
@@ -496,10 +507,14 @@ export default class DownloadTestPlayer extends Component {
 
   getStepCountAndDistance = async () => {
     console.log('GET STEP COUNT AND DISTANCE');
-    const { episodeId } = this.state;
-    const startDate = await AsyncStorage.getItem(episodeId);
-    if (this.state.platform === 'android') {
-      const endDate = new Date().toISOString();
+    const { platform, workOutEpisodeCompleted, sendDataToServer, episodeId } = this.state;
+    if (sendDataToServer) {
+      return;
+    }
+    const startDate = await AsyncStorage.getItem(`offline${episodeId}`);
+    const storedEndDate = await AsyncStorage.getItem(`offline${episodeId}endDate`);
+    if (platform === 'android') {
+      const endDate = workOutEpisodeCompleted ? storedEndDate : new Date().toISOString();
       const options = {
         startDate,
         endDate, // required ISO8601Timestamp
@@ -524,7 +539,7 @@ export default class DownloadTestPlayer extends Component {
         });
       });
     } else {
-      const endDate = new Date().getTime();
+      const endDate = workOutEpisodeCompleted ? storedEndDate : new Date().getTime();
       const formattedDate = new Date(startDate).getTime();
       Pedometer.queryPedometerDataBetweenDates(
         formattedDate, endDate, (error, pedometerData) => {
@@ -646,7 +661,7 @@ export default class DownloadTestPlayer extends Component {
   }
 
   navigateToEpisodeView = async (onEnd) => {
-    const { listen, episodeCompleted, trackingStarted } = this.state;
+    const { listen, episodeCompleted, trackingStarted, workOutEpisodeCompleted } = this.state;
     Orientation.lockToPortrait();
     try {
       if (listen) {
@@ -658,7 +673,7 @@ export default class DownloadTestPlayer extends Component {
         if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
         }
-        if (onEnd) {
+        if (workOutEpisodeCompleted) {
           this.setLastPlayedEpisode();
         }
       }
@@ -681,14 +696,14 @@ export default class DownloadTestPlayer extends Component {
 
   startTrackingSteps = async () => {
     console.log('START TRACKING');
-    const { episodeId } = this.state;
+    const { episodeId, platform } = this.state;
     const startDate = new Date();
     try {
-      if (this.state.platform === 'android') {
-        await AsyncStorage.setItem(episodeId, startDate.toISOString()); // unique for different episodes
+      if (platform === 'android') {
+        await AsyncStorage.setItem(`offline${episodeId}`, startDate.toISOString()); // unique for different episodes
         GoogleFit.startRecording((event) => {});
       } else {
-        await AsyncStorage.setItem(episodeId, startDate); // unique for different episodes
+        await AsyncStorage.setItem(`offline${episodeId}`, startDate); // unique for different episodes
         Pedometer.startPedometerUpdatesFromDate(startDate, (pedometerData) => {
           console.log('PEDOMETER STARTED');
         });
@@ -705,14 +720,20 @@ export default class DownloadTestPlayer extends Component {
     return this.renderLandscapeView();
   };
 
-  changeExercises = () => {
+  changeExercises = async () => {
     const { exercises, exerciseLengthList } = this.props.navigation.state.params;
     if (exercises.length === 0) {
       return;
     }
     const {
-      formattedWorkOutStartTime, currentTime, listen, trackingStarted,
+      formattedWorkOutStartTime, currentTime, listen,
+      trackingStarted, formattedWorkOutEndTime, platform, episodeId,
+      workOutEpisodeCompleted,
     } = this.state;
+    if (!listen && (currentTime > formattedWorkOutEndTime) && !workOutEpisodeCompleted) {
+      await AsyncStorage.setItem(`offline${episodeId}endDate`, platform === 'android' ? new Date().toISOString() : new Date());
+      this.setState({ workOutEpisodeCompleted: true });
+    }
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
       this.setLastPlayedEpisode();
       this.startTrackingSteps();

@@ -60,6 +60,7 @@ export default class Tutorial extends React.Component {
     loadScreen: true,
     loading: true,
     platform: '',
+    currentTime: 0,
   }
 
   componentDidMount() {
@@ -79,12 +80,11 @@ export default class Tutorial extends React.Component {
   }
 
   onLoad = (data) => {
-    this.setState({ loading: false });
+    this.setState({ loading: false, currentTime: data.currentTime });
   };
 
   onEnd = () => {
-    this.player.seek(0);
-    this.setState({ paused: true });
+    this.setState({ paused: true, currentTime: 0 });
   }
 
   onPressPlay = () => {

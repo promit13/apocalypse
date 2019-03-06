@@ -152,6 +152,8 @@ export default class EpisodeSingle extends Component {
     updateWatchedTimes: false,
     purchased: false,
     counter: 0,
+    workOutEpisodeCompleted: false,
+    sendDataToServer: false,
   };
 
   componentDidMount = () => {
@@ -304,8 +306,9 @@ export default class EpisodeSingle extends Component {
 
   onLoad = (data) => {
     const {
-      listen, logValue,
+      listen, logValue, formattedWorkOutEndTime,
     } = this.state;
+    console.log(formattedWorkOutEndTime);
     const currentDate = this.getDate();
     this.registerEvents(data);
     if (listen) {
@@ -332,6 +335,7 @@ export default class EpisodeSingle extends Component {
       const {
         dateNow, timeStamp, workOutTime, trackingStarted, workOutCompleted,
       } = logValue;
+      console.log(timeStamp);
       if ((currentDate - dateNow) > 900000) {
         return this.setState({
           currentTime: 0.0,
@@ -354,6 +358,8 @@ export default class EpisodeSingle extends Component {
         workOutCompleted,
         trackingStarted,
         updateWatchedTimes: timeStamp < 600 ? false : true,
+        workOutEpisodeCompleted: timeStamp > formattedWorkOutEndTime ? true : false,
+        sendDataToServer: timeStamp > formattedWorkOutEndTime ? true: false,
       }, () => {
         this.player.seek(this.state.currentTime, 10);
       });
@@ -405,7 +411,7 @@ export default class EpisodeSingle extends Component {
     const {
       uid, episodeId, episodeTitle, distance, currentTime,
       lastLoggedDate, logId, steps, episodeIndex, seriesIndex,
-      episodeCompleted, workOutCompleted, trackingStarted, workOutTime, category, listen,
+      episodeCompleted, workOutCompleted, trackingStarted, workOutTime, category, listen, workOutEpisodeCompleted,
     } = this.state;
     const currentDate = this.getDate();
     if (listen) {
@@ -416,9 +422,11 @@ export default class EpisodeSingle extends Component {
       return;
     }
     const startDate = await AsyncStorage.getItem(episodeId);
+    const storedEndDate = await AsyncStorage.getItem(`${episodeId}endDate`);
+    const workedOutToDate = workOutEpisodeCompleted ? storedEndDate : this.getDate();
     const timeInterval = !trackingStarted
       ? 0
-      : ((currentDate - new Date(startDate).getTime()) / 60000).toFixed(2);
+      : ((new Date(workedOutToDate).getTime() - new Date(startDate).getTime()) / 60000).toFixed(2);
     const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
     firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
       {
@@ -443,7 +451,7 @@ export default class EpisodeSingle extends Component {
           category,
           workOutTime: workOutCompletedTime,
           workOutCompleted,
-        }).then(() => this.setState({ lastLoggedDate: currentDate }));
+        }).then(() => this.setState({ lastLoggedDate: currentDate, sendDataToServer: workOutEpisodeCompleted ? true : false }));
       } else {
         firebase.database().ref(`logs/${uid}/${episodeId}/${logId}`).set({
           timeStamp: currentTime,
@@ -458,7 +466,7 @@ export default class EpisodeSingle extends Component {
           trackingStarted,
           workOutTime: workOutCompletedTime,
           workOutCompleted,
-        }).then(() => this.setState({ lastLoggedDate: currentDate }));
+        }).then(() => this.setState({ lastLoggedDate: currentDate, sendDataToServer: workOutEpisodeCompleted ? true : false }));
       }
     })
       .catch(error => console.log(error));
@@ -559,10 +567,14 @@ export default class EpisodeSingle extends Component {
 
   getStepCountAndDistance = async () => {
     console.log('GET STEP COUNT AND DISTANCE');
-    const { category, platform } = this.state;
-    const startDate = await AsyncStorage.getItem(this.state.episodeId);
+    const { category, platform, workOutEpisodeCompleted, sendDataToServer, episodeId } = this.state;
+    if (sendDataToServer) {
+      return;
+    }
+    const startDate = await AsyncStorage.getItem(episodeId);
+    const storedEndDate = await AsyncStorage.getItem(`${episodeId}endDate`);
     if (platform === 'android') {
-      const endDate = new Date().toISOString();
+      const endDate = workOutEpisodeCompleted ? storedEndDate : new Date().toISOString();
       const options = {
         startDate,
         endDate, // required ISO8601Timestamp
@@ -590,7 +602,7 @@ export default class EpisodeSingle extends Component {
         });
       });
     } else {
-      const endDate = new Date().getTime();
+      const endDate = workOutEpisodeCompleted ? storedEndDate : new Date().getTime();
       const formattedDate = new Date(startDate).getTime();
       if (category !== 'Speed') {
         return this.storeDistance(endDate - formattedDate);
@@ -738,15 +750,12 @@ export default class EpisodeSingle extends Component {
 
   navigateToEpisodeView = async (onEnd) => {
     const {
-      listen, episodeCompleted, trackingStarted,
+      listen, episodeCompleted, trackingStarted, workOutEpisodeCompleted,
     } = this.state;
     Orientation.lockToPortrait();
     try {
       if (listen) {
         this.setTimeFirebase();
-        if (onEnd) {
-          return console.log('EPISODE COMPLETED');
-        }
       } else {
         const distance = await AsyncStorage.getItem('distance');
         if (distance !== null) {
@@ -755,9 +764,12 @@ export default class EpisodeSingle extends Component {
         if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
         }
-        if (onEnd) {
-          return this.setEpisodeCompletedArray();
+        if (workOutEpisodeCompleted) {
+          this.setEpisodeCompletedArray();
         }
+      }
+      if (onEnd) {
+        return console.log('EPISODE COMPLETED');
       }
       this.props.navigation.navigate('EpisodeView');
     } catch (error) {
@@ -810,18 +822,25 @@ export default class EpisodeSingle extends Component {
     return this.renderLandscapeView();
   };
 
-  changeExercises = () => {
+  changeExercises = async () => {
     const { exercises, completeExercises } = this.props.navigation.state.params;
     if (exercises === undefined) {
       return;
     }
     const {
-      formattedWorkOutStartTime, currentTime, listen, trackingStarted, updateWatchedTimes, purchased,
+      formattedWorkOutStartTime, currentTime, listen,
+      trackingStarted, updateWatchedTimes, purchased,
+      formattedWorkOutEndTime, workOutEpisodeCompleted, platform,
+      episodeId,
     } = this.state;
     // if (listen && (currentTime > formattedWorkOutStartTime) && !updateWatchedTimes && !purchased) {
-    if ((currentTime > 600) && !updateWatchedTimes && !purchased) { 
+    if ((currentTime > 600) && !updateWatchedTimes && !purchased) {
       this.updateWatchedTimes();
       this.setState({ updateWatchedTimes: true });
+    }
+    if (!listen && (currentTime > formattedWorkOutEndTime) && !workOutEpisodeCompleted) {
+      await AsyncStorage.setItem(`${episodeId}endDate`, platform === 'android' ? new Date().toISOString() : new Date());
+      this.setState({ workOutEpisodeCompleted: true });
     }
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
       this.startTrackingSteps();
@@ -836,14 +855,20 @@ export default class EpisodeSingle extends Component {
     });
   }
 
-  changeOfflineExercise = () => {
+  changeOfflineExercise = async () => {
     const { exercises, exerciseLengthList } = this.props.navigation.state.params;
     if (exercises.length === 0) {
       return;
     }
     const {
-      formattedWorkOutStartTime, currentTime, listen, trackingStarted,
+      formattedWorkOutStartTime, currentTime, listen,
+      trackingStarted, formattedWorkOutEndTime,
+      workOutEpisodeCompleted, platform, episodeId,
     } = this.state;
+    if (!listen && (currentTime > formattedWorkOutEndTime) && !workOutEpisodeCompleted) {
+      await AsyncStorage.setItem(`${episodeId}endDate`, platform === 'android' ? new Date().toISOString() : new Date());
+      this.setState({ workOutEpisodeCompleted: true });
+    }
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
       // this.setLastPlayedEpisode();
       this.startTrackingSteps();

@@ -4,6 +4,7 @@ import {
   StatusBar, PermissionsAndroid, AsyncStorage, Dimensions,
   Modal, ActivityIndicator, Alert,
 } from 'react-native';
+import RNFetchBlob from 'react-native-fetch-blob';
 import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
@@ -117,6 +118,7 @@ class EpisodeList extends React.Component {
     Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
     const deviceId = DeviceInfo.getDeviceId();
+    console.log(`${RNFetchBlob.fs.dirs.DocumentDir}/AST/`);
     // Alert.alert(deviceId);
 
     // try {
@@ -596,8 +598,6 @@ class EpisodeList extends React.Component {
                         if (!netInfo) {
                           return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
-                        const product = RNIap.getProducts(['com.imaginactive.apocalypse.testseries']);
-                        console.log(product);
                       }}
                     />)
                   : (
@@ -649,7 +649,6 @@ class EpisodeList extends React.Component {
     const {
       lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteEpisode, deleteFileTitle, downloadActive, modalDescription, completeExercises,
     } = this.state;
-    console.log(this.props.downloadComplete);
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen text="Preparing your apocalypse" />;
     const {

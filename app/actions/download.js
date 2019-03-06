@@ -24,7 +24,7 @@ let episodeExerciseSize;
 // let count;
 let iosTask = 0;
 
-const saveEpisodeToDatabase = (
+const saveEpisodeToDatabase = async (
   episodeTitle,
   episodeId,
   category,
@@ -65,6 +65,8 @@ const saveEpisodeToDatabase = (
     type: ACTION_DOWNLOAD,
     payload: true,
   });
+  await RNFS.completeHandlerIOS(iosTask);
+  iosTask = 0;
 };
 
 // const downloadExercises = (
@@ -473,6 +475,20 @@ const startDownload = async (
     .catch(error => console.log(error));
 };
 
+const download = (dirs, fromUrl, toUrl) => {
+  RNFS.downloadFile({
+    fromUrl,
+    toFile: toUrl,
+    background: true,
+    begin: (job) => {
+      iosTask = job.jobId;
+      // iosTask.push(job.jobId);
+      // introImageTask = job.jobId;
+      console.log(job.jobId);
+    },
+  });
+};
+
 
 const downloadIOSExercises = async (
   episodeTitle,
@@ -515,28 +531,35 @@ const downloadIOSExercises = async (
     });
   });
   if (exercise.video === '') {
-    await RNFS.downloadFile({
-      fromUrl: `${image}`,
-      toFile: `${dirs}/AST/introImages/${formattedExerciseName}.png`,
-      background: true,
-      begin: (job) => {
-        iosTask = job.jobId;
-        // iosTask.push(job.jobId);
-        // introImageTask = job.jobId;
-        console.log(job.jobId);
-      },
-    }).promise.then((response) => {
+    const introImageExists = await RNFS.exists(`${dirs}/AST/introImages/${formattedExerciseName}.png`);
+    if (!introImageExists) {
       RNFS.downloadFile({
-        fromUrl: `${image}`,
-        toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+        fromUrl: image,
+        toFile: `${dirs}/AST/introImages/${formattedExerciseName}.png`,
         background: true,
+        discretionary: true,
         begin: (job) => {
           iosTask = job.jobId;
           // iosTask.push(job.jobId);
-          // advanceImageTask = job.jobId;
+          // introImageTask = job.jobId;
           console.log(job.jobId);
         },
-      }).promise.then((res) => {
+      }).promise.then(async () => {
+        const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+        if (!advanceImageExists) {
+          RNFS.downloadFile({
+            fromUrl: image,
+            toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+            background: true,
+            discretionary: true,
+            begin: (job) => {
+              iosTask = job.jobId;
+              // iosTask.push(job.jobId);
+              // advanceImageTask = job.jobId;
+              console.log(job.jobId);
+            },
+          });
+        }
         episodeExerciseSize = i === 0 ? (episodeSizeReceived + exerciseSize) : (episodeExerciseSize + exerciseSize);
         // count += 1;
         dispatch({
@@ -580,53 +603,565 @@ const downloadIOSExercises = async (
           episodeSizeReceived,
           totalVideoSizeInBytes);
       });
-    });
-    return;
-  }
-  RNFS.downloadFile({
-    fromUrl: `${image}`,
-    toFile: `${dirs}/AST/introImages/${formattedExerciseName}.png`,
-    background: true,
-    begin: (job) => {
-      iosTask = job.jobId;
-      // iosTask.push(job.jobId);
-      // introImageTask = job.jobId;
-      console.log(job.jobId);
-    },
-  }).promise.then((response) => {
-    RNFS.downloadFile({
-      fromUrl: `${exercise.video}`,
-      toFile: `${dirs}/AST/introExercises/${formattedExerciseName}.mp4`,
-      background: true,
-      begin: (job) => {
-        iosTask = job.jobId;
-        // iosTask.push(job.jobId);
-        // introExerciseTask = job.jobId;
-        console.log(job.jobId);
-      },
-    }).promise.then((respons) => {
-      RNFS.downloadFile({
-        fromUrl: advanced === undefined ? exercise.video : advanced.video,
-        toFile: `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`,
-        background: true,
-        begin: (job) => {
-          iosTask = job.jobId;
-          // iosTask.push(job.jobId);
-          // advanceExerciseTask = job.jobId;
-          console.log(job.jobId);
-        },
-      }).promise.then((respo) => {
+    } else {
+      // iosTask += 1;
+      const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+      if (!advanceImageExists) {
         RNFS.downloadFile({
-          fromUrl: advanced === undefined ? image : advanced.image,
+          fromUrl: image,
           toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
           background: true,
+          discretionary: true,
           begin: (job) => {
             iosTask = job.jobId;
             // iosTask.push(job.jobId);
             // advanceImageTask = job.jobId;
             console.log(job.jobId);
           },
-        }).promise.then((res) => {
+        });
+      }
+      episodeExerciseSize = i === 0 ? (episodeSizeReceived + exerciseSize) : (episodeExerciseSize + exerciseSize);
+      // count += 1;
+      dispatch({
+        type: ACTION_DOWNLOAD_PROGRESS,
+        payload: (episodeExerciseSize / totalVideoSizeInBytes),
+      });
+      if (i === (exercisesList.length - 1)) {
+        saveEpisodeToDatabase(
+          episodeTitle,
+          episodeId,
+          category,
+          description,
+          video,
+          totalTime,
+          workoutTime,
+          videoSize,
+          episodeIndex,
+          seriesIndex,
+          startWT,
+          endWT,
+          dispatch,
+        );
+        return;
+      }
+      downloadIOSExercises(episodeTitle,
+        episodeId,
+        category,
+        description,
+        video,
+        totalTime,
+        workoutTime,
+        videoSize,
+        episodeIndex,
+        seriesIndex,
+        startWT,
+        endWT,
+        dispatch,
+        exercisesList,
+        dirs,
+        i + 1,
+        episodeSizeReceived,
+        totalVideoSizeInBytes);
+    }
+    return;
+  }
+  const introImageExists = await RNFS.exists(`${dirs}/AST/introImages/${formattedExerciseName}.png`);
+  if (!introImageExists) {
+    // await download(dirs, image, `${dirs}/AST/introImages/${formattedExerciseName}.png`);
+    RNFS.downloadFile({
+      fromUrl: image,
+      toFile: `${dirs}/AST/introImages/${formattedExerciseName}.png`,
+      background: true,
+      discretionary: true,
+      begin: (job) => {
+        iosTask = job.jobId;
+        // iosTask.push(job.jobId);
+        // introImageTask = job.jobId;
+        console.log(job.jobId);
+      },
+    }).promise.then(async () => {
+      const introExerciseExists = await RNFS.exists(`${dirs}/AST/introExercises/${formattedExerciseName}.mp4`);
+      if (!introExerciseExists) {
+        // await download(dirs, exercise.video, `${dirs}/AST/introExercises/${formattedExerciseName}.mp4`);
+        RNFS.downloadFile({
+          fromUrl: exercise.video,
+          toFile: `${dirs}/AST/introExercises/${formattedExerciseName}.mp4`,
+          background: true,
+          discretionary: true,
+          begin: (job) => {
+            iosTask = job.jobId;
+            // iosTask.push(job.jobId);
+            // introImageTask = job.jobId;
+            console.log(job.jobId);
+          },
+        }).promise.then(async () => {
+          const advanceExerciseExists = await RNFS.exists(`${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+          if (!advanceExerciseExists) {
+          // await download(dirs, advanced === undefined ? exercise.video : advanced.video, `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+            RNFS.downloadFile({
+              fromUrl: advanced === undefined ? exercise.video : advanced.video,
+              toFile: `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`,
+              background: true,
+              discretionary: true,
+              begin: (job) => {
+                iosTask = job.jobId;
+                // iosTask.push(job.jobId);
+                // introImageTask = job.jobId;
+                console.log(job.jobId);
+              },
+            }).promise.then(async () => {
+              const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+              if (!advanceImageExists) {
+                // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+                RNFS.downloadFile({
+                  fromUrl: advanced === undefined ? image : advanced.image,
+                  toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+                  background: true,
+                  discretionary: true,
+                  begin: (job) => {
+                    iosTask = job.jobId;
+                    // iosTask.push(job.jobId);
+                    // introImageTask = job.jobId;
+                    console.log(job.jobId);
+                  },
+                });
+              }
+              episodeExerciseSize += exerciseSize;
+              dispatch({
+                type: ACTION_DOWNLOAD_PROGRESS,
+                payload: (episodeExerciseSize / totalVideoSizeInBytes),
+              });
+              if (i === (exercisesList.length - 1)) {
+                saveEpisodeToDatabase(
+                  episodeTitle,
+                  episodeId,
+                  category,
+                  description,
+                  video,
+                  totalTime,
+                  workoutTime,
+                  videoSize,
+                  episodeIndex,
+                  seriesIndex,
+                  startWT,
+                  endWT,
+                  dispatch,
+                );
+                return;
+              }
+              downloadIOSExercises(
+                episodeTitle,
+                episodeId,
+                category,
+                description,
+                video,
+                totalTime,
+                workoutTime,
+                videoSize,
+                episodeIndex,
+                seriesIndex,
+                startWT,
+                endWT,
+                dispatch,
+                exercisesList,
+                dirs,
+                i + 1,
+                episodeSizeReceived,
+                totalVideoSizeInBytes,
+              );
+            });
+          } else {
+            // iosTask += 1;
+            const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+            if (!advanceImageExists) {
+              // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+              RNFS.downloadFile({
+                fromUrl: advanced === undefined ? image : advanced.image,
+                toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+                background: true,
+                discretionary: true,
+                begin: (job) => {
+                  iosTask = job.jobId;
+                  // iosTask.push(job.jobId);
+                  // introImageTask = job.jobId;
+                  console.log(job.jobId);
+                },
+              });
+              episodeExerciseSize += exerciseSize;
+              dispatch({
+                type: ACTION_DOWNLOAD_PROGRESS,
+                payload: (episodeExerciseSize / totalVideoSizeInBytes),
+              });
+              if (i === (exercisesList.length - 1)) {
+                saveEpisodeToDatabase(
+                  episodeTitle,
+                  episodeId,
+                  category,
+                  description,
+                  video,
+                  totalTime,
+                  workoutTime,
+                  videoSize,
+                  episodeIndex,
+                  seriesIndex,
+                  startWT,
+                  endWT,
+                  dispatch,
+                );
+                return;
+              }
+              downloadIOSExercises(
+                episodeTitle,
+                episodeId,
+                category,
+                description,
+                video,
+                totalTime,
+                workoutTime,
+                videoSize,
+                episodeIndex,
+                seriesIndex,
+                startWT,
+                endWT,
+                dispatch,
+                exercisesList,
+                dirs,
+                i + 1,
+                episodeSizeReceived,
+                totalVideoSizeInBytes,
+              );
+            }
+          }
+        });
+      } else {
+        // iosTask += 1;
+        const advanceExerciseExists = await RNFS.exists(`${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+        if (!advanceExerciseExists) {
+          // await download(dirs, advanced === undefined ? exercise.video : advanced.video, `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+          RNFS.downloadFile({
+            fromUrl: advanced === undefined ? exercise.video : advanced.video,
+            toFile: `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`,
+            background: true,
+            discretionary: true,
+            begin: (job) => {
+              iosTask = job.jobId;
+              // iosTask.push(job.jobId);
+              // introImageTask = job.jobId;
+              console.log(job.jobId);
+            },
+          }).promise.then(async () => {
+            const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+            if (!advanceImageExists) {
+              // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+              RNFS.downloadFile({
+                fromUrl: advanced === undefined ? image : advanced.image,
+                toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+                background: true,
+                discretionary: true,
+                begin: (job) => {
+                  iosTask = job.jobId;
+                  // iosTask.push(job.jobId);
+                  // introImageTask = job.jobId;
+                  console.log(job.jobId);
+                },
+              });
+            }
+            episodeExerciseSize += exerciseSize;
+            dispatch({
+              type: ACTION_DOWNLOAD_PROGRESS,
+              payload: (episodeExerciseSize / totalVideoSizeInBytes),
+            });
+            if (i === (exercisesList.length - 1)) {
+              saveEpisodeToDatabase(
+                episodeTitle,
+                episodeId,
+                category,
+                description,
+                video,
+                totalTime,
+                workoutTime,
+                videoSize,
+                episodeIndex,
+                seriesIndex,
+                startWT,
+                endWT,
+                dispatch,
+              );
+              return;
+            }
+            downloadIOSExercises(
+              episodeTitle,
+              episodeId,
+              category,
+              description,
+              video,
+              totalTime,
+              workoutTime,
+              videoSize,
+              episodeIndex,
+              seriesIndex,
+              startWT,
+              endWT,
+              dispatch,
+              exercisesList,
+              dirs,
+              i + 1,
+              episodeSizeReceived,
+              totalVideoSizeInBytes,
+            );
+          });
+        } else {
+          // iosTask += 1;
+          const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+          if (!advanceImageExists) {
+            // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+            RNFS.downloadFile({
+              fromUrl: advanced === undefined ? image : advanced.image,
+              toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+              background: true,
+              discretionary: true,
+              begin: (job) => {
+                iosTask = job.jobId;
+                // iosTask.push(job.jobId);
+                // introImageTask = job.jobId;
+                console.log(job.jobId);
+              },
+            });
+          }
+          episodeExerciseSize += exerciseSize;
+          dispatch({
+            type: ACTION_DOWNLOAD_PROGRESS,
+            payload: (episodeExerciseSize / totalVideoSizeInBytes),
+          });
+          if (i === (exercisesList.length - 1)) {
+            saveEpisodeToDatabase(
+              episodeTitle,
+              episodeId,
+              category,
+              description,
+              video,
+              totalTime,
+              workoutTime,
+              videoSize,
+              episodeIndex,
+              seriesIndex,
+              startWT,
+              endWT,
+              dispatch,
+            );
+            return;
+          }
+          downloadIOSExercises(
+            episodeTitle,
+            episodeId,
+            category,
+            description,
+            video,
+            totalTime,
+            workoutTime,
+            videoSize,
+            episodeIndex,
+            seriesIndex,
+            startWT,
+            endWT,
+            dispatch,
+            exercisesList,
+            dirs,
+            i + 1,
+            episodeSizeReceived,
+            totalVideoSizeInBytes,
+          );
+        }
+      }
+    });
+  } else {
+    // iosTask += 1;
+    const introExerciseExists = await RNFS.exists(`${dirs}/AST/introExercises/${formattedExerciseName}.mp4`);
+    if (!introExerciseExists) {
+      // await download(dirs, exercise.video, `${dirs}/AST/introExercises/${formattedExerciseName}.mp4`);
+      RNFS.downloadFile({
+        fromUrl: exercise.video,
+        toFile: `${dirs}/AST/introExercises/${formattedExerciseName}.mp4`,
+        background: true,
+        discretionary: true,
+        begin: (job) => {
+          iosTask = job.jobId;
+          // iosTask.push(job.jobId);
+          // introImageTask = job.jobId;
+          console.log(job.jobId);
+        },
+      }).promise.then(async () => {
+        const advanceExerciseExists = await RNFS.exists(`${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+        if (!advanceExerciseExists) {
+          // await download(dirs, advanced === undefined ? exercise.video : advanced.video, `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+          RNFS.downloadFile({
+            fromUrl: advanced === undefined ? exercise.video : advanced.video,
+            toFile: `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`,
+            background: true,
+            discretionary: true,
+            begin: (job) => {
+              iosTask = job.jobId;
+              // iosTask.push(job.jobId);
+              // introImageTask = job.jobId;
+              console.log(job.jobId);
+            },
+          }).promise.then(async () => {
+            const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+            if (!advanceImageExists) {
+              // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+              RNFS.downloadFile({
+                fromUrl: advanced === undefined ? image : advanced.image,
+                toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+                background: true,
+                discretionary: true,
+                begin: (job) => {
+                  iosTask = job.jobId;
+                  // iosTask.push(job.jobId);
+                  // introImageTask = job.jobId;
+                  console.log(job.jobId);
+                },
+              });
+            }
+            episodeExerciseSize += exerciseSize;
+            dispatch({
+              type: ACTION_DOWNLOAD_PROGRESS,
+              payload: (episodeExerciseSize / totalVideoSizeInBytes),
+            });
+            if (i === (exercisesList.length - 1)) {
+              saveEpisodeToDatabase(
+                episodeTitle,
+                episodeId,
+                category,
+                description,
+                video,
+                totalTime,
+                workoutTime,
+                videoSize,
+                episodeIndex,
+                seriesIndex,
+                startWT,
+                endWT,
+                dispatch,
+              );
+              return;
+            }
+            downloadIOSExercises(
+              episodeTitle,
+              episodeId,
+              category,
+              description,
+              video,
+              totalTime,
+              workoutTime,
+              videoSize,
+              episodeIndex,
+              seriesIndex,
+              startWT,
+              endWT,
+              dispatch,
+              exercisesList,
+              dirs,
+              i + 1,
+              episodeSizeReceived,
+              totalVideoSizeInBytes,
+            );
+          });
+        } else {
+          // iosTask += 1;
+          const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+          if (!advanceImageExists) {
+            // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+            RNFS.downloadFile({
+              fromUrl: advanced === undefined ? image : advanced.image,
+              toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+              background: true,
+              discretionary: true,
+              begin: (job) => {
+                iosTask = job.jobId;
+                // iosTask.push(job.jobId);
+                // introImageTask = job.jobId;
+                console.log(job.jobId);
+              },
+            });
+          }
+          episodeExerciseSize += exerciseSize;
+          dispatch({
+            type: ACTION_DOWNLOAD_PROGRESS,
+            payload: (episodeExerciseSize / totalVideoSizeInBytes),
+          });
+          if (i === (exercisesList.length - 1)) {
+            saveEpisodeToDatabase(
+              episodeTitle,
+              episodeId,
+              category,
+              description,
+              video,
+              totalTime,
+              workoutTime,
+              videoSize,
+              episodeIndex,
+              seriesIndex,
+              startWT,
+              endWT,
+              dispatch,
+            );
+            return;
+          }
+          downloadIOSExercises(
+            episodeTitle,
+            episodeId,
+            category,
+            description,
+            video,
+            totalTime,
+            workoutTime,
+            videoSize,
+            episodeIndex,
+            seriesIndex,
+            startWT,
+            endWT,
+            dispatch,
+            exercisesList,
+            dirs,
+            i + 1,
+            episodeSizeReceived,
+            totalVideoSizeInBytes,
+          );
+        }
+      });
+    } else {
+      // iosTask += 1;
+      const advanceExerciseExists = await RNFS.exists(`${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+      if (!advanceExerciseExists) {
+        // await download(dirs, advanced === undefined ? exercise.video : advanced.video, `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`);
+        RNFS.downloadFile({
+          fromUrl: advanced === undefined ? exercise.video : advanced.video,
+          toFile: `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`,
+          background: true,
+          discretionary: true,
+          begin: (job) => {
+            iosTask = job.jobId;
+            // iosTask.push(job.jobId);
+            // introImageTask = job.jobId;
+            console.log(job.jobId);
+          },
+        }).promise.then(async () => {
+          const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+          if (!advanceImageExists) {
+            // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+            RNFS.downloadFile({
+              fromUrl: advanced === undefined ? image : advanced.image,
+              toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+              background: true,
+              discretionary: true,
+              begin: (job) => {
+                iosTask = job.jobId;
+                // iosTask.push(job.jobId);
+                // introImageTask = job.jobId;
+                console.log(job.jobId);
+              },
+            });
+          }
           episodeExerciseSize += exerciseSize;
           dispatch({
             type: ACTION_DOWNLOAD_PROGRESS,
@@ -671,9 +1206,119 @@ const downloadIOSExercises = async (
             totalVideoSizeInBytes,
           );
         });
-      });
-    });
-  });
+      } else {
+        // iosTask += 1;
+        const advanceImageExists = await RNFS.exists(`${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+        if (!advanceImageExists) {
+          // await download(dirs, advanced === undefined ? image : advanced.image, `${dirs}/AST/advanceImages/${formattedExerciseName}.png`);
+          RNFS.downloadFile({
+            fromUrl: advanced === undefined ? image : advanced.image,
+            toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+            background: true,
+            discretionary: true,
+            begin: (job) => {
+              iosTask = job.jobId;
+              // iosTask.push(job.jobId);
+              // introImageTask = job.jobId;
+              console.log(job.jobId);
+            },
+          });
+        }
+        episodeExerciseSize += exerciseSize;
+        dispatch({
+          type: ACTION_DOWNLOAD_PROGRESS,
+          payload: (episodeExerciseSize / totalVideoSizeInBytes),
+        });
+        if (i === (exercisesList.length - 1)) {
+          saveEpisodeToDatabase(
+            episodeTitle,
+            episodeId,
+            category,
+            description,
+            video,
+            totalTime,
+            workoutTime,
+            videoSize,
+            episodeIndex,
+            seriesIndex,
+            startWT,
+            endWT,
+            dispatch,
+          );
+          return;
+        }
+        downloadIOSExercises(
+          episodeTitle,
+          episodeId,
+          category,
+          description,
+          video,
+          totalTime,
+          workoutTime,
+          videoSize,
+          episodeIndex,
+          seriesIndex,
+          startWT,
+          endWT,
+          dispatch,
+          exercisesList,
+          dirs,
+          i + 1,
+          episodeSizeReceived,
+          totalVideoSizeInBytes,
+        );
+      }
+    }
+  }
+  // RNFS.downloadFile({
+  //   fromUrl: `${image}`,
+  //   toFile: `${dirs}/AST/introImages/${formattedExerciseName}.png`,
+  //   background: true,
+  //   begin: (job) => {
+  //     iosTask = job.jobId;
+  //     // iosTask.push(job.jobId);
+  //     // introImageTask = job.jobId;
+  //     console.log(job.jobId);
+  //   },
+  // }).promise.then((response) => {
+  //   RNFS.downloadFile({
+  //     fromUrl: `${exercise.video}`,
+  //     toFile: `${dirs}/AST/introExercises/${formattedExerciseName}.mp4`,
+  //     background: true,
+  //     begin: (job) => {
+  //       iosTask = job.jobId;
+  //       // iosTask.push(job.jobId);
+  //       // introExerciseTask = job.jobId;
+  //       console.log(job.jobId);
+  //     },
+  //   }).promise.then((respons) => {
+  //     RNFS.downloadFile({
+  //       fromUrl: advanced === undefined ? exercise.video : advanced.video,
+  //       toFile: `${dirs}/AST/advanceExercises/${formattedExerciseName}.mp4`,
+  //       background: true,
+  //       begin: (job) => {
+  //         iosTask = job.jobId;
+  //         // iosTask.push(job.jobId);
+  //         // advanceExerciseTask = job.jobId;
+  //         console.log(job.jobId);
+  //       },
+  //     }).promise.then((respo) => {
+  //       RNFS.downloadFile({
+  //         fromUrl: advanced === undefined ? image : advanced.image,
+  //         toFile: `${dirs}/AST/advanceImages/${formattedExerciseName}.png`,
+  //         background: true,
+  //         begin: (job) => {
+  //           iosTask = job.jobId;
+  //           // iosTask.push(job.jobId);
+  //           // advanceImageTask = job.jobId;
+  //           console.log(job.jobId);
+  //         },
+  //       }).promise.then((res) => {
+          
+        // });
+      // });
+    // });
+  // });
 };
 
 const startIosDownload = (
@@ -705,48 +1350,81 @@ const startIosDownload = (
     RNFS.mkdir(`${dirs}/AST/introImages`).then(() => {
       RNFS.mkdir(`${dirs}/AST/introExercises`).then(() => {
         RNFS.mkdir(`${dirs}/AST/advanceExercises`).then(() => {
-          RNFS.mkdir(`${dirs}/AST/advanceImages`).then(() => {
-            RNFS.downloadFile({
-              fromUrl: `${video}`,
-              toFile: `${dirs}/AST/episodes/${formattedFileName}.mp4`,
-              progressDivider: 20,
-              background: true,
-              begin: (job) => {
-                // iosTask = job.jobId;
-                episodeTask = job.jobId;
-                console.log(job.jobId);
-                // iosTask.push(job.jobId);
-              },
-              progress: ((response) => {
-                const { contentLength, bytesWritten } = response;
-                episodeSizeReceived = parseInt(bytesWritten, 10);
+          RNFS.mkdir(`${dirs}/AST/advanceImages`).then(async () => {
+            const episodeExists = await RNFS.exists(`${dirs}/AST/episodes/${formattedFileName}.mp4`);
+            if (episodeExists) {
+              await RNFS.stat(`${dirs}/AST/episodes/${formattedFileName}.mp4`).then((resultStat) => {
+                const { size } = resultStat;
+                episodeSizeReceived = size;
                 dispatch({
                   type: ACTION_DOWNLOAD_PROGRESS,
-                  payload: (bytesWritten / totalVideoSizeInBytes),
+                  payload: (size / totalVideoSizeInBytes),
                 });
-              }),
-            }).promise.then((response) => {
-              downloadIOSExercises(
-                episodeTitle,
-                episodeId,
-                category,
-                description,
-                video,
-                totalTime,
-                workoutTime,
-                videoSize,
-                episodeIndex,
-                seriesIndex,
-                startWT,
-                endWT,
-                dispatch,
-                exercisesList,
-                dirs,
-                0,
-                episodeSizeReceived,
-                totalVideoSizeInBytes,
-              );
-            });
+                downloadIOSExercises(
+                  episodeTitle,
+                  episodeId,
+                  category,
+                  description,
+                  video,
+                  totalTime,
+                  workoutTime,
+                  videoSize,
+                  episodeIndex,
+                  seriesIndex,
+                  startWT,
+                  endWT,
+                  dispatch,
+                  exercisesList,
+                  dirs,
+                  0,
+                  episodeSizeReceived,
+                  totalVideoSizeInBytes,
+                );
+              });
+            } else {
+              RNFS.downloadFile({
+                fromUrl: `${video}`,
+                toFile: `${dirs}/AST/episodes/${formattedFileName}.mp4`,
+                progressDivider: 10,
+                background: true,
+                discretionary: true,
+                begin: (job) => {
+                  // iosTask = job.jobId;
+                  episodeTask = job.jobId;
+                  console.log(job.jobId);
+                  // iosTask.push(job.jobId);
+                },
+                progress: ((response) => {
+                  const { contentLength, bytesWritten } = response;
+                  episodeSizeReceived = parseInt(bytesWritten, 10);
+                  dispatch({
+                    type: ACTION_DOWNLOAD_PROGRESS,
+                    payload: (bytesWritten / totalVideoSizeInBytes),
+                  });
+                }),
+              }).promise.then((response) => {
+                downloadIOSExercises(
+                  episodeTitle,
+                  episodeId,
+                  category,
+                  description,
+                  video,
+                  totalTime,
+                  workoutTime,
+                  videoSize,
+                  episodeIndex,
+                  seriesIndex,
+                  startWT,
+                  endWT,
+                  dispatch,
+                  exercisesList,
+                  dirs,
+                  0,
+                  episodeSizeReceived,
+                  totalVideoSizeInBytes,
+                );
+              });
+            }
           });
         });
       });
@@ -797,23 +1475,23 @@ export const downloadEpisode = ({
       };
       exercisesList.push(exercise);
     });
-    if (Platform.OS === 'android') {
-      startDownload(
-        episodeTitle,
-        episodeId,
-        category,
-        description,
-        video,
-        totalTime,
-        workoutTime,
-        videoSize,
-        episodeIndex,
-        seriesIndex,
-        startWT,
-        endWT,
-        dispatch,
-      );
-    } else {
+    // if (Platform.OS === 'android') {
+    //   startDownload(
+    //     episodeTitle,
+    //     episodeId,
+    //     category,
+    //     description,
+    //     video,
+    //     totalTime,
+    //     workoutTime,
+    //     videoSize,
+    //     episodeIndex,
+    //     seriesIndex,
+    //     startWT,
+    //     endWT,
+    //     dispatch,
+    //   );
+    // } else {
       startIosDownload(
         episodeTitle,
         episodeId,
@@ -829,7 +1507,7 @@ export const downloadEpisode = ({
         endWT,
         dispatch,
       );
-    }
+    // }
   };
 };
 
@@ -838,13 +1516,13 @@ const deleteEpisode = (fileName, dispatch, check) => {
   const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${fileName}"`));
   console.log(fileName);
   console.log(episodeDetail.length);
-  if (episodeDetail.length === 0) {
-    dispatch({
-      type: ACTION_DOWNLOAD_CANCEL,
-      payload: true,
-    });
-    return;
-  }
+  // if (episodeDetail.length === 0) {
+  //   dispatch({
+  //     type: ACTION_DOWNLOAD_CANCEL,
+  //     payload: true,
+  //   });
+  //   return;
+  // }
   const exerciseIdLists = Array.from(episodeDetail[0].exerciseIdList);
   const allEpisodes = Array.from(realm.objects('SavedEpisodes'));
   const formattedFileName = fileName.replace(/ /g, '_');
@@ -919,27 +1597,38 @@ export const stopDownload = title => async (dispatch) => {
     type: ACTION_DOWNLOAD_CANCEL,
     payload: undefined,
   });
-  if (Platform.OS === 'android') {
-    if (task !== undefined) {
-      task.cancel(err => console.log(err));
-    }
-    if (introImageTask !== undefined) {
-      introImageTask.cancel(err => console.log(err));
-    }
-    if (introExerciseTask !== undefined) {
-      introExerciseTask.cancel(err => console.log(err));
-    }
-    if (advanceImageTask !== undefined) {
-      advanceImageTask.cancel(err => console.log(err));
-    }
-    if (advanceExerciseTask !== undefined) {
-      advanceExerciseTask.cancel(err => console.log(err));
-    }
-  } else {
-    RNFS.stopDownload(episodeTask);
-    RNFS.stopDownload(iosTask + 1);
-  }
-  deleteEpisode(title, dispatch, true);
+  // if (Platform.OS === 'android') {
+  //   if (task !== undefined) {
+  //     task.cancel(err => console.log(err));
+  //   }
+  //   if (introImageTask !== undefined) {
+  //     introImageTask.cancel(err => console.log(err));
+  //   }
+  //   if (introExerciseTask !== undefined) {
+  //     introExerciseTask.cancel(err => console.log(err));
+  //   }
+  //   if (advanceImageTask !== undefined) {
+  //     advanceImageTask.cancel(err => console.log(err));
+  //   }
+  //   if (advanceExerciseTask !== undefined) {
+  //     advanceExerciseTask.cancel(err => console.log(err));
+  //   }
+  // } else {
+  RNFS.stopDownload(episodeTask);
+  // RNFS.stopDownload(iosTask + 1);
+  RNFS.stopDownload(iosTask - 1);
+  RNFS.stopDownload(iosTask);
+  RNFS.stopDownload(iosTask + 1);
+  RNFS.stopDownload(iosTask + 2);
+  iosTask = 0;
+
+  // RNFS.stopDownload(iosTask - 1);
+  // }
+  dispatch({
+    type: ACTION_DOWNLOAD_CANCEL,
+    payload: true,
+  });
+  // deleteEpisode(title, dispatch, true);
   // setTimeout(() => {
   //   deleteEpisode(title, dispatch, true);
   //   // dispatch({

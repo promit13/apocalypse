@@ -1,3 +1,4 @@
+import { AsyncStorage } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
 import realm from '../config/Database';
 import { ACTION_DELETE } from './types';
@@ -51,6 +52,7 @@ const deleteEpisode = fileName => (dispatch) => {
       realm.write(() => {
         realm.delete(episodeDetail);
       });
+      await AsyncStorage.removeItem(fileName);
       dispatch({
         type: ACTION_DELETE,
         payload: true,

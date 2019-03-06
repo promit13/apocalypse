@@ -5,6 +5,7 @@ import {
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
 import { moderateScale } from 'react-native-size-matters';
+import realm from '../config/Database';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
 import ErrorMessage from '../common/Error';
@@ -80,6 +81,9 @@ export default class MyAccount extends React.Component {
     const { providerData } = this.props.screenProps.user;
     const platform = Platform.OS;
     // const switchValue = await AsyncStorage.getItem('distanceUnit');
+    AsyncStorage.getAllKeys((err, keys) => {
+      console.log(keys);
+    });
     firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snapShot) => {
       if (snapShot.val() === null) {
         return;
@@ -127,13 +131,25 @@ export default class MyAccount extends React.Component {
     firebase.auth().currentUser.delete()
       .then(() => {
         firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove();
-        this.deleteUserAsync();
+        this.deleteUserAsync(true);
         this.setState({ showError: false, showLoading: false });
       })
       .catch(err => console.log(err));
   }
 
-  deleteUserAsync = async () => {
+  deleteUserAsync = async (check) => {
+    if (check) {
+      await AsyncStorage.getAllKeys((err, keys) => {
+        AsyncStorage.multiRemove(keys);
+      });
+      realm.write(() => {
+        const allWorkOut = realm.objects('SavedWorkOut');
+        const allWorkOutLogs = realm.objects('SavedWorkoutLogs');
+        realm.delete(allWorkOut);
+        realm.delete(allWorkOutLogs);
+      });
+      return;
+    }
     await AsyncStorage.removeItem('login');
   }
 
