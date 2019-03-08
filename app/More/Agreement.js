@@ -77,27 +77,26 @@ export default class Agreement extends React.Component {
                 const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
                 firebase.auth().signInAndRetrieveDataWithCredential(credential)
                   .then((currentUser) => {
-                    firebase.database().ref(`users/${currentUser.user.uid}`).on('value', (snapShot) => {
-                      if (snapShot.val() === null) {
-                        axios.post('http://178.128.170.252/', { email });
-                        firebase.database().ref(`users/${currentUser.user.uid}`).set({
-                          firstName: first_name,
-                          lastName: last_name,
-                          email,
-                          tutorial: false,
-                          fullNameLowercase: `${first_name.toLowerCase()} ${last_name.toLocaleLowerCase()}`,
-                          purchases: '',
-                          lastPlayedEpisode: '',
-                          playedIntelArray: '',
-                          episodeCompletedArray: '',
-                          checked: false,
-                          distanceUnit: false,
-                        });
-                      }
-                    })
-                      .then(() => {
-                        this.setState({ showLoading: false });
-                      });
+                    // firebase.database().ref(`users/${currentUser.user.uid}`).on('value', (snapShot) => {
+                    //   if (snapShot.val() === null) {
+                    axios.post('http://178.128.170.252/', { email });
+                    firebase.database().ref(`users/${currentUser.user.uid}`).set({
+                      firstName: first_name,
+                      lastName: last_name,
+                      email,
+                      tutorial: false,
+                      fullNameLowercase: `${first_name.toLowerCase()} ${last_name.toLocaleLowerCase()}`,
+                      purchases: '',
+                      lastPlayedEpisode: '',
+                      playedIntelArray: '',
+                      episodeCompletedArray: '',
+                      checked: false,
+                      distanceUnit: false,
+                    }).then(() => {
+                      this.setState({ showLoading: false });
+                    });
+                    //   }
+                    // })
                   })
                   .catch((error) => {
                     // Alert.alert(error);
