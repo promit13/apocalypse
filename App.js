@@ -15,6 +15,7 @@ export default class App extends React.Component {
   state = {
     isConnected: true,
     timePassed: false,
+    connectionType: 'wifi',
   }
 
   componentDidMount() {
@@ -37,19 +38,24 @@ export default class App extends React.Component {
 
   handleConnectivityChange = (isConnected) => {
     // this.props.connectionState(isConnected);
-    console.log(isConnected);
+    if (isConnected) {
+      NetInfo.getConnectionInfo().then((connectionInfo) => {
+        this.setState({ connectionType: connectionInfo.type, isConnected });
+      });
+      return;
+    }
     this.setState({ isConnected });
   };
 
   render() {
     console.disableYellowBox = true;
-    console.log(this.state.isConnected);
+    const { isConnected, connectionType } = this.state;
     return (
       <Provider store={store}>
         <View style={styles.mainContainer}>
           {
             this.state.timePassed
-              ? <Home screenProps={{ netInfo: this.state.isConnected }} />
+              ? <Home screenProps={{ netInfo: isConnected, connectionType }} />
               : <Splashscreen />
           }
         </View>

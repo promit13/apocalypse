@@ -264,23 +264,23 @@ export default class Home extends React.Component {
   }
 
   renderComponent = () => {
-    const { loading, isConnected, userLoggedIn, user, data } = this.state;
-    const { netInfo } = this.props.screenProps;
+    const { loading, userLoggedIn, user, data } = this.state;
+    const { netInfo, connectionType } = this.props.screenProps;
     if (loading) return <LoadScreen text="Preparing your apocalypse" />;
     if (!netInfo && userLoggedIn) {
-      return <SignedIn screenProps={{ user, netInfo }} />;
+      return <SignedIn screenProps={{ user, netInfo, connectionType }} />;
     }
     if (user) {
       if (data === null) return <LoadScreen />;
       if (data.tutorial) {
         return (
-          <SignedIn screenProps={{ user, netInfo }} />
+          <SignedIn screenProps={{ user, netInfo, connectionType }} />
         );
       }
       if (!data.tutorial) {
         return (
           <TutorialDisplay
-            screenProps={{ user, netInfo }}
+            screenProps={{ user, netInfo, connectionType }}
           />
         );
       }

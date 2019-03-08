@@ -620,12 +620,12 @@ export default class DownloadTestPlayer extends Component {
       }
     });
 
-    MusicControl.enableControl('skipBackward', check, { interval: 10 }); // iOS only
+    MusicControl.enableControl('skipBackward', check, { interval: 10 });
     MusicControl.enableControl('previousTrack', !check);
     MusicControl.enableControl('play', true);
     MusicControl.enableControl('pause', true);
-    // MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
-    MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
+    MusicControl.enableControl('skipForward', check, { interval: 10 }); // iOS only
+    // MusicControl.enableControl('skipForward', true, { interval: 10 }); // for android only
     MusicControl.enableControl('closeNotification', true, { when: 'paused' });
 
     MusicControl.setNowPlaying({

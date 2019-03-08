@@ -131,6 +131,7 @@ export default class MyAccount extends React.Component {
     firebase.auth().currentUser.delete()
       .then(() => {
         firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove();
+        // firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).remove();
         this.deleteUserAsync(true);
         this.setState({ showError: false, showLoading: false });
       })
@@ -140,6 +141,7 @@ export default class MyAccount extends React.Component {
   deleteUserAsync = async (check) => {
     if (check) {
       await AsyncStorage.getAllKeys((err, keys) => {
+        console.log(keys);
         AsyncStorage.multiRemove(keys);
       });
       realm.write(() => {

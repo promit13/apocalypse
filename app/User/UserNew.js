@@ -95,7 +95,6 @@ export default class Signup extends React.Component {
       distanceUnit: false,
     })
       .then(() => {
-        console.log('CHECK second');
         this.setState({ showError: false, errorMessage: '', showLoading: false });
         // this.props.navigation.navigate('UserBodyDetail');
       })

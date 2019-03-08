@@ -119,18 +119,6 @@ class EpisodeList extends React.Component {
     const { netInfo } = this.props.screenProps;
     const deviceId = DeviceInfo.getDeviceId();
     console.log(`${RNFetchBlob.fs.dirs.DocumentDir}/AST/`);
-    // Alert.alert(deviceId);
-
-    // try {
-    //   const completedEpisodesArray = await AsyncStorage.getItem('episodeCompletedArray');
-    //   if (completedEpisodesArray === null) {
-    //     this.setState({ isConnected: netInfo });
-    //   } else {
-    //     this.setState({ isConnected: netInfo, completedEpisodesArray: JSON.parse(completedEpisodesArray) });
-    //   }
-    // } catch (err) {
-    //   console.log(err.code, err.message);
-    // }
     this.readDirectory();
     try {
       if (!netInfo) {
@@ -161,17 +149,15 @@ class EpisodeList extends React.Component {
               firebase.database().ref('exercises').on('value', (snapExercises) => {
                 const completeEpisodes = snapEpisode.val();
                 const completeExercises = snapExercises.val();
-                const series = Object.values(snapshot.val());
-                // const episodeWatchedCount = snapWatchCount.val() !== null ? Object.values(snapWatchCount.val()) : null;
                 const episodeWatchedCount = snapWatchCount.val();
-                console.log(snapWatchCount.val());
                 const { purchases, lastPlayedEpisode, episodeCompletedArray } = snap.val();
-                const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+                // const series = Object.values(snapshot.val());
+                // const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
                 const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
                   return value.seriesId;
                 });
                 this.setState({
-                  series: sortedSeries,
+                  series: snapshot.val(),
                   episodeWatchedCount,
                   lastPlayedEpisode,
                   purchasedSeries,
@@ -184,7 +170,7 @@ class EpisodeList extends React.Component {
                 AsyncStorage.setItem('series', JSON.stringify({
                   uid: this.props.screenProps.user.uid,
                   episodeWatchedCount,
-                  series: sortedSeries,
+                  series: snapshot.val(),
                   purchasedSeries,
                   lastPlayedEpisode,
                   completedEpisodesArray: Object.values(episodeCompletedArray),
@@ -423,10 +409,11 @@ class EpisodeList extends React.Component {
     const {
       series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive, completeExercises,
     } = this.state;
-    const { netInfo } = this.props.screenProps;
+    const { netInfo, connectionType } = this.props.screenProps;
     // const counterArray = [];
+    console.log(connectionType);
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
-      const buy = purchasedSeries.includes(seriesKey);
+      const seriesBought = purchasedSeries.includes(seriesKey);
       // minIndex = maxIndex + 1;
       if (value.episodes === undefined) {
         return console.log('no episodes added');
@@ -439,6 +426,7 @@ class EpisodeList extends React.Component {
           const {
             title, category, totalTime, workoutTime, videoSize, description, exercises, video, startWT, endWT,
           } = completeEpisodes[uid];
+          const buy = seriesBought ? true : purchasedSeries.includes(uid);
           // const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
           const downloaded = filesList.includes(title);
           let completed = completedEpisodesArray.some((el) => {
@@ -477,7 +465,24 @@ class EpisodeList extends React.Component {
               titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(18) }}
               subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(10) }}
               rightIcon={
-                downloaded
+                !buy
+                  ? (
+                      <Button
+                        title="£0.99"
+                        fontSize={moderateScale(12)}
+                        buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
+                        onPress={() => {
+                          if (!netInfo) {
+                            return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
+                          }
+                          const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
+                          this.buyItem(uid, 'test.episode', '0.99');
+                        }
+                      }
+                      />
+                    )
+                  : (
+                    downloaded
                   ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40) }
                   : (
                       downloadActive && index === (episodeIndex + 1)
@@ -500,6 +505,7 @@ class EpisodeList extends React.Component {
                         )
                     : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40) }
                     )
+                  )
                 }
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
@@ -515,6 +521,9 @@ class EpisodeList extends React.Component {
                 // }
                 if (!buy) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
+                }
+                if (connectionType === 'cellular') {
+                  return Alert.alert('You are currently on your network data. Please switch to wifi to continue download.');
                 }
                 this.setState({ index: (episodeIndex + 1), downloadActive: true },
                   () => {
@@ -588,7 +597,7 @@ class EpisodeList extends React.Component {
             </Text>
             <View>
               {
-                buy
+                seriesBought
                   ? (
                     <Button
                       title="Purchased"
