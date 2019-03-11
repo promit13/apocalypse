@@ -373,26 +373,35 @@ class EpisodeList extends React.Component {
     }
   }
 
-  buyItem = async (item, itemId, itemPrice) => {
-    try {
-      // await RNIap.clearTransaction(); //later added
-      // await RNIap.prepare(); // deprecated
-      // const product = await RNIap.getProducts(itemId);   // later added  // ios should always fetch product first
-      // const purchase = await RNIap.buyProductWithoutFinishTransaction(itemId);
-      // // to something in your server
-      // const { transactionReceipt, purchaseToken } = purchase;
-      firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
-        inAppPurchaseId: itemId,
-        seriesId: item,
-        price: itemPrice,
-        date: new Date().getTime(),
-        transactionReceipt: 'kdjfkalkf',
-        purchaseToken: 'fjskjdfkjas',
+  sendDataToServer = (item, itemId, transactionReceipt) => {
+    firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
+      inAppPurchaseId: itemId,
+      seriesId: item,
+      date: new Date().getTime(),
+      transactionReceipt,
+    })
+      .then(async () => {
+        this.setState({ showModal: true, modalText: 'Item purchased successfully' });
+        await RNIap.finishTransaction();
+        await RNIap.endConnection();
       })
-        .then(() => {
-          this.setState({ showModal: true, modalText: 'Item purchased successfully' });
-          RNIap.finishTransaction();
-        });
+      .catch(err => this.setState({ showModal: true, modalText: err.message }));
+  }
+
+  buyItem = async (item, itemId) => {
+    try {
+      await RNIap.clearTransaction();
+      const product = await RNIap.getProducts([itemId]);
+      if (this.state.Platform === 'ios') {
+        const purchase = await RNIap.buyProductWithoutFinishTransaction(product[0].productId);
+        const { transactionReceipt } = purchase;
+        this.sendDataToServer(item, itemId, transactionReceipt);
+      } else {
+        const purchase = await RNIap.buyProduct(product[0].productId);
+        const { transactionReceipt, purchaseToken } = purchase;
+        await RNIap.consumePurchase(purchaseToken);
+        this.sendDataToServer(item, itemId, transactionReceipt);
+      }
     } catch (err) {
       this.setState({ showModal: true, modalText: err.message });
       RNIap.endConnection();
@@ -476,7 +485,7 @@ class EpisodeList extends React.Component {
                             return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                           }
                           const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
-                          this.buyItem(uid, 'test.episode', '0.99');
+                          this.buyItem(uid, 'com.imaginactive.apocalypse.testseries', '0.99');
                         }
                       }
                       />
