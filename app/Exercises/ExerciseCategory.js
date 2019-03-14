@@ -1,9 +1,9 @@
 import React from 'react';
 import { Icon, Text } from 'react-native-elements';
 import {
-  View, Image, TouchableOpacity, StatusBar, Alert,
+  View, Image, TouchableOpacity,
 } from 'react-native';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { scale, moderateScale } from 'react-native-size-matters';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 

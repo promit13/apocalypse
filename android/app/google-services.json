@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "41136097540",
+    "firebase_url": "https://astraining-95c0a.firebaseio.com",
+    "project_id": "astraining-95c0a",
+    "storage_bucket": "astraining-95c0a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:41136097540:android:b2f75b97ae20e4e2",
+        "android_client_info": {
+          "package_name": "com.apocalypse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "41136097540-75fqtu8psi9smlk6gsm91if431j7j3su.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.apocalypse",
+            "certificate_hash": "78d3a2d81297192294a1e6679ee75b3f5195b2d1"
+          }
+        },
+        {
+          "client_id": "41136097540-8t2o5no6v5ndrd85a14u3v7n9tjik31l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOINSqBu7w5MqbND17mfYnsEfDz9KjK8Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "41136097540-8t2o5no6v5ndrd85a14u3v7n9tjik31l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "41136097540-74vjd84d2uiq7d86ntk0lnj503fspp3g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.imaginactive.apocalypse"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

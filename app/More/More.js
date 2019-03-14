@@ -43,7 +43,7 @@ export default class More extends React.Component {
   static navigationOptions = {
     title: 'More',
   };
-
+  
   state = {
     showNoInternetDialog: false,
   }

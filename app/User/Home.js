@@ -21,7 +21,6 @@ export default class Home extends React.Component {
     loading: true,
     user: null,
     data: null,
-    isConnected: true,
     userLoggedIn: false,
   }
 
@@ -45,7 +44,6 @@ export default class Home extends React.Component {
         if (user) {
           this.setState({
             user,
-            isConnected,
           });
           this.sendDataToFirebase();
           this.handleUserStatus();
@@ -284,32 +282,6 @@ export default class Home extends React.Component {
           />
         );
       }
-      // if (this.state.data.extended) {
-      //   if (this.state.data.tutorial) {
-      //     return (
-      //       <SignedIn screenProps={{ user: this.state.user, netInfo: this.state.isConnected }} />
-      //     );
-      //   }
-      //   return (
-      //     <TutorialDisplay
-      //       screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
-      //     />
-      //   );
-      // }
-      // if (!this.state.data.extended) {
-      //   if (this.state.data.tutorial) {
-      //     return (
-      //       <SignedIn
-      //         screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
-      //       />
-      //     );
-      //   }
-      //   return (
-      //     <UserDetails
-      //       screenProps={{ user: this.state.user, netInfo: this.state.isConnected }}
-      //     />
-      //   );
-      // }
     }
     return <SignedOut screenProps={{ netInfo }} />;
   }

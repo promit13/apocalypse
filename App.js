@@ -1,5 +1,5 @@
 import React from 'react';
-import { NetInfo, View, SafeAreaView } from 'react-native';
+import { NetInfo, View } from 'react-native';
 import { Provider } from 'react-redux';
 import store from './app/store';
 import Splashscreen from './app/common/Splashscreen';

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, Platform,
-  StatusBar, PermissionsAndroid, AsyncStorage, Dimensions,
+  StatusBar, PermissionsAndroid, AsyncStorage,
   Modal, ActivityIndicator, Alert,
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -21,10 +21,9 @@ import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
 import OfflineMsg from '../common/OfflineMsg';
-import { downloadEpisode, deleteEpisodeList, stopDownload, stopIOSDownload } from '../actions/download';
-
-const { width } = Dimensions.get('window');
-const imageSize = width - 110;
+import {
+  downloadEpisode, deleteEpisodeList, stopDownload, stopIOSDownload,
+} from '../actions/download';
 
 const homeCover = require('../../img/homecover.jpg');
 const speedImage = require('../../img/speed.png');
@@ -112,13 +111,14 @@ class EpisodeList extends React.Component {
     downloadActive: false,
     deleteStatus: false,
     showCancel: false,
+    showCellularDialog: false,
   }
 
   componentDidMount= async () => {
     Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
     const deviceId = DeviceInfo.getDeviceId();
-    console.log(`${RNFetchBlob.fs.dirs.DocumentDir}/AST/`);
+    // console.log(`${RNFetchBlob.fs.dirs.DocumentDir}/AST/`);
     this.readDirectory();
     try {
       if (!netInfo) {
@@ -147,35 +147,36 @@ class EpisodeList extends React.Component {
           firebase.database().ref('series').on('value', (snapshot) => {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
               firebase.database().ref('exercises').on('value', (snapExercises) => {
-                const completeEpisodes = snapEpisode.val();
-                const completeExercises = snapExercises.val();
-                const episodeWatchedCount = snapWatchCount.val();
-                const { purchases, lastPlayedEpisode, episodeCompletedArray } = snap.val();
-                // const series = Object.values(snapshot.val());
-                // const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
-                const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
-                  return value.seriesId;
+                firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).on('value', (snapPurchases) => {
+                  const purchases = snapPurchases.val() === null ? '' : snapPurchases.val();
+                  const completeEpisodes = snapEpisode.val();
+                  const completeExercises = snapExercises.val();
+                  const episodeWatchedCount = snapWatchCount.val();
+                  const { lastPlayedEpisode, episodeCompletedArray } = snap.val();
+                  const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
+                    return value.seriesId;
+                  });
+                  this.setState({
+                    series: snapshot.val(),
+                    episodeWatchedCount,
+                    lastPlayedEpisode,
+                    purchasedSeries,
+                    loading: false,
+                    completedEpisodesArray: Object.values(episodeCompletedArray),
+                    completeEpisodes,
+                    completeExercises,
+                    deviceId,
+                  });
+                  AsyncStorage.setItem('series', JSON.stringify({
+                    uid: this.props.screenProps.user.uid,
+                    episodeWatchedCount,
+                    series: snapshot.val(),
+                    purchasedSeries,
+                    lastPlayedEpisode,
+                    completedEpisodesArray: Object.values(episodeCompletedArray),
+                    completeEpisodes,
+                  }));
                 });
-                this.setState({
-                  series: snapshot.val(),
-                  episodeWatchedCount,
-                  lastPlayedEpisode,
-                  purchasedSeries,
-                  loading: false,
-                  completedEpisodesArray: Object.values(episodeCompletedArray),
-                  completeEpisodes,
-                  completeExercises,
-                  deviceId,
-                });
-                AsyncStorage.setItem('series', JSON.stringify({
-                  uid: this.props.screenProps.user.uid,
-                  episodeWatchedCount,
-                  series: snapshot.val(),
-                  purchasedSeries,
-                  lastPlayedEpisode,
-                  completedEpisodesArray: Object.values(episodeCompletedArray),
-                  completeEpisodes,
-                }));
               });
             });
           });
@@ -315,7 +316,7 @@ class EpisodeList extends React.Component {
       counter = 3;
       return counter;
     }
-    if (episodeIndex <= 2 && episodeWatchedCount !== null) {
+    if (episodeIndex < 1 && episodeWatchedCount !== null) {
       counter = episodeWatchedCount[id] !== undefined ? episodeWatchedCount[id].count : 0;
       return counter;
     }
@@ -373,39 +374,40 @@ class EpisodeList extends React.Component {
     }
   }
 
-  sendDataToServer = (item, itemId, transactionReceipt) => {
-    firebase.database().ref(`users/${this.props.screenProps.user.uid}/purchases`).push({
-      inAppPurchaseId: itemId,
-      seriesId: item,
+  sendDataToServer = (uid, purchaseId, transactionReceipt) => {
+    firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).push({
+      inAppPurchaseId: purchaseId,
+      seriesId: uid,
       date: new Date().getTime(),
-      transactionReceipt,
+      transactionReceipt: 'transactionReceipt',
     })
       .then(async () => {
         this.setState({ showModal: true, modalText: 'Item purchased successfully' });
-        await RNIap.finishTransaction();
-        await RNIap.endConnection();
+        // await RNIap.finishTransaction();
+        // await RNIap.consumeAllItems();
+        // await RNIap.endConnection();
       })
       .catch(err => this.setState({ showModal: true, modalText: err.message }));
   }
 
-  buyItem = async (item, itemId) => {
-    try {
-      await RNIap.clearTransaction();
-      const product = await RNIap.getProducts([itemId]);
-      if (this.state.Platform === 'ios') {
-        const purchase = await RNIap.buyProductWithoutFinishTransaction(product[0].productId);
-        const { transactionReceipt } = purchase;
-        this.sendDataToServer(item, itemId, transactionReceipt);
-      } else {
-        const purchase = await RNIap.buyProduct(product[0].productId);
-        const { transactionReceipt, purchaseToken } = purchase;
-        await RNIap.consumePurchase(purchaseToken);
-        this.sendDataToServer(item, itemId, transactionReceipt);
-      }
-    } catch (err) {
-      this.setState({ showModal: true, modalText: err.message });
-      RNIap.endConnection();
-    }
+  buyItem = async (uid, purchaseId) => {
+    this.sendDataToServer(uid, purchaseId);
+    // try {
+    //   await RNIap.clearTransaction();
+    //   const product = await RNIap.getProducts([purchaseId]);
+    //   if (this.state.Platform === 'ios') {
+    //     const purchase = await RNIap.buyProductWithoutFinishTransaction(product[0].productId);
+    //     const { transactionReceipt } = purchase;
+    //     this.sendDataToServer(uid, purchaseId, transactionReceipt);
+    //   } else {
+    //     const purchase = await RNIap.buyProduct(product[0].productId);
+    //     const { transactionReceipt } = purchase;
+    //     this.sendDataToServer(uid, purchaseId, transactionReceipt);
+    //   }
+    // } catch (err) {
+    //   this.setState({ showModal: true, modalText: err.message });
+    //   RNIap.endConnection();
+    // }
   }
 
   deleteEpisode = (fileName) => {
@@ -416,7 +418,9 @@ class EpisodeList extends React.Component {
 
   renderList = () => {
     const {
-      series, purchasedSeries, completeEpisodes, filesList, completedEpisodesArray, lastPlayedEpisode, deviceId, episodeWatchedCount, index, downloadActive, completeExercises,
+      series, purchasedSeries, completeEpisodes, filesList,
+      completedEpisodesArray, lastPlayedEpisode, deviceId,
+      episodeWatchedCount, index, downloadActive, completeExercises, showCellularDialog,
     } = this.state;
     const { netInfo, connectionType } = this.props.screenProps;
     // const counterArray = [];
@@ -434,6 +438,7 @@ class EpisodeList extends React.Component {
           const { uid } = episodeValue;
           const {
             title, category, totalTime, workoutTime, videoSize, description, exercises, video, startWT, endWT,
+            price, iosID, googleID,
           } = completeEpisodes[uid];
           const buy = seriesBought ? true : purchasedSeries.includes(uid);
           // const formattedFileName = `${title.replace(/ /g, '_')}.mp4`;
@@ -471,21 +476,21 @@ class EpisodeList extends React.Component {
               }
               title={`${episodeIndex + 1}. ${title}`}
               subtitle={`${category} - ${videoSize} MB`}
-              titleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(18) }}
-              subtitleStyle={{ color: (!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(10) }}
+              titleStyle={{ color: (!buy && episodeIndex > 0) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(18) }}
+              subtitleStyle={{ color: (!buy && episodeIndex > 0) || (!buy && seriesIndex > 0) || (!buy && counter >= 2) ? 'gray' : 'white', fontSize: moderateScale(10) }}
               rightIcon={
                 !buy
                   ? (
                       <Button
-                        title="£0.99"
+                        title={`£${price}`}
                         fontSize={moderateScale(12)}
                         buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                         onPress={() => {
                           if (!netInfo) {
                             return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                           }
-                          const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
-                          this.buyItem(uid, 'com.imaginactive.apocalypse.testseries', '0.99');
+                          const purchaseId = Platform.OS === 'android' ? googleID : iosID;
+                          this.buyItem(uid, purchaseId);
                         }
                       }
                       />
@@ -531,12 +536,29 @@ class EpisodeList extends React.Component {
                 if (!buy) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
-                if (connectionType === 'cellular') {
-                  return Alert.alert('You are currently on your network data. Please switch to wifi to continue download.');
+                if (connectionType === 'cellular' && !downloaded) {
+                  return this.setState({
+                    showCellularDialog: true,
+                    downloadTitle: title,
+                    downloadUid: uid,
+                    downloadCategory: category,
+                    downloadDescription: description,
+                    downloadExercises: exercises,
+                    downloadVideo: video,
+                    downloadStartWT: startWT,
+                    downloadEndWT: endWT,
+                    downloadTotalTime: totalTime,
+                    downloadWorkoutTime: workoutTime,
+                    downloadVideoSize: videoSize,
+                    downloadEpisodeIndex: episodeIndex,
+                    downloadSeriesIndex: seriesIndex,
+                    downloadBuy: buy,
+                    downloadDownloaded: downloaded,
+                    downloadCompleted: completed,
+                  });
                 }
                 this.setState({ index: (episodeIndex + 1), downloadActive: true },
                   () => {
-                    console.log(index, episodeIndex + 1, downloadActive, this.props.downloadComplete);
                     this.onEpisodeClick(
                       (episodeIndex + 1),
                       title,
@@ -569,7 +591,7 @@ class EpisodeList extends React.Component {
                 if (!netInfo && !downloaded) {
                   return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                 }
-                if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counter >= 2)) {
+                if ((!buy && episodeIndex > 0) || (!buy && seriesIndex > 0) || (!buy && counter >= 2)) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
                 this.onEpisodeClick(
@@ -665,7 +687,13 @@ class EpisodeList extends React.Component {
 
   render() {
     const {
-      lastPlayedEpisode, completeEpisodes, loading, showModal, modalText, deviceId, showDeleteDialog, deleteEpisode, deleteFileTitle, downloadActive, modalDescription, completeExercises,
+      lastPlayedEpisode, completeEpisodes, loading, showModal,
+      modalText, deviceId, showDeleteDialog, deleteEpisode,
+      deleteFileTitle, downloadActive, modalDescription, completeExercises, showCellularDialog,
+      downloadTitle, downloadUid, downloadCategory, downloadDescription, downloadExercises,
+      downloadVideo, downloadStartWT, downloadEndWT, downloadTotalTime,
+      downloadWorkoutTime, downloadVideoSize, downloadEpisodeIndex,
+      downloadSeriesIndex, downloadBuy, downloadDownloaded, downloadCompleted,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen text="Preparing your apocalypse" />;
@@ -855,6 +883,42 @@ class EpisodeList extends React.Component {
                   showDeleteDialog: false,
                   deleteEpisode: false,
                 })}
+              />
+              <ShowModal
+                visible={showCellularDialog}
+                title={`You are about to download using your mobile network data.\nBecause of the size of the files, we recommend using wifi.\nDownloading over slow connections may take some time. `}
+                secondButtonText="Continue"
+                buttonText="Cancel"
+                askAdvance
+                onPress={() => this.setState({ showCellularDialog: false })}
+                onSecondButtonPress={() => {
+                  this.setState({ index: (downloadEpisodeIndex + 1), downloadActive: true, showCellularDialog: false },
+                    () => {
+                      this.onEpisodeClick(
+                        0,
+                        downloadTitle,
+                        downloadUid,
+                        downloadCategory,
+                        downloadDescription,
+                        downloadExercises,
+                        completeExercises,
+                        downloadVideo,
+                        downloadStartWT,
+                        downloadEndWT,
+                        downloadTotalTime,
+                        downloadWorkoutTime,
+                        downloadVideoSize,
+                        downloadEpisodeIndex,
+                        downloadSeriesIndex,
+                        deviceId,
+                        0,
+                        downloadBuy,
+                        downloadDownloaded,
+                        downloadCompleted,
+                        true,
+                      );
+                    });
+                }}
               />
             </View>
             {this.renderList()}

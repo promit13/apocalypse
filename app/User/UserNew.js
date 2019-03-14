@@ -76,10 +76,13 @@ export default class Signup extends React.Component {
     errorMessage: '',
     showLoading: false,
     showModal: false,
+    checkAgreement: false,
+    checkMailing: false,
+
   }
 
   setUserData = (currentUser) => {
-    const { firstName, lastName, email } = this.state;
+    const { firstName, lastName, email, checkAgreement, checkMailing } = this.state;
     console.log(currentUser);
     firebase.database().ref(`users/${currentUser.uid}`).set({
       firstName,
@@ -87,11 +90,11 @@ export default class Signup extends React.Component {
       email,
       tutorial: false,
       fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
-      purchases: '',
       lastPlayedEpisode: '',
       playedIntelArray: '',
       episodeCompletedArray: '',
-      checked: false,
+      acceptUserAgreement: checkAgreement,
+      acceptMailingList: checkMailing,
       distanceUnit: false,
     })
       .then(() => {
@@ -108,7 +111,7 @@ export default class Signup extends React.Component {
       email,
       password,
       confirmPassword,
-      checked,
+      checkAgreement,
     } = this.state;
     if (email === '' || firstName === ''
       || lastName === '' || password === '' || confirmPassword === '') {
@@ -117,7 +120,7 @@ export default class Signup extends React.Component {
     if (password !== confirmPassword) {
       return this.setState({ showError: true, errorMessage: 'Password did not match', showLoading: false });
     }
-    if (!checked) {
+    if (!checkAgreement) {
       return this.setState({ showError: true, errorMessage: 'Please accept the User Agreements', showLoading: false });
     }
     firebase.auth().createUserWithEmailAndPassword(email, password)
@@ -137,7 +140,7 @@ export default class Signup extends React.Component {
 
   render() {
     const {
-      email, firstName, lastName, password, confirmPassword, checked, showError, showLoading, errorMessage, showModal,
+      email, firstName, lastName, password, confirmPassword, checkAgreement, checkMailing, showError, showLoading, errorMessage, showModal,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     return (
@@ -203,13 +206,13 @@ export default class Signup extends React.Component {
               value={confirmPassword}
             />
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: -5, marginLeft: -15 }}>
             <CheckBox
-              checked={checked}
+              checked={checkAgreement}
               checkedColor="#f5cb23"
-              size={moderateScale(30)}
+              size={moderateScale(25)}
               containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -25 }}
-              onIconPress={() => this.setState({ checked: !checked })}
+              onIconPress={() => this.setState({ checkAgreement: !checkAgreement })}
             />
             <TouchableOpacity onPress={() => {
               if (!netInfo) {
@@ -221,10 +224,33 @@ export default class Signup extends React.Component {
             }}
             >
               <View>
-                <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', fontSize: moderateScale(12) }}>
+                <Text style={{ color: checkAgreement ? '#f5cb23' : 'white', fontWeight: 'bold', fontSize: moderateScale(12) }}>
                   I agree to the User Agreement
                 </Text>
-                <View style={[styles.line, { backgroundColor: checked ? '#f5cb23' : 'white' }]} />
+                <View style={[styles.line, { backgroundColor: checkAgreement ? '#f5cb23' : 'white' }]} />
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: -20, marginLeft: -15 }}>
+            <CheckBox
+              checked={checkMailing}
+              checkedColor="#f5cb23"
+              size={moderateScale(25)}
+              containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -25 }}
+              onIconPress={() => this.setState({ checkMailing: !checkMailing })}
+            />
+            <TouchableOpacity onPress={() => {
+              if (!netInfo) {
+                return this.setState({ showModal: true });
+              }
+              this.setState({ checkMailing: !checkMailing });
+            }}
+            >
+              <View>
+                <Text style={{ color: checkMailing ? '#f5cb23' : 'white', flex: 1, fontWeight: 'bold', fontSize: moderateScale(12) }}>
+                  I would like to join the Imaginactive mailing list
+                </Text>
+                <View style={[styles.line, { backgroundColor: checkMailing ? '#f5cb23' : 'white' }]} />
               </View>
             </TouchableOpacity>
           </View>

@@ -6,18 +6,19 @@ target 'apocalypse' do
   # use_frameworks!
 
   # Pods for apocalypse
+  pod 'Firebase/Core'
+  pod 'FBSDKShareKit'
+  pod 'FBSDKCoreKit'
+  pod 'FBSDKLoginKit'
 
-  target 'apocalypse-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-    pod 'react-native-video', :path => '../node_modules/react-native-video'
+  # target 'apocalypse-tvOSTests' do
+  #   inherit! :search_paths
+  #   # Pods for testing
+  #   pod 'react-native-video', :path => '../node_modules/react-native-video'
 
-    pod 'react-native-music-control', :path => '../node_modules/react-native-music-control'
+  #   pod 'react-native-music-control', :path => '../node_modules/react-native-music-control'
 
-
-    pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
-
-  end
+  # end
 
   target 'apocalypseTests' do
     inherit! :search_paths
@@ -26,15 +27,9 @@ target 'apocalypse' do
 
 end
 
-target 'apocalypse-tvOS' do
-  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
-  # use_frameworks!
+# target 'apocalypse-tvOS' do
+#   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+#   # use_frameworks!
 
-  # Pods for apocalypse-tvOS
-
-  target 'apocalypse-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
-end
+#   # Pods for apocalypse-tvOS
+# end

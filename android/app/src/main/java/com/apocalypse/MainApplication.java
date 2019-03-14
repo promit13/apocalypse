@@ -3,6 +3,8 @@ package com.apocalypse;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import io.invertase.firebase.RNFirebasePackage;
+import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
 import com.tanguyantoine.react.MusicControl;
 import com.brentvatne.react.ReactVideoPackage;
 import com.eko.RNBackgroundDownloaderPackage;
@@ -46,6 +48,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNFirebasePackage(),
+            new RNFirebaseAnalyticsPackage(),
             new MusicControl(),
             new ReactVideoPackage(),
             new RNBackgroundDownloaderPackage(),

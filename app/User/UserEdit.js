@@ -131,7 +131,7 @@ export default class MyAccount extends React.Component {
     firebase.auth().currentUser.delete()
       .then(() => {
         firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove();
-        // firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).remove();
+        firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).remove();
         this.deleteUserAsync(true);
         this.setState({ showError: false, showLoading: false });
       })

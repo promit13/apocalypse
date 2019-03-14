@@ -40,7 +40,8 @@ export default class Agreement extends React.Component {
 
   state = {
     content: '',
-    checked: false,
+    checkAgreement: false,
+    checkMailing: false,
     showCheckbox: false,
     showLoading: true,
     showModal: false,
@@ -60,6 +61,7 @@ export default class Agreement extends React.Component {
   }
 
   doFacebookSignUp = () => {
+    const { checkAgreement, checkMailing, showCheckbox } = this.state;
     LoginManager.logOut();
     LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
       (result) => {
@@ -77,26 +79,26 @@ export default class Agreement extends React.Component {
                 const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
                 firebase.auth().signInAndRetrieveDataWithCredential(credential)
                   .then((currentUser) => {
-                    // firebase.database().ref(`users/${currentUser.user.uid}`).on('value', (snapShot) => {
-                    //   if (snapShot.val() === null) {
                     axios.post('http://178.128.170.252/', { email });
+                    // firebase.database().ref(`users/${currentUser.user.uid}`).on('value', (snapShot) => {
+                    //   if (snapShot.val() !== null) {
+                    //     return;
+                    //   }});
                     firebase.database().ref(`users/${currentUser.user.uid}`).set({
                       firstName: first_name,
                       lastName: last_name,
                       email,
                       tutorial: false,
                       fullNameLowercase: `${first_name.toLowerCase()} ${last_name.toLocaleLowerCase()}`,
-                      purchases: '',
                       lastPlayedEpisode: '',
                       playedIntelArray: '',
                       episodeCompletedArray: '',
-                      checked: false,
+                      acceptUserAgreement: checkAgreement,
+                      acceptMailingList: checkMailing,
                       distanceUnit: false,
                     }).then(() => {
                       this.setState({ showLoading: false });
                     });
-                    //   }
-                    // })
                   })
                   .catch((error) => {
                     // Alert.alert(error);
@@ -114,7 +116,7 @@ export default class Agreement extends React.Component {
 
   render() {
     const {
-      content, checked, showCheckbox, showLoading, showModal, errorMessage,
+      content, showCheckbox, showLoading, showModal, errorMessage, checkAgreement, checkMailing,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     return (
@@ -140,21 +142,38 @@ export default class Agreement extends React.Component {
           showCheckbox
             ? (
               <View>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: -5, marginLeft: -10 }}>
                   <TouchableOpacity
                     style={{ flexDirection: 'row', flexWrap: 'wrap' }}
-                    onPress={() => this.setState({ checked: !checked })}
+                    onPress={() => this.setState({ checkAgreement: !checkAgreement })}
                   >
                     <CheckBox
-                      checked={checked}
-                      size={moderateScale(30)}
-                      onPress={() => this.setState({ checked: !checked })}
+                      checked={checkAgreement}
+                      size={moderateScale(25)}
+                      onPress={() => this.setState({ checkAgreement: !checkAgreement })}
                       checkedColor="#f5cb23"
                       containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -20 }}
 
                     />
-                    <Text style={{ color: checked ? '#f5cb23' : 'white', fontWeight: 'bold', marginTop: 25, fontSize: moderateScale(12) }}>
+                    <Text style={{ color: checkAgreement ? '#f5cb23' : 'white', fontWeight: 'bold', marginTop: 20, fontSize: moderateScale(12) }}>
                       I agree to the User Agreement
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: -20, marginLeft: -10 }}>
+                  <TouchableOpacity
+                    style={{ flexDirection: 'row', flexWrap: 'wrap' }}
+                    onPress={() => this.setState({ checkMailing: !checkMailing })}
+                  >
+                    <CheckBox
+                      checked={checkMailing}
+                      size={moderateScale(25)}
+                      onPress={() => this.setState({ checkMailing: !checkMailing })}
+                      checkedColor="#f5cb23"
+                      containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -20 }}
+                    />
+                    <Text style={{ color: checkMailing ? '#f5cb23' : 'white', flex: 1, fontWeight: 'bold', marginTop: 20, fontSize: moderateScale(12) }}>
+                      I would like to join the Imaginactive mailing list
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -162,11 +181,10 @@ export default class Agreement extends React.Component {
                   if (!netInfo) {
                     return this.setState({ showModal: true, errorMessage: 'Please check your internet connection' });
                   }
-                  if (checked) {
-                    this.doFacebookSignUp();
-                  } else {
-                    this.setState({ showModal: true, errorMessage: 'Please accept the User Agreements' });
+                  if (!checkAgreement) {
+                    return this.setState({ showModal: true, errorMessage: 'Please accept the User Agreements' });
                   }
+                  this.doFacebookSignUp();
                 }}
                 >
                   <View style={styles.fieldContainer}>
