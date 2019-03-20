@@ -73,7 +73,7 @@ export default class Home extends React.Component {
           uid, episodeId, episodeTitle, episodeIndex, seriesIndex, episodeCompleted,
         } = toLogData;
         // const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
-        firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+        firebase.database().ref(`userDatas/${uid}/lastPlayedEpisode`).set(
           {
             episodeTitle,
             episodeId,
@@ -108,7 +108,7 @@ export default class Home extends React.Component {
         serIndex,
         epCompleted,
       } = jsonObjectData;
-      firebase.database().ref(`users/${userId}/lastPlayedEpisode`).set(
+      firebase.database().ref(`userDatas/${userId}/lastPlayedEpisode`).set(
         {
           episodeTitle: epTitle,
           episodeId: epId,
@@ -129,10 +129,10 @@ export default class Home extends React.Component {
         }
         if ((workOutIndex === workOutArrayLength - 1) && (index === allEpisodeWorkoutArray.length - 1)) {
           const {
-            episodeCompleted,
+            workOutCompleted,
           } = workOutValue;
-          if (episodeCompleted) {
-            firebase.database().ref(`users/${uid}/episodeCompletedArray`).push(
+          if (workOutCompleted) {
+            firebase.database().ref(`userDatas/${uid}/episodeCompletedArray`).push(
               {
                 episodeId,
               },

@@ -80,18 +80,17 @@ export default class MyAccount extends React.Component {
   componentDidMount = async () => {
     const { providerData } = this.props.screenProps.user;
     const platform = Platform.OS;
-    // const switchValue = await AsyncStorage.getItem('distanceUnit');
-    AsyncStorage.getAllKeys((err, keys) => {
-      console.log(keys);
-    });
-    firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snapShot) => {
-      if (snapShot.val() === null) {
-        return;
+    firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}`).on('value', (snapShot) => {
+      let loggedDistanceUnit = false;
+      if (snapShot.val() !== null) {
+        const { unit } = snapShot.val();
+        if (unit !== undefined) {
+          loggedDistanceUnit = unit.distanceUnit;
+        }
       }
-      const { distanceUnit } = snapShot.val();
       this.setState({
         providerId: providerData[0].providerId,
-        switchValue: distanceUnit,
+        switchValue: loggedDistanceUnit,
         platform,
       });
     });
@@ -105,7 +104,6 @@ export default class MyAccount extends React.Component {
 
   authenticateUser = async () => {
     const { providerId } = this.state;
-    console.log(providerId);
     const user = firebase.auth().currentUser;
     let credentials;
     if (providerId === 'password') {
@@ -122,7 +120,6 @@ export default class MyAccount extends React.Component {
     }
     user.reauthenticateAndRetrieveDataWithCredential(credentials)
       .then(() => {
-        console.log(credentials);
         this.deleteAccount();
       }).catch(() => this.setState({ showError: true, showLoading: false }));
   }
@@ -130,8 +127,9 @@ export default class MyAccount extends React.Component {
   deleteAccount = () => {
     firebase.auth().currentUser.delete()
       .then(() => {
+        // firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).remove();
         firebase.database().ref(`users/${this.props.screenProps.user.uid}`).remove();
-        firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).remove();
+        firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}`).remove();
         this.deleteUserAsync(true);
         this.setState({ showError: false, showLoading: false });
       })
@@ -141,7 +139,6 @@ export default class MyAccount extends React.Component {
   deleteUserAsync = async (check) => {
     if (check) {
       await AsyncStorage.getAllKeys((err, keys) => {
-        console.log(keys);
         AsyncStorage.multiRemove(keys);
       });
       realm.write(() => {
@@ -181,7 +178,7 @@ export default class MyAccount extends React.Component {
               {this.state.showError ? <ErrorMessage errorMessage="Incorrect password" /> : null}
               {this.state.showLoading ? <Loading /> : null}
               <Button
-                color="gray"
+                color="#001331"
                 buttonStyle={[styles.button, { backgroundColor: 'white' }]}
                 fontSize={moderateScale(18)}
                 title="Cancel"
@@ -247,7 +244,7 @@ export default class MyAccount extends React.Component {
   setSwitchValue = async (switchValue) => {
     this.setState({ switchValue });
     // await AsyncStorage.setItem('distanceUnit', switchValue ? 'miles' : 'k.m.');
-    firebase.database().ref(`users/${this.props.screenProps.user.uid}`).update({
+    firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}/unit`).set({
       distanceUnit: switchValue,
     });
   }
@@ -292,7 +289,7 @@ export default class MyAccount extends React.Component {
             <Switch
               value={this.state.switchValue}
               onValueChange={switchValue => this.setSwitchValue(switchValue)}
-              style={{ marginLeft: moderateScale(10) , transform: [{ scaleX: platform === 'ios' ? 0.7 : 1 }, { scaleY: platform === 'ios' ? 0.7 : 1 }] }}
+              style={{ marginLeft: moderateScale(10), transform: [{ scaleX: platform === 'ios' ? 0.7 : 1 }, { scaleY: platform === 'ios' ? 0.7 : 1 }] }}
             />
           </View>
           <View style={{ padding: moderateScale(10), backgroundColor: '#33425a' }}>

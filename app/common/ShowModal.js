@@ -54,7 +54,7 @@ export default ShowModal = ({
           <Button
             buttonStyle={[styles.button, { backgroundColor: 'white' }]}
             title={secondButtonText}
-            color="gray"
+            color="#001331"
             fontSize={moderateScale(14)}
             onPress={() => onSecondButtonPress()}
           />

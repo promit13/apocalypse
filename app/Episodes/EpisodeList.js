@@ -139,44 +139,56 @@ class EpisodeList extends React.Component {
         });
       }
       this.requestPermissions();
-      firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
-        if (snap.val() === null) {
-          return;
-        }
+      firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}`).on('value', (snap) => {
         firebase.database().ref(`episodeWatchedCount/${deviceId}`).on('value', (snapWatchCount) => {
           firebase.database().ref('series').on('value', (snapshot) => {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
               firebase.database().ref('exercises').on('value', (snapExercises) => {
-                firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).on('value', (snapPurchases) => {
-                  const purchases = snapPurchases.val() === null ? '' : snapPurchases.val();
-                  const completeEpisodes = snapEpisode.val();
-                  const completeExercises = snapExercises.val();
-                  const episodeWatchedCount = snapWatchCount.val();
-                  const { lastPlayedEpisode, episodeCompletedArray } = snap.val();
-                  const purchasedSeries = Object.entries(purchases).map(([key, value], i) => {
-                    return value.seriesId;
-                  });
-                  this.setState({
-                    series: snapshot.val(),
-                    episodeWatchedCount,
-                    lastPlayedEpisode,
-                    purchasedSeries,
-                    loading: false,
-                    completedEpisodesArray: Object.values(episodeCompletedArray),
-                    completeEpisodes,
-                    completeExercises,
-                    deviceId,
-                  });
-                  AsyncStorage.setItem('series', JSON.stringify({
-                    uid: this.props.screenProps.user.uid,
-                    episodeWatchedCount,
-                    series: snapshot.val(),
-                    purchasedSeries,
-                    lastPlayedEpisode,
-                    completedEpisodesArray: Object.values(episodeCompletedArray),
-                    completeEpisodes,
-                  }));
+                // firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).on('value', (snapPurchases) => {
+                const completeEpisodes = snapEpisode.val();
+                const completeExercises = snapExercises.val();
+                const episodeWatchedCount = snapWatchCount.val();
+                let loggedLastPlayedEpisode = '';
+                let loggedPurchases = '';
+                let loggedEpisodeCompletedArray = '';
+                if (snap.val() !== null) {
+                  const { lastPlayedEpisode, purchases, episodeCompletedArray } = snap.val();
+                  if (lastPlayedEpisode !== undefined) {
+                    loggedLastPlayedEpisode = lastPlayedEpisode;
+                  }
+                  if (purchases !== undefined) {
+                    loggedPurchases = purchases;
+                  }
+                  if (episodeCompletedArray !== undefined) {
+                    loggedEpisodeCompletedArray = episodeCompletedArray;
+                  }
+                }
+                // const series = Object.values(snapshot.val());
+                // const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
+                const purchasedSeries = Object.entries(loggedPurchases).map(([key, value], i) => {
+                  return value.seriesId;
                 });
+                this.setState({
+                  series: snapshot.val(),
+                  episodeWatchedCount,
+                  lastPlayedEpisode: loggedLastPlayedEpisode,
+                  purchasedSeries,
+                  loading: false,
+                  completedEpisodesArray: Object.values(loggedEpisodeCompletedArray),
+                  completeEpisodes,
+                  completeExercises,
+                  deviceId,
+                });
+                AsyncStorage.setItem('series', JSON.stringify({
+                  uid: this.props.screenProps.user.uid,
+                  episodeWatchedCount,
+                  series: snapshot.val(),
+                  purchasedSeries,
+                  lastPlayedEpisode: loggedLastPlayedEpisode,
+                  completedEpisodesArray: Object.values(loggedEpisodeCompletedArray),
+                  completeEpisodes,
+                }));
+                // });
               });
             });
           });
@@ -375,11 +387,11 @@ class EpisodeList extends React.Component {
   }
 
   sendDataToServer = (uid, purchaseId, transactionReceipt) => {
-    firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).push({
+    firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}/purchases`).push({
       inAppPurchaseId: purchaseId,
       seriesId: uid,
       date: new Date().getTime(),
-      transactionReceipt: 'transactionReceipt',
+      transactionReceipt,
     })
       .then(async () => {
         this.setState({ showModal: true, modalText: 'Item purchased successfully' });
@@ -391,7 +403,7 @@ class EpisodeList extends React.Component {
   }
 
   buyItem = async (uid, purchaseId) => {
-    this.sendDataToServer(uid, purchaseId);
+    this.sendDataToServer(uid, purchaseId, 'fasdfsdf');
     // try {
     //   await RNIap.clearTransaction();
     //   const product = await RNIap.getProducts([purchaseId]);
@@ -420,7 +432,7 @@ class EpisodeList extends React.Component {
     const {
       series, purchasedSeries, completeEpisodes, filesList,
       completedEpisodesArray, lastPlayedEpisode, deviceId,
-      episodeWatchedCount, index, downloadActive, completeExercises, showCellularDialog,
+      episodeWatchedCount, index, downloadActive, completeExercises,
     } = this.state;
     const { netInfo, connectionType } = this.props.screenProps;
     // const counterArray = [];

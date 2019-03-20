@@ -354,7 +354,7 @@ export default class TalonIntelPlayer extends Component {
       loadScreen: false,
     });
     if (!played) {
-      firebase.database().ref(`users/${uid}/playedIntelArray`).push(
+      firebase.database().ref(`userDatas/${uid}/playedIntelArray`).push(
         {
           episodeId,
         },

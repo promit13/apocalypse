@@ -428,7 +428,7 @@ export default class EpisodeSingle extends Component {
       ? 0
       : ((new Date(workedOutToDate).getTime() - new Date(startDate).getTime()) / 60000).toFixed(2);
     const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
-    firebase.database().ref(`users/${uid}/lastPlayedEpisode`).set(
+    firebase.database().ref(`userDatas/${uid}/lastPlayedEpisode`).set(
       {
         episodeTitle,
         episodeId,
@@ -472,7 +472,7 @@ export default class EpisodeSingle extends Component {
       .catch(error => console.log(error));
   }
 
-  setEpisodeCompletedArray = () => {
+  setEpisodeCompletedArray = (onEnd) => {
     const { uid, episodeId, episodeCompletedArray } = this.state;
     console.log(episodeCompletedArray);
     const found = episodeCompletedArray.some((el) => {
@@ -480,13 +480,15 @@ export default class EpisodeSingle extends Component {
     });
     console.log(found);
     if (!found) {
-      firebase.database().ref(`users/${uid}/episodeCompletedArray`).push(
+      firebase.database().ref(`userDatas/${uid}/episodeCompletedArray`).push(
         {
           episodeId,
         },
       );
     }
-    this.setState({ showDialog: true });
+    if (onEnd) {
+      this.setState({ showDialog: true });
+    }
   }
 
   getDate = () => {
@@ -503,7 +505,7 @@ export default class EpisodeSingle extends Component {
       logId,
       logValue,
       loadScreen: false,
-      episodeCompletedArray: (Object.values(episodeCompleted)),
+      episodeCompletedArray: episodeCompleted === null ? [] : (Object.values(episodeCompleted)),
     });
   }
 
@@ -531,7 +533,7 @@ export default class EpisodeSingle extends Component {
       }
       return;
     }
-    firebase.database().ref(`users/${uid}/episodeCompletedArray`).on('value', (snapCompletedEpisode) => {
+    firebase.database().ref(`userDatas/${uid}/episodeCompletedArray`).on('value', (snapCompletedEpisode) => {
       firebase.database().ref(`logs/${uid}/${episodeId}/`).on(
         'value', (snapshot) => {
           if (snapshot.val() === null) {
@@ -562,7 +564,6 @@ export default class EpisodeSingle extends Component {
         },
       );
     });
-    // })
   }
 
   getStepCountAndDistance = async () => {
@@ -765,7 +766,7 @@ export default class EpisodeSingle extends Component {
           this.setTimeFirebase();
         }
         if (workOutEpisodeCompleted) {
-          this.setEpisodeCompletedArray();
+          this.setEpisodeCompletedArray(onEnd);
         }
       }
       if (onEnd) {

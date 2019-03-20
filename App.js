@@ -1,6 +1,7 @@
 import React from 'react';
 import { NetInfo, View } from 'react-native';
 import { Provider } from 'react-redux';
+import firebase from 'react-native-firebase';
 import store from './app/store';
 import Splashscreen from './app/common/Splashscreen';
 import Home from './app/User/Home';
@@ -16,6 +17,11 @@ export default class App extends React.Component {
     isConnected: true,
     timePassed: false,
     connectionType: 'wifi',
+  }
+
+  constructor() {
+    super();
+    firebase.analytics().setCurrentScreen('App');
   }
 
   componentDidMount() {

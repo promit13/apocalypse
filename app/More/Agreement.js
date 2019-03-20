@@ -90,12 +90,8 @@ export default class Agreement extends React.Component {
                       email,
                       tutorial: false,
                       fullNameLowercase: `${first_name.toLowerCase()} ${last_name.toLocaleLowerCase()}`,
-                      lastPlayedEpisode: '',
-                      playedIntelArray: '',
-                      episodeCompletedArray: '',
                       acceptUserAgreement: checkAgreement,
                       acceptMailingList: checkMailing,
-                      distanceUnit: false,
                     }).then(() => {
                       this.setState({ showLoading: false });
                     });

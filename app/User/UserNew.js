@@ -90,12 +90,8 @@ export default class Signup extends React.Component {
       email,
       tutorial: false,
       fullNameLowercase: `${firstName.toLowerCase()} ${lastName.toLocaleLowerCase()}`,
-      lastPlayedEpisode: '',
-      playedIntelArray: '',
-      episodeCompletedArray: '',
       acceptUserAgreement: checkAgreement,
       acceptMailingList: checkMailing,
-      distanceUnit: false,
     })
       .then(() => {
         this.setState({ showError: false, errorMessage: '', showLoading: false });

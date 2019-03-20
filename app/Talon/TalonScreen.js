@@ -89,9 +89,21 @@ export default class TalonScreen extends React.Component {
     }
     firebase.database().ref('series').on('value', (snapSeries) => {
       firebase.database().ref(`logs/${this.props.screenProps.user.uid}`).on('value', (snapshot) => {
-        firebase.database().ref(`users/${this.props.screenProps.user.uid}`).on('value', (snap) => {
-          if (snap.val() === null) {
-            return;
+        firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}`).on('value', (snap) => {
+          let loggedLastPlayedEpisode = '';
+          let loggedPlayedIntelArray = '';
+          let loggedDistanceUnit = false;
+          if (snap.val() !== null) {
+            const { lastPlayedEpisode, playedIntelArray, unit } = snap.val();
+            if (lastPlayedEpisode !== undefined) {
+              loggedLastPlayedEpisode = lastPlayedEpisode;
+            }
+            if (playedIntelArray !== undefined) {
+              loggedPlayedIntelArray = playedIntelArray;
+            }
+            if (unit !== undefined) {
+              loggedDistanceUnit = unit.distanceUnit;
+            }
           }
           // let playedIntelArray = [];
           // const playedIntel = await AsyncStorage.getItem('playedIntelArray');
@@ -101,22 +113,22 @@ export default class TalonScreen extends React.Component {
           const series = Object.values(snapSeries.val());
           const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
 
-          const { lastPlayedEpisode, playedIntelArray, distanceUnit } = snap.val();
-          console.log(playedIntelArray);
+          // const { lastPlayedEpisode, playedIntelArray, distanceUnit } = snap.val();
+          // console.log(playedIntelArray);
           this.setState({
             talonLogs: snapshot.val(),
-            lastPlayedEpisode,
+            lastPlayedEpisode: loggedLastPlayedEpisode,
             loading: false,
             series: sortedSeries,
-            distanceUnit,
-            playedIntelArray: Object.values(playedIntelArray),
+            distanceUnit: loggedDistanceUnit,
+            playedIntelArray: Object.values(loggedPlayedIntelArray),
           });
           AsyncStorage.setItem('talonLogs', JSON.stringify({
             talonLogs: snapshot.val(),
-            lastPlayedEpisode,
+            lastPlayedEpisode: loggedLastPlayedEpisode,
             series: sortedSeries,
-            distanceUnit,
-            playedIntelArray: Object.values(playedIntelArray),
+            distanceUnit: loggedDistanceUnit,
+            playedIntelArray: Object.values(loggedPlayedIntelArray),
           }));
           console.log(this.state.lastIntel);
         });
@@ -246,7 +258,7 @@ export default class TalonScreen extends React.Component {
       return el.episodeId === episodeId;
     });
     if (!played) {
-      firebase.database().ref(`users/${uid}/playedIntelArray`).push(
+      firebase.database().ref(`userDatas/${uid}/playedIntelArray`).push(
         {
           episodeId,
         },

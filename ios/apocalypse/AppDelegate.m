@@ -37,6 +37,7 @@
   [self.window makeKeyAndVisible];
   [[FBSDKApplicationDelegate sharedInstance] application:application
                            didFinishLaunchingWithOptions:launchOptions];
+  [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
   return YES;
 }
 - (BOOL)application:(UIApplication *)application
