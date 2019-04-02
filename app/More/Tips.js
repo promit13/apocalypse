@@ -74,7 +74,7 @@ export default class Tips extends React.Component {
             containerStyle={{ backgroundColor: (index === i + 1) && showContent ? '#f5cb23' : '#33425a' }}
             rightIcon={{ name: (index === i + 1) && showContent ? 'chevron-up' : 'chevron-down', type: 'feather', color: 'white' }}
             underlayColor="#2a3545"
-            onPress={() => this.setState({ showContent: !showContent, index: i + 1 })}
+            onPress={() => this.setState({ showContent: index === i + 1 ? !showContent : true, index: i + 1 })}
           />
           {this.showContent(i + 1, content)}
         </View>

@@ -254,6 +254,7 @@ export default class DownloadTestPlayer extends Component {
       exercise: true,
       mode: 'Exercise Player',
       navigateBack: 'DownloadTestPlayer',
+      autoPlay: true,
     });
     this.setState({ paused: true });
   }

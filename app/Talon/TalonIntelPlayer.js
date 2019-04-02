@@ -111,7 +111,7 @@ export default class TalonIntelPlayer extends Component {
     this.props.navigation.setParams({ handleSave: this.navigateBackTo });
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
     const {
-      episodeId, talon, exerciseTitle, video, image, offline, advance, exercise, episodeExerciseTitle, uid, mode, navigateBack,
+      episodeId, talon, exerciseTitle, video, image, offline, advance, exercise, episodeExerciseTitle, uid, mode, navigateBack, autoPlay,
     } = this.props.navigation.state.params;
     if (talon) {
       firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
@@ -230,9 +230,10 @@ export default class TalonIntelPlayer extends Component {
   };
 
   onLoad = (data) => {
+    const { autoPlay } = this.props.navigation.state.params;
     this.registerEvents(data);
     this.player.seek(this.state.currentTimem, 10);
-    this.setState({ totalLength: data.duration, loading: false });
+    this.setState({ totalLength: data.duration, loading: false, paused: !autoPlay });
   };
 
   onEnd = () => {

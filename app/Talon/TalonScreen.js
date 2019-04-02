@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, StatusBar,
-  AsyncStorage, Alert, Dimensions,
+  AsyncStorage, Alert, Dimensions, TouchableWithoutFeedback,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import { scale, moderateScale } from 'react-native-size-matters';
@@ -386,15 +386,19 @@ export default class TalonScreen extends React.Component {
                 resizeMethod="resize"
                 source={talonCover}
               />
-              <TouchableOpacity onPress={() => {
+              <TouchableOpacity
+                ref={ref => (this.touch = ref)}
+                onPress={() => {
+                  this.touch.setOpacityTo(1);
                 // const episodeId = (Object.keys(this.state.talonLogs))[0];
-                if (talonLogs === null || lastPlayedEpisode === '') {
-                  return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
-                }
-                const logsArrayLastEpisode = Object.values(talonLogs[episodeId]);
-                const workOutCompletedLastEpisode = (logsArrayLastEpisode[logsArrayLastEpisode.length - 1]).workOutCompleted;
-                this.navigateToTalonIntelPlayer(episodeId, true, workOutCompletedLastEpisode);
-              }}
+                  if (talonLogs === null || lastPlayedEpisode === '') {
+                    return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
+                  }
+                  const logsArrayLastEpisode = Object.values(talonLogs[episodeId]);
+                  const workOutCompletedLastEpisode = (logsArrayLastEpisode[logsArrayLastEpisode.length - 1]).workOutCompleted;
+                  this.navigateToTalonIntelPlayer(episodeId, true, workOutCompletedLastEpisode);
+                }}
+                onLongPress={() => this.touch.setOpacityTo(10)}
               >
                 <View style={styles.latestIntelView}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>

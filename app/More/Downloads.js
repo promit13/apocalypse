@@ -64,7 +64,8 @@ class Downloads extends React.Component {
         title, episodeIndex, category, videoSize,
       };
     });
-    this.setState({ filesList: files, deleteStatus: false });
+    console.log(allEpisodes);
+    this.setState({ filesList: files, deleteStatus: false, showModal: allEpisodes.length === 0 ? true: false });
   }
 
   delete = (fileName) => {
@@ -145,7 +146,7 @@ class Downloads extends React.Component {
         {/* <DeleteDownloads ref={ref => (this.child = ref)} /> */}
         <ShowModal
           visible={showModal}
-          title="You do not have any downloads"
+          title="No Downloads Available"
           buttonText="OK"
           onPress={() => {
             this.setState({ showModal: false });

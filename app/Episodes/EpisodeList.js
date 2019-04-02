@@ -8,6 +8,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
+import GoogleFit from 'react-native-google-fit';
 import * as RNIap from 'react-native-iap';
 import { connect } from 'react-redux';
 import Permissions from 'react-native-permissions';
@@ -85,6 +86,7 @@ const styles = {
   },
 };
 
+let seriesBought = false;
 class EpisodeList extends React.Component {
   static navigationOptions = {
     header: null,
@@ -322,7 +324,7 @@ class EpisodeList extends React.Component {
 
   getEpisodeCount = (episodeIndex, seriesIndex, id) => {
     const { purchasedSeries, episodeWatchedCount } = this.state;
-    const buy = purchasedSeries.includes(seriesIndex.toString());
+    const buy = seriesBought ? true : purchasedSeries.includes(id);
     let counter = 0;
     if (buy) {
       counter = 3;
@@ -348,17 +350,23 @@ class EpisodeList extends React.Component {
   requestPermissions = async () => {
     try {
       if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.requestMultiple([
+        await PermissionsAndroid.requestMultiple([
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
         ]);
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('You can access location');
-        } else {
-          console.log('Location permission denied');
-        }
+        GoogleFit.isEnabled((error, isEnabled) => {
+          console.log(isEnabled);
+          if (!isEnabled) {
+            GoogleFit.authorize((authError, result) => {
+              if (authError) {
+                console.log(`AUTH ERROR ${authError}`);
+              }
+              console.log(`AUTH SUCCESS ${result}`);
+            });
+          }
+        });
       } else {
         Permissions.check('notification').then((response) => {
           console.log(response);
@@ -438,7 +446,7 @@ class EpisodeList extends React.Component {
     // const counterArray = [];
     console.log(connectionType);
     const seriesList = Object.entries(series).map(([seriesKey, value], seriesIndex) => {
-      const seriesBought = purchasedSeries.includes(seriesKey);
+      seriesBought = purchasedSeries.includes(seriesKey);
       // minIndex = maxIndex + 1;
       if (value.episodes === undefined) {
         return console.log('no episodes added');
@@ -878,8 +886,8 @@ class EpisodeList extends React.Component {
               <ShowModal
                 visible={showDeleteDialog}
                 description={modalDescription}
-                buttonText="Cancel"
-                secondButtonText="Confirm"
+                buttonText={deleteEpisode ? 'Cancel' : 'No'}
+                secondButtonText={deleteEpisode ? 'Confirm' : 'Yes'}
                 askAdvance
                 onSecondButtonPress={() => {
                   deleteEpisode ? this.deleteEpisode(deleteFileTitle) : this.props.stopDownload(deleteFileTitle);
@@ -898,7 +906,8 @@ class EpisodeList extends React.Component {
               />
               <ShowModal
                 visible={showCellularDialog}
-                title={`You are about to download using your mobile network data.\nBecause of the size of the files, we recommend using wifi.\nDownloading over slow connections may take some time. `}
+                title="You are about to download using your mobile network data."
+                description={`Because of the size of the files, we recommend using wifi.\nDownloading over slow connections may take some time.`}
                 secondButtonText="Continue"
                 buttonText="Cancel"
                 askAdvance

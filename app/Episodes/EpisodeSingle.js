@@ -261,6 +261,7 @@ export default class EpisodeSingle extends Component {
       image,
       advance,
       navigateBack: 'EpisodeSingle',
+      autoPlay: true,
     });
     this.setState({ paused: true });
   }

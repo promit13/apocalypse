@@ -140,7 +140,7 @@ export default class Signup extends React.Component {
     } = this.state;
     const { netInfo } = this.props.screenProps;
     return (
-      <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+      <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} extraScrollHeight={0} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         <ScrollView>
           <Image style={styles.imageStyle} source={talonImage} />
