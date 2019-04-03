@@ -183,7 +183,7 @@ export default class Agreement extends React.Component {
                       containerStyle={{ backgroundColor: '#001331', borderColor: 'transparent', marginRight: -20 }}
                     />
                     <Text style={{ color: checkMailing ? '#f5cb23' : 'white', flex: 1, fontWeight: 'bold', marginTop: 20, fontSize: moderateScale(12) }}>
-                      I would like to join the Imaginactive mailing list
+                      I'd like to get occasional tips, news and updates from Imaginactive
                     </Text>
                   </TouchableOpacity>
                 </View>

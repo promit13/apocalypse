@@ -55,6 +55,7 @@ export const SignedOut = createStackNavigator({
       textAlign: 'center',
       fontSize: moderateScale(16),
     },
+    gesturesEnabled: false,
   },
 });
 
@@ -90,6 +91,7 @@ export const TutorialDisplay = createStackNavigator({
       fontWeight: 'bold',
       fontSize: moderateScale(16),
     },
+    gesturesEnabled: false,
   },
 });
 
@@ -116,6 +118,7 @@ const EpisodeStack = createStackNavigator({
       color: '#fff',
       fontSize: moderateScale(16),
     },
+    gesturesEnabled: false,
   }),
 });
 
@@ -145,6 +148,7 @@ const ExerciseStack = createStackNavigator({
       fontWeight: 'bold',
       fontSize: moderateScale(16),
     },
+    gesturesEnabled: false,
   }),
 });
 
@@ -172,6 +176,7 @@ const TalonStack = createStackNavigator({
       fontWeight: 'bold',
       fontSize: moderateScale(16),
     },
+    gesturesEnabled: false,
   }),
 });
 
@@ -215,6 +220,7 @@ const MoreStack = createStackNavigator({
       fontWeight: 'bold',
       fontSize: moderateScale(16),
     },
+    gesturesEnabled: false,
   }),
 });
 

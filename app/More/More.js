@@ -54,7 +54,8 @@ export default class More extends React.Component {
 
   navigateTo = (navigateScreen) => {
     const { netInfo } = this.props.screenProps;
-    if (!netInfo && navigateScreen !== 'Downloads') {
+    const screenArray = ['Downloads', 'Tips', 'Agreement', 'Tutorial', 'Credits', 'Kickstarter'];
+    if (!netInfo && !screenArray.includes(navigateScreen)) {
       return this.setState({ showNoInternetDialog: true });
     }
     if (navigateScreen === 'Feedback') {

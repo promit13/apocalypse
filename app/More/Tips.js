@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, AsyncStorage } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
 import { ListItem, Text } from 'react-native-elements';
 import firebase from '../config/firebase';
@@ -36,8 +36,23 @@ export default class Tips extends React.Component {
     index: 0,
   }
 
-  componentDidMount() {
-    firebase.database().ref('faq').on('value', snapshot => this.setState({ tips: snapshot.val().answers, loading: false }));
+  componentDidMount = async () => {
+    if (!this.props.screenProps.netInfo) {
+      const offlineData = await AsyncStorage.getItem('tips');
+      const jsonObjectData = JSON.parse(offlineData);
+      const { tips } = jsonObjectData;
+      return this.setState({
+        loading: false,
+        tips,
+      });
+    }
+    firebase.database().ref('faq').on('value', (snapshot) => {
+      const tips = snapshot.val().answers;
+      this.setState({ tips, loading: false });
+      AsyncStorage.setItem('tips', JSON.stringify({
+        tips,
+      }));
+    });
   }
 
   showContent = (i, content) => {
@@ -66,13 +81,13 @@ export default class Tips extends React.Component {
             key={key}
             title={
               (
-                <Text style={[styles.textStyle, { fontSize: moderateScale(16) }]}>
+                <Text style={[styles.textStyle, { fontSize: moderateScale(16), color: (index === i + 1) && showContent ? '#001331' : 'white' }]}>
                   {title}
                 </Text>
               )
             }
             containerStyle={{ backgroundColor: (index === i + 1) && showContent ? '#f5cb23' : '#33425a' }}
-            rightIcon={{ name: (index === i + 1) && showContent ? 'chevron-up' : 'chevron-down', type: 'feather', color: 'white' }}
+            rightIcon={{ name: (index === i + 1) && showContent ? 'chevron-up' : 'chevron-down', type: 'feather', color: (index === i + 1) && showContent ? '#001331' : 'white' }}
             underlayColor="#2a3545"
             onPress={() => this.setState({ showContent: index === i + 1 ? !showContent : true, index: i + 1 })}
           />

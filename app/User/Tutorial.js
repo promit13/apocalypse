@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, View, ScrollView, Dimensions, Platform } from 'react-native';
+import { Image, View, ScrollView, Dimensions, Platform, AsyncStorage } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import { moderateScale } from 'react-native-size-matters';
 import Video from 'react-native-video';
@@ -63,14 +63,29 @@ export default class Tutorial extends React.Component {
     currentTime: 0,
   }
 
-  componentDidMount() {
+  componentDidMount = async () => {
     const platform = Platform.OS;
     const showButton = this.props.navigation.state.params === undefined ? true : false;
+    const { netInfo } = this.props.screenProps;
+    if (!netInfo) {
+      const offlineData = await AsyncStorage.getItem('tutorials');
+      const jsonObjectData = JSON.parse(offlineData);
+      const { tutorials } = jsonObjectData;
+      return this.setState({
+        loadScreen: false,
+        tutorials,
+        showButton,
+        platform,
+      });
+    }
     firebase.database().ref('tutorials').on('value', (snapshot) => {
       // this.setState({ tutorials: snapshot.val(), loading: false, showButton });
       const tutorials = Object.values(snapshot.val());
       const sortedTutorialArray = tutorials.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
       this.setState({ tutorials: sortedTutorialArray, showButton, platform, loadScreen: false });
+      AsyncStorage.setItem('tutorials', JSON.stringify({
+        tutorials: sortedTutorialArray,
+      }));
       console.log(this.state.tutorials);
     });
   }

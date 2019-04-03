@@ -244,7 +244,7 @@ export default class Signup extends React.Component {
             >
               <View>
                 <Text style={{ color: checkMailing ? '#f5cb23' : 'white', flex: 1, fontWeight: 'bold', fontSize: moderateScale(12) }}>
-                  I would like to join the Imaginactive mailing list
+                  I'd like to get occasional tips, news and updates from Imaginactive
                 </Text>
                 <View style={[styles.line, { backgroundColor: checkMailing ? '#f5cb23' : 'white' }]} />
               </View>
