@@ -728,7 +728,7 @@ class EpisodeList extends React.Component {
       <View style={styles.mainContainer}>
         {/* <StatusBar hidden /> */}
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
-        { !netInfo ? <OfflineMsg margin={18} /> : null }
+        { !netInfo ? <OfflineMsg margin={18} showText /> : null }
         <NavigationEvents
           onDidFocus={() => { downloadActive ? null : this.readDirectory(); }}
         />

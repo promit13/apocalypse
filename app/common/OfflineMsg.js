@@ -18,12 +18,17 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OfflineMsg = ({ margin }) => {
+export default OfflineMsg = ({ margin, showText }) => {
   return (
     <View style={[styles.offlineContainer, { marginTop: margin }]}>
       <Text style={styles.offlineText}>
         No Internet Connection
       </Text>
+      { showText && (
+        <Text style={styles.offlineText}>
+          Downloaded Episodes Play Offline
+        </Text>
+      )}
       <View style={{ height: 1, backgroundColor: 'gray' }} />
     </View>
   );
