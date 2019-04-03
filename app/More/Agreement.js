@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Alert, TouchableOpacity, AsyncStorage } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
 import { CheckBox, Text, Icon } from 'react-native-elements';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
@@ -48,15 +48,29 @@ export default class Agreement extends React.Component {
     errorMessage: '',
   }
 
-  componentDidMount() {
+  componentDidMount = async () => {
     const { showCheckbox } = this.props.navigation.state.params;
+    if (!this.props.screenProps.netInfo) {
+      const offlineData = await AsyncStorage.getItem('agreement');
+      const jsonObjectData = JSON.parse(offlineData);
+      const { agreement } = jsonObjectData;
+      console.log(agreement);
+      this.setState({ showCheckbox, content: `<div style="color:white;">${agreement[0].description}</div>`, showLoading: false });
+      return;
+    }
     firebase.database().ref('screens')
       .orderByChild('title')
       .equalTo('Agreement')
       .once('value', (snapshot) => {
-        snapshot.forEach((childSnapshot) => {
-          this.setState({ showCheckbox, content: `<div style="color:white;">${childSnapshot.val().description}</div>`, showLoading: false });
-        });
+        console.log(snapshot.val());
+        const snapVal = Object.values(snapshot.val());
+        // snapshot.forEach((childSnapshot) => {
+        //   this.setState({ showCheckbox, content: `<div style="color:white;">${childSnapshot.val().description}</div>`, showLoading: false });
+        // });
+        this.setState({ showCheckbox, content: `<div style="color:white;">${snapVal[0].description}</div>`, showLoading: false });
+        AsyncStorage.setItem('agreement', JSON.stringify({
+          agreement: snapVal,
+        }));
       });
   }
 
