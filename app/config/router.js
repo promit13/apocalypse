@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image } from 'react-native';
+import { Image, Platform } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 import { Icon } from 'react-native-elements';
 import { moderateScale, scale } from 'react-native-size-matters';
@@ -54,6 +54,7 @@ export const SignedOut = createStackNavigator({
       fontWeight: 'bold',
       textAlign: 'center',
       fontSize: moderateScale(16),
+      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Arial',
     },
     gesturesEnabled: false,
   },
@@ -90,6 +91,7 @@ export const TutorialDisplay = createStackNavigator({
     headerTitleStyle: {
       fontWeight: 'bold',
       fontSize: moderateScale(16),
+      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Arial',
     },
     gesturesEnabled: false,
   },
@@ -117,6 +119,7 @@ const EpisodeStack = createStackNavigator({
       fontWeight: 'bold',
       color: '#fff',
       fontSize: moderateScale(16),
+      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Arial',
     },
     gesturesEnabled: false,
   }),
@@ -147,6 +150,7 @@ const ExerciseStack = createStackNavigator({
     headerTitleStyle: {
       fontWeight: 'bold',
       fontSize: moderateScale(16),
+      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Arial',
     },
     gesturesEnabled: false,
   }),
@@ -175,6 +179,7 @@ const TalonStack = createStackNavigator({
     headerTitleStyle: {
       fontWeight: 'bold',
       fontSize: moderateScale(16),
+      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Arial',
     },
     gesturesEnabled: false,
   }),
@@ -219,6 +224,7 @@ const MoreStack = createStackNavigator({
     headerTitleStyle: {
       fontWeight: 'bold',
       fontSize: moderateScale(16),
+      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Arial',
     },
     gesturesEnabled: false,
   }),

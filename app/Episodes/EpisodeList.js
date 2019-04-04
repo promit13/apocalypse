@@ -517,7 +517,7 @@ class EpisodeList extends React.Component {
                     )
                   : (
                     downloaded
-                  ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40) }
+                  ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
                   : (
                       downloadActive && index === (episodeIndex + 1)
                       ?  (
@@ -537,7 +537,7 @@ class EpisodeList extends React.Component {
                             />
                         </TouchableOpacity>
                         )
-                    : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40) }
+                    : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
                     )
                   )
                 }

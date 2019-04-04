@@ -9,15 +9,14 @@ import ShowModal from '../common/ShowModal';
 import LoadScreen from '../common/LoadScreen';
 
 const { width } = Dimensions.get('window');
-const imageSize = width - 90;
+// const imageSize = width - 145;
 
 const styles = {
   containerStyle: {
     flex: 1,
     backgroundColor: '#001331',
     paddingBottom: moderateScale(10),
-    paddingTop: moderateScale(30),
-    justifyContent: 'center',
+    paddingTop: moderateScale(25),
   },
   swiperContainer: {
     flex: 1,
@@ -30,12 +29,11 @@ const styles = {
     fontSize: moderateScale(14),
   },
   imageStyle: {
-    height: moderateScale(imageSize, -0.2),
-    width: moderateScale(imageSize, -0.2),
+    height: moderateScale((width - 150), -0.2),
+    width: moderateScale((width - 90), -0.2),
   },
   slideStyle: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
   },
   buttonStyle: {

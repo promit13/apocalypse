@@ -73,14 +73,18 @@ export default class More extends React.Component {
         <ListItem
           key={key}
           title={value.title}
-          titleStyle={{ color: 'white', fontSize: moderateScale(18) }}
-          containerStyle={{ backgroundColor: '#33425a' }}
+          titleStyle={{ color: 'white', fontSize: moderateScale(18), flex: 0.7 }}
+          containerStyle={{ backgroundColor: '#33425a', flex: 1 }}
           leftIcon={value.title === 'Trailers'
             ? (
               <Image
                 source={episodesIcon}
                 style={{
-                  height: moderateScale(30), width: moderateScale(30), tintColor: 'white', marginRight: moderateScale(5),
+                  height: moderateScale(30),
+                  width: moderateScale(30),
+                  tintColor: 'white',
+                  marginRight: moderateScale(10),
+                  
                 }}
               />
             )
@@ -89,6 +93,7 @@ export default class More extends React.Component {
               type: value.iconType,
               size: moderateScale(30),
               color: 'white',
+              style: { flex: 0.3 },
             }}
           underlayColor="#2a3545"
           onPress={() => this.navigateTo(value.navigateTo)}

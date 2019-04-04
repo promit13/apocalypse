@@ -260,8 +260,8 @@ export default class MyAccount extends React.Component {
           <ShowModal
             visible={showLogoutModal}
             title="Are you sure you want to sign out?"
-            buttonText="Confirm"
-            secondButtonText="Cancel"
+            buttonText="Yes"
+            secondButtonText="No"
             askAdvance
             onSecondButtonPress={() => {
               this.setState({ showLogoutModal: false });
