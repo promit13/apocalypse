@@ -290,6 +290,7 @@ export default class MyAccount extends React.Component {
               value={this.state.switchValue}
               onValueChange={switchValue => this.setSwitchValue(switchValue)}
               style={{ marginLeft: moderateScale(10), transform: [{ scaleX: platform === 'ios' ? 0.7 : 1 }, { scaleY: platform === 'ios' ? 0.7 : 1 }] }}
+              tintColor="white"
             />
           </View>
           <View style={{ padding: moderateScale(10), backgroundColor: '#33425a' }}>
