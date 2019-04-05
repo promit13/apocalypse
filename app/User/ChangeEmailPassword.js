@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Alert, ScrollView,
+  View, TextInput, StyleSheet, Alert, ScrollView, Platform, KeyboardAvoidingView,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -80,7 +80,8 @@ export default class ChangeEmailPassword extends React.Component {
     const { showModal, showError, error } = this.state;
     const { netInfo } = this.props.screenProps;
     return (
-      <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+      // <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'android' ? '' : 'padding'} enabled>
         <View style={styles.fieldContainer}>
           <Icon name="lock" type="entypo" color="white" size={moderateScale(30)}/>
           <TextInput
@@ -139,7 +140,8 @@ export default class ChangeEmailPassword extends React.Component {
             this.handleSubmit();
           }}
         />
-      </KeyboardAwareScrollView>
+      </KeyboardAvoidingView>
+      // </KeyboardAwareScrollView>
     );
   }
 }

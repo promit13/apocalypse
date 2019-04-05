@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Alert,
+  View, TextInput, StyleSheet, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import { moderateScale } from 'react-native-size-matters';
@@ -68,7 +68,7 @@ export default class ForgotPassword extends React.Component {
     } = this.state;
     const { netInfo } = this.props.screenProps;
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'android' ? '' : 'padding'} enabled>
         <View style={styles.fieldContainer}>
           <Icon name="user" type="entypo" color="white" size={moderateScale(16)} />
           <TextInput
@@ -103,7 +103,7 @@ export default class ForgotPassword extends React.Component {
             this.handleSubmit();
           }}
         />
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }

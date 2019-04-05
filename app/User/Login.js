@@ -1,6 +1,8 @@
 import React from 'react';
 import {
-  View, TextInput, StyleSheet, Image, Dimensions, TouchableOpacity, StatusBar, ScrollView,
+  View, TextInput, StyleSheet, Image, Dimensions,
+  TouchableOpacity, StatusBar, ScrollView,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Button, Icon, Text } from 'react-native-elements';
@@ -87,7 +89,8 @@ export default class Login extends React.Component {
     } = this.state;
     const { netInfo } = this.props.screenProps;
     return (
-      <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+      // <KeyboardAwareScrollView style={{ backgroundColor: '#001331' }} contentContainerStyle={styles.container} resetScrollToCoords={{ x: 0, y: 0 }}>
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'android' ? '' : 'padding'} enabled>
         <ScrollView>
           <StatusBar backgroundColor="#00000b" barStyle="light-content" />
           <Image style={styles.imageStyle} source={talonImage} />
@@ -161,7 +164,8 @@ export default class Login extends React.Component {
             onPress={() => this.props.navigation.navigate('Signup')}
           /> */}
         </ScrollView>
-      </KeyboardAwareScrollView>
+        </KeyboardAvoidingView>
+      // </KeyboardAwareScrollView>
     );
   }
 }
