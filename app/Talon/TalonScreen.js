@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, StatusBar,
-  AsyncStorage, Alert, Dimensions, TouchableWithoutFeedback,
+  AsyncStorage, Alert, Dimensions, TouchableHighlight,
 } from 'react-native';
 import { Text, ListItem, Icon } from 'react-native-elements';
 import { scale, moderateScale } from 'react-native-size-matters';
@@ -71,6 +71,7 @@ export default class TalonScreen extends React.Component {
     series: '',
     playedIntelArray: [],
     distanceUnit: false,
+    pressStatus: false,
   };
 
   componentDidMount = async () => {
@@ -134,6 +135,14 @@ export default class TalonScreen extends React.Component {
         });
       });
     });
+  }
+
+  onHideUnderlay() {
+    this.setState({ pressStatus: false });
+  }
+
+  onShowUnderlay() {
+    this.setState({ pressStatus: true });
   }
 
   renderContent = (i, episodeId, logs, category) => {
@@ -285,8 +294,9 @@ export default class TalonScreen extends React.Component {
     // }
 
     const {
-      series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle,
+      series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle, pressStatus,
     } = this.state;
+    console.log(pressStatus);
     const { netInfo } = this.props.screenProps;
     let talonKeyArray = [];
     if (talonLogs !== '' && talonLogs !== null) {
@@ -386,10 +396,12 @@ export default class TalonScreen extends React.Component {
                 resizeMethod="resize"
                 source={talonCover}
               />
-              <TouchableOpacity
-                ref={ref => (this.touch = ref)}
+              <TouchableHighlight
+                underlayColor="black"
+                activeOpacity={0.6}
+                onHideUnderlay={() => this.onHideUnderlay()}
+                onShowUnderlay={() => this.onShowUnderlay()}
                 onPress={() => {
-                  this.touch.setOpacityTo(1);
                 // const episodeId = (Object.keys(this.state.talonLogs))[0];
                   if (talonLogs === null || lastPlayedEpisode === '') {
                     return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
@@ -398,7 +410,6 @@ export default class TalonScreen extends React.Component {
                   const workOutCompletedLastEpisode = (logsArrayLastEpisode[logsArrayLastEpisode.length - 1]).workOutCompleted;
                   this.navigateToTalonIntelPlayer(episodeId, true, workOutCompletedLastEpisode);
                 }}
-                onLongPress={() => this.touch.setOpacityTo(10)}
               >
                 <View style={styles.latestIntelView}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -406,7 +417,7 @@ export default class TalonScreen extends React.Component {
                     <View>
                       <Text
                         style={{
-                          color: '#001331',
+                          color: pressStatus ? 'white' : '#001331',
                           fontSize: moderateScale(18),
                           fontWeight: 'bold',
                           marginLeft: moderateScale(10),
@@ -440,7 +451,7 @@ export default class TalonScreen extends React.Component {
                   </View>
                   <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color={lastPlayedEpisode === '' ? 'gray' : '#f5cb23'} size={moderateScale(25)} />
                 </View>
-              </TouchableOpacity>
+              </TouchableHighlight>
               <ShowModal
                 visible={showModal}
                 title={modalTitle}

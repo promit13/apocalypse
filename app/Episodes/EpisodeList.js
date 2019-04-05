@@ -2,7 +2,7 @@ import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, Platform,
   StatusBar, PermissionsAndroid, AsyncStorage,
-  Modal, ActivityIndicator, Alert,
+  Modal, ActivityIndicator, Alert, TouchableHighlight,
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
 import {
@@ -114,6 +114,7 @@ class EpisodeList extends React.Component {
     deleteStatus: false,
     showCancel: false,
     showCellularDialog: false,
+    pressStatus: false,
   }
 
   componentDidMount= async () => {
@@ -292,6 +293,14 @@ class EpisodeList extends React.Component {
       episodeList: true,
     });
     // });
+  }
+
+  onHideUnderlay() {
+    this.setState({ pressStatus: false });
+  }
+
+  onShowUnderlay() {
+    this.setState({ pressStatus: true });
   }
 
   getTitleAndId = (seriesIndex, episodeIndex, getImage) => {
@@ -733,7 +742,7 @@ class EpisodeList extends React.Component {
     const {
       lastPlayedEpisode, completeEpisodes, loading, showModal,
       modalText, deviceId, showDeleteDialog, deleteEpisode,
-      deleteFileTitle, downloadActive, modalDescription, completeExercises, showCellularDialog,
+      deleteFileTitle, downloadActive, modalDescription, completeExercises, showCellularDialog, pressStatus,
       downloadTitle, downloadUid, downloadCategory, downloadDescription, downloadExercises,
       downloadVideo, downloadStartWT, downloadEndWT, downloadTotalTime,
       downloadWorkoutTime, downloadVideoSize, downloadEpisodeIndex,
@@ -764,63 +773,68 @@ class EpisodeList extends React.Component {
               resizeMethod="resize"
               source={homeCover}
             />
-            <TouchableOpacity onPress={() => {
-              if (!netInfo) {
-                return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
-              }
-              const epIndex = lastPlayedEpisode === ''
-                ? 0
-                : (
-                    episodeCompleted
-                    ? (
-                          (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
-                            ? 0
-                            : (episodeIndex + 1)
-                      )
-                    : episodeIndex
-                  )
-              const serIndex = lastPlayedEpisode === '' ? 0 : seriesIndex;
-              const id = lastPlayedEpisode === ''
-                ? this.getTitleAndId(0, 0).uid
-                : (
-                    episodeCompleted
+            <TouchableHighlight
+              underlayColor="black"
+              activeOpacity={0.6}
+              onHideUnderlay={() => this.onHideUnderlay()}
+              onShowUnderlay={() => this.onShowUnderlay()}
+              onPress={() => {
+                if (!netInfo) {
+                  return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
+                }
+                const epIndex = lastPlayedEpisode === ''
+                  ? 0
+                  : (
+                      episodeCompleted
                       ? (
-                          (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
-                            ? this.getTitleAndId(seriesIndex, 0).uid
-                            : this.getTitleAndId(seriesIndex, episodeIndex + 1).uid
+                            (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                              ? 0
+                              : (episodeIndex + 1)
                         )
-                      : episodeId
-                  )
-              const counter = this.getEpisodeCount(epIndex, serIndex, id);
-              console.log(counter);
-              if (counter === 2) {
-                return this.setState({ showModal: true, modalText: 'Item not purchased' });
-              }
-              const buy = counter === 3 ? true : false;
-              const {
-                totalTime, workoutTime, videoSize, title, category, description, exercises, video, startWT, endWT,
-              } = completeEpisodes[id];
-              
-              this.onEpisodeClick(
-                (epIndex + 1),
-                title,
-                id,
-                category,
-                description,
-                exercises,
-                completeExercises,
-                video,
-                startWT,
-                endWT,
-                totalTime,
-                workoutTime,
-                videoSize,
-                epIndex,
-                serIndex,
-                deviceId,
-                counter,
-                buy,
-              );
+                      : episodeIndex
+                    )
+                const serIndex = lastPlayedEpisode === '' ? 0 : seriesIndex;
+                const id = lastPlayedEpisode === ''
+                  ? this.getTitleAndId(0, 0).uid
+                  : (
+                      episodeCompleted
+                        ? (
+                            (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                              ? this.getTitleAndId(seriesIndex, 0).uid
+                              : this.getTitleAndId(seriesIndex, episodeIndex + 1).uid
+                          )
+                        : episodeId
+                    )
+                const counter = this.getEpisodeCount(epIndex, serIndex, id);
+                console.log(counter);
+                if (counter === 2) {
+                  return this.setState({ showModal: true, modalText: 'Item not purchased' });
+                }
+                const buy = counter === 3 ? true : false;
+                const {
+                  totalTime, workoutTime, videoSize, title, category, description, exercises, video, startWT, endWT,
+                } = completeEpisodes[id];
+                
+                this.onEpisodeClick(
+                  (epIndex + 1),
+                  title,
+                  id,
+                  category,
+                  description,
+                  exercises,
+                  completeExercises,
+                  video,
+                  startWT,
+                  endWT,
+                  totalTime,
+                  workoutTime,
+                  videoSize,
+                  epIndex,
+                  serIndex,
+                  deviceId,
+                  counter,
+                  buy,
+                );
             }}
             >
               <View style={styles.playingEpisodeView}>
@@ -851,7 +865,7 @@ class EpisodeList extends React.Component {
                     <Text style={{
                       fontSize: moderateScale(20),
                       fontWeight: 'bold',
-                      color: '#001331',
+                      color: pressStatus ? 'white' : '#001331',
                       marginLeft: 10,
                       marginRight: 10,
                     }}
@@ -871,7 +885,7 @@ class EpisodeList extends React.Component {
                       }
                     </Text>
                     <Text style={{
-                      color: '#001331',
+                      color: pressStatus ? 'white' : '#001331',
                       fontSize: moderateScale(16),
                       fontWeight: 'bold',
                       marginLeft: 10,
@@ -896,7 +910,7 @@ class EpisodeList extends React.Component {
                 </View>
                 <Icon style={{ alignSelf: 'flex-end' }} name="chevron-thin-right" type="entypo" color="#f5cb23" size={moderateScale(30)} />
               </View>
-            </TouchableOpacity>
+            </TouchableHighlight>
             <View>
               {/* {this.showModal()} */}
               <ShowModal
