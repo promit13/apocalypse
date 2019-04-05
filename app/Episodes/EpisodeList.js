@@ -502,12 +502,36 @@ class EpisodeList extends React.Component {
                 !buy
                   ? (
                       <Button
-                        title={`£${price}`}
+                        title={(episodeIndex === 0) && (counter < 2) ? '  TRY  ' : `£${price}`}
                         fontSize={moderateScale(12)}
                         buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                         onPress={() => {
                           if (!netInfo) {
                             return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
+                          }
+                          if((episodeIndex === 0) && (counter < 2)) {
+                            return this.onEpisodeClick(
+                              (episodeIndex + 1),
+                              title,
+                              uid,
+                              category,
+                              description,
+                              exercises,
+                              completeExercises,
+                              video,
+                              startWT,
+                              endWT,
+                              totalTime,
+                              workoutTime,
+                              videoSize,
+                              episodeIndex,
+                              seriesIndex,
+                              deviceId,
+                              counter,
+                              buy,
+                              downloaded,
+                              completed,
+                            );
                           }
                           const purchaseId = Platform.OS === 'android' ? googleID : iosID;
                           this.buyItem(uid, purchaseId);
