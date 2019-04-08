@@ -84,6 +84,11 @@ const styles = {
     alignItems: 'center',
     padding: moderateScale(10),
   },
+  iconView: {
+    height: moderateScale(40),
+    width: moderateScale(50),
+    justifyContent: 'center',
+  }
 };
 
 let seriesBought = false;
@@ -445,6 +450,73 @@ class EpisodeList extends React.Component {
     this.props.deleteEpisodeList(fileName);
   }
 
+  onRightIconPress = (
+    buy, downloaded, title, uid, category, description, exercises, video, startWT, endWT,
+    totalTime, workoutTime, videoSize, episodeIndex, seriesIndex, completed,
+  ) => {
+    const { netInfo, connectionType } = this.props.screenProps;
+    const { completeExercises, deviceId, downloadActive } = this.state;
+    if (!netInfo) {
+      return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
+    }
+    if (this.state.downloadActive) {
+      return this.setState({ showModal: true, modalText: 'Please wait while download finishes' });
+    }
+    // if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counterArray[episodeIndex] >= 2)) {
+    //   return this.setState({ showModal: true, modalText: 'Item not purchased' });
+    // }
+    if (!buy) {
+      return this.setState({ showModal: true, modalText: 'Item not purchased' });
+    }
+    if (connectionType === 'cellular' && !downloaded) {
+      return this.setState({
+        showCellularDialog: true,
+        downloadTitle: title,
+        downloadUid: uid,
+        downloadCategory: category,
+        downloadDescription: description,
+        downloadExercises: exercises,
+        downloadVideo: video,
+        downloadStartWT: startWT,
+        downloadEndWT: endWT,
+        downloadTotalTime: totalTime,
+        downloadWorkoutTime: workoutTime,
+        downloadVideoSize: videoSize,
+        downloadEpisodeIndex: episodeIndex,
+        downloadSeriesIndex: seriesIndex,
+        downloadBuy: buy,
+        downloadDownloaded: downloaded,
+        downloadCompleted: completed,
+      });
+    }
+    this.setState({ index: (episodeIndex + 1), downloadActive: true },
+      () => {
+        this.onEpisodeClick(
+          (episodeIndex + 1),
+          title,
+          uid,
+          category,
+          description,
+          exercises,
+          completeExercises,
+          video,
+          startWT,
+          endWT,
+          totalTime,
+          workoutTime,
+          videoSize,
+          episodeIndex,
+          seriesIndex,
+          deviceId,
+          0,
+          buy,
+          downloaded,
+          completed,
+          true,
+        );
+      });
+  }
+
   renderList = () => {
     const {
       series, purchasedSeries, completeEpisodes, filesList,
@@ -550,7 +622,25 @@ class EpisodeList extends React.Component {
                     )
                   : (
                     downloaded
-                  ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
+                  // ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
+                  ? (
+                    <View style={styles.iconView}>
+                      <TouchableOpacity hitSlop={{top: 10, bottom: 10 }} onPress={() => {
+                        console.log('RIGHT ICON PRESSED');
+                        this.onRightIconPress(
+                          buy, downloaded, title, uid, category, description, exercises, video, startWT, endWT,
+                          totalTime, workoutTime, videoSize, episodeIndex, seriesIndex, completed,
+                        );
+                      }}>
+                      <Icon
+                        name="trash-2"
+                        type="feather"
+                        color="white"
+                        size={moderateScale(25)}
+                      />
+                      </TouchableOpacity>
+                    </View>
+                  ) 
                   : (
                       downloadActive && index === (episodeIndex + 1)
                       ?  (
@@ -570,74 +660,31 @@ class EpisodeList extends React.Component {
                             />
                         </TouchableOpacity>
                         )
-                    : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
+                    // : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
+                       : (
+                         <View style={styles.iconView}>
+                          <TouchableOpacity hitSlop={{top: 10, bottom: 10 }} onPress={() => {
+                            console.log('RIGHT ICON PRESSED');
+                            this.onRightIconPress(
+                              buy, downloaded, title, uid, category, description, exercises, video, startWT, endWT,
+                              totalTime, workoutTime, videoSize, episodeIndex, seriesIndex, completed,
+                            );
+                          }}>
+                          <Icon
+                            name="download"
+                            type="feather"
+                            color={!buy ? 'gray' : 'white'}
+                            size={moderateScale(25)}
+                          />
+                          </TouchableOpacity>
+                        </View>
+                       )
                     )
                   )
                 }
               containerStyle={{ backgroundColor: '#33425a' }}
               underlayColor="#2a3545"
-              onPressRightIcon={() => {
-                if (!netInfo) {
-                  return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
-                }
-                if (this.state.downloadActive) {
-                  return this.setState({ showModal: true, modalText: 'Please wait while download finishes' });
-                }
-                // if ((!buy && episodeIndex > 2) || (!buy && seriesIndex > 0) || (!buy && counterArray[episodeIndex] >= 2)) {
-                //   return this.setState({ showModal: true, modalText: 'Item not purchased' });
-                // }
-                if (!buy) {
-                  return this.setState({ showModal: true, modalText: 'Item not purchased' });
-                }
-                if (connectionType === 'cellular' && !downloaded) {
-                  return this.setState({
-                    showCellularDialog: true,
-                    downloadTitle: title,
-                    downloadUid: uid,
-                    downloadCategory: category,
-                    downloadDescription: description,
-                    downloadExercises: exercises,
-                    downloadVideo: video,
-                    downloadStartWT: startWT,
-                    downloadEndWT: endWT,
-                    downloadTotalTime: totalTime,
-                    downloadWorkoutTime: workoutTime,
-                    downloadVideoSize: videoSize,
-                    downloadEpisodeIndex: episodeIndex,
-                    downloadSeriesIndex: seriesIndex,
-                    downloadBuy: buy,
-                    downloadDownloaded: downloaded,
-                    downloadCompleted: completed,
-                  });
-                }
-                this.setState({ index: (episodeIndex + 1), downloadActive: true },
-                  () => {
-                    this.onEpisodeClick(
-                      (episodeIndex + 1),
-                      title,
-                      uid,
-                      category,
-                      description,
-                      exercises,
-                      completeExercises,
-                      video,
-                      startWT,
-                      endWT,
-                      totalTime,
-                      workoutTime,
-                      videoSize,
-                      episodeIndex,
-                      seriesIndex,
-                      deviceId,
-                      0,
-                      buy,
-                      downloaded,
-                      completed,
-                      true,
-                    );
-                  });
-              }
-              }
+              onPressRightIcon={() => {}}
               onPress={() => {
                 console.log(counter);
                 // const count = episodeWatchedCount[uid] === undefined ? 0 : episodeWatchedCount[uid].count;
