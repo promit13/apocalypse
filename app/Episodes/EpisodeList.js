@@ -2,7 +2,7 @@ import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, Platform,
   StatusBar, PermissionsAndroid, AsyncStorage,
-  Modal, ActivityIndicator, Alert, TouchableHighlight,
+  Modal, ActivityIndicator, Alert, TouchableHighlight, SafeAreaView,
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
 import {
@@ -84,7 +84,7 @@ const styles = {
     alignItems: 'center',
     padding: moderateScale(10),
   },
-  iconView: {
+  iconContainerView: {
     height: moderateScale(40),
     width: moderateScale(50),
     justifyContent: 'center',
@@ -624,7 +624,7 @@ class EpisodeList extends React.Component {
                     downloaded
                   // ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
                   ? (
-                    <View style={styles.iconView}>
+                    <View style={styles.iconContainerView}>
                       <TouchableOpacity hitSlop={{top: 10, bottom: 10 }} onPress={() => {
                         console.log('RIGHT ICON PRESSED');
                         this.onRightIconPress(
@@ -662,7 +662,7 @@ class EpisodeList extends React.Component {
                         )
                     // : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
                        : (
-                         <View style={styles.iconView}>
+                         <View style={styles.iconContainerView}>
                           <TouchableOpacity hitSlop={{top: 10, bottom: 10 }} onPress={() => {
                             console.log('RIGHT ICON PRESSED');
                             this.onRightIconPress(
@@ -805,7 +805,7 @@ class EpisodeList extends React.Component {
       episodeCompleted,
     } = lastPlayedEpisode;
     return (
-      <View style={styles.mainContainer}>
+      <SafeAreaView style={styles.mainContainer}>
         {/* <StatusBar hidden /> */}
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         { !netInfo ? <OfflineMsg margin={18} showText /> : null }
@@ -1030,7 +1030,7 @@ class EpisodeList extends React.Component {
             {this.renderList()}
           </View>
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
-  View, Text, Modal, TextInput, TouchableOpacity, Image, ScrollView, Dimensions, AsyncStorage, Switch, Platform,
+  View, Text, Modal, TextInput, TouchableOpacity,
+  Image, ScrollView, Dimensions, AsyncStorage, Switch, Platform,
 } from 'react-native';
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
@@ -139,6 +140,7 @@ export default class MyAccount extends React.Component {
   deleteUserAsync = async (check) => {
     if (check) {
       await AsyncStorage.getAllKeys((err, keys) => {
+        console.log(keys);
         AsyncStorage.multiRemove(keys);
       });
       realm.write(() => {

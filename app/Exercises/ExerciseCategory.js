@@ -3,7 +3,9 @@ import { Icon, Text } from 'react-native-elements';
 import {
   View, Image, TouchableOpacity,
 } from 'react-native';
+import firebase from 'react-native-firebase';
 import { scale, moderateScale } from 'react-native-size-matters';
+
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
 
@@ -52,6 +54,7 @@ export default class ExerciseCategory extends React.Component {
   }
 
     renderView = (title, subtitle, imageSource) => {
+      // firebase.crashlytics().crash();
       const { netInfo } = this.props.screenProps;
       return (
         <TouchableOpacity onPress={() => {

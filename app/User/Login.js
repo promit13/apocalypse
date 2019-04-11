@@ -164,7 +164,7 @@ export default class Login extends React.Component {
             onPress={() => this.props.navigation.navigate('Signup')}
           /> */}
         </ScrollView>
-        </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
       // </KeyboardAwareScrollView>
     );
   }

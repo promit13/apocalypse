@@ -32,6 +32,7 @@
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		64E9164381C946F0ADCBE7DD /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CDAF931A4AE049A8BDCFAB5F /* Ionicons.ttf */; };
 		703731611B2948568AC57B7A /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BEAD8975423F4BE2851FD93F /* FontAwesome.ttf */; };
+		721000EC0703AF27420D8A1E /* libPods-apocalypse.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D6E77303E3ABB6C26BA0DE2B /* libPods-apocalypse.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		8B1ADF4721F0E5CE00FAE18A /* libMusicControl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B1ADF4421F0E5B000FAE18A /* libMusicControl.a */; };
 		8B30190822390A68002658E1 /* libfishhook.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D16E6841FA4F8DC00B85C8A /* libfishhook.a */; };
@@ -75,7 +76,6 @@
 		8BDFDDF8223AC08A008280EC /* libRCTOrientation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E0D438CD8F5B46A2BED5B9A8 /* libRCTOrientation.a */; };
 		8BDFDDF9223AC08A008280EC /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C0894F7F11408399CF9B9C /* libRNDeviceInfo.a */; };
 		8BDFDDFA223AC08A008280EC /* libRNBackgroundDownloader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB358EFC64994D38B0B17881 /* libRNBackgroundDownloader.a */; };
-		8BDFDDFB223AC08A008280EC /* libPods-apocalypse.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D6E77303E3ABB6C26BA0DE2B /* libPods-apocalypse.a */; };
 		8BDFDDFD223AC08A008280EC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		8BDFDDFE223AC08A008280EC /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		8BDFDDFF223AC08A008280EC /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6F25CA01C94D4A9186773251 /* Entypo.ttf */; };
@@ -552,7 +552,6 @@
 		61613C2F2E00465580C7B110 /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		66A04179DBEE4E29BDAEACDF /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		6F25CA01C94D4A9186773251 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
-		7257BF3DDDD6B546759708E4 /* Pods-apocalypse.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-apocalypse.debug.xcconfig"; path = "Pods/Target Support Files/Pods-apocalypse/Pods-apocalypse.debug.xcconfig"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		842567AA098129E392CADBC7 /* Pods-apocalypseTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-apocalypseTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-apocalypseTests/Pods-apocalypseTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -576,6 +575,7 @@
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		B1B6AF10DED6472D91ED1872 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		B85B2F08F4654DBA94CA412D /* libc++.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		BC6B98734C9C35F0EB58C323 /* Pods-apocalypse.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-apocalypse.debug.xcconfig"; path = "Pods/Target Support Files/Pods-apocalypse/Pods-apocalypse.debug.xcconfig"; sourceTree = "<group>"; };
 		BEAD8975423F4BE2851FD93F /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		C35AA95D37894D33AC5A718B /* RNDeviceInfo.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNDeviceInfo.xcodeproj; path = "../node_modules/react-native-device-info/ios/RNDeviceInfo.xcodeproj"; sourceTree = "<group>"; };
 		C9E5E6FAC3D24DC98A801E5F /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
@@ -590,7 +590,7 @@
 		E3F4EFB7825F2DFE4E42D9E2 /* Pods-apocalypseTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-apocalypseTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-apocalypseTests/Pods-apocalypseTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E3FD8F3CAAF9477481FFED1E /* libRNFetchBlob.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFetchBlob.a; sourceTree = "<group>"; };
 		F09C6612AA79443199E27D91 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
-		F0E6668E8BAC34497329131F /* Pods-apocalypse.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-apocalypse.release.xcconfig"; path = "Pods/Target Support Files/Pods-apocalypse/Pods-apocalypse.release.xcconfig"; sourceTree = "<group>"; };
+		FB471DED701737F33054E45E /* Pods-apocalypse.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-apocalypse.release.xcconfig"; path = "Pods/Target Support Files/Pods-apocalypse/Pods-apocalypse.release.xcconfig"; sourceTree = "<group>"; };
 		FE905D00226B464DB640C2E6 /* RNFS.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -641,6 +641,7 @@
 				FBDF640E14DD41588DE34A98 /* libRNDeviceInfo.a in Frameworks */,
 				C12E087CF173423BB8FE81B3 /* libRNBackgroundDownloader.a in Frameworks */,
 				00AFC073267CF6BD5DA0D54D /* libPods-apocalypse.a in Frameworks */,
+				721000EC0703AF27420D8A1E /* libPods-apocalypse.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,7 +681,6 @@
 				8BDFDDF8223AC08A008280EC /* libRCTOrientation.a in Frameworks */,
 				8BDFDDF9223AC08A008280EC /* libRNDeviceInfo.a in Frameworks */,
 				8BDFDDFA223AC08A008280EC /* libRNBackgroundDownloader.a in Frameworks */,
-				8BDFDDFB223AC08A008280EC /* libPods-apocalypse.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -838,10 +838,10 @@
 		7C7E9F5289760AF3F5B4E8A1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				7257BF3DDDD6B546759708E4 /* Pods-apocalypse.debug.xcconfig */,
-				F0E6668E8BAC34497329131F /* Pods-apocalypse.release.xcconfig */,
 				E3F4EFB7825F2DFE4E42D9E2 /* Pods-apocalypseTests.debug.xcconfig */,
 				842567AA098129E392CADBC7 /* Pods-apocalypseTests.release.xcconfig */,
+				BC6B98734C9C35F0EB58C323 /* Pods-apocalypse.debug.xcconfig */,
+				FB471DED701737F33054E45E /* Pods-apocalypse.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -1120,6 +1120,7 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				B2240FA66A0106C36C423FD1 /* [CP] Copy Pods Resources */,
+				8B9FD79B225CB614000D677E /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -1134,12 +1135,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8BDFDE0D223AC08A008280EC /* Build configuration list for PBXNativeTarget "apocalypse copy" */;
 			buildPhases = (
-				8BDFDDD7223AC08A008280EC /* [CP] Check Pods Manifest.lock */,
 				8BDFDDD8223AC08A008280EC /* Sources */,
 				8BDFDDDB223AC08A008280EC /* Frameworks */,
 				8BDFDDFC223AC08A008280EC /* Resources */,
 				8BDFDE0B223AC08A008280EC /* Bundle React Native code and images */,
-				8BDFDE0C223AC08A008280EC /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1826,7 +1825,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8BDFDDD7223AC08A008280EC /* [CP] Check Pods Manifest.lock */ = {
+		8B9FD79B225CB614000D677E /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1834,19 +1833,15 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
 			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "Run Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-apocalypse-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\"\n";
 		};
 		8BDFDE0B223AC08A008280EC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1861,28 +1856,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
-		};
-		8BDFDE0C223AC08A008280EC /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-apocalypse/Pods-apocalypse-resources.sh",
-				"${PODS_ROOT}/FBSDKCoreKit/FacebookSDKStrings.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/FacebookSDKStrings.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-apocalypse/Pods-apocalypse-resources.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		B2240FA66A0106C36C423FD1 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2043,7 +2016,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7257BF3DDDD6B546759708E4 /* Pods-apocalypse.debug.xcconfig */;
+			baseConfigurationReference = BC6B98734C9C35F0EB58C323 /* Pods-apocalypse.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2053,7 +2026,8 @@
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 5783T8MTVQ;
 				FRAMEWORK_SEARCH_PATHS = (
-					/Users/developer/Documents/FacebookSDK,
+					"$(HOME)/Documents/FacebookSDK",
+					"$(inherited)",
 					"$(PROJECT_DIR)/Pods/FirebaseAnalytics/Frameworks",
 					"$(PROJECT_DIR)/Pods/GoogleAppMeasurement/Frameworks",
 				);
@@ -2095,7 +2069,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F0E6668E8BAC34497329131F /* Pods-apocalypse.release.xcconfig */;
+			baseConfigurationReference = FB471DED701737F33054E45E /* Pods-apocalypse.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2104,7 +2078,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5783T8MTVQ;
 				FRAMEWORK_SEARCH_PATHS = (
-					/Users/developer/Documents/FacebookSDK,
+					"$(HOME)/Documents/FacebookSDK",
+					"$(inherited)",
 					"$(PROJECT_DIR)/Pods/FirebaseAnalytics/Frameworks",
 					"$(PROJECT_DIR)/Pods/GoogleAppMeasurement/Frameworks",
 				);
@@ -2222,7 +2197,6 @@
 		};
 		8BDFDE0E223AC08A008280EC /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7257BF3DDDD6B546759708E4 /* Pods-apocalypse.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2274,7 +2248,6 @@
 		};
 		8BDFDE0F223AC08A008280EC /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F0E6668E8BAC34497329131F /* Pods-apocalypse.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;

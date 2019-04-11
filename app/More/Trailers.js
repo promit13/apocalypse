@@ -40,7 +40,7 @@ export default class Trailers extends React.Component {
           title={value.title}
           titleStyle={{ color: 'white', fontSize: moderateScale(18) }}
           containerStyle={{ backgroundColor: '#33425a' }}
-          undderlayColor="#2a3545"
+          underlayColor="#2a3545"
           onPress={() => {
             const { video, title, image } = value;
             this.props.navigation.navigate('TalonIntelPlayer', {
