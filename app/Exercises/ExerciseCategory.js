@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon, Text } from 'react-native-elements';
 import {
-  View, Image, TouchableOpacity,
+  View, Image, TouchableOpacity, Alert,
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import { scale, moderateScale } from 'react-native-size-matters';
@@ -51,6 +51,19 @@ export default class ExerciseCategory extends React.Component {
 
   state = {
     showNoInternetDialog: false,
+  }
+
+  componentDidMount = async () => {
+    const fcmToken = await firebase.messaging().getToken();
+    console.log('fcmtoken', fcmToken);
+    // const enabled = await firebase.messaging().hasPermission();
+    // if (enabled) {
+    //   const fcmToken = await firebase.messaging().getToken();
+    //   console.log('fcmtoken', fcmToken);
+    //   Alert.alert(fcmToken);
+    // } else {
+    //   await firebase.messaging().requestPermission();
+    // }
   }
 
     renderView = (title, subtitle, imageSource) => {

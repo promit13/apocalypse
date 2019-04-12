@@ -37,6 +37,9 @@ const menu = {
   feedback: {
     title: 'Feedback', navigateTo: 'Feedback', iconName: 'message-circle', iconType: 'feather', margin: 5,
   },
+  // notification: {
+  //   title: 'Notification', navigateTo: 'Notification', iconName: 'bell', iconType: 'feather', margin: 5,
+  // },
 };
 
 const styles = {

@@ -382,7 +382,7 @@ class EpisodeList extends React.Component {
           }
         });
       } else {
-        Permissions.check('notification').then((response) => {
+        await Permissions.check('notification').then((response) => {
           console.log(response);
           if (response !== 'authorized') {
             Permissions.request('notification', { type: ['alert', 'badge'] }).then(

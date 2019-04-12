@@ -42,6 +42,7 @@
 		8BAA45A9220C9E2600558E42 /* libRCTFBSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD817FE216CAE260012E530 /* libRCTFBSDK.a */; };
 		8BAEEFA82237C178003FFA09 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BAEEFA72237C178003FFA09 /* GoogleService-Info.plist */; };
 		8BB35EE22137FA7C004CF383 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB35EE12137FA7C004CF383 /* StoreKit.framework */; };
+		8BB6B1FF225F5819001746D0 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB6B1C5225F5819001746D0 /* UserNotifications.framework */; };
 		8BC03E8321EDE74A007FA34C /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BC03E6121EDE731007FA34C /* libRCTVideo.a */; };
 		8BDFDDD9223AC08A008280EC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		8BDFDDDA223AC08A008280EC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -561,6 +562,8 @@
 		8B823F8C212D60A2004C1EE0 /* RNPedometer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNPedometer.xcodeproj; path = "../node_modules/react-native-pedometer/RNPedometer.xcodeproj"; sourceTree = "<group>"; };
 		8BAEEFA72237C178003FFA09 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8BB35EE12137FA7C004CF383 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		8BB6B1A8225F5126001746D0 /* AST.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = AST.entitlements; path = apocalypse/AST.entitlements; sourceTree = "<group>"; };
+		8BB6B1C5225F5819001746D0 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		8BC03E4421EDE730007FA34C /* RCTVideo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTVideo.xcodeproj; path = "../node_modules/react-native-video/ios/RCTVideo.xcodeproj"; sourceTree = "<group>"; };
 		8BD817F9216CAE250012E530 /* RCTFBSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTFBSDK.xcodeproj; path = "../node_modules/react-native-fbsdk/ios/RCTFBSDK.xcodeproj"; sourceTree = "<group>"; };
 		8BDFDE10223AC08C008280EC /* apocalypse copy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "apocalypse copy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -608,6 +611,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BB6B1FF225F5819001746D0 /* UserNotifications.framework in Frameworks */,
 				8B30190822390A68002658E1 /* libfishhook.a in Frameworks */,
 				8B3A3F0722380AA500F16130 /* libRNFirebase.a in Frameworks */,
 				8BECA54622158A4A00489529 /* libRNVectorIcons.a in Frameworks */,
@@ -769,6 +773,7 @@
 		13B07FAE1A68108700A75B9A /* apocalypse */ = {
 			isa = PBXGroup;
 			children = (
+				8BB6B1A8225F5126001746D0 /* AST.entitlements */,
 				8BAEEFA72237C178003FFA09 /* GoogleService-Info.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -807,6 +812,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8BB6B1C5225F5819001746D0 /* UserNotifications.framework */,
 				8BB35EE12137FA7C004CF383 /* StoreKit.framework */,
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
 				B85B2F08F4654DBA94CA412D /* libc++.tbd */,
@@ -1172,6 +1178,9 @@
 								enabled = 1;
 							};
 							com.apple.InAppPurchase = {
+								enabled = 1;
+							};
+							com.apple.Push = {
 								enabled = 1;
 							};
 						};
@@ -2020,6 +2029,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = apocalypse/AST.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Promit Rai (7SBLZMRND2)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2073,6 +2083,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = apocalypse/AST.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Promit Rai (7SBLZMRND2)";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;

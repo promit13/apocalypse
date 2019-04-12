@@ -25,6 +25,7 @@ import Kickstarter from '../More/Kickstarter';
 import Purchases from '../More/Purchases';
 import Tips from '../More/Tips';
 import Trailers from '../More/Trailers';
+import Notification from '../More/Notification';
 import ChangeEmailPassword from '../User/ChangeEmailPassword';
 import DownloadFiles from '../Episodes/DownloadFiles';
 import DownloadPlayer from '../More/DownloadPlayer';

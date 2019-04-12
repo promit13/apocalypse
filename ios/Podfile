@@ -7,6 +7,7 @@ target 'apocalypse' do
 
   # Pods for apocalypse
   pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
   pod 'FBSDKShareKit', '4.40.0'
   pod 'FBSDKCoreKit', '4.40.0'
   pod 'FBSDKLoginKit', '4.40.0'

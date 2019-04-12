@@ -19,6 +19,9 @@ PODS:
     - FirebaseAnalytics (= 5.8.0)
   - Firebase/CoreOnly (5.20.1):
     - FirebaseCore (= 5.4.1)
+  - Firebase/Messaging (5.20.1):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (= 3.5.0)
   - FirebaseAnalytics (5.8.0):
     - FirebaseCore (~> 5.4)
     - FirebaseInstanceID (~> 3.8)
@@ -28,6 +31,7 @@ PODS:
     - GoogleUtilities/Network (~> 5.2)
     - "GoogleUtilities/NSData+zlib (~> 5.2)"
     - nanopb (~> 0.3)
+  - FirebaseAnalyticsInterop (1.2.0)
   - FirebaseCore (5.4.1):
     - GoogleUtilities/Environment (~> 5.2)
     - GoogleUtilities/Logger (~> 5.2)
@@ -35,6 +39,14 @@ PODS:
     - FirebaseCore (~> 5.2)
     - GoogleUtilities/Environment (~> 5.2)
     - GoogleUtilities/UserDefaults (~> 5.2)
+  - FirebaseMessaging (3.5.0):
+    - FirebaseAnalyticsInterop (~> 1.1)
+    - FirebaseCore (~> 5.2)
+    - FirebaseInstanceID (~> 3.6)
+    - GoogleUtilities/Environment (~> 5.3)
+    - GoogleUtilities/Reachability (~> 5.3)
+    - GoogleUtilities/UserDefaults (~> 5.3)
+    - Protobuf (~> 3.1)
   - GoogleAppMeasurement (5.8.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 5.2)
     - GoogleUtilities/MethodSwizzler (~> 5.2)
@@ -64,6 +76,7 @@ PODS:
     - nanopb/encode (= 0.3.901)
   - nanopb/decode (0.3.901)
   - nanopb/encode (0.3.901)
+  - Protobuf (3.7.0)
 
 DEPENDENCIES:
   - Crashlytics (~> 3.12.0)
@@ -72,6 +85,7 @@ DEPENDENCIES:
   - FBSDKLoginKit (= 4.40.0)
   - FBSDKShareKit (= 4.40.0)
   - Firebase/Core
+  - Firebase/Messaging
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -83,11 +97,14 @@ SPEC REPOS:
     - FBSDKShareKit
     - Firebase
     - FirebaseAnalytics
+    - FirebaseAnalyticsInterop
     - FirebaseCore
     - FirebaseInstanceID
+    - FirebaseMessaging
     - GoogleAppMeasurement
     - GoogleUtilities
     - nanopb
+    - Protobuf
 
 SPEC CHECKSUMS:
   Bolts: ac6567323eac61e203f6a9763667d0f711be34c8
@@ -98,12 +115,15 @@ SPEC CHECKSUMS:
   FBSDKShareKit: 0e45916f4150da485928ae2a17ca021950b194f5
   Firebase: 2f5235e62f141cb86181c3af0dfe4509706351ac
   FirebaseAnalytics: fd72a26bf8dac84cefba2f0864366f718555a5b0
+  FirebaseAnalyticsInterop: efbe45c8385ec626e29f9525e5ebd38520dfb6c1
   FirebaseCore: f1a9a8be1aee4bf71a2fc0f4096df6788bdfda61
   FirebaseInstanceID: a122b0c258720cf250551bb2bedf48c699f80d90
+  FirebaseMessaging: 4235f949ce1c4e827aeb19705ba5c53f9b85aa10
   GoogleAppMeasurement: 1624046ab1bcc5e170061a56ef5679000b079c8e
   GoogleUtilities: 6481e6318c5fcabaaa8513ef8120f329055d7c10
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
+  Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
 
-PODFILE CHECKSUM: 2dd271d7ce0d4bbed0fe87d278f99883d0096043
+PODFILE CHECKSUM: bb6bd721731f8ad062bca28290708bca7bd9f9d2
 
 COCOAPODS: 1.5.3
