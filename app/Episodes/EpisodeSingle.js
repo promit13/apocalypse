@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import {
-  AppState, View, ScrollView, Modal, Platform, AsyncStorage, BackHandler,
+  AppState, View, ScrollView, Modal, Platform, AsyncStorage, BackHandler, Alert,
 } from 'react-native';
 import { Text, Button, Icon } from 'react-native-elements';
+import axios from 'axios';
 import { moderateScale } from 'react-native-size-matters';
 import MusicControl from 'react-native-music-control';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -314,14 +315,15 @@ export default class EpisodeSingle extends Component {
     this.registerEvents(data);
     if (listen) {
       const { currentTime, lastLoggedDate } = logValue;
-      if ((currentDate - lastLoggedDate) > 900000) {
-        return this.setState({
-          currentTime: 0.0,
-          lastLoggedDate,
-          totalLength: data.duration,
-          loading: false,
-        });
-      }
+      // if ((currentDate - lastLoggedDate) > 900000) {
+      //   return this.setState({
+      //     currentTime: 0.0,
+      //     lastLoggedDate,
+      //     totalLength: data.duration,
+      //     loading: false,
+      //   });
+      // }
+      console.log(currentTime);
       this.setState({
         currentTime,
         lastLoggedDate,
@@ -422,13 +424,20 @@ export default class EpisodeSingle extends Component {
       }));
       return;
     }
-    const startDate = await AsyncStorage.getItem(episodeId);
-    const storedEndDate = await AsyncStorage.getItem(`${episodeId}endDate`);
-    const workedOutToDate = workOutEpisodeCompleted ? storedEndDate : this.getDate();
-    const timeInterval = !trackingStarted
-      ? 0
-      : ((new Date(workedOutToDate).getTime() - new Date(startDate).getTime()) / 60000).toFixed(2);
-    const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
+    // const startDate = await AsyncStorage.getItem(episodeId);
+    // const storedEndDate = await AsyncStorage.getItem(`${episodeId}endDate`);
+    // const workedOutToDate = workOutEpisodeCompleted ? storedEndDate : this.getDate();
+    // const timeInterval = !trackingStarted
+    //  ? 0
+    //  : ((new Date(workedOutToDate).getTime() - new Date(startDate).getTime()) / 60000).toFixed(2);
+    
+    // const timeInterval = !trackingStarted ? 0 : (
+    //   workOutEpisodeCompleted ? (formattedTotalWorkOutTime / 60).toFixed(2) : (workOutTime / 60).toFixed(2)
+    // );
+
+    const timeInterval = (workOutTime / 60).toFixed(2);
+
+    // const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
     firebase.database().ref(`userDatas/${uid}/lastPlayedEpisode`).set(
       {
         episodeTitle,
@@ -450,7 +459,7 @@ export default class EpisodeSingle extends Component {
           seriesIndex,
           trackingStarted,
           category,
-          workOutTime: workOutCompletedTime,
+          workOutTime,
           workOutCompleted,
         }).then(() => this.setState({ lastLoggedDate: currentDate, sendDataToServer: workOutEpisodeCompleted ? true : false }));
       } else {
@@ -465,7 +474,7 @@ export default class EpisodeSingle extends Component {
           seriesIndex,
           category,
           trackingStarted,
-          workOutTime: workOutCompletedTime,
+          workOutTime,
           workOutCompleted,
         }).then(() => this.setState({ lastLoggedDate: currentDate, sendDataToServer: workOutEpisodeCompleted ? true : false }));
       }
@@ -582,7 +591,8 @@ export default class EpisodeSingle extends Component {
         endDate, // required ISO8601Timestamp
       };
       if (category !== 'Speed') {
-        return this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
+        // return this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
+        return this.storeDistance();
       }
       GoogleFit.getDailyStepCountSamples(options, (err, res) => {
         if (err) {
@@ -600,14 +610,16 @@ export default class EpisodeSingle extends Component {
           }
           const { distance } = response[0];
           this.setState({ distance, steps });
-          this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
+          // this.storeDistance((new Date(endDate)).getTime() - (new Date(startDate)).getTime());
+          this.storeDistance();
         });
       });
     } else {
       const endDate = workOutEpisodeCompleted ? storedEndDate : new Date().getTime();
       const formattedDate = new Date(startDate).getTime();
       if (category !== 'Speed') {
-        return this.storeDistance(endDate - formattedDate);
+        // return this.storeDistance(endDate - formattedDate);
+        return this.storeDistance();
       }
       Pedometer.queryPedometerDataBetweenDates(
         formattedDate, endDate, (error, pedometerData) => {
@@ -616,7 +628,8 @@ export default class EpisodeSingle extends Component {
           }
           const { distance, numberOfSteps } = pedometerData;
           this.setState({ steps: numberOfSteps, distance });
-          this.storeDistance(endDate - formattedDate);
+          // this.storeDistance(endDate - formattedDate);
+          this.storeDistance();
         },
       );
     }
@@ -710,12 +723,12 @@ export default class EpisodeSingle extends Component {
     this.updateMusicControl(currentTime);
   }
 
-  storeDistance = async (timeInterval) => {
-    console.log(timeInterval);
+  storeDistance = async () => {
+    // console.log(timeInterval);
     const {
       uid, episodeId, episodeTitle, distance, currentTime, steps, episodeIndex, seriesIndex, workOutTime, episodeCompleted, workOutCompleted, category, trackingStarted,
     } = this.state;
-    const formattedTimeInterval = (timeInterval / 60000).toFixed(2);
+    const timeInterval = (workOutTime / 60).toFixed(2);
     try {
       await AsyncStorage.setItem('distance', JSON.stringify({
         uid,
@@ -724,7 +737,7 @@ export default class EpisodeSingle extends Component {
         workoutDate: new Date().getTime(),
         episodeTitle,
         distance,
-        timeInterval: formattedTimeInterval,
+        timeInterval,
         steps,
         episodeIndex,
         seriesIndex,
@@ -748,12 +761,17 @@ export default class EpisodeSingle extends Component {
     const endWorkOutTimeArray = endWT.split(':');
     const formattedWorkOutEndTime = (parseInt(endWorkOutTimeArray[0], 10) * 3600) + (parseInt(endWorkOutTimeArray[1], 10) * 60) + (parseInt(endWorkOutTimeArray[2], 10));
     this.setState({ formattedWorkOutStartTime, formattedTotalWorkOutTime, formattedWorkOutEndTime });
+    console.log(formattedWorkOutStartTime);
   }
 
   navigateToEpisodeView = async (onEnd) => {
     const {
       listen, episodeCompleted, trackingStarted, workOutEpisodeCompleted,
     } = this.state;
+    const {
+      episodeIndex,
+      episodeOneNotCompletedEmailTrigger,
+    } = this.props.navigation.state.params;
     Orientation.lockToPortrait();
     try {
       if (listen) {
@@ -765,6 +783,11 @@ export default class EpisodeSingle extends Component {
         }
         if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
+        }
+        if (!workOutEpisodeCompleted) {
+          if (episodeIndex === 10 && !episodeOneNotCompletedEmailTrigger) {
+            this.setEmailData(false, episodeIndex, 'epOneNotCompleted', true, true);
+          }
         }
         if (workOutEpisodeCompleted) {
           this.setEpisodeCompletedArray(onEnd);
@@ -781,7 +804,7 @@ export default class EpisodeSingle extends Component {
 
   navigateToPreviousExercise = () => {
     const { previousStartTime } = this.state;
-    const startTime = previousStartTime[previousStartTime.length - 2];
+    const startTime = previousStartTime[previousStartTime.length - 1];
     this.setState({ currentTime: startTime === undefined ? 0 : startTime }, () => {
       const { currentTime } = this.state;
       console.log(currentTime);
@@ -824,6 +847,52 @@ export default class EpisodeSingle extends Component {
     return this.renderLandscapeView();
   };
 
+  sendEmail = (episodeIndex, seriesBought, episodeCompleted) => {
+    axios.post('https://us-central1-astraining-95c0a.cloudfunctions.net/sendMailChimp', {
+      email: 'ab@a.com',
+      episodeIndex: '2',
+      seriesBought,
+      episodeCompleted,
+    })
+      .then(response => Alert.alert(response.data))
+      .catch(err => console.log(err));
+  }
+
+  setEmailData = (episodeCompleted, episodeIndex, sendTo, seriesBought, episodeOneNotCompletedEmailTrigger) => {
+    firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}/${sendTo}`).set({
+      emailSent: '1',
+    }).then(() => {
+      this.sendEmail(episodeIndex, seriesBought, episodeCompleted);
+      console.log('EMAIL TRIGGERED');
+      if (episodeIndex === 10 && !episodeOneNotCompletedEmailTrigger) {
+        firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}/epOneNotCompleted`).set({
+          emailSent: '1',
+        });
+      }
+    });
+  }
+
+  triggerEmail = () => {
+    const {
+      episodeIndex,
+      requestEmailTrigger,
+      seriesBought,
+      episodeOneNotCompletedEmailTrigger,
+    } = this.props.navigation.state.params;
+    if (requestEmailTrigger) {
+      return;
+    }
+    if (episodeIndex === 10) {
+      this.setEmailData(true, episodeIndex, 'epOneCompleted', seriesBought, episodeOneNotCompletedEmailTrigger);
+    } else if (episodeIndex === 11) {
+      this.setEmailData(true, episodeIndex, 'epTwoCompleted', seriesBought);
+    } else if (episodeIndex === 2) {
+      this.setEmailData(true, episodeIndex, 'epThreeCompleted', seriesBought);
+    } else if (episodeIndex === 9) {
+      this.setEmailData(true, episodeIndex, 'epTenCompleted', seriesBought);
+    }
+  }
+
   changeExercises = async () => {
     const { exercises, completeExercises } = this.props.navigation.state.params;
     if (exercises === undefined) {
@@ -842,6 +911,7 @@ export default class EpisodeSingle extends Component {
     }
     if (!listen && (currentTime > formattedWorkOutEndTime) && !workOutEpisodeCompleted) {
       await AsyncStorage.setItem(`${episodeId}endDate`, platform === 'android' ? new Date().toISOString() : new Date());
+      this.triggerEmail();
       this.setState({ workOutEpisodeCompleted: true });
     }
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
@@ -869,6 +939,7 @@ export default class EpisodeSingle extends Component {
     } = this.state;
     if (!listen && (currentTime > formattedWorkOutEndTime) && !workOutEpisodeCompleted) {
       await AsyncStorage.setItem(`${episodeId}endDate`, platform === 'android' ? new Date().toISOString() : new Date());
+      this.triggerEmail();
       this.setState({ workOutEpisodeCompleted: true });
     }
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
@@ -880,11 +951,11 @@ export default class EpisodeSingle extends Component {
       if (this.state.currentTime > (value / 1000)) {
         const exercise = exercises[i];
         const {
-          cmsTitle, visible, title, episodeExerciseTitle,
+          cmsTitle, visible, title, episodeExerciseTitle, showInfo,
         } = exercise[0];
         // const showInfo = visible;
         this.setState({
-          showInfo: visible,
+          showInfo,
           playingExercise: {
             value: { image: cmsTitle, title, episodeExerciseTitle },
           },
@@ -1022,6 +1093,7 @@ export default class EpisodeSingle extends Component {
                               this.setState({ showDialog: false });
                               this.props.navigation.navigate('TalonScreen');
                             }}
+                            showImage
                           />
                           <ShowModal
                             visible={showWelcomeDialog}
@@ -1110,6 +1182,7 @@ export default class EpisodeSingle extends Component {
                             this.setState({ showDialog: false });
                             this.props.navigation.navigate('TalonScreen');
                           }}
+                          showImage
                         />
                         <ShowModal
                           visible={showWelcomeDialog}

@@ -6,6 +6,7 @@ import {
 import { ListItem, Button } from 'react-native-elements';
 import { AccessToken } from 'react-native-fbsdk';
 import { moderateScale } from 'react-native-size-matters';
+import RNFetchBlob from 'react-native-fetch-blob';
 import realm from '../config/Database';
 import firebase from '../config/firebase';
 import Loading from '../common/Loading';
@@ -79,9 +80,9 @@ export default class MyAccount extends React.Component {
   };
 
   componentDidMount = async () => {
-    const { providerData } = this.props.screenProps.user;
+    const { providerData, uid } = this.props.screenProps.user;
     const platform = Platform.OS;
-    firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}`).on('value', (snapShot) => {
+    firebase.database().ref(`userDatas/${uid}`).on('value', (snapShot) => {
       let loggedDistanceUnit = false;
       if (snapShot.val() !== null) {
         const { unit } = snapShot.val();
@@ -139,16 +140,21 @@ export default class MyAccount extends React.Component {
 
   deleteUserAsync = async (check) => {
     if (check) {
+      const { dirs } = RNFetchBlob.fs;
       await AsyncStorage.getAllKeys((err, keys) => {
         console.log(keys);
         AsyncStorage.multiRemove(keys);
       });
       realm.write(() => {
-        const allWorkOut = realm.objects('SavedWorkOut');
-        const allWorkOutLogs = realm.objects('SavedWorkoutLogs');
-        realm.delete(allWorkOut);
-        realm.delete(allWorkOutLogs);
+        // const allWorkOut = realm.objects('SavedWorkOut');
+        // const allWorkOutLogs = realm.objects('SavedWorkoutLogs');
+        // const allEpisodes = realm.objects('SavedEpisodes');
+        // const allExercises = realm.objects('SavedExercises');
+        // realm.delete(allWorkOut);
+        // realm.delete(allWorkOutLogs);
+        realm.deleteAll();
       });
+      RNFetchBlob.fs.unlink(`${dirs.DocumentDir}/AST`);
       return;
     }
     await AsyncStorage.removeItem('login');

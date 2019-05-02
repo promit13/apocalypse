@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "io.fabric"
 
 import com.android.build.OutputFile
 
@@ -101,8 +102,8 @@ android {
         applicationId "com.apocalypse"
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 15
-        versionName "1.9.5"
+        versionCode 16
+        versionName "1.9.6"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -173,6 +174,9 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:16.0.1"
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.firebase:firebase-messaging:17.6.0'
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
+        transitive = true
+    }
 }
 
 configurations.all {

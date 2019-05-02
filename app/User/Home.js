@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, AsyncStorage } from 'react-native';
+import { View, AsyncStorage, Alert } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
+import axios from 'axios';
 import LoadScreen from '../common/LoadScreen';
 import firebase from '../config/firebase';
 import realm from '../config/Database';
@@ -96,10 +97,37 @@ export default class Home extends React.Component {
     }
   }
 
+  sendEmail = (episodeIndex, seriesBought, episodeCompleted) => {
+    axios.post('https://us-central1-astraining-95c0a.cloudfunctions.net/sendMailChimp', {
+      email: 'ab@a.com',
+      episodeIndex: '2',
+      seriesBought,
+      episodeCompleted,
+    })
+      .then(response => console.log(response))
+      .catch(err => console.log(err));
+  }
+
+  setEmailData = (sendTo, uid, episodeIndex, episodeCompleted, check, epOneNotCompleted) => {
+    console.log(sendTo);
+    firebase.database().ref(`userDatas/${uid}/${sendTo}`).set({
+      emailSent: '1',
+    }).then(() => {
+      this.sendEmail(episodeIndex, true, episodeCompleted);
+      console.log('EMAIL TRIGGERED');
+      if (check && epOneNotCompleted === true) {
+        firebase.database().ref(`userDatas/${uid}/epOneNotCompleted`).set({
+          emailSent: '1',
+        });
+      }
+    })
+      .catch(err => console.log(err));
+  }
+
   sendDataToFirebase = async () => {
     const offlineData = await AsyncStorage.getItem('lastPlayedEpisode');
-    const jsonObjectData = JSON.parse(offlineData);
-    if (jsonObjectData !== null) {
+    if (offlineData !== null) {
+      const jsonObjectData = JSON.parse(offlineData);
       const {
         userId,
         epId,
@@ -119,8 +147,46 @@ export default class Home extends React.Component {
       ).then(() => AsyncStorage.removeItem('lastPlayedEpisode'));
     }
     const allEpisodeWorkoutArray = Array.from(realm.objects('SavedWorkOut'));
-    allEpisodeWorkoutArray.map((value, index) => {
+    allEpisodeWorkoutArray.map(async (value, index) => {
       const { episodeId, uid, workOutLogs } = value;
+      if (index === 0) {
+        const offlineEmailData = await AsyncStorage.getItem('emailTrigger');
+        if (offlineEmailData !== null) {
+          console.log(offlineEmailData);
+          const jsonObjectEmailData = JSON.parse(offlineEmailData);
+          const {
+            epOneCompleted,
+            epOneNotCompleted,
+            epTwoCompleted,
+            epThreeCompleted,
+            epTenCompleted,
+          } = jsonObjectEmailData;
+          if (epOneCompleted === true) {
+            this.setEmailData('epOneCompleted', uid, 0, true, true, epOneNotCompleted);
+          }
+          if (!epOneCompleted) {
+            if (epOneNotCompleted) {
+              this.setEmailData('epOneNotCompleted', uid, 0, false);
+            }
+          }
+          if (epTwoCompleted) {
+            this.setEmailData('epTwoCompleted', uid, 1, true);
+          }
+          if (epThreeCompleted) {
+            this.setEmailData('epThreeCompleted', uid, 2, true);
+          }
+          if (epTenCompleted) {
+            this.setEmailData('epTenCompleted', uid, 9, true);
+          }
+          AsyncStorage.setItem('emailTrigger', JSON.stringify({
+            epOneCompleted: epOneCompleted === true ? '1' : epOneCompleted,
+            epOneNotCompleted: epOneNotCompleted === true ? '1' : epOneNotCompleted,
+            epTwoCompleted: epTwoCompleted === true ? '1' : epTwoCompleted,
+            epThreeCompleted: epThreeCompleted === true ? '1' : epThreeCompleted,
+            epTenCompleted: epTenCompleted === true ? '1' : epTenCompleted,
+          }));
+        }
+      }
       const workOutLogsArray = Array.from(workOutLogs);
       const workOutArrayLength = workOutLogsArray.length;
       workOutLogsArray.map((workOutValue, workOutIndex) => {

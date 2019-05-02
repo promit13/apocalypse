@@ -6,6 +6,7 @@ SavedEpisodes.schema = {
   primaryKey: 'id',
   properties: {
     id: 'string',
+    seriesId: 'string',
     title: 'string',
     category: 'string',
     description: 'string',
@@ -31,6 +32,7 @@ SavedExercises.schema = {
     title: 'string',
     cmsTitle: 'string',
     episodeExerciseTitle: 'string',
+    showInfo: 'bool',
     visible: 'bool',
     advanced: 'bool',
     index: 'int',
@@ -44,6 +46,7 @@ SavedWorkOut.schema = {
   properties: {
     uid: 'string',
     episodeId: 'string',
+    seriesId: 'string',
     workOutLogs: { type: 'list', objectType: 'SavedWorkoutLogs' },
   },
 };

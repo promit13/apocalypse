@@ -67,11 +67,11 @@ export default class TalonScreen extends React.Component {
     isConnected: true,
     showModal: false,
     modalTitle: '',
+    description: '',
     lastPlayedEpisode: '',
     series: '',
     playedIntelArray: [],
     distanceUnit: false,
-    pressStatus: false,
   };
 
   componentDidMount = async () => {
@@ -135,14 +135,6 @@ export default class TalonScreen extends React.Component {
         });
       });
     });
-  }
-
-  onHideUnderlay() {
-    this.setState({ pressStatus: false });
-  }
-
-  onShowUnderlay() {
-    this.setState({ pressStatus: true });
   }
 
   renderContent = (i, episodeId, logs, category) => {
@@ -251,15 +243,19 @@ export default class TalonScreen extends React.Component {
     const { playedIntelArray, isConnected, lastPlayedEpisode } = this.state;
     const { netInfo } = this.props.screenProps;
     if (!netInfo) {
-      return this.setState({ modalTitle: 'Please check your internet connection', showModal: true });
+      return this.setState({ modalTitle: 'Please check your internet connection', description: '', showModal: true });
     }
     if (lastPlayBar) {
       if (lastPlayedEpisode === '') {
-        return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
+        return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', description: '', showModal: true });
       }
     }
     if (!workOutCompleted) {
-      return this.setState({ modalTitle: 'You must complete workout to access intel', showModal: true });
+      return this.setState({
+        modalTitle: 'Wait a moment Risky!',
+        description: `It looks like you started but did not\ncomplete this episode.\n\nPlease complete it to unlock your intel.`,
+        showModal: true,
+      });
     }
     const { uid } = this.props.screenProps.user;
     console.log(playedIntelArray);
@@ -294,9 +290,8 @@ export default class TalonScreen extends React.Component {
     // }
 
     const {
-      series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle, pressStatus,
+      series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle, description,
     } = this.state;
-    console.log(pressStatus);
     const { netInfo } = this.props.screenProps;
     let talonKeyArray = [];
     if (talonLogs !== '' && talonLogs !== null) {
@@ -399,12 +394,14 @@ export default class TalonScreen extends React.Component {
               <TouchableHighlight
                 underlayColor="black"
                 activeOpacity={0.6}
-                onHideUnderlay={() => this.onHideUnderlay()}
-                onShowUnderlay={() => this.onShowUnderlay()}
                 onPress={() => {
                 // const episodeId = (Object.keys(this.state.talonLogs))[0];
                   if (talonLogs === null || lastPlayedEpisode === '') {
-                    return this.setState({ modalTitle: 'Complete Episode 1 to unlock your first intel', showModal: true });
+                    return this.setState({
+                      modalTitle: 'Complete Episode 1 to unlock your first intel',
+                      description: '',
+                      showModal: true,
+                    });
                   }
                   const logsArrayLastEpisode = Object.values(talonLogs[episodeId]);
                   const workOutCompletedLastEpisode = (logsArrayLastEpisode[logsArrayLastEpisode.length - 1]).workOutCompleted;
@@ -417,7 +414,7 @@ export default class TalonScreen extends React.Component {
                     <View>
                       <Text
                         style={{
-                          color: pressStatus ? 'white' : '#001331',
+                          color: '#001331',
                           fontSize: moderateScale(18),
                           fontWeight: 'bold',
                           marginLeft: moderateScale(10),
@@ -455,6 +452,7 @@ export default class TalonScreen extends React.Component {
               <ShowModal
                 visible={showModal}
                 title={modalTitle}
+                description={description}
                 buttonText="Got it"
                 onPress={() => {
                   this.setState({ showModal: false });

@@ -58,7 +58,6 @@ export default function AlbumArt({
 }) {
   const formattedUrl = offline ? url.replace(/\s+/g, '') : '';
   const dirs = RNFetchBlob.fs.dirs.DocumentDir;
-  console.log(formattedUrl);
   return (
     <ImageBackground style={[styles.container, { paddingTop }]} source={backgroundImage}>
       {

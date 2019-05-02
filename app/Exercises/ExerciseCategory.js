@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon, Text } from 'react-native-elements';
 import {
-  View, Image, TouchableOpacity, Alert,
+  View, Image, TouchableOpacity, Alert, AsyncStorage,
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import { scale, moderateScale } from 'react-native-size-matters';
@@ -56,6 +56,9 @@ export default class ExerciseCategory extends React.Component {
   componentDidMount = async () => {
     const fcmToken = await firebase.messaging().getToken();
     console.log('fcmtoken', fcmToken);
+    const offlineData = await AsyncStorage.getItem('emailTrigger');
+    const jsonObjectData = JSON.parse(offlineData);
+    console.log(jsonObjectData);
     // const enabled = await firebase.messaging().hasPermission();
     // if (enabled) {
     //   const fcmToken = await firebase.messaging().getToken();

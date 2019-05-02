@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Modal } from 'react-native';
+import { View, Modal, Image } from 'react-native';
 import { Button, Text } from 'react-native-elements';
 import { moderateScale } from 'react-native-size-matters';
+
+const star = require('../../img/star.png');
 
 const styles = {
   modal: {
@@ -10,6 +12,11 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     padding: moderateScale(10),
+  },
+  image: {
+    alignSelf: 'center',
+    width: moderateScale(150),
+    height: moderateScale(150),
   },
   modalInnerView: {
     backgroundColor: '#f2f2f2',
@@ -38,10 +45,21 @@ export default ShowModal = ({
   askAdvance,
   onSecondButtonPress,
   onPress,
+  showImage,
 }) => (
   <Modal transparent visible={visible}>
     <View style={styles.modal}>
       <View style={styles.modalInnerView}>
+        {
+          showImage && (
+            <Image
+              resizeMode="contain"
+              resizeMethod="scale"
+              style={styles.image}
+              source={star}
+            />
+          )
+        }
         <View style={{ justifyContent: 'center' }}>
           <Text style={[styles.text, { fontWeight: 'bold', fontSize: moderateScale(18) }]}>
             {title}

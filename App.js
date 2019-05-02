@@ -63,7 +63,7 @@ export default class App extends React.Component {
     this.notificationListener = firebase.notifications().onNotification(async (notification) => {
       const { title, body } = notification;
       console.log(notification);
-      // this.showAlert(title, body);
+      this.showAlert(title, body);
       
       // const notificationArray = await AsyncStorage.getItem('notificationArray');
       // const jsonArray = JSON.parse(notificationArray);
@@ -78,11 +78,10 @@ export default class App extends React.Component {
     * */
     this.notificationOpenedListener = firebase.notifications().onNotificationOpened(async (notificationOpen) => {
       const { title, body } = notificationOpen.notification;
-      console.log(notificationOpen.notification);
-      // this.showAlert(title, body);
-      await AsyncStorage.setItem('notificationArray', JSON.stringify({
-        notification: notificationOpen.notification,
-      }));
+      this.showAlert(title, body);
+      // await AsyncStorage.setItem('notificationArray', JSON.stringify({
+      //   notification: notificationOpen.notification,
+      // }));
     });
 
     /*

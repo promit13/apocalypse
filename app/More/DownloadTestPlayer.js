@@ -120,6 +120,7 @@ export default class DownloadTestPlayer extends Component {
     windowsWidth: 0,
     showDialog: false,
     episodeId: '',
+    seriesId: '',
     episodeTitle: '',
     uid: '',
     logId: '',
@@ -148,6 +149,11 @@ export default class DownloadTestPlayer extends Component {
     showIntroAdvanceDialog: false,
     workOutEpisodeCompleted: false,
     sendDataToServer: false,
+    epOneCompleted: false,
+    epOneNotCompleted: false,
+    epTwoCompleted: false,
+    epThreeCompleted: false,
+    epTenCompleted: false,
   };
 
   // componentWillMount() {
@@ -161,7 +167,7 @@ export default class DownloadTestPlayer extends Component {
     const platform = Platform.OS;
     const dirs = RNFetchBlob.fs.dirs.DocumentDir;
     const {
-      check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid, exercises,
+      check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid, exercises, seriesId,
     } = this.props.navigation.state.params;
     const { cmsTitle } = (exercises[0])[0];
     const formattedFileName = title.replace(/ /g, '_');
@@ -170,6 +176,7 @@ export default class DownloadTestPlayer extends Component {
       listen: check,
       video: `${dirs}/AST/episodes/${formattedFileName}.mp4`,
       episodeId,
+      seriesId,
       category,
       advance,
       episodeIndex,
@@ -203,6 +210,25 @@ export default class DownloadTestPlayer extends Component {
     this.getTimeFirebase();
     if (!check) {
       this.formatWorkOutTime();
+      const offlineData = await AsyncStorage.getItem('emailTrigger');
+      if (offlineData !== null) {
+        const jsonObjectData = JSON.parse(offlineData);
+        console.log(jsonObjectData);
+        const {
+          epOneCompleted,
+          epOneNotCompleted,
+          epTwoCompleted,
+          epThreeCompleted,
+          epTenCompleted,
+        } = jsonObjectData;
+        this.setState({
+          epOneCompleted,
+          epOneNotCompleted,
+          epTwoCompleted,
+          epThreeCompleted,
+          epTenCompleted,
+        });
+      }
     }
   }
 
@@ -303,14 +329,14 @@ export default class DownloadTestPlayer extends Component {
     const currentDate = this.getDate();
     if (listen) {
       const { currentTime, lastLoggedDate } = loggedWorkOut;
-      if ((currentDate - lastLoggedDate) > 900000) {
-        return this.setState({
-          currentTime: this.getCurrentTimeInMs(0.0),
-          lastLoggedDate,
-          totalLength: data.duration,
-          loading: false,
-        });
-      }
+      // if ((currentDate - lastLoggedDate) > 900000) {
+      //   return this.setState({
+      //     currentTime: this.getCurrentTimeInMs(0.0),
+      //     lastLoggedDate,
+      //     totalLength: data.duration,
+      //     loading: false,
+      //   });
+      // }
       this.setState({
         currentTime: this.getCurrentTimeInMs(currentTime),
         lastLoggedDate,
@@ -391,7 +417,7 @@ export default class DownloadTestPlayer extends Component {
 
   setTimeFirebase = async () => {
     const {
-      uid, episodeId, episodeTitle, distance, currentTime,
+      uid, episodeId, seriesId, episodeTitle, distance, currentTime,
       lastLoggedDate, logId, steps, episodeIndex, seriesIndex, listen,
       workOutCompleted, trackingStarted, workOutTime, category,
       episodeCompleted, workOutEpisodeCompleted,
@@ -404,13 +430,16 @@ export default class DownloadTestPlayer extends Component {
       }));
       return;
     }
-    const startDate = await AsyncStorage.getItem(`offline${episodeId}`);
-    const storedEndDate = await AsyncStorage.getItem(`offline${episodeId}endDate`);
-    const workedOutToDate = workOutEpisodeCompleted ? storedEndDate : this.getDate();
-    const timeInterval = !trackingStarted
-      ? 0
-      : ((new Date(workedOutToDate).getTime() - new Date(startDate).getTime()) / 60000).toFixed(2);
-    const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
+    // const startDate = await AsyncStorage.getItem(`offline${episodeId}`);
+    // const storedEndDate = await AsyncStorage.getItem(`offline${episodeId}endDate`);
+    // const workedOutToDate = workOutEpisodeCompleted ? storedEndDate : this.getDate();
+    // const timeInterval = !trackingStarted
+    //   ? 0
+    //   : ((new Date(workedOutToDate).getTime() - new Date(startDate).getTime()) / 60000).toFixed(2);
+    // const workOutCompletedTime = !trackingStarted ? 0 : workOutTime;
+
+    const timeInterval = (workOutTime / 60).toFixed(2);
+
     const workOut = Array.from(realm.objects('SavedWorkOut').filtered(`episodeId="${episodeId}"`));
     const { workOutLogs } = workOut[0];
     const workOutLogsArray = Array.from(workOutLogs);
@@ -423,7 +452,7 @@ export default class DownloadTestPlayer extends Component {
       category,
       episodeIndex,
       seriesIndex,
-      workOutTime: workOutCompletedTime,
+      workOutTime,
       trackingStarted,
       workOutCompleted,
       workoutDate: currentDate,
@@ -435,11 +464,10 @@ export default class DownloadTestPlayer extends Component {
     });
     realm.write(() => {
       realm.create('SavedWorkOut', {
-        uid, episodeId, workOutLogs: workOutLogsArray,
+        uid, episodeId, workOutLogs: workOutLogsArray, seriesId,
       }, true);
-    }).then(() => {
-      this.setState({ sendDataToServer: workOutEpisodeCompleted ? true : false });
     });
+    this.setState({ sendDataToServer: workOutEpisodeCompleted ? true : false });
   }
 
   getDate = () => {
@@ -447,14 +475,18 @@ export default class DownloadTestPlayer extends Component {
     return currentDate;
   }
 
-  getLastLogId = (snapshot) => {
+  getLastLogId = (snapshot ) => {
     const array = Array.from(snapshot);
-    this.setState({ logId: array.length - 1, loggedWorkOut: snapshot, loadScreen: false });
+    this.setState({
+      logId: array.length - 1,
+      loggedWorkOut: snapshot,
+      loadScreen: false,
+    });
   }
 
   getTimeFirebase = async () => {
     const {
-      episodeId, episodeIndex, seriesIndex, title, category, uid, check,
+      episodeId, episodeIndex, seriesIndex, title, category, uid, check, seriesId,
     } = this.props.navigation.state.params;
     if (check) {
       try {
@@ -481,7 +513,7 @@ export default class DownloadTestPlayer extends Component {
     if (workOut.length === 0) {
       realm.write(() => {
         const createWorkOut = realm.create('SavedWorkOut', {
-          uid, episodeId, workOutLogs: [],
+          uid, episodeId, seriesId, workOutLogs: [],
         });
         createWorkOut.workOutLogs.push({
           logId: 0,
@@ -662,7 +694,10 @@ export default class DownloadTestPlayer extends Component {
   }
 
   navigateToEpisodeView = async (onEnd) => {
-    const { listen, episodeCompleted, trackingStarted, workOutEpisodeCompleted } = this.state;
+    const {
+      listen, episodeCompleted, trackingStarted, workOutEpisodeCompleted, episodeIndex,
+      epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted,
+    } = this.state;
     Orientation.lockToPortrait();
     try {
       if (listen) {
@@ -673,6 +708,17 @@ export default class DownloadTestPlayer extends Component {
       } else {
         if (!episodeCompleted && trackingStarted) {
           this.setTimeFirebase();
+        }
+        if (!workOutEpisodeCompleted) {
+          if (episodeIndex === 10 && !epOneNotCompleted) {
+            await AsyncStorage.setItem('emailTrigger', JSON.stringify({
+              epOneCompleted,
+              epOneNotCompleted: true,
+              epTwoCompleted,
+              epThreeCompleted,
+              epTenCompleted,
+            }));
+          }
         }
         if (workOutEpisodeCompleted) {
           this.setLastPlayedEpisode();
@@ -686,7 +732,7 @@ export default class DownloadTestPlayer extends Component {
 
   navigateToPreviousExercise = () => {
     const { previousStartTime } = this.state;
-    const startTime = previousStartTime[previousStartTime.length - 2];
+    const startTime = previousStartTime[previousStartTime.length - 1];
     this.setState({ currentTime: startTime === undefined ? 0 : startTime }, () => {
       const { currentTime } = this.state;
       this.player.seek(currentTime, 10);
@@ -721,6 +767,44 @@ export default class DownloadTestPlayer extends Component {
     return this.renderLandscapeView();
   };
 
+  setEmail = async (episodeIndex) => {
+    console.log('HEY');
+    const {
+      epOneCompleted,
+      epOneNotCompleted,
+      epTwoCompleted,
+      epThreeCompleted,
+      epTenCompleted,
+    } = this.state;
+    await AsyncStorage.setItem('emailTrigger', JSON.stringify({
+      epOneCompleted: episodeIndex === 10 ? true : epOneCompleted,
+      epOneNotCompleted: episodeIndex === 10 ? true : epOneNotCompleted,
+      epTwoCompleted: episodeIndex === 11 ? true : epTwoCompleted,
+      epThreeCompleted: episodeIndex === 2 ? true : epThreeCompleted,
+      epTenCompleted: episodeIndex === 9 ? true : epTenCompleted,
+    }));
+  }
+
+  triggerEmail = () => {
+    console.log('HEY HEY');
+    const {
+      episodeIndex,
+      epOneCompleted,
+      epTwoCompleted,
+      epThreeCompleted,
+      epTenCompleted,
+    } = this.state;
+    if (episodeIndex === 10 && !epOneCompleted) {
+      this.setEmail(episodeIndex);
+    } else if (episodeIndex === 11 && !epTwoCompleted) {
+      this.setEmail(episodeIndex);
+    } else if (episodeIndex === 2 && !epThreeCompleted) {
+      this.setEmail(episodeIndex);
+    } else if (episodeIndex === 9 && !epTenCompleted) {
+      this.setEmail(episodeIndex);
+    }
+  }
+
   changeExercises = async () => {
     const { exercises, exerciseLengthList } = this.props.navigation.state.params;
     if (exercises.length === 0) {
@@ -733,6 +817,7 @@ export default class DownloadTestPlayer extends Component {
     } = this.state;
     if (!listen && (currentTime > formattedWorkOutEndTime) && !workOutEpisodeCompleted) {
       await AsyncStorage.setItem(`offline${episodeId}endDate`, platform === 'android' ? new Date().toISOString() : new Date());
+      this.triggerEmail();
       this.setState({ workOutEpisodeCompleted: true });
     }
     if (!listen && (currentTime > formattedWorkOutStartTime) && !trackingStarted) {
@@ -742,14 +827,14 @@ export default class DownloadTestPlayer extends Component {
     }
     exerciseLengthList.map((value, i) => {
       if (this.state.currentTime > (value / 1000)) {
-        console.log(i);
         const exercise = exercises[i];
         const {
-          cmsTitle, visible, title, episodeExerciseTitle,
+          cmsTitle, visible, title, episodeExerciseTitle, showInfo,
         } = exercise[0];
         // const showInfo = visible;
+        console.log(visible);
         this.setState({
-          showInfo: visible,
+          showInfo,
           playingExercise: {
             value: { image: cmsTitle, title, episodeExerciseTitle },
           },

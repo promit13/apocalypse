@@ -74,6 +74,7 @@ export default class EpisodeView extends React.Component {
     workoutTime: '',
     totalTime: '',
     uid: '',
+    seriesId: '',
     videoSize: '',
     episodeIndex: '',
     seriesIndex: '',
@@ -97,15 +98,21 @@ export default class EpisodeView extends React.Component {
     showInternetModal: false,
     mode: false,
     isConnected: false,
+    requestEmailTrigger: false,
+    episodeOneNotCompletedEmailTrigger: false,
+    seriesBought: false,
   }
 
   componentDidMount= async () => {
     const { netInfo } = this.props.screenProps;
+    let requestEmailTrigger = false;
+    let episodeOneNotCompletedEmailTrigger = false;
     const {
       offline,
       episodeList,
       title,
       episodeId,
+      seriesId,
       category,
       episodeIndex,
       seriesIndex,
@@ -122,8 +129,10 @@ export default class EpisodeView extends React.Component {
       deviceId,
       purchased,
       counter,
+      userDatas,
+      seriesBought,
     } = this.props.navigation.state.params;
-    console.log(deviceId, episodeId, offline);
+    console.log(deviceId, episodeId, offline, episodeIndex, userDatas);
     // if (offline && episodeList && !netInfo) {
     //   this.getOfflineDatas(title, deviceId, offline, purchased, counter);
     // } else if (offline && !episodeList && netInfo) {
@@ -132,19 +141,30 @@ export default class EpisodeView extends React.Component {
     //   this.getOfflineDatas(title, deviceId, offline, purchased, counter);
     // }
     if (offline) {
-      this.getOfflineDatas(title, deviceId, offline, purchased, counter, episodeList, netInfo);
+      this.getOfflineDatas(title, deviceId, offline, purchased, counter, episodeList, netInfo, seriesBought, userDatas);
     } else {
       let freeTrials;
-      console.log(counter);
       if (counter === 0) {
         freeTrials = 'two';
       }
       if (counter === 1) {
         freeTrials = 'one';
       }
+      if (userDatas !== null) {
+        const {
+          epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted,
+        } = userDatas;
+        const { emailTrigger, episodeNotCompleted } = this.getEmailTriggerData(userDatas, episodeIndex);
+        requestEmailTrigger = emailTrigger;
+        episodeOneNotCompletedEmailTrigger = episodeNotCompleted;
+        this.setEmailData(epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted);
+      } else {
+        this.setEmailData();
+      }
       // firebase.database().ref('exercises').on('value', (snapshot) => {
       this.setState({
         episodeId,
+        seriesId,
         title,
         category,
         description,
@@ -168,10 +188,55 @@ export default class EpisodeView extends React.Component {
         loading: false,
         episodeList,
         isConnected: netInfo,
+        requestEmailTrigger,
+        episodeOneNotCompletedEmailTrigger,
+        seriesBought,
       });
       // });
       this.setImage(category);
     }
+  }
+
+  setEmailData = async (epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted) => {
+    await AsyncStorage.setItem('emailTrigger', JSON.stringify({
+      epOneCompleted: epOneCompleted === undefined ? false : epOneCompleted.emailSent,
+      epOneNotCompleted: epOneNotCompleted === undefined ? false : epOneNotCompleted.emailSent,
+      epTwoCompleted: epTwoCompleted === undefined ? false : epTwoCompleted.emailSent,
+      epThreeCompleted: epThreeCompleted === undefined ? false : epThreeCompleted.emailSent,
+      epTenCompleted: epTenCompleted === undefined ? false : epTenCompleted.emailSent,
+    }));
+  }
+
+  getEmailTriggerData = (userDatas, episodeIndex) => {
+    let requestEmailTrigger = false;
+    let episodeOneNotCompletedEmailTrigger = false;
+    const {
+      epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted,
+    } = userDatas;
+    if (episodeIndex === 10) {
+      if (epOneCompleted !== undefined) {
+        requestEmailTrigger = true;
+      }
+      if (epOneNotCompleted !== undefined) {
+        episodeOneNotCompletedEmailTrigger = true;
+      }
+    } else if (episodeIndex === 11) {
+      if (epTwoCompleted !== undefined) {
+        requestEmailTrigger = true;
+      }
+    } else if (episodeIndex === 2) {
+      if (epThreeCompleted !== undefined) {
+        requestEmailTrigger = true;
+      }
+    } else if (episodeIndex === 9) {
+      if (epTenCompleted !== undefined) {
+        requestEmailTrigger = true;
+      }
+    }
+    return ({
+      emailTrigger: requestEmailTrigger,
+      episodeNotCompleted: episodeOneNotCompletedEmailTrigger,
+    });
   }
 
   // componentDidUpdate(prevProps, prevState) {
@@ -184,8 +249,10 @@ export default class EpisodeView extends React.Component {
   //   }
   // }
 
-  getOfflineDatas = async (episodeTitle, deviceId, offline, purchased, counter, episodeList, netInfo) => {
-    console.log('OFFLINE');
+  getOfflineDatas = async (episodeTitle, deviceId, offline, purchased, counter, episodeList, netInfo, seriesBought, userDatas) => {
+    console.log(offline, episodeList, netInfo);
+    let requestEmailTrigger = false;
+    let episodeOneNotCompletedEmailTrigger = false;
     const offlineData = await AsyncStorage.getItem('series');
     const jsonObjectData = JSON.parse(offlineData);
     const { uid } = jsonObjectData;
@@ -194,6 +261,7 @@ export default class EpisodeView extends React.Component {
       category,
       description,
       exerciseIdList,
+      seriesId,
       id,
       title,
       exerciseLengthList,
@@ -206,6 +274,42 @@ export default class EpisodeView extends React.Component {
       endWT,
       video,
     } = episodeDetail[0];
+    if ((offline && !episodeList) || !netInfo) {
+      console.log('TEST 1');
+      // const offlineEmailData = await AsyncStorage.getItem('emailTrigger');
+      // if (offlineEmailData !== null) {
+      //   const jsonObjectEmailData = JSON.parse(offlineEmailData);
+      //   const {
+      //     epOneCompleted,
+      //     epOneNotCompleted,
+      //     epTwoCompleted,
+      //     epThreeCompleted,
+      //     epTenCompleted,
+      //   } = jsonObjectEmailData;
+      //   if (episodeIndex === 10) {
+      //     requestEmailTrigger = epOneCompleted === '1' ? true : epOneCompleted;
+      //     episodeOneNotCompletedEmailTrigger = epOneNotCompleted === '1' ? true : epOneNotCompleted;
+      //   } else if (episodeIndex === 11) {
+      //     requestEmailTrigger = epTwoCompleted === '1' ? true : epTwoCompleted;
+      //   } else if (episodeIndex === 2) {
+      //     requestEmailTrigger = epThreeCompleted === '1' ? true : epThreeCompleted;
+      //   } else if (episodeIndex === 9) {
+      //     requestEmailTrigger = epTenCompleted === '1' ? true : epTenCompleted;
+      //   }
+      // }
+    } else if (userDatas !== null) {
+      console.log(userDatas);
+      const {
+        epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted,
+      } = userDatas;
+      const { emailTrigger, episodeNotCompleted } = this.getEmailTriggerData(userDatas, episodeIndex);
+      requestEmailTrigger = emailTrigger;
+      episodeOneNotCompletedEmailTrigger = episodeNotCompleted;
+      this.setEmailData(epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted);
+    } else {
+      console.log('TEST 3');
+      this.setEmailData();
+    }
     const exercises = exerciseIdList.map((value, i) => {
       return Array.from(realm.objects('SavedExercises').filtered(`id="${value}" AND index="${i}"`));
     });
@@ -213,6 +317,7 @@ export default class EpisodeView extends React.Component {
       category,
       description,
       episodeId: id,
+      seriesId,
       title,
       exercises,
       totalTime,
@@ -232,6 +337,9 @@ export default class EpisodeView extends React.Component {
       exerciseLengthList: Array.from(exerciseLengthList),
       loading: false,
       isConnected: netInfo,
+      seriesBought,
+      requestEmailTrigger,
+      episodeOneNotCompletedEmailTrigger,
     });
     this.setImage(category);
   }
@@ -256,6 +364,7 @@ export default class EpisodeView extends React.Component {
   navigateToEpisodeSingle = (check, mode, navigateTo) => {
     const {
       episodeId,
+      seriesId,
       title,
       episodeIndex,
       seriesIndex,
@@ -274,6 +383,9 @@ export default class EpisodeView extends React.Component {
       counter,
       purchased,
       offline,
+      requestEmailTrigger,
+      episodeOneNotCompletedEmailTrigger,
+      seriesBought,
     } = this.state;
     // console.log(exercises);
     this.props.navigation.navigate(navigateTo, {
@@ -281,6 +393,7 @@ export default class EpisodeView extends React.Component {
       mode,
       title,
       episodeId,
+      seriesId,
       episodeIndex,
       seriesIndex,
       exercises,
@@ -298,6 +411,9 @@ export default class EpisodeView extends React.Component {
       deviceId,
       purchased,
       offline,
+      requestEmailTrigger,
+      episodeOneNotCompletedEmailTrigger,
+      seriesBought,
     });
   }
 
@@ -461,7 +577,7 @@ export default class EpisodeView extends React.Component {
                   if (!netInfo && !offline) {
                     return this.setState({ showInternetModal: true });
                   }
-                  if ((offline && !episodeList) || !isConnected) {
+                  if ((offline && !episodeList) || !netInfo) {
                   // if (offline) {
                     return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
                   }
@@ -491,7 +607,7 @@ export default class EpisodeView extends React.Component {
                     return this.setState({ showInternetModal: true });
                   }
                   // if (offline) {
-                  if ((offline && !episodeList) || !isConnected) {
+                  if ((offline && !episodeList) || !netInfo) {
                     return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
                   }
                   this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');

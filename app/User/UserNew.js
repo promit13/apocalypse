@@ -287,7 +287,7 @@ export default class Signup extends React.Component {
             }}
           /> */}
         </ScrollView>
-        </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
       // </KeyboardAwareScrollView>
     );
   }

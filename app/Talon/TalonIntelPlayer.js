@@ -231,7 +231,9 @@ export default class TalonIntelPlayer extends Component {
 
   onLoad = (data) => {
     const { autoPlay } = this.props.navigation.state.params;
-    this.registerEvents(data);
+    if (!autoPlay) {
+      this.registerEvents(data);
+    }
     this.player.seek(this.state.currentTimem, 10);
     this.setState({ totalLength: data.duration, loading: false, paused: !autoPlay });
   };
@@ -305,9 +307,12 @@ export default class TalonIntelPlayer extends Component {
   }
 
   updateMusicControl = (elapsedTime) => {
-    MusicControl.updatePlayback({
-      elapsedTime,
-    });
+    const { autoPlay } = this.props.navigation.state.params;
+    if (!autoPlay) {
+      MusicControl.updatePlayback({
+        elapsedTime,
+      });
+    }
   }
 
   navigateBackTo = () => {

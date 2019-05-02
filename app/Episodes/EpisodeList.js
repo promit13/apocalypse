@@ -119,7 +119,7 @@ class EpisodeList extends React.Component {
     deleteStatus: false,
     showCancel: false,
     showCellularDialog: false,
-    pressStatus: false,
+    userDatas: null,
   }
 
   componentDidMount= async () => {
@@ -186,6 +186,7 @@ class EpisodeList extends React.Component {
                   completeEpisodes,
                   completeExercises,
                   deviceId,
+                  userDatas: snap.val(),
                 });
                 AsyncStorage.setItem('series', JSON.stringify({
                   uid: this.props.screenProps.user.uid,
@@ -214,6 +215,7 @@ class EpisodeList extends React.Component {
   // }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log('COM DID UPDATE');
     if (
       (this.props.downloadComplete === prevState.downloadActive)
       || (this.props.deleteStatus === this.state.deleteStatus)
@@ -242,6 +244,7 @@ class EpisodeList extends React.Component {
     workoutTime,
     videoSize,
     episodeIndex,
+    seriesKey,
     seriesIndex,
     deviceId,
     counter,
@@ -268,6 +271,7 @@ class EpisodeList extends React.Component {
           workoutTime,
           videoSize,
           episodeIndex,
+          seriesKey,
           seriesIndex,
           startWT,
           endWT,
@@ -287,6 +291,7 @@ class EpisodeList extends React.Component {
       workoutTime,
       videoSize,
       episodeIndex,
+      seriesId: seriesKey,
       seriesIndex,
       startWT,
       endWT,
@@ -296,22 +301,17 @@ class EpisodeList extends React.Component {
       purchased,
       offline: alreadyDownloaded,
       episodeList: true,
+      userDatas: this.state.userDatas,
+      seriesBought,
     });
     // });
-  }
-
-  onHideUnderlay() {
-    this.setState({ pressStatus: false });
-  }
-
-  onShowUnderlay() {
-    this.setState({ pressStatus: true });
   }
 
   getTitleAndId = (seriesIndex, episodeIndex, getImage) => {
     if (this.state.series === '') {
       return console.log('no series');
     }
+    const seriesKey = (Object.keys(this.state.series))[seriesIndex];
     const { uid, title, category } = ((Object.values(((Object.values(this.state.series))[seriesIndex]).episodes))[episodeIndex]);
     if (getImage) {
       if (category === 'Speed') {
@@ -324,7 +324,7 @@ class EpisodeList extends React.Component {
         return controlImage;
       }
     }
-    return { uid, title };
+    return { uid, title, seriesKey };
   }
 
   getEpisodesListSize = (seriesIndex) => {
@@ -356,6 +356,7 @@ class EpisodeList extends React.Component {
     const files = allEpisodes.map((episodeValue) => {
       return episodeValue.title;
     });
+    console.log(files);
     this.setState({
       filesList: files, index: 0, downloadActive: false, deleteStatus: false, showCancel: false,
     });
@@ -452,7 +453,7 @@ class EpisodeList extends React.Component {
 
   onRightIconPress = (
     buy, downloaded, title, uid, category, description, exercises, video, startWT, endWT,
-    totalTime, workoutTime, videoSize, episodeIndex, seriesIndex, completed,
+    totalTime, workoutTime, videoSize, episodeIndex, seriesKey, seriesIndex, completed,
   ) => {
     const { netInfo, connectionType } = this.props.screenProps;
     const { completeExercises, deviceId, downloadActive } = this.state;
@@ -483,6 +484,7 @@ class EpisodeList extends React.Component {
         downloadWorkoutTime: workoutTime,
         downloadVideoSize: videoSize,
         downloadEpisodeIndex: episodeIndex,
+        downloadSeriesKey: seriesKey,
         downloadSeriesIndex: seriesIndex,
         downloadBuy: buy,
         downloadDownloaded: downloaded,
@@ -506,6 +508,7 @@ class EpisodeList extends React.Component {
           workoutTime,
           videoSize,
           episodeIndex,
+          seriesKey,
           seriesIndex,
           deviceId,
           0,
@@ -606,6 +609,7 @@ class EpisodeList extends React.Component {
                               workoutTime,
                               videoSize,
                               episodeIndex,
+                              seriesKey,
                               seriesIndex,
                               deviceId,
                               counter,
@@ -625,11 +629,10 @@ class EpisodeList extends React.Component {
                   // ? { name: 'trash-2', type: 'feather', color: 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
                   ? (
                     <View style={styles.iconContainerView}>
-                      <TouchableOpacity hitSlop={{top: 10, bottom: 10 }} onPress={() => {
-                        console.log('RIGHT ICON PRESSED');
+                      <TouchableOpacity onPress={() => {
                         this.onRightIconPress(
                           buy, downloaded, title, uid, category, description, exercises, video, startWT, endWT,
-                          totalTime, workoutTime, videoSize, episodeIndex, seriesIndex, completed,
+                          totalTime, workoutTime, videoSize, episodeIndex, seriesKey, seriesIndex, completed,
                         );
                       }}>
                       <Icon
@@ -663,11 +666,10 @@ class EpisodeList extends React.Component {
                     // : { name: 'download', type: 'feather', color: !buy ? 'gray' : 'white', size: moderateScale(40), containerStyle: { padding : moderateScale(50) }}
                        : (
                          <View style={styles.iconContainerView}>
-                          <TouchableOpacity hitSlop={{top: 10, bottom: 10 }} onPress={() => {
-                            console.log('RIGHT ICON PRESSED');
+                          <TouchableOpacity onPress={() => {
                             this.onRightIconPress(
                               buy, downloaded, title, uid, category, description, exercises, video, startWT, endWT,
-                              totalTime, workoutTime, videoSize, episodeIndex, seriesIndex, completed,
+                              totalTime, workoutTime, videoSize, episodeIndex, seriesKey, seriesIndex, completed,
                             );
                           }}>
                           <Icon
@@ -709,6 +711,7 @@ class EpisodeList extends React.Component {
                   workoutTime,
                   videoSize,
                   episodeIndex,
+                  seriesKey,
                   seriesIndex,
                   deviceId,
                   counter,
@@ -787,12 +790,12 @@ class EpisodeList extends React.Component {
 
   render() {
     const {
-      lastPlayedEpisode, completeEpisodes, loading, showModal,
+      lastPlayedEpisode, completeEpisodes, loading, showModal, filesList,
       modalText, deviceId, showDeleteDialog, deleteEpisode,
-      deleteFileTitle, downloadActive, modalDescription, completeExercises, showCellularDialog, pressStatus,
+      deleteFileTitle, downloadActive, modalDescription, completeExercises, showCellularDialog,
       downloadTitle, downloadUid, downloadCategory, downloadDescription, downloadExercises,
       downloadVideo, downloadStartWT, downloadEndWT, downloadTotalTime,
-      downloadWorkoutTime, downloadVideoSize, downloadEpisodeIndex,
+      downloadWorkoutTime, downloadVideoSize, downloadEpisodeIndex, downloadSeriesKey,
       downloadSeriesIndex, downloadBuy, downloadDownloaded, downloadCompleted,
     } = this.state;
     const { netInfo } = this.props.screenProps;
@@ -809,9 +812,9 @@ class EpisodeList extends React.Component {
         {/* <StatusBar hidden /> */}
         <StatusBar backgroundColor="#00000b" barStyle="light-content" />
         { !netInfo ? <OfflineMsg margin={18} showText /> : null }
-        <NavigationEvents
+        {/* <NavigationEvents
           onDidFocus={() => { downloadActive ? null : this.readDirectory(); }}
-        />
+        /> */}
         <ScrollView>
           <View>
             <Image
@@ -823,37 +826,35 @@ class EpisodeList extends React.Component {
             <TouchableHighlight
               underlayColor="black"
               activeOpacity={0.6}
-              onHideUnderlay={() => this.onHideUnderlay()}
-              onShowUnderlay={() => this.onShowUnderlay()}
               onPress={() => {
-                if (!netInfo) {
-                  return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
-                }
                 const epIndex = lastPlayedEpisode === ''
-                  ? 0
-                  : (
-                      episodeCompleted
-                      ? (
-                            (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
-                              ? 0
-                              : (episodeIndex + 1)
-                        )
+                ? 0
+                : (
+                    episodeCompleted
+                    ? (
+                          (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                            ? 0
+                            : (episodeIndex + 1)
+                      )
                       : episodeIndex
-                    )
+                  );
                 const serIndex = lastPlayedEpisode === '' ? 0 : seriesIndex;
                 const id = lastPlayedEpisode === ''
                   ? this.getTitleAndId(0, 0).uid
                   : (
-                      episodeCompleted
-                        ? (
-                            (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
-                              ? this.getTitleAndId(seriesIndex, 0).uid
-                              : this.getTitleAndId(seriesIndex, episodeIndex + 1).uid
-                          )
-                        : episodeId
-                    )
+                    episodeCompleted
+                      ? (
+                        (episodeIndex + 1) === this.getEpisodesListSize(seriesIndex)
+                          ? this.getTitleAndId(seriesIndex, 0).uid
+                          : this.getTitleAndId(seriesIndex, episodeIndex + 1).uid
+                      )
+                      : episodeId
+                  );
+                const seriesKey = lastPlayedEpisode === ''
+                  ? this.getTitleAndId(0, 0).seriesKey
+                  : this.getTitleAndId(seriesIndex, 0).seriesKey;
+                
                 const counter = this.getEpisodeCount(epIndex, serIndex, id);
-                console.log(counter);
                 if (counter === 2) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }
@@ -861,7 +862,10 @@ class EpisodeList extends React.Component {
                 const {
                   totalTime, workoutTime, videoSize, title, category, description, exercises, video, startWT, endWT,
                 } = completeEpisodes[id];
-                
+                const downloaded = filesList.includes(title);
+                if (!netInfo && !downloaded) {
+                  return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
+                }
                 this.onEpisodeClick(
                   (epIndex + 1),
                   title,
@@ -877,12 +881,14 @@ class EpisodeList extends React.Component {
                   workoutTime,
                   videoSize,
                   epIndex,
+                  seriesKey,
                   serIndex,
                   deviceId,
                   counter,
                   buy,
+                  downloaded,
                 );
-            }}
+              }}
             >
               <View style={styles.playingEpisodeView}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -912,7 +918,7 @@ class EpisodeList extends React.Component {
                     <Text style={{
                       fontSize: moderateScale(20),
                       fontWeight: 'bold',
-                      color: pressStatus ? 'white' : '#001331',
+                      color: '#001331',
                       marginLeft: 10,
                       marginRight: 10,
                     }}
@@ -932,7 +938,7 @@ class EpisodeList extends React.Component {
                       }
                     </Text>
                     <Text style={{
-                      color: pressStatus ? 'white' : '#001331',
+                      color: '#001331',
                       fontSize: moderateScale(16),
                       fontWeight: 'bold',
                       marginLeft: 10,
@@ -1015,6 +1021,7 @@ class EpisodeList extends React.Component {
                         downloadWorkoutTime,
                         downloadVideoSize,
                         downloadEpisodeIndex,
+                        downloadSeriesKey,
                         downloadSeriesIndex,
                         deviceId,
                         0,

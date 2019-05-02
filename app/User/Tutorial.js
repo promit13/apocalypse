@@ -26,11 +26,11 @@ const styles = {
     marginTop: moderateScale(20),
     color: 'white',
     textAlign: 'center',
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(16),
   },
   imageStyle: {
-    height: moderateScale((width - 150), -0.2),
-    width: moderateScale((width - 90), -0.2),
+    height: moderateScale((width - 120), -0.2),
+    width: moderateScale((width - 120), -0.2),
   },
   slideStyle: {
     flex: 1,
