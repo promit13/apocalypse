@@ -8,6 +8,7 @@ import MusicControl from 'react-native-music-control';
 import { moderateScale } from 'react-native-size-matters';
 import RNFetchBlob from 'react-native-fetch-blob';
 import Orientation from 'react-native-orientation';
+import KeepAwake from 'react-native-keep-awake';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
@@ -595,6 +596,7 @@ export default class TalonIntelPlayer extends Component {
           });
         }}
       >
+        <KeepAwake />
         {this.detectOrientation()}
         {video}
       </View>

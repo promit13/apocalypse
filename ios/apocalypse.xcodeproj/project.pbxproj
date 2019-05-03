@@ -28,17 +28,17 @@
 		2C183CD4FBB845F19C7EC545 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B85B2F08F4654DBA94CA412D /* libc++.tbd */; };
 		2D9362C6ED1C4F1A85ABF704 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F09C6612AA79443199E27D91 /* libRNFS.a */; };
 		3C7DB248E2DD419EA161E2DE /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C9E5E6FAC3D24DC98A801E5F /* Octicons.ttf */; };
-		572173846E5B4155B16300D5 /* libRealmReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 91BA04762F544E5EB3489DA5 /* libRealmReact.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		64E9164381C946F0ADCBE7DD /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CDAF931A4AE049A8BDCFAB5F /* Ionicons.ttf */; };
 		703731611B2948568AC57B7A /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BEAD8975423F4BE2851FD93F /* FontAwesome.ttf */; };
-		721000EC0703AF27420D8A1E /* libPods-apocalypse.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D6E77303E3ABB6C26BA0DE2B /* libPods-apocalypse.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		8B1ADF4721F0E5CE00FAE18A /* libMusicControl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B1ADF4421F0E5B000FAE18A /* libMusicControl.a */; };
 		8B30190822390A68002658E1 /* libfishhook.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D16E6841FA4F8DC00B85C8A /* libfishhook.a */; };
 		8B3A3F0722380AA500F16130 /* libRNFirebase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B3A3F0122380A9000F16130 /* libRNFirebase.a */; };
 		8B7FF42021E8C95A001B6C4B /* libART.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B7FF3E721E8C93E001B6C4B /* libART.a */; };
 		8B823FBB212D60E4004C1EE0 /* libRNPedometer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B823FB9212D60A2004C1EE0 /* libRNPedometer.a */; };
+		8BA6D11C227C43D50017FAC7 /* libRealmReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B5E0321215B913800D9168B /* libRealmReact.a */; };
+		8BA6D1B3227C78D50017FAC7 /* libKCKeepAwake.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA6D17B227C78720017FAC7 /* libKCKeepAwake.a */; };
 		8BAA45A9220C9E2600558E42 /* libRCTFBSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD817FE216CAE260012E530 /* libRCTFBSDK.a */; };
 		8BAEEFA82237C178003FFA09 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BAEEFA72237C178003FFA09 /* GoogleService-Info.plist */; };
 		8BB35EE22137FA7C004CF383 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB35EE12137FA7C004CF383 /* StoreKit.framework */; };
@@ -481,6 +481,13 @@
 			remoteGlobalIDString = 844442D81CB01D4A00E10B29;
 			remoteInfo = RNPedometer;
 		};
+		8BA6D17A227C78720017FAC7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8BA6D174227C78720017FAC7 /* KCKeepAwake.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = KCKeepAwake;
+		};
 		8BB35EA42137EA47004CF383 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9B3C12BA10ED4DB5ABFCAD34 /* RNIap.xcodeproj */;
@@ -560,6 +567,7 @@
 		8B3A3EC922380A9000F16130 /* RNFirebase.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFirebase.xcodeproj; path = "../node_modules/react-native-firebase/ios/RNFirebase.xcodeproj"; sourceTree = "<group>"; };
 		8B7FF3E121E8C93E001B6C4B /* ART.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ART.xcodeproj; path = "../node_modules/react-native/Libraries/ART/ART.xcodeproj"; sourceTree = "<group>"; };
 		8B823F8C212D60A2004C1EE0 /* RNPedometer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNPedometer.xcodeproj; path = "../node_modules/react-native-pedometer/RNPedometer.xcodeproj"; sourceTree = "<group>"; };
+		8BA6D174227C78720017FAC7 /* KCKeepAwake.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KCKeepAwake.xcodeproj; path = "../node_modules/react-native-keep-awake/ios/KCKeepAwake.xcodeproj"; sourceTree = "<group>"; };
 		8BAEEFA72237C178003FFA09 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8BB35EE12137FA7C004CF383 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		8BB6B1A8225F5126001746D0 /* AST.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = AST.entitlements; path = apocalypse/AST.entitlements; sourceTree = "<group>"; };
@@ -611,6 +619,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BA6D1B3227C78D50017FAC7 /* libKCKeepAwake.a in Frameworks */,
+				8BA6D11C227C43D50017FAC7 /* libRealmReact.a in Frameworks */,
 				8BB6B1FF225F5819001746D0 /* UserNotifications.framework in Frameworks */,
 				8B30190822390A68002658E1 /* libfishhook.a in Frameworks */,
 				8B3A3F0722380AA500F16130 /* libRNFirebase.a in Frameworks */,
@@ -637,7 +647,6 @@
 				8BB35EE22137FA7C004CF383 /* StoreKit.framework in Frameworks */,
 				DA60E0017FBB4F54BE0824F9 /* libRNFetchBlob.a in Frameworks */,
 				2D9362C6ED1C4F1A85ABF704 /* libRNFS.a in Frameworks */,
-				572173846E5B4155B16300D5 /* libRealmReact.a in Frameworks */,
 				2C183CD4FBB845F19C7EC545 /* libc++.tbd in Frameworks */,
 				D8181C06A65C4524B433E796 /* libz.tbd in Frameworks */,
 				AF7759E617ED48DDA8C431CF /* libReactNativePermissions.a in Frameworks */,
@@ -645,7 +654,6 @@
 				FBDF640E14DD41588DE34A98 /* libRNDeviceInfo.a in Frameworks */,
 				C12E087CF173423BB8FE81B3 /* libRNBackgroundDownloader.a in Frameworks */,
 				00AFC073267CF6BD5DA0D54D /* libPods-apocalypse.a in Frameworks */,
-				721000EC0703AF27420D8A1E /* libPods-apocalypse.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -855,6 +863,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				8BA6D174227C78720017FAC7 /* KCKeepAwake.xcodeproj */,
 				8B3A3EC922380A9000F16130 /* RNFirebase.xcodeproj */,
 				8B1ADF3E21F0E5B000FAE18A /* MusicControl.xcodeproj */,
 				8BC03E4421EDE730007FA34C /* RCTVideo.xcodeproj */,
@@ -1042,6 +1051,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8BA6D175227C78720017FAC7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8BA6D17B227C78720017FAC7 /* libKCKeepAwake.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		8BB35EA12137EA47004CF383 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1206,6 +1223,10 @@
 				{
 					ProductGroup = 8B7FF3E221E8C93E001B6C4B /* Products */;
 					ProjectRef = 8B7FF3E121E8C93E001B6C4B /* ART.xcodeproj */;
+				},
+				{
+					ProductGroup = 8BA6D175227C78720017FAC7 /* Products */;
+					ProjectRef = 8BA6D174227C78720017FAC7 /* KCKeepAwake.xcodeproj */;
 				},
 				{
 					ProductGroup = 8B1ADF3F21F0E5B000FAE18A /* Products */;
@@ -1686,6 +1707,13 @@
 			remoteRef = 8B823FB8212D60A2004C1EE0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		8BA6D17B227C78720017FAC7 /* libKCKeepAwake.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libKCKeepAwake.a;
+			remoteRef = 8BA6D17A227C78720017FAC7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		8BB35EA52137EA47004CF383 /* libRNIap.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1969,10 +1997,7 @@
 				INFOPLIST_FILE = apocalypseTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -2009,10 +2034,7 @@
 				INFOPLIST_FILE = apocalypseTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",

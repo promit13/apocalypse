@@ -27,6 +27,7 @@
     "react-native-google-fit": "^0.5.2",
     "react-native-iap": "^2.3.19",
     "react-native-image-placeholder": "^1.0.14",
+    "react-native-keep-awake": "^3.2.0",
     "react-native-keyboard-aware-scroll-view": "^0.7.4",
     "react-native-modal-dropdown": "^0.6.2",
     "react-native-music-control": "^0.9.7",

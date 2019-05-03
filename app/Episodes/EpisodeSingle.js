@@ -10,6 +10,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import Video from 'react-native-video';
 import Pedometer from 'react-native-pedometer';
 import GoogleFit from 'react-native-google-fit';
+import KeepAwake from 'react-native-keep-awake';
 import Orientation from 'react-native-orientation';
 import firebase from '../config/firebase';
 import AlbumArt from '../common/AlbumArt';
@@ -1265,6 +1266,7 @@ export default class EpisodeSingle extends Component {
           });
         }}
       >
+        <KeepAwake />
         {this.detectOrientation()}
         {videoPlayer}
       </View>

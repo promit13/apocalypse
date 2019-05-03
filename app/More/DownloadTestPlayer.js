@@ -10,6 +10,7 @@ import RNFetchBlob from 'react-native-fetch-blob';
 import Pedometer from 'react-native-pedometer';
 import GoogleFit from 'react-native-google-fit';
 import Orientation from 'react-native-orientation';
+import KeepAwake from 'react-native-keep-awake';
 import AlbumArt from '../common/AlbumArt';
 import Controls from '../common/Controls';
 import Seekbar from '../common/Seekbar';
@@ -1186,6 +1187,7 @@ export default class DownloadTestPlayer extends Component {
           });
         }}
       >
+        <KeepAwake />
         {this.detectOrientation()}
         {videoPlayer}
       </View>
