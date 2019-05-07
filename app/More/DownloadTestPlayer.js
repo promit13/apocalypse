@@ -124,6 +124,7 @@ export default class DownloadTestPlayer extends Component {
     seriesId: '',
     episodeTitle: '',
     uid: '',
+    email: '',
     logId: '',
     loggedWorkOut: '',
     lastLoggedDate: 0,
@@ -168,7 +169,7 @@ export default class DownloadTestPlayer extends Component {
     const platform = Platform.OS;
     const dirs = RNFetchBlob.fs.dirs.DocumentDir;
     const {
-      check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid, exercises, seriesId,
+      check, episodeId, episodeIndex, seriesIndex, title, mode, category, advance, uid, exercises, seriesId, email,
     } = this.props.navigation.state.params;
     const { cmsTitle } = (exercises[0])[0];
     const formattedFileName = title.replace(/ /g, '_');
@@ -186,6 +187,7 @@ export default class DownloadTestPlayer extends Component {
       mode,
       episodeTitle: title,
       uid,
+      email,
       playingExercise: { value: { image: cmsTitle, title: '' } },
     });
     if (platform === 'android') {
@@ -421,7 +423,7 @@ export default class DownloadTestPlayer extends Component {
       uid, episodeId, seriesId, episodeTitle, distance, currentTime,
       lastLoggedDate, logId, steps, episodeIndex, seriesIndex, listen,
       workOutCompleted, trackingStarted, workOutTime, category,
-      episodeCompleted, workOutEpisodeCompleted,
+      episodeCompleted, workOutEpisodeCompleted, email,
     } = this.state;
     const currentDate = this.getDate();
     if (listen) {
@@ -465,7 +467,7 @@ export default class DownloadTestPlayer extends Component {
     });
     realm.write(() => {
       realm.create('SavedWorkOut', {
-        uid, episodeId, workOutLogs: workOutLogsArray, seriesId,
+        uid, episodeId, workOutLogs: workOutLogsArray, seriesId, email,
       }, true);
     });
     this.setState({ sendDataToServer: workOutEpisodeCompleted ? true : false });
@@ -487,7 +489,7 @@ export default class DownloadTestPlayer extends Component {
 
   getTimeFirebase = async () => {
     const {
-      episodeId, episodeIndex, seriesIndex, title, category, uid, check, seriesId,
+      episodeId, episodeIndex, seriesIndex, title, category, uid, check, seriesId, email,
     } = this.props.navigation.state.params;
     if (check) {
       try {
@@ -514,7 +516,7 @@ export default class DownloadTestPlayer extends Component {
     if (workOut.length === 0) {
       realm.write(() => {
         const createWorkOut = realm.create('SavedWorkOut', {
-          uid, episodeId, seriesId, workOutLogs: [],
+          uid, episodeId, seriesId, email, workOutLogs: [],
         });
         createWorkOut.workOutLogs.push({
           logId: 0,
@@ -711,7 +713,7 @@ export default class DownloadTestPlayer extends Component {
           this.setTimeFirebase();
         }
         if (!workOutEpisodeCompleted) {
-          if (episodeIndex === 10 && !epOneNotCompleted) {
+          if (episodeIndex === 0 && !epOneNotCompleted) {
             await AsyncStorage.setItem('emailTrigger', JSON.stringify({
               epOneCompleted,
               epOneNotCompleted: true,
@@ -778,9 +780,9 @@ export default class DownloadTestPlayer extends Component {
       epTenCompleted,
     } = this.state;
     await AsyncStorage.setItem('emailTrigger', JSON.stringify({
-      epOneCompleted: episodeIndex === 10 ? true : epOneCompleted,
-      epOneNotCompleted: episodeIndex === 10 ? true : epOneNotCompleted,
-      epTwoCompleted: episodeIndex === 11 ? true : epTwoCompleted,
+      epOneCompleted: episodeIndex === 0 ? true : epOneCompleted,
+      epOneNotCompleted: episodeIndex === 0 ? true : epOneNotCompleted,
+      epTwoCompleted: episodeIndex === 1 ? true : epTwoCompleted,
       epThreeCompleted: episodeIndex === 2 ? true : epThreeCompleted,
       epTenCompleted: episodeIndex === 9 ? true : epTenCompleted,
     }));
@@ -795,9 +797,9 @@ export default class DownloadTestPlayer extends Component {
       epThreeCompleted,
       epTenCompleted,
     } = this.state;
-    if (episodeIndex === 10 && !epOneCompleted) {
+    if (episodeIndex === 0 && !epOneCompleted) {
       this.setEmail(episodeIndex);
-    } else if (episodeIndex === 11 && !epTwoCompleted) {
+    } else if (episodeIndex === 1 && !epTwoCompleted) {
       this.setEmail(episodeIndex);
     } else if (episodeIndex === 2 && !epThreeCompleted) {
       this.setEmail(episodeIndex);

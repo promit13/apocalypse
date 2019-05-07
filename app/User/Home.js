@@ -25,9 +25,8 @@ export default class Home extends React.Component {
     userLoggedIn: false,
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     const { netInfo } = this.props.screenProps;
-    console.log(netInfo);
     // this.setState({ isConnected: netInfo });
     this.handleConnectivityChange(netInfo);
   }
@@ -97,10 +96,12 @@ export default class Home extends React.Component {
     }
   }
 
-  sendEmail = (episodeIndex, seriesBought, episodeCompleted) => {
+  sendEmail = async (uid, episodeIndex, email, episodeCompleted) => {
+    const seriesBought = await AsyncStorage.getItem('seriesBought');
     axios.post('https://us-central1-astraining-95c0a.cloudfunctions.net/sendMailChimp', {
-      email: 'ab@a.com',
-      episodeIndex: '2',
+      email,
+      uid,
+      episodeIndex,
       seriesBought,
       episodeCompleted,
     })
@@ -108,12 +109,12 @@ export default class Home extends React.Component {
       .catch(err => console.log(err));
   }
 
-  setEmailData = (sendTo, uid, episodeIndex, episodeCompleted, check, epOneNotCompleted) => {
+  setEmailData = (sendTo, uid, episodeIndex, email, episodeCompleted, check, epOneNotCompleted) => {
     console.log(sendTo);
     firebase.database().ref(`userDatas/${uid}/${sendTo}`).set({
       emailSent: '1',
     }).then(() => {
-      this.sendEmail(episodeIndex, true, episodeCompleted);
+      this.sendEmail(uid, episodeIndex, email, episodeCompleted);
       console.log('EMAIL TRIGGERED');
       if (check && epOneNotCompleted === true) {
         firebase.database().ref(`userDatas/${uid}/epOneNotCompleted`).set({
@@ -148,7 +149,10 @@ export default class Home extends React.Component {
     }
     const allEpisodeWorkoutArray = Array.from(realm.objects('SavedWorkOut'));
     allEpisodeWorkoutArray.map(async (value, index) => {
-      const { episodeId, uid, workOutLogs } = value;
+      console.log(value);
+      const {
+        episodeId, uid, workOutLogs, email,
+      } = value;
       if (index === 0) {
         const offlineEmailData = await AsyncStorage.getItem('emailTrigger');
         if (offlineEmailData !== null) {
@@ -162,21 +166,21 @@ export default class Home extends React.Component {
             epTenCompleted,
           } = jsonObjectEmailData;
           if (epOneCompleted === true) {
-            this.setEmailData('epOneCompleted', uid, 0, true, true, epOneNotCompleted);
+            this.setEmailData('epOneCompleted', uid, 0, email, true, true, epOneNotCompleted);
           }
           if (!epOneCompleted) {
             if (epOneNotCompleted) {
-              this.setEmailData('epOneNotCompleted', uid, 0, false);
+              this.setEmailData('epOneNotCompleted', uid, 0, email, false);
             }
           }
           if (epTwoCompleted) {
-            this.setEmailData('epTwoCompleted', uid, 1, true);
+            this.setEmailData('epTwoCompleted', uid, 1, email, true);
           }
           if (epThreeCompleted) {
-            this.setEmailData('epThreeCompleted', uid, 2, true);
+            this.setEmailData('epThreeCompleted', uid, 2, email, true);
           }
           if (epTenCompleted) {
-            this.setEmailData('epTenCompleted', uid, 9, true);
+            this.setEmailData('epTenCompleted', uid, 9, email, true);
           }
           AsyncStorage.setItem('emailTrigger', JSON.stringify({
             epOneCompleted: epOneCompleted === true ? '1' : epOneCompleted,

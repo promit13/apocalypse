@@ -47,6 +47,7 @@ SavedWorkOut.schema = {
     uid: 'string',
     episodeId: 'string',
     seriesId: 'string',
+    email: 'string',
     workOutLogs: { type: 'list', objectType: 'SavedWorkoutLogs' },
   },
 };

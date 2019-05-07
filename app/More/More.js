@@ -1,11 +1,14 @@
 import React from 'react';
 import {
-  ScrollView, View, StatusBar, Alert, Image, Linking, TouchableOpacity,
+  ScrollView, View, StatusBar, Alert, Image, Linking, TouchableOpacity, Modal, TextInput,
 } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
-import { ListItem, Icon, Text } from 'react-native-elements';
+import { ListItem, Icon, Text, Button } from 'react-native-elements';
 import OfflineMsg from '../common/OfflineMsg';
 import ShowModal from '../common/ShowModal';
+import ErrorMessage from '../common/Error';
+import Loading from '../common/Loading';
+import firebase from '../config/firebase';
 
 const episodesIcon = require('../../img/episodes.png');
 
@@ -28,14 +31,17 @@ const menu = {
   tips: {
     title: 'FAQ', navigateTo: 'Tips', iconName: 'star', iconType: 'entypo', margin: 5,
   },
-  downloads: {
-    title: 'Manage Downloads', navigateTo: 'Downloads', iconName: 'ios-cloud-download', iconType: 'ionicon', margin: 8,
-  },
+  // downloads: {
+  //   title: 'Manage Downloads', navigateTo: 'Downloads', iconName: 'ios-cloud-download', iconType: 'ionicon', margin: 8,
+  // },
   agreement: {
     title: 'User Agreement', navigateTo: 'Agreement', iconName: 'check', iconType: 'entypo', margin: 5,
   },
   feedback: {
     title: 'Feedback', navigateTo: 'Feedback', iconName: 'message-circle', iconType: 'feather', margin: 5,
+  },
+  redeem: {
+    title: 'Redeem Code', navigateTo: 'Redeem', iconName: 'redeem', iconType: 'material', margin: 5,
   },
   // notification: {
   //   title: 'Notification', navigateTo: 'Notification', iconName: 'bell', iconType: 'feather', margin: 5,
@@ -57,6 +63,30 @@ const styles = {
     marginLeft: moderateScale(10),
     flex: 0.7,
   },
+  modalView: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: moderateScale(10),
+  },
+  modalInnerView: {
+    backgroundColor: '#f2f2f2',
+    padding: moderateScale(10),
+  },
+  inputStyle: {
+    borderColor: '#001331',
+    borderRadius: moderateScale(5),
+    borderWidth: moderateScale(2),
+    padding: moderateScale(10),
+    height: moderateScale(40),
+    color: '#001331',
+    margin: moderateScale(10),
+    fontSize: moderateScale(12),
+  },
+  button: {
+    borderRadius: moderateScale(5),
+    backgroundColor: '#001331',
+  },
 };
 
 export default class More extends React.Component {
@@ -66,27 +96,100 @@ export default class More extends React.Component {
   
   state = {
     showNoInternetDialog: false,
+    showRedeemPopUp: false,
+    showLoading: false,
+    showError: false,
+    code: '',
+    modalMessage: '',
   }
 
   sendEmail = () => {
     Linking.openURL('mailto:appfeedback@imaginactive-fitness.com?subject=AST Feedback&body=Description');
   }
 
+  checkRedeemCode = (code) => {
+    const { uid } = this.props.screenProps.user;
+    if (uid === code) {
+      firebase.database().ref(`userDatas/${uid}/code`).set({
+        hasRedeemCode: true,
+      }).then(() => this.setState({
+        showError: false,
+        showLoading: false,
+        showRedeemPopUp: false,
+        showNoInternetDialog: true,
+        modalMessage: 'Code check successful',
+      }));
+    } else {
+      this.setState({ showError: true, showLoading: false });
+    }
+  }
+
+  showModal = () => {
+    const { showRedeemPopUp, showLoading, showError, code } = this.state;
+    const { netInfo } = this.props.screenProps;
+    return (
+      <Modal transparent visible={showRedeemPopUp}>
+        <View style={styles.modalView}>
+          <TouchableOpacity onPress={() => this.setState({ showRedeemPopUp: false })}>
+            <View style={styles.modalInnerView}>
+              <TextInput
+                underlineColorAndroid="transparent"
+                style={styles.inputStyle}
+                placeholder="Enter your redeem code"
+                placeholderTextColor="#001331"
+                onChangeText={password => this.setState({ code: password })}
+                value={code}
+              />
+              {showError ? <ErrorMessage errorMessage="Incorrect code" /> : null}
+              {showLoading ? <Loading /> : null}
+              <Button
+                color="#001331"
+                buttonStyle={[styles.button, { backgroundColor: 'white' }]}
+                fontSize={moderateScale(18)}
+                title="Cancel"
+                onPress={() => {
+                  this.setState({ showRedeemPopUp: false });
+                }}
+              />
+              <Button
+                color="#fff"
+                buttonStyle={[styles.button, { marginTop: moderateScale(10) }]}
+                fontSize={moderateScale(18)}
+                title="Confirm"
+                onPress={() => {
+                  if (!netInfo) {
+                    return this.setState({ showNoInternetDialog: true, modalMessage: 'Please check your internet connection' });
+                  }
+                  this.setState({ showLoading: true });
+                  this.checkRedeemCode(code);
+                }}
+              />
+              {/* </View> */}
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    );
+  }
+
   navigateTo = (navigateScreen) => {
     const { netInfo } = this.props.screenProps;
     const screenArray = ['Downloads', 'Tips', 'Agreement', 'Tutorial', 'Credits', 'Kickstarter'];
     if (!netInfo && !screenArray.includes(navigateScreen)) {
-      return this.setState({ showNoInternetDialog: true });
+      return this.setState({ showNoInternetDialog: true, modalMessage: 'Please check your internet connection' });
     }
     if (navigateScreen === 'Feedback') {
       return this.sendEmail();
+    }
+    if (navigateScreen === 'Redeem') {
+      return this.setState({ showRedeemPopUp: true });
     }
     this.props.navigation.navigate(navigateScreen, { showButton: false, showCheckbox: false });
     // showButton for tutorial, showCheckbox for Agreement
   }
 
   render() {
-    const { showNoInternetDialog } = this.state;
+    const { showNoInternetDialog, modalMessage } = this.state;
     const { netInfo } = this.props.screenProps;
     const menuList = Object.entries(menu).map(([key, value], i) => {
       return (
@@ -171,12 +274,13 @@ export default class More extends React.Component {
         { !netInfo ? <OfflineMsg /> : null }
         <ShowModal
           visible={showNoInternetDialog}
-          title="Please check your internet connection"
+          title={modalMessage}
           buttonText="OK"
           onPress={() => {
             this.setState({ showNoInternetDialog: false });
           }}
         />
+        {this.showModal()}
         <ScrollView>
           { menuList }
         </ScrollView>

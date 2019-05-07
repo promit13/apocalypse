@@ -772,6 +772,7 @@ export default class EpisodeSingle extends Component {
     const {
       episodeIndex,
       episodeOneNotCompletedEmailTrigger,
+      seriesBought,
     } = this.props.navigation.state.params;
     Orientation.lockToPortrait();
     try {
@@ -786,8 +787,8 @@ export default class EpisodeSingle extends Component {
           this.setTimeFirebase();
         }
         if (!workOutEpisodeCompleted) {
-          if (episodeIndex === 10 && !episodeOneNotCompletedEmailTrigger) {
-            this.setEmailData(false, episodeIndex, 'epOneNotCompleted', true, true);
+          if (episodeIndex === 0 && !episodeOneNotCompletedEmailTrigger) {
+            this.setEmailData(false, episodeIndex, 'epOneNotCompleted', seriesBought, true, true);
           }
         }
         if (workOutEpisodeCompleted) {
@@ -849,9 +850,11 @@ export default class EpisodeSingle extends Component {
   };
 
   sendEmail = (episodeIndex, seriesBought, episodeCompleted) => {
+    const { email, uid } = this.props.screenProps.user;
     axios.post('https://us-central1-astraining-95c0a.cloudfunctions.net/sendMailChimp', {
-      email: 'ab@a.com',
-      episodeIndex: '2',
+      email,
+      uid,
+      episodeIndex,
       seriesBought,
       episodeCompleted,
     })
@@ -865,7 +868,7 @@ export default class EpisodeSingle extends Component {
     }).then(() => {
       this.sendEmail(episodeIndex, seriesBought, episodeCompleted);
       console.log('EMAIL TRIGGERED');
-      if (episodeIndex === 10 && !episodeOneNotCompletedEmailTrigger) {
+      if (episodeIndex === 0 && !episodeOneNotCompletedEmailTrigger) {
         firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}/epOneNotCompleted`).set({
           emailSent: '1',
         });
@@ -883,9 +886,9 @@ export default class EpisodeSingle extends Component {
     if (requestEmailTrigger) {
       return;
     }
-    if (episodeIndex === 10) {
+    if (episodeIndex === 0) {
       this.setEmailData(true, episodeIndex, 'epOneCompleted', seriesBought, episodeOneNotCompletedEmailTrigger);
-    } else if (episodeIndex === 11) {
+    } else if (episodeIndex === 1) {
       this.setEmailData(true, episodeIndex, 'epTwoCompleted', seriesBought);
     } else if (episodeIndex === 2) {
       this.setEmailData(true, episodeIndex, 'epThreeCompleted', seriesBought);

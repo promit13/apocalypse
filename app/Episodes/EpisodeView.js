@@ -74,6 +74,7 @@ export default class EpisodeView extends React.Component {
     workoutTime: '',
     totalTime: '',
     uid: '',
+    email: '',
     seriesId: '',
     videoSize: '',
     episodeIndex: '',
@@ -143,6 +144,7 @@ export default class EpisodeView extends React.Component {
     if (offline) {
       this.getOfflineDatas(title, deviceId, offline, purchased, counter, episodeList, netInfo, seriesBought, userDatas);
     } else {
+      const { uid, email } = this.props.screenProps.user;
       let freeTrials;
       if (counter === 0) {
         freeTrials = 'two';
@@ -183,7 +185,8 @@ export default class EpisodeView extends React.Component {
         offline,
         counter,
         freeTrials,
-        uid: this.props.screenProps.user.uid,
+        uid,
+        email,
         completeExercises,
         loading: false,
         episodeList,
@@ -213,14 +216,14 @@ export default class EpisodeView extends React.Component {
     const {
       epOneCompleted, epOneNotCompleted, epTwoCompleted, epThreeCompleted, epTenCompleted,
     } = userDatas;
-    if (episodeIndex === 10) {
+    if (episodeIndex === 0) {
       if (epOneCompleted !== undefined) {
         requestEmailTrigger = true;
       }
       if (epOneNotCompleted !== undefined) {
         episodeOneNotCompletedEmailTrigger = true;
       }
-    } else if (episodeIndex === 11) {
+    } else if (episodeIndex === 1) {
       if (epTwoCompleted !== undefined) {
         requestEmailTrigger = true;
       }
@@ -255,7 +258,7 @@ export default class EpisodeView extends React.Component {
     let episodeOneNotCompletedEmailTrigger = false;
     const offlineData = await AsyncStorage.getItem('series');
     const jsonObjectData = JSON.parse(offlineData);
-    const { uid } = jsonObjectData;
+    const { uid, email } = jsonObjectData;
     const episodeDetail = Array.from(realm.objects('SavedEpisodes').filtered(`title="${episodeTitle}"`));
     const {
       category,
@@ -328,6 +331,7 @@ export default class EpisodeView extends React.Component {
       endWT,
       videoSize,
       uid,
+      email,
       video,
       deviceId,
       purchased,
@@ -379,6 +383,7 @@ export default class EpisodeView extends React.Component {
       completeExercises,
       workoutTime,
       uid,
+      email,
       deviceId,
       counter,
       purchased,
@@ -406,6 +411,7 @@ export default class EpisodeView extends React.Component {
       advance,
       workoutTime,
       uid,
+      email,
       counter,
       completeExercises,
       deviceId,
