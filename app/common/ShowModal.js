@@ -47,7 +47,7 @@ export default ShowModal = ({
   onPress,
   showImage,
 }) => (
-  <Modal transparent visible={visible}>
+  <Modal transparent visible={visible} supportedOrientations={['portrait', 'landscape']}>
     <View style={styles.modal}>
       <View style={styles.modalInnerView}>
         {

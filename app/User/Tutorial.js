@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, View, ScrollView, Dimensions, Platform, AsyncStorage } from 'react-native';
 import { Text, Button } from 'react-native-elements';
-import { moderateScale } from 'react-native-size-matters';
+import { moderateScale, scale } from 'react-native-size-matters';
 import Video from 'react-native-video';
 import Swiper from 'react-native-swiper';
 import firebase from '../config/firebase';
@@ -29,8 +29,8 @@ const styles = {
     fontSize: moderateScale(16),
   },
   imageStyle: {
-    height: moderateScale((width - 120), -0.2),
-    width: moderateScale((width - 120), -0.2),
+    height: scale(width - 120),
+    width: scale(width - 120),
   },
   slideStyle: {
     flex: 1,

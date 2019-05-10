@@ -156,11 +156,12 @@ export default class EpisodeSingle extends Component {
     counter: 0,
     workOutEpisodeCompleted: false,
     sendDataToServer: false,
+    showExitDialog: false,
   };
 
   componentDidMount = () => {
     Orientation.unlockAllOrientations();
-    this.props.navigation.setParams({ handleSave: this.navigateToEpisodeView });
+    this.props.navigation.setParams({ handleSave: this.handleBackButton });
     const platform = Platform.OS;
     const {
       check, episodeId, episodeIndex, seriesIndex, video, title, mode, category, advance, uid, deviceId, purchased, counter, offline, exercises, completeExercises,
@@ -807,9 +808,8 @@ export default class EpisodeSingle extends Component {
   navigateToPreviousExercise = () => {
     const { previousStartTime } = this.state;
     const startTime = previousStartTime[previousStartTime.length - 1];
-    this.setState({ currentTime: startTime === undefined ? 0 : startTime }, () => {
+    this.setState({ currentTime: startTime === undefined ? 0 : startTime + 1 }, () => {
       const { currentTime } = this.state;
-      console.log(currentTime);
       this.player.seek(currentTime, 10);
       this.updateMusicControl(currentTime);
       this.state.previousStartTime.pop(); // removes last item of array
@@ -817,7 +817,6 @@ export default class EpisodeSingle extends Component {
   }
 
   startTrackingSteps = async () => {
-    console.log('START TRACKING');
     const startDate = new Date();
     try {
       if (this.state.platform === 'android') {
@@ -836,7 +835,6 @@ export default class EpisodeSingle extends Component {
 
   updateWatchedTimes = () => {
     const { episodeId, deviceId, counter } = this.state;
-    console.log('UPDATE WATCHED TIME');
     firebase.database().ref(`episodeWatchedCount/${deviceId}/${episodeId}/`).set({
       count: counter + 1,
     });
@@ -858,7 +856,7 @@ export default class EpisodeSingle extends Component {
       seriesBought,
       episodeCompleted,
     })
-      .then(response => Alert.alert(response.data))
+      .then(response => console.log(response.data))
       .catch(err => console.log(err));
   }
 
@@ -970,53 +968,90 @@ export default class EpisodeSingle extends Component {
   }
 
   handleBackButton = () => {
-    this.navigateToEpisodeView();
+    this.props.navigation.state.params.check
+      ? this.navigateToEpisodeView()
+      : this.setState({ showExitDialog: true });
     return true;
+  }
+
+  renderModals = () => {
+    const {
+      listen, totalLength,
+      currentTime, showDialog,
+      showWelcomeDialog, showIntroAdvanceDialog, showExitDialog,
+    } = this.state;
+    return (
+      <View>
+        <Seekbar
+          totalLength={totalLength}
+          onDragSeekBar={this.onDragSeekBar}
+          sliderReleased={this.sliderReleased}
+          seekValue={currentTime && currentTime}
+          listen={!listen}
+        />
+        <View>
+          <ShowModal
+            visible={showIntroAdvanceDialog}
+            title="Choose Exercise Difficulty Level"
+            description="Would you like to see the easier or harder versions of the exercises and stretches?"
+            secondButtonText="Whoa, I'm with Flynn..."
+            buttonText="Hell yes, I'm with Bay!"
+            askAdvance
+            onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
+            onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
+          />
+          { !listen
+            ? (
+              <View>
+                <ShowModal
+                  visible={showDialog}
+                  title={`Well done! Workout complete,\nAgent Whisky Gambit`}
+                  description="Go to TALON to hear your essential intel and track your progress"
+                  buttonText="OK"
+                  onPress={() => {
+                    this.setState({ showDialog: false });
+                    this.props.navigation.navigate('TalonScreen');
+                  }}
+                  showImage
+                />
+                <ShowModal
+                  visible={showWelcomeDialog}
+                  title="Stay safe while running"
+                  description="Keep your volume at a level that allows you to hear other sounds and remain aware of real world hazards"
+                  buttonText="Got it"
+                  onPress={() => this.setState({ showWelcomeDialog: false })}
+                />
+                <ShowModal
+                  visible={showExitDialog}
+                  title="Episode in progress"
+                  description="Are you sure you want to exit the player?"
+                  secondButtonText="Yes"
+                  buttonText="No"
+                  askAdvance
+                  onPress={() => this.setState({ showExitDialog: false })}
+                  onSecondButtonPress={() => {
+                    this.setState({ showExitDialog: false });
+                    this.navigateToEpisodeView();
+                  }}
+                />
+              </View>
+            )
+            : null
+        }
+        </View>
+      </View>
+    );
   }
 
   renderLandscapeView = () => {
     const {
       playingExercise, listen, showInfo, loading, totalLength,
-      currentTime, showDialog, episodeTitle, paused, trackingStarted,
+      currentTime, episodeTitle, paused, trackingStarted,
       workOutTime, formattedTotalWorkOutTime, offline, advance,
-      showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
       <View style={{ flex: 1 }}>
-        {/* { platform === 'android'
-          ? (
-            <View style={styles.headerView}>
-              <Icon
-                iconStyle={{ marginLeft: 15 }}
-                name="arrow-left"
-                type="material-community"
-                size={25}
-                color="white"
-                onPress={() => this.navigateToEpisodeView()}
-              />
-              <Text style={[styles.textTitle, { marginLeft: 20, fontSize: 20 }]}>
-                {mode}
-              </Text>
-            </View>
-          )
-          : (
-            <View style={styles.headerView}>
-              <Icon
-                name="chevron-left"
-                type="feather"
-                size={38}
-                color="white"
-                onPress={() => this.navigateToEpisodeView()}
-              />
-              <View style={{ flex: 1, marginLeft: -10 }}>
-                <Text style={[styles.textTitle, { fontSize: 18 }]}>
-                  {mode}
-                </Text>
-              </View>
-            </View>
-          )
-        } */}
         <View style={styles.line} />
         <View style={{ flex: 1, flexDirection: 'row', height: '100%' }}>
           <View style={{
@@ -1067,50 +1102,7 @@ export default class EpisodeSingle extends Component {
               ? <Loading />
               : (
                 <View>
-                  <Seekbar
-                    totalLength={this.state.totalLength}
-                    onDragSeekBar={this.onDragSeekBar}
-                    sliderReleased={this.sliderReleased}
-                    seekValue={currentTime && currentTime}
-                    listen={!listen}
-                  />
-                  <ShowModal
-                    visible={showIntroAdvanceDialog}
-                    title="Choose Exercise Difficulty Level"
-                    description="Would you like to see the easier or harder versions of the exercises and stretches?"
-                    secondButtonText="Whoa, I'm with Flynn..."
-                    buttonText="Hell yes, I'm with Bay!"
-                    askAdvance
-                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
-                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
-                  />
-                  <View>
-                    { !listen
-                      ? (
-                        <View>
-                          <ShowModal
-                            visible={showDialog}
-                            title={`Well done! Workout complete,\nAgent Whisky Gambit`}
-                            description="Go to TALON to hear your essential intel and track your progress"
-                            buttonText="OK"
-                            onPress={() => {
-                              this.setState({ showDialog: false });
-                              this.props.navigation.navigate('TalonScreen');
-                            }}
-                            showImage
-                          />
-                          <ShowModal
-                            visible={showWelcomeDialog}
-                            title="Stay safe while running"
-                            description="Keep your volume at a level that allows you to hear other sounds and remain aware of real world hazards"
-                            buttonText="Got it"
-                            onPress={() => this.setState({ showWelcomeDialog: false })}
-                          />
-                        </View>
-                      )
-                      : null
-                }
-                  </View>
+                  {this.renderModals()}
                   <FormatTime
                     currentTime={currentTime}
                     remainingTime={totalLength - currentTime}
@@ -1127,9 +1119,8 @@ export default class EpisodeSingle extends Component {
   renderPortraitView = () => {
     const {
       playingExercise, listen, showInfo, loading, totalLength,
-      currentTime, showDialog, episodeTitle, paused, trackingStarted,
+      currentTime, episodeTitle, paused, trackingStarted,
       formattedTotalWorkOutTime, workOutTime, offline, advance,
-      showWelcomeDialog, showIntroAdvanceDialog,
     } = this.state;
     const { image, episodeExerciseTitle } = playingExercise.value;
     return (
@@ -1156,50 +1147,7 @@ export default class EpisodeSingle extends Component {
                 <View style={styles.line} />
               </View>
               <View>
-                <Seekbar
-                  totalLength={totalLength}
-                  onDragSeekBar={this.onDragSeekBar}
-                  sliderReleased={this.sliderReleased}
-                  seekValue={currentTime && currentTime}
-                  listen={!listen}
-                />
-                <View>
-                  <ShowModal
-                    visible={showIntroAdvanceDialog}
-                    title="Choose Exercise Difficulty Level"
-                    description="Would you like to see the easier or harder versions of the exercises and stretches?"
-                    secondButtonText="Whoa, I'm with Flynn..."
-                    buttonText="Hell yes, I'm with Bay!"
-                    askAdvance
-                    onPress={() => this.setState({ showIntroAdvanceDialog: false, advance: true })}
-                    onSecondButtonPress={() => this.setState({ showIntroAdvanceDialog: false, advance: false })}
-                  />
-                  { !listen
-                    ? (
-                      <View>
-                        <ShowModal
-                          visible={showDialog}
-                          title={`Well done! Workout complete,\nAgent Whisky Gambit`}
-                          description="Go to TALON to hear your essential intel and track your progress"
-                          buttonText="OK"
-                          onPress={() => {
-                            this.setState({ showDialog: false });
-                            this.props.navigation.navigate('TalonScreen');
-                          }}
-                          showImage
-                        />
-                        <ShowModal
-                          visible={showWelcomeDialog}
-                          title="Stay safe while running"
-                          description="Keep your volume at a level that allows you to hear other sounds and remain aware of real world hazards"
-                          buttonText="Got it"
-                          onPress={() => this.setState({ showWelcomeDialog: false })}
-                        />
-                      </View>
-                    )
-                    : null
-                }
-                </View>
+                {this.renderModals()}
                 <FormatTime
                   currentTime={currentTime}
                   remainingTime={totalLength - currentTime}

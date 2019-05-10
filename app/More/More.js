@@ -87,6 +87,10 @@ const styles = {
     borderRadius: moderateScale(5),
     backgroundColor: '#001331',
   },
+  textStyle: {
+    color: '#001331',
+    alignSelf: 'center',
+  }
 };
 
 export default class More extends React.Component {
@@ -132,10 +136,16 @@ export default class More extends React.Component {
         <View style={styles.modalView}>
           <TouchableOpacity onPress={() => this.setState({ showRedeemPopUp: false })}>
             <View style={styles.modalInnerView}>
+              <Text style={[styles.textStyle, { fontWeight: 'bold' }]}>
+                Got a code to redeem?
+              </Text>
+              <Text style={[styles.textStyle, {marginTop: 2 }]}>
+                Pop it in the box below
+              </Text>
               <TextInput
                 underlineColorAndroid="transparent"
                 style={styles.inputStyle}
-                placeholder="Enter your redeem code"
+                placeholder="Enter code"
                 placeholderTextColor="#001331"
                 onChangeText={password => this.setState({ code: password })}
                 value={code}

@@ -2,7 +2,7 @@ import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, Platform,
   StatusBar, PermissionsAndroid, AsyncStorage,
-  Modal, ActivityIndicator, Alert, TouchableHighlight, SafeAreaView,
+  Modal, ActivityIndicator, Alert, TouchableHighlight,
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob';
 import {
@@ -16,11 +16,12 @@ import Orientation from 'react-native-orientation';
 import { scale, moderateScale } from 'react-native-size-matters';
 import DeviceInfo from 'react-native-device-info';
 import * as Progress from 'react-native-progress';
-import { NavigationEvents } from 'react-navigation';
+import { SafeAreaView } from 'react-navigation';
 import realm from '../config/Database';
 import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
 import LoadScreen from '../common/LoadScreen';
+import Loading from '../common/Loading';
 import OfflineMsg from '../common/OfflineMsg';
 import {
   downloadEpisode, deleteEpisodeList, stopDownload, stopIOSDownload,
@@ -38,7 +39,7 @@ const styles = {
   },
   imageStyle: {
     width: '100%',
-    height: scale(200),
+    height: scale(250),
   },
   textStyle: {
     color: 'white',
@@ -88,7 +89,7 @@ const styles = {
     height: moderateScale(40),
     width: moderateScale(50),
     justifyContent: 'center',
-  }
+  },
 };
 
 let seriesBought = false;
@@ -119,6 +120,7 @@ class EpisodeList extends React.Component {
     deleteStatus: false,
     showCancel: false,
     showCellularDialog: false,
+    showLoading: false,
     userDatas: null,
     codeChecked: false,
   }
@@ -427,31 +429,33 @@ class EpisodeList extends React.Component {
       transactionReceipt,
     })
       .then(async () => {
-        this.setState({ showModal: true, modalText: 'Item purchased successfully' });
+        this.setState({ showModal: true, modalText: 'Item purchased successfully', showLoading: false });
         // await RNIap.finishTransaction();
         // await RNIap.consumeAllItems();
         // await RNIap.endConnection();
       })
-      .catch(err => this.setState({ showModal: true, modalText: err.message }));
+      .catch(err => this.setState({ showModal: true, modalText: err.message, showLoading: false }));
   }
 
   buyItem = async (uid, purchaseId) => {
+    this.setState({ showLoading: true });
     this.sendDataToServer(uid, purchaseId, 'fasdfsdf');
     // try {
     //   await RNIap.clearTransaction();
+    //   await RNIap.clearProducts();
     //   const product = await RNIap.getProducts([purchaseId]);
     //   if (this.state.Platform === 'ios') {
     //     const purchase = await RNIap.buyProductWithoutFinishTransaction(product[0].productId);
     //     const { transactionReceipt } = purchase;
-    //     this.sendDataToServer(uid, purchaseId, transactionReceipt, series);
+    //     this.sendDataToServer(uid, purchaseId, transactionReceipt);
     //   } else {
     //     const purchase = await RNIap.buyProduct(product[0].productId);
     //     const { transactionReceipt } = purchase;
-    //     this.sendDataToServer(uid, purchaseId, transactionReceipt, series);
+    //     this.sendDataToServer(uid, purchaseId, transactionReceipt);
     //   }
     // } catch (err) {
-    //   this.setState({ showModal: true, modalText: err.message });
-    //   RNIap.endConnection();
+    //   this.setState({ showModal: true, modalText: err.message, showLoading: false });
+    //   await RNIap.endConnection();
     // }
   }
 
@@ -543,12 +547,13 @@ class EpisodeList extends React.Component {
       seriesBought = purchasedSeries.includes(seriesKey);
       AsyncStorage.setItem('seriesBought', JSON.stringify(seriesBought));
       // minIndex = maxIndex + 1;
-      if (value.episodes === undefined) {
+      const { episodes, price, reducedPrice, iosID,reducedIosId, googleId } = value;
+      if (episodes === undefined) {
         return console.log('no episodes added');
       }
       // maxIndex += Object.keys(value.episodes).length; // value.episodes.length ;
-      const seriesLength = Object.keys(value.episodes).length;
-      const episodesList = Object.entries(value.episodes)
+      const seriesLength = Object.keys(episodes).length;
+      const episodesList = Object.entries(episodes)
         .map(([episodeKey, episodeValue], episodeIndex) => {
           const { uid } = episodeValue;
           const {
@@ -756,14 +761,15 @@ class EpisodeList extends React.Component {
                     />)
                   : (
                     <Button
-                      title={codeChecked ? '    £3.99    ' : `    £${value.price}    `}
+                      title={codeChecked ? `    £${reducedPrice}    ` : `    £${price}    `}
                       fontSize={moderateScale(12)}
                       buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
                         if (!netInfo) {
                           return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
-                        const purchaseId = Platform.OS === 'android' ? value.googleID : value.iosID;
+                        // const purchaseId = Platform.OS === 'android' ? googleID : iosID;
+                        const purchaseId = codeChecked ? reducedIosId : iosID;
                         this.buyItem(seriesKey, purchaseId);
                       }
                     }
@@ -786,14 +792,9 @@ class EpisodeList extends React.Component {
 
   showModal = () => {
     return (
-      <Modal transparent visible={this.props.showCancel}>
+      <Modal transparent visible={this.state.showLoading}>
         <View style={styles.modalView}>
-          <View style={styles.modalInnerView}>
-            <ActivityIndicator size="large" color="#001331" style={{ marginTop: 20 }} />
-            <Text style={[styles.textStyle, { color: '#001331' }]}>
-              Cancelling download
-            </Text>
-          </View>
+            <Loading />
         </View>
       </Modal>
     );
@@ -807,7 +808,7 @@ class EpisodeList extends React.Component {
       downloadTitle, downloadUid, downloadCategory, downloadDescription, downloadExercises,
       downloadVideo, downloadStartWT, downloadEndWT, downloadTotalTime,
       downloadWorkoutTime, downloadVideoSize, downloadEpisodeIndex, downloadSeriesKey,
-      downloadSeriesIndex, downloadBuy, downloadDownloaded, downloadCompleted,
+      downloadSeriesIndex, downloadBuy, downloadDownloaded, downloadCompleted, showLoading,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     if (loading) return <LoadScreen text="Preparing your apocalypse" />;
@@ -976,7 +977,7 @@ class EpisodeList extends React.Component {
               </View>
             </TouchableHighlight>
             <View>
-              {/* {this.showModal()} */}
+              {this.showModal()}
               <ShowModal
                 visible={showModal}
                 title={modalText}

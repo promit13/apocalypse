@@ -285,7 +285,7 @@ export const SignedIn = createBottomTabNavigator({
     inactiveTintColor: '#fff',
     activeBackgroundColor: '#001331',
     inactiveBackgroundColor: '#001331',
-    style: { height: moderateScale(75), backgroundColor: '#001331', paddingVertical: 10 }, // set to 65 for ios
+    style: { height: moderateScale(75), backgroundColor: '#001331', paddingVertical: 5 }, // set to 65 for ios
     tabStyle: {
       flexDirection: 'column',
       alignItems: 'center',
@@ -293,9 +293,10 @@ export const SignedIn = createBottomTabNavigator({
     },
     labelStyle: {
       marginLeft: 0,
-      marginTop: scale(4),
+      marginTop: moderateScale(4),
       fontSize: moderateScale(10),
     },
+    safeAreaInset: { bottom: 'never' },
   },
 });
 

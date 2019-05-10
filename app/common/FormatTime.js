@@ -20,7 +20,11 @@ export default class FormatTime extends React.Component {
       minutes = `0${minutes}`;
     }
     if (remainder < 10) {
-      remainder = `0${remainder}`;
+      if (remainder < 0) {
+        remainder = '00';
+      } else {
+        remainder = `0${remainder}`;
+      }
     }
     const time = `${minutes} : ${remainder}`;
     return time;
