@@ -29,8 +29,8 @@ const styles = {
     fontSize: moderateScale(16),
   },
   imageStyle: {
-    height: scale(width - 120),
-    width: scale(width - 120),
+    height: moderateScale((width - 80), -0.2),
+    width: moderateScale((width - 80), -0.2),
   },
   slideStyle: {
     flex: 1,
@@ -134,7 +134,7 @@ export default class Tutorial extends React.Component {
                       showButton
                       && (<Button
                         buttonStyle={styles.buttonStyle}
-                        fontSize={moderateScale(12)}
+                        fontSize={moderateScale(16)}
                         color="#f5cb23"
                         title="TAKE ME IN"
                         onPress={() => {

@@ -2,9 +2,8 @@ import React from 'react';
 import {
   ScrollView, View, Image, TouchableOpacity, Platform,
   StatusBar, PermissionsAndroid, AsyncStorage,
-  Modal, ActivityIndicator, Alert, TouchableHighlight,
+  Modal, TouchableHighlight,
 } from 'react-native';
-import RNFetchBlob from 'react-native-fetch-blob';
 import {
   Text, ListItem, Icon, Button,
 } from 'react-native-elements';
@@ -16,7 +15,6 @@ import Orientation from 'react-native-orientation';
 import { scale, moderateScale } from 'react-native-size-matters';
 import DeviceInfo from 'react-native-device-info';
 import * as Progress from 'react-native-progress';
-import { SafeAreaView } from 'react-navigation';
 import realm from '../config/Database';
 import ShowModal from '../common/ShowModal';
 import firebase from '../config/firebase';
@@ -430,33 +428,33 @@ class EpisodeList extends React.Component {
     })
       .then(async () => {
         this.setState({ showModal: true, modalText: 'Item purchased successfully', showLoading: false });
-        // await RNIap.finishTransaction();
-        // await RNIap.consumeAllItems();
-        // await RNIap.endConnection();
+        await RNIap.finishTransaction();
+        await RNIap.consumeAllItems();
+        await RNIap.endConnection();
       })
       .catch(err => this.setState({ showModal: true, modalText: err.message, showLoading: false }));
   }
 
   buyItem = async (uid, purchaseId) => {
     this.setState({ showLoading: true });
-    this.sendDataToServer(uid, purchaseId, 'fasdfsdf');
-    // try {
-    //   await RNIap.clearTransaction();
-    //   await RNIap.clearProducts();
-    //   const product = await RNIap.getProducts([purchaseId]);
-    //   if (this.state.Platform === 'ios') {
-    //     const purchase = await RNIap.buyProductWithoutFinishTransaction(product[0].productId);
-    //     const { transactionReceipt } = purchase;
-    //     this.sendDataToServer(uid, purchaseId, transactionReceipt);
-    //   } else {
-    //     const purchase = await RNIap.buyProduct(product[0].productId);
-    //     const { transactionReceipt } = purchase;
-    //     this.sendDataToServer(uid, purchaseId, transactionReceipt);
-    //   }
-    // } catch (err) {
-    //   this.setState({ showModal: true, modalText: err.message, showLoading: false });
-    //   await RNIap.endConnection();
-    // }
+    // this.sendDataToServer(uid, purchaseId, 'fasdfsdf');
+    try {
+      await RNIap.clearTransaction();
+      await RNIap.clearProducts();
+      const product = await RNIap.getProducts([purchaseId]);
+      if (this.state.Platform === 'ios') {
+        const purchase = await RNIap.buyProductWithoutFinishTransaction(product[0].productId);
+        const { transactionReceipt } = purchase;
+        this.sendDataToServer(uid, purchaseId, transactionReceipt);
+      } else {
+        const purchase = await RNIap.buyProduct(product[0].productId);
+        const { transactionReceipt } = purchase;
+        this.sendDataToServer(uid, purchaseId, transactionReceipt);
+      }
+    } catch (err) {
+      this.setState({ showModal: true, modalText: err.message, showLoading: false });
+      await RNIap.endConnection();
+    }
   }
 
   deleteEpisode = (fileName) => {
@@ -547,7 +545,7 @@ class EpisodeList extends React.Component {
       seriesBought = purchasedSeries.includes(seriesKey);
       AsyncStorage.setItem('seriesBought', JSON.stringify(seriesBought));
       // minIndex = maxIndex + 1;
-      const { episodes, price, reducedPrice, iosID,reducedIosId, googleId } = value;
+      const { episodes } = value;
       if (episodes === undefined) {
         return console.log('no episodes added');
       }
@@ -761,15 +759,23 @@ class EpisodeList extends React.Component {
                     />)
                   : (
                     <Button
-                      title={codeChecked ? `    £${reducedPrice}    ` : `    £${price}    `}
+                      title={codeChecked ? `    £${value.reducedPrice}    ` : `    £${value.price}    `}
                       fontSize={moderateScale(12)}
                       buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
+                        const { reducedGoogleId, googleID, iosID, reducedIosId } = value;
                         if (!netInfo) {
                           return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
-                        // const purchaseId = Platform.OS === 'android' ? googleID : iosID;
-                        const purchaseId = codeChecked ? reducedIosId : iosID;
+                        const purchaseId = Platform.OS === 'android'
+                          ? (
+                            codeChecked ? reducedGoogleId : googleID
+                          )
+                          : (
+                            codeChecked ? reducedIosId : iosID
+                          )
+                        console.log(purchaseId);
+                        // const purchaseId = codeChecked ? reducedIosId : iosID;
                         this.buyItem(seriesKey, purchaseId);
                       }
                     }
