@@ -3,6 +3,7 @@ package com.apocalypse;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.brentvatne.react.ReactVideoPackage;
 import com.corbt.keepawake.KCKeepAwakePackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
@@ -10,8 +11,6 @@ import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
 import com.tanguyantoine.react.MusicControl;
-import com.brentvatne.react.ReactVideoPackage;
-import com.eko.RNBackgroundDownloaderPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.github.yamill.orientation.OrientationPackage;
 import io.realm.react.RealmReactPackage;
@@ -29,6 +28,7 @@ import com.facebook.soloader.SoLoader;
 import com.facebook.FacebookSdk;
 import com.facebook.CallbackManager;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.applinks.AppLinkData;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +52,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactVideoPackage(),
             new KCKeepAwakePackage(),
             new RNFirebasePackage(),
             new RNFirebaseAnalyticsPackage(),
@@ -59,8 +60,6 @@ public class MainApplication extends Application implements ReactApplication {
             new RNFirebaseNotificationsPackage(),
             new RNFirebaseCrashlyticsPackage(),
             new MusicControl(),
-            new ReactVideoPackage(),
-            new RNBackgroundDownloaderPackage(),
             new RNDeviceInfo(),
             new OrientationPackage(),
             new RealmReactPackage(),
@@ -89,5 +88,13 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     AppEventsLogger.activateApp(this);
     SoLoader.init(this, /* native exopackage */ false);
+    AppLinkData.fetchDeferredAppLinkData(this, 
+        new AppLinkData.CompletionHandler() {
+            @Override
+            public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+                // Process app link data
+            }
+        }
+        );
   }
 }

@@ -144,7 +144,9 @@ export default class EpisodeView extends React.Component {
     if (offline) {
       this.getOfflineDatas(title, deviceId, offline, purchased, counter, episodeList, netInfo, seriesBought, userDatas);
     } else {
-      const { uid, email } = this.props.screenProps.user;
+      const { user } = this.props.screenProps;
+      const uid = user === undefined ? '' : user.uid;
+      const email = user === undefined ? '' : email;
       let freeTrials;
       if (counter === 0) {
         freeTrials = 'two';
@@ -448,6 +450,7 @@ export default class EpisodeView extends React.Component {
             this.props.navigation.navigate('TalonIntelPlayer', {
               offline: true,
               exerciseTitle: cmsTitle,
+              episodeExerciseTitle: title,
               advance,
               exercise: true,
               mode: 'Exercise Player',
@@ -585,7 +588,7 @@ export default class EpisodeView extends React.Component {
                   }
                   if ((offline && !episodeList) || !netInfo) {
                   // if (offline) {
-                    return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadTestPlayer');
+                    return this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'DownloadPlayer');
                   }
                   this.navigateToEpisodeSingle(false, 'Workout Mode Player', 'EpisodeSingle');
                 } else {
@@ -614,7 +617,7 @@ export default class EpisodeView extends React.Component {
                   }
                   // if (offline) {
                   if ((offline && !episodeList) || !netInfo) {
-                    return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadTestPlayer');
+                    return this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'DownloadPlayer');
                   }
                   this.navigateToEpisodeSingle(true, 'Listen Mode Player', 'EpisodeSingle');
                 } else {

@@ -77,7 +77,7 @@ export default class Agreement extends React.Component {
   doFacebookSignUp = () => {
     const { checkAgreement, checkMailing, showCheckbox } = this.state;
     LoginManager.logOut();
-    LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
+    LoginManager.logInWithPermissions(['public_profile', 'email']).then(
       (result) => {
         if (result.isCancelled) {
           this.setState({ showLoading: false });

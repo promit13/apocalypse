@@ -11,7 +11,6 @@ import MyAccount from '../User/UserEdit';
 import EpisodeSingle from '../Episodes/EpisodeSingle';
 import EpisodeList from '../Episodes/EpisodeList';
 import EpisodeView from '../Episodes/EpisodeView';
-import ExercisePlayer from '../Exercises/ExercisePlayer';
 import TalonScreen from '../Talon/TalonScreen';
 import TalonIntelPlayer from '../Talon/TalonIntelPlayer';
 import ExerciseCategory from '../Exercises/ExerciseCategory';
@@ -25,13 +24,11 @@ import Kickstarter from '../More/Kickstarter';
 import Purchases from '../More/Purchases';
 import Tips from '../More/Tips';
 import Trailers from '../More/Trailers';
-import Notification from '../More/Notification';
 import ChangeEmailPassword from '../User/ChangeEmailPassword';
-import DownloadFiles from '../Episodes/DownloadFiles';
 import DownloadPlayer from '../More/DownloadPlayer';
 import ForgotPassword from '../User/ForgotPassword';
 import LoginSignup from '../User/LoginSignup';
-import DownloadTestPlayer from '../More/DownloadTestPlayer';
+import TrialEpisodeList from '../Episodes/TrialEpisodeList';
 
 const talonIcon = require('../../img/talondark.png');
 const episodeIcon = require('../../img/episodes.png');
@@ -43,7 +40,6 @@ export const SignedOut = createStackNavigator({
   Signup: { screen: UserNew },
   Agreement: { screen: Agreement },
   ForgotPassword: { screen: ForgotPassword },
-  UserBodyDetail: { screen: UserBodyDetail },
 },
 {
   navigationOptions: {
@@ -61,11 +57,17 @@ export const SignedOut = createStackNavigator({
   },
 });
 
-// export const SignedOutContainer = createAppContainer(SignedOut);
-
-export const UserDetails = createStackNavigator({
-  UserBodyDetail: { screen: UserBodyDetail },
+const TrialStack = createStackNavigator({
   Tutorial: { screen: Tutorial },
+  TrialEpisodeList: { screen: TrialEpisodeList },
+  EpisodeView: { screen: EpisodeView },
+  EpisodeSingle: { screen: EpisodeSingle },
+  TalonIntelPlayer: { screen: TalonIntelPlayer },
+  LoginSignup: { screen: LoginSignup },
+  Login: { screen: Login },
+  Signup: { screen: UserNew },
+  Agreement: { screen: Agreement },
+  ForgotPassword: { screen: ForgotPassword },
 },
 {
   navigationOptions: {
@@ -75,10 +77,42 @@ export const UserDetails = createStackNavigator({
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
+      textAlign: 'center',
       fontSize: moderateScale(16),
+      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Arial',
     },
+    gesturesEnabled: false,
   },
 });
+
+TrialStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = false;
+  if (navigation.state.index === 0) {
+    tabBarVisible = true;
+  }
+  return {
+    tabBarVisible,
+  };
+};
+
+// export const SignedOutContainer = createAppContainer(SignedOut);
+
+// export const UserDetails = createStackNavigator({
+//   UserBodyDetail: { screen: UserBodyDetail },
+//   Tutorial: { screen: Tutorial },
+// },
+// {
+//   navigationOptions: {
+//     headerStyle: {
+//       backgroundColor: '#001331',
+//     },
+//     headerTintColor: '#fff',
+//     headerTitleStyle: {
+//       fontWeight: 'bold',
+//       fontSize: moderateScale(16),
+//     },
+//   },
+// });
 
 export const TutorialDisplay = createStackNavigator({
   Tutorial: { screen: Tutorial },
@@ -105,11 +139,8 @@ const EpisodeStack = createStackNavigator({
   EpisodeView: { screen: EpisodeView },
   TalonScreen: { screen: TalonScreen },
   TalonIntelPlayer: { screen: TalonIntelPlayer },
-  ExercisePlayer: { screen: ExercisePlayer },
   EpisodeSingle: { screen: EpisodeSingle },
-  DownloadFiles: { screen: DownloadFiles },
   DownloadPlayer: { screen: DownloadPlayer },
-  DownloadTestPlayer: { screen: DownloadTestPlayer },
 }, {
   navigationOptions: () => ({
     headerStyle: {
@@ -139,7 +170,6 @@ EpisodeStack.navigationOptions = ({ navigation }) => {
 const ExerciseStack = createStackNavigator({
   ExerciseCategory: { screen: ExerciseCategory },
   ExerciseList: { screen: ExerciseList },
-  ExercisePlayer: { screen: ExercisePlayer },
   TalonIntelPlayer: { screen: TalonIntelPlayer },
 },
 {
@@ -170,6 +200,11 @@ ExerciseStack.navigationOptions = ({ navigation }) => {
 const TalonStack = createStackNavigator({
   TalonScreen: { screen: TalonScreen },
   TalonIntelPlayer: { screen: TalonIntelPlayer },
+  Agreement: { screen: Agreement },
+  LoginSignup: { screen: LoginSignup },
+  Login: { screen: Login },
+  Signup: { screen: UserNew },
+  ForgotPassword: { screen: ForgotPassword },
 },
 {
   navigationOptions: () => ({
@@ -209,12 +244,12 @@ const MoreStack = createStackNavigator({
   Trailers: { screen: Trailers },
   Tutorial: { screen: Tutorial },
   ChangeEmailPassword: { screen: ChangeEmailPassword },
-  DownloadPlayer: { screen: DownloadPlayer },
   EpisodeView: { screen: EpisodeView },
-  ExercisePlayer: { screen: ExercisePlayer },
   TalonIntelPlayer: { screen: TalonIntelPlayer },
-  UserBodyDetail: { screen: UserBodyDetail },
-  DownloadTestPlayer: { screen: DownloadTestPlayer },
+  LoginSignup: { screen: LoginSignup },
+  Login: { screen: Login },
+  Signup: { screen: UserNew },
+  ForgotPassword: { screen: ForgotPassword },
 },
 {
   navigationOptions: () => ({
@@ -301,3 +336,49 @@ export const SignedIn = createBottomTabNavigator({
 });
 
 // export const SignedInContainer = createAppContainer(SignedIn);
+
+export const TrialBottomNavigator = createBottomTabNavigator({
+  Episodes: TrialStack,
+  Exercises: ExerciseStack,
+  TALON: TalonStack,
+  More: MoreStack,
+}, {
+  // initialRouteName: 'Episode',
+
+  navigationOptions: ({ navigation, horizontal }) => ({
+    tabBarLabel: navigation.state.routeName,
+    tabBarIcon: ({ tintColor }) => {
+      const { routeName } = navigation.state;
+      if (routeName === 'More') {
+        return <Icon name="dots-three-horizontal" type="entypo" size={horizontal ? moderateScale(20) : moderateScale(30)} color={tintColor} />;
+      }
+      if (routeName === 'TALON') {
+        return <Image source={talonIcon} style={{ height: moderateScale(30), width: moderateScale(30), tintColor }} />;
+      }
+      if (routeName === 'Exercises') {
+        return <Image source={exerciseIcon} style={{ height: moderateScale(36), width: moderateScale(20), tintColor }} />;
+      }
+      if (routeName === 'Episodes') {
+        return <Image source={episodeIcon} style={{ height: moderateScale(30), width: moderateScale(35), tintColor }} />;
+      }
+    },
+  }),
+  tabBarOptions: {
+    activeTintColor: '#f5cb23',
+    inactiveTintColor: '#fff',
+    activeBackgroundColor: '#001331',
+    inactiveBackgroundColor: '#001331',
+    style: { height: moderateScale(75), backgroundColor: '#001331', paddingVertical: 5 }, // set to 65 for ios
+    tabStyle: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    labelStyle: {
+      marginLeft: 0,
+      marginTop: moderateScale(4),
+      fontSize: moderateScale(10),
+    },
+    safeAreaInset: { bottom: 'never' },
+  },
+});

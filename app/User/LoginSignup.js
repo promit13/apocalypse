@@ -66,9 +66,9 @@ const styles = StyleSheet.create({
 
 
 export default class LoginSignUp extends React.Component {
-  static navigationOptions = {
-    header: null,
-  };
+  // static navigationOptions = {
+  //   header: null,
+  // };
 
   state = {
     showModal: false,

@@ -15,15 +15,14 @@ const styles = {
   containerStyle: {
     flex: 1,
     backgroundColor: '#001331',
-    paddingBottom: moderateScale(10),
-    paddingTop: moderateScale(25),
+    paddingTop: moderateScale(10),
   },
   swiperContainer: {
     flex: 1,
     alignItems: 'center',
   },
   textStyle: {
-    marginTop: moderateScale(20),
+    marginTop: moderateScale(10),
     color: 'white',
     textAlign: 'center',
     fontSize: moderateScale(16),
@@ -40,7 +39,6 @@ const styles = {
     backgroundColor: '#001331',
     borderColor: '#f5cb23',
     borderRadius: moderateScale(20),
-    marginTop: moderateScale(15),
     borderWidth: moderateScale(2),
   },
 };
@@ -133,7 +131,7 @@ export default class Tutorial extends React.Component {
                     {
                       showButton
                       && (<Button
-                        buttonStyle={styles.buttonStyle}
+                        buttonStyle={[styles.buttonStyle, { marginTop: moderateScale(10) }]}
                         fontSize={moderateScale(16)}
                         color="#f5cb23"
                         title="TAKE ME IN"
@@ -166,6 +164,7 @@ export default class Tutorial extends React.Component {
                 // showsButtons // shows side arrows
                 dotColor="#696238"
                 activeDotColor="#f5cb23"
+                paginationStyle={{ position:'absolute', bottom: Platform.OS === 'android' ? moderateScale(0) : moderateScale(10) }}
               >
                 {tutorialsList}
               </Swiper>

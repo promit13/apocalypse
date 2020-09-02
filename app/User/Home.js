@@ -8,6 +8,7 @@ import realm from '../config/Database';
 import {
   SignedIn,
   SignedOut,
+  TrialBottomNavigator,
   TutorialDisplay,
 } from '../config/router';
 
@@ -23,6 +24,7 @@ export default class Home extends React.Component {
     user: null,
     data: null,
     userLoggedIn: false,
+    tutorial: false,
   }
 
   componentDidMount = () => {
@@ -40,23 +42,28 @@ export default class Home extends React.Component {
 
   handleConnectivityChange = async (isConnected) => {
     if (isConnected) {
-      this.authSubscription = firebase.auth().onAuthStateChanged((user) => {
+      this.authSubscription = firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
           this.setState({
-            user,
+            user, tutorial: true,
           });
           this.sendDataToFirebase();
           this.handleUserStatus();
         } else {
-          this.setState({ loading: false, user: null });
+          const tutorial = await AsyncStorage.getItem('tutorials');
+          if (tutorial !== null) {
+            this.setState({ loading: false, user: null, tutorial: true })
+          } else {
+            this.setState({ loading: false, user: null, tutorial: false });
+          }
         }
       });
     } else {
       const checkLoggedIn = await AsyncStorage.getItem('login');
       if (checkLoggedIn !== null) {
-        this.setState({ loading: false, userLoggedIn: true });
+        this.setState({ loading: false, userLoggedIn: true, tutorial: true });
       } else {
-        this.setState({ loading: false });
+        this.setState({ loading: false, tutorial: true });
       }
     }
   };
@@ -332,9 +339,17 @@ export default class Home extends React.Component {
   }
 
   renderComponent = () => {
-    const { loading, userLoggedIn, user, data } = this.state;
+    const { loading, userLoggedIn, user, data, tutorial } = this.state;
     const { netInfo, connectionType } = this.props.screenProps;
     if (loading) return <LoadScreen text="Preparing your apocalypse" />;
+    if (!tutorial) {
+      return (
+        <TrialBottomNavigator
+          screenProps={{ netInfo, connectionType }}
+        />
+      );
+    }
+    
     if (!netInfo && userLoggedIn) {
       return <SignedIn screenProps={{ user, netInfo, connectionType }} />;
     }

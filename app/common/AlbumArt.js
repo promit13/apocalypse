@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     height: '100%',
     paddingRight: moderateScale(20),
     paddingLeft: moderateScale(20),
+    justifyContent: 'center',
   },
   image: {
     alignSelf: 'center',

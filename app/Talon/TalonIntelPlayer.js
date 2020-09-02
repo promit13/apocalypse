@@ -114,6 +114,7 @@ export default class TalonIntelPlayer extends Component {
     const {
       episodeId, talon, exerciseTitle, video, image, offline, advance, exercise, episodeExerciseTitle, uid, mode, navigateBack, autoPlay,
     } = this.props.navigation.state.params;
+    console.log(video);
     if (talon) {
       firebase.database().ref(`episodes/${episodeId}`).on('value', (snapshot) => {
         const { title, intel } = snapshot.val();
@@ -235,7 +236,7 @@ export default class TalonIntelPlayer extends Component {
     if (!autoPlay) {
       this.registerEvents(data);
     }
-    this.player.seek(this.state.currentTimem, 10);
+    this.player.seek(this.state.currentTime, 10);
     this.setState({ totalLength: data.duration, loading: false, paused: !autoPlay });
   };
 
@@ -424,8 +425,8 @@ export default class TalonIntelPlayer extends Component {
                 : null
               }
               talonPlayer
-              onPress={() => {}}
-              paddingTop="15%"
+              // onPress={() => {}}
+              paddingTop="5%"
             />
           </View>
           <View style={{ flex: 1, justifyContent: videoUrl === '' ? 'center' : 'space-between' }}>
@@ -493,9 +494,9 @@ export default class TalonIntelPlayer extends Component {
         {
           loading ? <LoadScreen />
             : (
-              <View>
+              <View style={{ height: '100%' }}>
                 <View style={styles.line} />
-                <View style={videoUrl === '' ? { height: '75%' } : styles.albumView}>
+                <View style={styles.albumView}>
                   <AlbumArt
                     url={
                       playingExercise
@@ -503,8 +504,8 @@ export default class TalonIntelPlayer extends Component {
                         : null
                     }
                     talonPlayer
-                    onPress={() => {}}
-                    paddingTop="15%"
+                    // onPress={() => {}}
+                    paddingTop="5%"
                   />
                 </View>
                 <View style={styles.line} />

@@ -105,6 +105,7 @@ export default class More extends React.Component {
     showError: false,
     code: '',
     modalMessage: '',
+    description: '',
   }
 
   sendEmail = () => {
@@ -122,6 +123,7 @@ export default class More extends React.Component {
         showRedeemPopUp: false,
         showNoInternetDialog: true,
         modalMessage: 'Code check successful',
+        description: 'Return to the home page to access the Part 1 Special Offer',
       }));
     } else {
       this.setState({ showError: true, showLoading: false });
@@ -194,12 +196,17 @@ export default class More extends React.Component {
     if (navigateScreen === 'Redeem') {
       return this.setState({ showRedeemPopUp: true });
     }
+    if (navigateScreen === 'Account') {
+      if (this.props.screenProps.user === undefined) {
+        return this.props.navigation.navigate('LoginSignup');
+      }
+    }
     this.props.navigation.navigate(navigateScreen, { showButton: false, showCheckbox: false });
     // showButton for tutorial, showCheckbox for Agreement
   }
 
   render() {
-    const { showNoInternetDialog, modalMessage } = this.state;
+    const { showNoInternetDialog, modalMessage, description } = this.state;
     const { netInfo } = this.props.screenProps;
     const menuList = Object.entries(menu).map(([key, value], i) => {
       return (
@@ -285,9 +292,10 @@ export default class More extends React.Component {
         <ShowModal
           visible={showNoInternetDialog}
           title={modalMessage}
+          description={description}
           buttonText="OK"
           onPress={() => {
-            this.setState({ showNoInternetDialog: false });
+            this.setState({ showNoInternetDialog: false, description: '' });
           }}
         />
         {this.showModal()}

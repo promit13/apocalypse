@@ -121,20 +121,27 @@ class EpisodeList extends React.Component {
     showLoading: false,
     userDatas: null,
     codeChecked: false,
+    platform: '',
+    episodePrice: '',
+    seriesPrice: '',
   }
 
   componentDidMount= async () => {
     Orientation.lockToPortrait();
     const { netInfo } = this.props.screenProps;
-    const deviceId = DeviceInfo.getDeviceId();
-    // console.log(`${RNFetchBlob.fs.dirs.DocumentDir}/AST/`);
+    const deviceId = DeviceInfo.getUniqueID();
+    console.log('DEVICE ID', deviceId);
+    const platform = Platform.OS;
+
     this.readDirectory();
     try {
       if (!netInfo) {
         const offlineData = await AsyncStorage.getItem('series');
         const jsonObjectData = JSON.parse(offlineData);
         const {
-          series, purchasedSeries, lastPlayedEpisode, completeEpisodes, completedEpisodesArray, episodeWatchedCount, codeChecked,
+          series, purchasedSeries, lastPlayedEpisode,
+          completeEpisodes, completedEpisodesArray,
+          episodeWatchedCount, codeChecked, episodePrice, seriesPrice,
         } = jsonObjectData;
         return this.setState({
           loading: false,
@@ -146,15 +153,18 @@ class EpisodeList extends React.Component {
           episodeWatchedCount,
           deviceId,
           codeChecked,
+          platform,
+          episodePrice,
+          seriesPrice,
         });
       }
       const { uid, email } = this.props.screenProps.user;
-      this.requestPermissions();
+      this.requestPermissions(platform);
       firebase.database().ref(`userDatas/${uid}`).on('value', (snap) => {
         firebase.database().ref(`episodeWatchedCount/${deviceId}`).on('value', (snapWatchCount) => {
           firebase.database().ref('series').on('value', (snapshot) => {
             firebase.database().ref('episodes').on('value', (snapEpisode) => {
-              firebase.database().ref('exercises').on('value', (snapExercises) => {
+              firebase.database().ref('exercises').on('value', async (snapExercises) => {
                 // firebase.database().ref(`purchases/${this.props.screenProps.user.uid}`).on('value', (snapPurchases) => {
                 const completeEpisodes = snapEpisode.val();
                 const completeExercises = snapExercises.val();
@@ -178,11 +188,29 @@ class EpisodeList extends React.Component {
                     codeChecked = true;
                   }
                 }
-                // const series = Object.values(snapshot.val());
+
                 // const sortedSeries = series.sort((a, b) => parseInt(a.position, 10) - parseInt(b.position, 10));
                 const purchasedSeries = Object.entries(loggedPurchases).map(([key, value], i) => {
                   return value.seriesId;
                 });
+
+                const series = Object.values(snapshot.val());
+                const seriesPurchaseId = platform === 'android'
+                  ? (
+                    codeChecked ? series[0].reducedGoogleId : series[0].googleID
+                  )
+                  : (
+                    codeChecked ? series[0].reducedIosId : series[0].iosID
+                  )
+                const episodePurchaseId = platform === 'android'
+                        ? Object.values(completeEpisodes)[0].googleID
+                        : Object.values(completeEpisodes)[0].iosID
+                 await RNIap.clearProducts();
+                 const product = await RNIap.getProducts([episodePurchaseId, seriesPurchaseId]);
+                 await RNIap.clearProducts();
+                 const episodePrice = product[0].localizedPrice;
+                 const seriesPrice = product[1].localizedPrice;
+                console.log(episodePurchaseId, seriesPurchaseId);
                 this.setState({
                   series: snapshot.val(),
                   episodeWatchedCount,
@@ -195,6 +223,9 @@ class EpisodeList extends React.Component {
                   deviceId,
                   userDatas: snap.val(),
                   codeChecked,
+                  platform,
+                  episodePrice,
+                  seriesPrice,
                 });
                 AsyncStorage.setItem('series', JSON.stringify({
                   uid,
@@ -206,6 +237,8 @@ class EpisodeList extends React.Component {
                   lastPlayedEpisode: loggedLastPlayedEpisode,
                   completedEpisodesArray: Object.values(loggedEpisodeCompletedArray),
                   completeEpisodes,
+                  episodePrice,
+                  seriesPrice,
                 }));
                 // });
               });
@@ -346,7 +379,7 @@ class EpisodeList extends React.Component {
     return length;
   }
 
-  getEpisodeCount = (episodeIndex, seriesIndex, id) => {
+  getEpisodeCount = (episodeIndex, id) => {
     const { purchasedSeries, episodeWatchedCount } = this.state;
     const buy = seriesBought ? true : purchasedSeries.includes(id);
     let counter = 0;
@@ -372,14 +405,12 @@ class EpisodeList extends React.Component {
     });
   }
 
-  requestPermissions = async () => {
+  requestPermissions = async (platform) => {
     try {
-      if (Platform.OS === 'android') {
+      if (platform === 'android') {
         await PermissionsAndroid.requestMultiple([
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
         ]);
         GoogleFit.isEnabled((error, isEnabled) => {
           console.log(isEnabled);
@@ -420,6 +451,7 @@ class EpisodeList extends React.Component {
   }
 
   sendDataToServer = (uid, purchaseId, transactionReceipt) => {
+    // ${this.props.screenProps.user.uid}
     firebase.database().ref(`userDatas/${this.props.screenProps.user.uid}/purchases`).push({
       inAppPurchaseId: purchaseId,
       seriesId: uid,
@@ -427,17 +459,18 @@ class EpisodeList extends React.Component {
       transactionReceipt,
     })
       .then(async () => {
-        this.setState({ showModal: true, modalText: 'Item purchased successfully', showLoading: false });
         await RNIap.finishTransaction();
         await RNIap.consumeAllItems();
+        await RNIap.clearProducts();
         await RNIap.endConnection();
+        this.setState({ showModal: true, modalText: 'Item purchased successfully', showLoading: false });
       })
       .catch(err => this.setState({ showModal: true, modalText: err.message, showLoading: false }));
   }
 
   buyItem = async (uid, purchaseId) => {
     this.setState({ showLoading: true });
-    // this.sendDataToServer(uid, purchaseId, 'fasdfsdf');
+    // this.sendDataToServer(uid, purchaseId, 'fasdfsdf', 0);
     try {
       await RNIap.clearTransaction();
       await RNIap.clearProducts();
@@ -452,8 +485,9 @@ class EpisodeList extends React.Component {
         this.sendDataToServer(uid, purchaseId, transactionReceipt);
       }
     } catch (err) {
-      this.setState({ showModal: true, modalText: err.message, showLoading: false });
+      await RNIap.clearProducts();
       await RNIap.endConnection();
+      this.setState({ showModal: true, modalText: err.message, showLoading: false });
     }
   }
 
@@ -536,7 +570,8 @@ class EpisodeList extends React.Component {
     const {
       series, purchasedSeries, completeEpisodes, filesList,
       completedEpisodesArray, lastPlayedEpisode, deviceId,
-      episodeWatchedCount, index, downloadActive, completeExercises, codeChecked,
+      episodeWatchedCount, index, downloadActive, completeExercises,
+      codeChecked, episodePrice, seriesPrice, platform,
     } = this.state;
     const { netInfo, connectionType } = this.props.screenProps;
     // const counterArray = [];
@@ -600,7 +635,7 @@ class EpisodeList extends React.Component {
                 !buy
                   ? (
                       <Button
-                        title={(episodeIndex === 0) && (counter < 2) ? '  TRY  ' : `£${price}`}
+                        title={(episodeIndex === 0) && (counter < 2) ? '  TRY  ' : `${episodePrice}`}
                         fontSize={moderateScale(12)}
                         buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                         onPress={() => {
@@ -632,7 +667,7 @@ class EpisodeList extends React.Component {
                               completed,
                             );
                           }
-                          const purchaseId = Platform.OS === 'android' ? googleID : iosID;
+                          const purchaseId = platform === 'android' ? googleID : iosID;
                           this.buyItem(uid, purchaseId);
                         }
                       }
@@ -759,7 +794,7 @@ class EpisodeList extends React.Component {
                     />)
                   : (
                     <Button
-                      title={codeChecked ? `    £${value.reducedPrice}    ` : `    £${value.price}    `}
+                      title={`    ${seriesPrice}    `}
                       fontSize={moderateScale(12)}
                       buttonStyle={[styles.purchaseButtonStyle, { backgroundColor: 'green' }]}
                       onPress={() => {
@@ -767,7 +802,7 @@ class EpisodeList extends React.Component {
                         if (!netInfo) {
                           return this.setState({ showModal: true, modalText: 'Please check your internet connection' });
                         }
-                        const purchaseId = Platform.OS === 'android'
+                        const purchaseId = platform === 'android'
                           ? (
                             codeChecked ? reducedGoogleId : googleID
                           )
@@ -872,7 +907,7 @@ class EpisodeList extends React.Component {
                   ? this.getTitleAndId(0, 0).seriesKey
                   : this.getTitleAndId(seriesIndex, 0).seriesKey;
                 
-                const counter = this.getEpisodeCount(epIndex, serIndex, id);
+                const counter = this.getEpisodeCount(epIndex, id);
                 if (counter === 2) {
                   return this.setState({ showModal: true, modalText: 'Item not purchased' });
                 }

@@ -64,20 +64,32 @@ export default class TalonScreen extends React.Component {
     loading: true,
     lastIntel: '',
     showTalon: false,
-    isConnected: true,
     showModal: false,
     modalTitle: '',
     description: '',
+    buttonText: '',
+    secondButtonText: '',
     lastPlayedEpisode: '',
     series: '',
     playedIntelArray: [],
     distanceUnit: false,
+    userAvailable: true,
   };
 
   componentDidMount = async () => {
-    const { netInfo } = this.props.screenProps;
-    console.log(netInfo);
-    this.setState({ isConnected: netInfo });
+    const { netInfo, user } = this.props.screenProps;
+    console.log(user);
+    if (user === undefined) {
+      return this.setState({
+        userAvailable: false,
+        loading: false,
+        modalTitle: 'Account Required',
+        description: `TALON hosts the tracking and unlocked intel you earn by completing episodes.\n\nTo access these functionalities, please create an account. It’s really easy!`,
+        buttonText: 'Log In',
+        secondButtonText: 'Cancel',
+        showModal: true
+      });
+    }
     if (!netInfo) {
       const offlineData = await AsyncStorage.getItem('talonLogs');
       const jsonObjectData = JSON.parse(offlineData);
@@ -240,7 +252,7 @@ export default class TalonScreen extends React.Component {
   }
 
   navigateToTalonIntelPlayer = (episodeId, lastPlayBar, workOutCompleted) => {
-    const { playedIntelArray, isConnected, lastPlayedEpisode } = this.state;
+    const { playedIntelArray, lastPlayedEpisode } = this.state;
     const { netInfo } = this.props.screenProps;
     if (!netInfo) {
       return this.setState({ modalTitle: 'Please check your internet connection', description: '', showModal: true });
@@ -290,7 +302,9 @@ export default class TalonScreen extends React.Component {
     // }
 
     const {
-      series, lastPlayedEpisode, talonLogs, playedIntelArray, isConnected, loading, showModal, modalTitle, description,
+      series, lastPlayedEpisode, talonLogs, playedIntelArray, loading,
+      showModal, modalTitle, description,
+      buttonText, secondButtonText, userAvailable,
     } = this.state;
     const { netInfo } = this.props.screenProps;
     let talonKeyArray = [];
@@ -376,14 +390,31 @@ export default class TalonScreen extends React.Component {
         });
       return episodesList;
     });
+    if (loading) return <LoadScreen />;
     return (
       <View style={styles.mainContainer}>
         <StatusBar
           backgroundColor="#00000b"
         />
         {!netInfo ? <OfflineMsg /> : null}
-        {loading
-          ? <LoadScreen />
+        {!userAvailable
+          ? (
+            <ShowModal
+                visible={showModal}
+                title={modalTitle}
+                description={description}
+                buttonText={buttonText}
+                secondButtonText={secondButtonText}
+                askAdvance
+                onPress={() => {
+                  this.setState({ showModal: false });
+                    this.props.navigation.navigate('LoginSignup');
+                }}
+                onSecondButtonPress={() => {
+                  this.setState({ showModal: false })
+                }}
+              />
+          )
           : (
             <ScrollView>
               <Image
@@ -460,8 +491,7 @@ export default class TalonScreen extends React.Component {
               />
               {episodes}
             </ScrollView>
-          )
-        }
+          )}
       </View>
     );
   }
